@@ -1,5 +1,24 @@
 /** biome-ignore-all lint/suspicious/noUnknownAtRules: explanation */
 @import "tailwindcss";
+@import "@phosphor-icons/web/light";
+@import "@phosphor-icons/web/bold";
+@import "@phosphor-icons/web/duotone";
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('fonts/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: italic;
+}
 
 @font-face {
   font-family: 'Inter';
@@ -18,9 +37,60 @@
 }
 
 /* :root {
-  font-family: Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
-
+  font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
 } */
+
+/* icons.css */
+
+/* Plus icon */
+.icon-plus::before {
+  content: "+";
+  display: inline-block;
+  font-weight: bold;
+  color: black;
+}
+
+.icon-plus:hover::before {
+  color: #3b82f6;
+  /* Tailwind blue-500 */
+}
+
+/* Minus icon */
+.icon-minus::before {
+  content: "−";
+  display: inline-block;
+  font-weight: bold;
+  color: black;
+}
+
+.icon-minus:hover::before {
+  color: #ef4444;
+  /* Tailwind red-500 */
+}
+
+/* Bullet */
+.icon-bullet::before {
+  content: "•";
+  display: inline-block;
+  color: black;
+}
+
+.icon-bullet:hover::before {
+  color: #22c55e;
+  /* Tailwind green-500 */
+}
+
+/* Bullet in circle */
+.icon-circle::before {
+  content: "◉";
+  display: inline-block;
+  color: black;
+}
+
+.icon-circle:hover::before {
+  color: #a855f7;
+  /* Tailwind purple-500 */
+}
 
 
 @layer base {
