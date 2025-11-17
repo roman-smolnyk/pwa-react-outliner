@@ -1,94 +1,25 @@
-import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
-import { useStore } from "./store";
-import type { DocumentWithNodesDataType, OutlinerStructureDataType } from "./types";
+// import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
+// useRef, useState
+import { memo, useEffect, useRef } from "react";
+import { useStore } from "./stateStore";
+
+// import { documentSample, outlinerStructureSample } from "./mockupData";
+
+import { printDOM } from "./utils";
 
 import { TreeRoAPI } from "./api";
 
-const documentSample: DocumentWithNodesDataType = {
-  document_id: "c61d23a0-58ba-485e-a090-f418c578f95e", // crypto.randomUUID()
-  root_node_id: "ce929a96-d6ce-4343-957d-6fbd49555273",
-  nodes: [
-    {
-      node_id: "ce929a96-d6ce-4343-957d-6fbd49555273",
-      content: "# Title",
-      collapsed: false,
-      created: Date.now(),
-      modified: Date.now(),
-      children: ["1f13b621-55ac-43f6-8b00-4749b4a192cf", "857fa9b9-989e-475d-8830-ebadd721304a"],
-    },
-    {
-      node_id: "1f13b621-55ac-43f6-8b00-4749b4a192cf",
-      content: "**Zebra**",
-      collapsed: false,
-      created: Date.now(),
-      modified: Date.now(),
-      children: ["2fc4bbbb-0a5c-4f80-8eed-b9e7d337570c"],
-    },
-    {
-      node_id: "857fa9b9-989e-475d-8830-ebadd721304a",
-      content: "```js\nx = 12;\n```",
-      collapsed: false,
-      created: Date.now(),
-      modified: Date.now(),
-      children: [],
-    },
-    {
-      node_id: "2fc4bbbb-0a5c-4f80-8eed-b9e7d337570c",
-      content: "Nested node",
-      collapsed: false,
-      created: Date.now(),
-      modified: Date.now(),
-      children: [],
-    },
-  ],
-};
+import Markdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-const outlinerStructureSample: OutlinerStructureDataType = {
-  current_document_id: "c61d23a0-58ba-485e-a090-f418c578f95e",
-  root_group_id: "6483444f-71cb-4027-a9a1-065264369987",
-  groups: [
-    {
-      group_id: "6483444f-71cb-4027-a9a1-065264369987",
-      name: "Untitled",
-      collapsed: false,
-      children: ["c61d23a0-58ba-485e-a090-f418c578f95e"],
-    },
-  ],
-  documents: [documentSample],
-};
-
-function getPlainTextWithNewlines(element: HTMLElement): string {
-  const BLOCK_TAGS = new Set(["DIV", "P", "LI", "SECTION", "ARTICLE", "HEADER", "FOOTER", "H1", "H2", "H3", "H4", "H5", "H6"]);
-  let text = "";
-  element.childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      text += node.textContent;
-    } else if (node.nodeType === Node.ELEMENT_NODE && BLOCK_TAGS.has(node.nodeName)) {
-      text += getPlainTextWithNewlines(node as HTMLElement) + "\n";
-    } else if (node.nodeType === Node.ELEMENT_NODE && node.nodeName === "BR") {
-      text += "\n";
-    }
-  });
-  return text;
-}
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 function NodeComponent({ nodeId }: { nodeId: string }) {
   const logPrefix = `NodeComponent [${nodeId}]`;
   console.debug(logPrefix);
-  // const ref = useRef<HTMLTextAreaElement>(null);
-  // const [content, setContent] = useState(node.content);
-  // const [collapsed, setCollapsed] = useState(node.collapsed);
-  // const [html, setHtml] = useState(node.html || "");
-
-  // useEffect(() => {
-  //   if (visible && !node.html) {
-  //     const rendered = marked(node.content);
-  //     node.html = rendered; // cache in the data object
-  //     setHtml(rendered);
-  //   }
-  // }, [visible, node]);
+  const ref = useRef<HTMLDivElement>(null);
 
   // zustand subscribe
   const node = useStore((state) => {
@@ -100,7 +31,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
   const childNodes = TreeRoAPI.getNodeChildren(node.node_id);
 
   return (
-    <div className={`Node-outer`} data-id={node.node_id}>
+    <div ref={ref} className={`Node-outer`} data-id={node.node_id}>
       <div className="Node-inner">
         <div className="Node-self flex items-start">
           <button
@@ -138,14 +69,9 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
             )}
           </button>
           <div className="NodeContent-container flex-grow ml-2">
-            {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
+            {/** biome-ignore lint/a11y/noStaticElementInteractions: explanation */}
             <div
-              className="NodeContent-edit
-                       select-text outline-none whitespace-pre-wrap break-words cursor-text"
-              style={{
-                textDecorationSkipInk: "none",
-                textRendering: "optimizeLegibility",
-              }}
+              className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
               contentEditable
               suppressContentEditableWarning
               tabIndex={-1}
@@ -163,6 +89,17 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                 // Move caret to end of inserted text
                 selection.collapseToEnd();
               }}
+              onInput={(e) => {
+                console.debug(`${logPrefix} -> onInput`, e);
+                const el = ref.current?.querySelector(".NodeContent-edit");
+                console.debug(`${logPrefix} -> NodeContent-edit`, el);
+                if (el) printDOM(el as HTMLElement);
+
+                // Remove <br> that browser insearts in empty contenteditable
+                if (el?.innerHTML === "<br>") {
+                  el.innerHTML = "";
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.ctrlKey) {
                   console.debug(`${logPrefix} -> onKeyDown`, e);
@@ -171,11 +108,30 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                   // TreeRoAPI.addNode()
                   // // Call your API to create a new sibling node
                   // TreeRoAPI.createSiblingNode(node.node_id);
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  const selection = window.getSelection();
+                  if (!selection?.rangeCount) return;
+                  const range = selection.getRangeAt(0);
+                  // Delete any selected text
+                  range.deleteContents();
+                  // create new text node
+                  const newlineNode = document.createTextNode("\n");
+                  // Insert the newline at the caret
+                  range.insertNode(newlineNode);
+                  // Move caret to end of inserted text
+                  // Move caret after the newline
+                  range.setStartAfter(newlineNode);
+                  range.setEndAfter(newlineNode);
+                  // Collapse selection to caret
+                  selection.removeAllRanges();
+                  selection.addRange(range);
                 }
               }}
               onBlur={(e) => {
                 console.debug(`${logPrefix} -> onBlur`, e);
-                const newContent = getPlainTextWithNewlines(e.currentTarget);
+                // const newContent = getPlainTextWithNewlines(e.currentTarget);
+                const newContent = e.currentTarget.textContent || "";
                 // const newContent = e.currentTarget.textContent ?? "";
                 console.debug(`${logPrefix} -> onBlur`, newContent);
                 if (newContent !== node.content) {
@@ -185,6 +141,32 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
             >
               {node.content}
             </div>
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                code(props) {
+                  const { children, className, node, ...rest } = props;
+                  console.info("node", node);
+                  console.info("className", className);
+                  console.info("children", children);
+                  console.info("rest", rest);
+
+                  const match = /language-(\w+)/.exec(className || "");
+                  return match ? (
+                    <SyntaxHighlighter PreTag="div" language={match[1]}>
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code {...rest} className={className}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {node.content}
+            </Markdown>
           </div>
           <button className="Node-options ml-1" type="button">
             {/* <span>⋮</span> */}
@@ -204,13 +186,14 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
 const MemoizedNodeComponent = memo(NodeComponent);
 
 export default function DocumentComponent() {
+  const logPrefix = `DocumentComponent`;
+
   useEffect(() => {
-    TreeRoAPI.updateStateFromStructure(outlinerStructureSample);
-    TreeRoAPI.updateStateFromDoc(documentSample);
+    TreeRoAPI.loadInitialData();
   }, []);
 
+  const stateIsInitialized = useStore((state) => state.stateIsInitialized);
   const currentDocId = useStore((state) => state.currentDocId);
-  console.debug("DocumentComponent", currentDocId);
 
   const rootNode = useStore((state) => {
     if (!state.currentDocId) return null;
@@ -218,6 +201,9 @@ export default function DocumentComponent() {
     if (!rootNodeId) return null;
     return state.nodes.get(rootNodeId);
   });
+
+  console.debug(`${logPrefix} -> meta`, stateIsInitialized, currentDocId);
+  console.debug(`${logPrefix} -> rootNode`, rootNode);
 
   if (!rootNode) return null;
 
@@ -235,8 +221,12 @@ export default function DocumentComponent() {
       </h1> */}
       <div className="Document mx-2 sm:mx-8 md:mx-16 lg:mx-32 xl:mx-64" data-id={currentDocId}>
         <div className="RootNode-self">
+          {/* text-2xl font-bold */}
           <div className="RootNode flex items-start">
-            <h1 className="RootNodeContent">{rootNode.content}</h1>
+            {/* <h1 className="RootNodeContent">{rootNode.content}</h1> */}
+            <div contentEditable suppressContentEditableWarning>
+              {rootNode.content}
+            </div>
           </div>
           <div className="RootNodeChildren">
             {childNodes.map((childNode) => (

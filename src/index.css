@@ -36,61 +36,25 @@
   font-display: swap;
 }
 
+.NodeContent-edit {
+  @apply select-text outline-none whitespace-pre-wrap break-words cursor-text;
+  text-decoration-skip-ink: none;
+  text-rendering: optimizeLegibility;
+
+}
+
+/* 
+Add pseudo element(newline) to the contenteditable to prevent trailing newline from collapsing
+Dynalist uses actual newline in the note text to achive the same result
+*/
+.trailing-nl:after {
+  content: "\A";
+  white-space: pre;
+}
+
 /* :root {
   font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
 } */
-
-/* icons.css */
-
-/* Plus icon */
-.icon-plus::before {
-  content: "+";
-  display: inline-block;
-  font-weight: bold;
-  color: black;
-}
-
-.icon-plus:hover::before {
-  color: #3b82f6;
-  /* Tailwind blue-500 */
-}
-
-/* Minus icon */
-.icon-minus::before {
-  content: "−";
-  display: inline-block;
-  font-weight: bold;
-  color: black;
-}
-
-.icon-minus:hover::before {
-  color: #ef4444;
-  /* Tailwind red-500 */
-}
-
-/* Bullet */
-.icon-bullet::before {
-  content: "•";
-  display: inline-block;
-  color: black;
-}
-
-.icon-bullet:hover::before {
-  color: #22c55e;
-  /* Tailwind green-500 */
-}
-
-/* Bullet in circle */
-.icon-circle::before {
-  content: "◉";
-  display: inline-block;
-  color: black;
-}
-
-.icon-circle:hover::before {
-  color: #a855f7;
-  /* Tailwind purple-500 */
-}
 
 
 @layer base {

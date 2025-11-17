@@ -3,18 +3,23 @@ import { create } from "zustand";
 import type { NodeDataType, zustandUseStoreType, GroupDataType, DocumentDataType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
+  stateIsInitialized: false,
   currentDocId: "",
   rootGroupId: "",
   groups: new Map(),
   documents: new Map(),
   nodes: new Map(),
 
-  addGroup: (parentGroupId, group) => {
+  insertGroup: (group, parentGroupId, index = -1) => {
     set((state) => {
       if (state.groups.has(group.group_id)) return state;
       const parent = state.groups.get(parentGroupId);
       if (!parent) return state;
-      parent.children.push(group.group_id);
+      if (index === -1 || index >= parent.children.length) {
+        parent.children.push(group.group_id);
+      } else {
+        parent.children.splice(index, 0, group.group_id);
+      }
       state.groups.set(group.group_id, group);
       return { groups: new Map(state.groups) };
     });
@@ -79,7 +84,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     return doc ? doc.root_node_id : null;
   },
 
-  addDocument: (parentGroupId, document, index) => {
+  insertDocument: (document, parentGroupId, index = -1) => {
     set((state) => {
       if (state.documents.has(document.document_id)) return state;
       const parent = state.groups.get(parentGroupId);
@@ -151,7 +156,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     });
   },
 
-  addNode: (parentNodeId, node, index = -1) => {
+  insertNode: (node, parentNodeId, index = -1) => {
     set((state) => {
       if (state.nodes.has(node.node_id)) return state;
       const parent = state.nodes.get(parentNodeId);
@@ -161,6 +166,31 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       } else {
         parent.children.splice(index, 0, node.node_id);
       }
+      state.nodes.set(node.node_id, node);
+      return { nodes: new Map(state.nodes) };
+    });
+  },
+  insertNodeAfter: (node, siblingNodeId) => {
+    set((state) => {
+      if (state.nodes.has(node.node_id)) return state;
+      // Find parent of sibling
+      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
+      if (!parent) return state;
+      const idx = parent.children.indexOf(siblingNodeId);
+      parent.children.splice(idx + 1, 0, node.node_id);
+      state.nodes.set(node.node_id, node);
+      return { nodes: new Map(state.nodes) };
+    });
+  },
+
+  insertNodeBefore: (node, siblingNodeId) => {
+    set((state) => {
+      if (state.nodes.has(node.node_id)) return state;
+      // Find parent of sibling
+      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
+      if (!parent) return state;
+      const idx = parent.children.indexOf(siblingNodeId);
+      parent.children.splice(idx, 0, node.node_id);
       state.nodes.set(node.node_id, node);
       return { nodes: new Map(state.nodes) };
     });
@@ -202,6 +232,36 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       } else {
         parent.children.splice(index, 0, nodeId);
       }
+      return { nodes: new Map(state.nodes) };
+    });
+  },
+
+  moveNodeAfter: (nodeId, siblingNodeId) => {
+    set((state) => {
+      // Remove nodeId from any parent's children
+      for (const n of state.nodes.values()) {
+        n.children = n.children.filter((id) => id !== nodeId);
+      }
+      // Find parent of sibling
+      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
+      if (!parent) return state;
+      const idx = parent.children.indexOf(siblingNodeId);
+      parent.children.splice(idx + 1, 0, nodeId);
+      return { nodes: new Map(state.nodes) };
+    });
+  },
+
+  moveNodeBefore: (nodeId, siblingNodeId) => {
+    set((state) => {
+      // Remove nodeId from any parent's children
+      for (const n of state.nodes.values()) {
+        n.children = n.children.filter((id) => id !== nodeId);
+      }
+      // Find parent of sibling
+      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
+      if (!parent) return state;
+      const idx = parent.children.indexOf(siblingNodeId);
+      parent.children.splice(idx, 0, nodeId);
       return { nodes: new Map(state.nodes) };
     });
   },
