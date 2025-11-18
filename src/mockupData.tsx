@@ -1,4 +1,35 @@
-import type { DocumentWithNodesDataType, OutlinerStructureDataType } from "./types";
+import type { DocumentDataType, NodeDataType, GroupDataType } from "./types";
+
+export const mockupGroup: GroupDataType = {
+  group_id: "34b9de07-df5a-4bca-a153-2c0fd20cee04",
+  name: "Root Group",
+  collapsed: false,
+  children: ["5936885c-7d05-47e2-8f65-f26c0060e431"],
+};
+
+export const mockupDocument: DocumentDataType = {
+  document_id: "5936885c-7d05-47e2-8f65-f26c0060e431",
+  root_node_id: "a7f6a4e2-1ddc-4e6b-bbb9-b807024da38c",
+};
+
+export const mockupNodes: NodeDataType[] = [
+  {
+    node_id: "a7f6a4e2-1ddc-4e6b-bbb9-b807024da38c",
+    content: "Root Node/Doc Title",
+    collapsed: false,
+    created: Date.now(),
+    modified: Date.now(),
+    children: ["c59226f8-80a2-4f89-b159-cd14489aff20"],
+  },
+  {
+    node_id: "c59226f8-80a2-4f89-b159-cd14489aff20",
+    content: "```js\nx = 12```",
+    collapsed: false,
+    created: Date.now(),
+    modified: Date.now(),
+    children: [],
+  },
+];
 
 // export const documentSample: DocumentWithNodesDataType = {
 //   document_id: "c61d23a0-58ba-485e-a090-f418c578f95e", // crypto.randomUUID()

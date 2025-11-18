@@ -36,11 +36,9 @@
   font-display: swap;
 }
 
-.NodeContent-edit {
-  @apply select-text outline-none whitespace-pre-wrap break-words cursor-text;
-  text-decoration-skip-ink: none;
-  text-rendering: optimizeLegibility;
 
+:root {
+  font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
 }
 
 /* 
@@ -48,13 +46,57 @@ Add pseudo element(newline) to the contenteditable to prevent trailing newline f
 Dynalist uses actual newline in the note text to achive the same result
 */
 .trailing-nl:after {
+  /* biome-ignore lint/suspicious/noUselessEscapeInString: explanation */
   content: "\A";
   white-space: pre;
 }
 
-/* :root {
-  font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
-} */
+.Node-self {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+
+
+.Node-bullet,
+.Node-options {
+  flex: 0 0 auto;
+  /* fixed width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.NodeContent-container {
+  flex: 1 1 auto;
+  /* flexible center */
+  min-width: 0;
+  /* critical: allows child to shrink and wrap */
+}
+
+.NodeContent-edit {
+  @apply select-text outline-none whitespace-pre-wrap break-words cursor-text;
+
+  text-decoration-skip-ink: none;
+  text-rendering: optimizeLegibility;
+
+}
+
+.NodeContent-render {
+  @apply min-h-[1.5em];
+}
+
+.NodeContent-render code {
+  /* max-width: 100% !important; */
+  /* max-width: 500px !important; */
+  /* white-space: pre-wrap !important; */
+  /* WRAPS long lines */
+  /* word-break: break-word !important; */
+  /* overflow-x: auto !important; */
+  /* allow scroll instead of breaking layout */
+  /* box-sizing: border-box !important; */
+}
 
 
 @layer base {

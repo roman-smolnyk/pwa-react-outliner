@@ -10,6 +10,18 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   documents: new Map(),
   nodes: new Map(),
 
+  clearStoreState: () => {
+    // * Verified
+    set({
+      stateIsInitialized: false,
+      currentDocId: "",
+      rootGroupId: "",
+      groups: new Map(),
+      documents: new Map(),
+      nodes: new Map(),
+    });
+  },
+
   insertGroup: (group, parentGroupId, index = -1) => {
     set((state) => {
       if (state.groups.has(group.group_id)) return state;
@@ -157,52 +169,66 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   insertNode: (node, parentNodeId, index = -1) => {
+    // * Verified
+    const updatedNodes: NodeDataType[] = [];
     set((state) => {
       if (state.nodes.has(node.node_id)) return state;
-      const parent = state.nodes.get(parentNodeId);
-      if (!parent) return state;
-      if (index === -1 || index >= parent.children.length) {
-        parent.children.push(node.node_id);
+      const parentNode = state.nodes.get(parentNodeId);
+      if (!parentNode) return state;
+
+      const newChildren = [...parentNode.children];
+      if (index === -1 || index >= parentNode.children.length) {
+        newChildren.push(node.node_id);
       } else {
-        parent.children.splice(index, 0, node.node_id);
+        newChildren.splice(index, 0, node.node_id);
       }
-      state.nodes.set(node.node_id, node);
-      return { nodes: new Map(state.nodes) };
+
+      const newNodes = new Map(state.nodes);
+      newNodes.set(node.node_id, node);
+      newNodes.set(parentNode.node_id, { ...parentNode, children: newChildren });
+      updatedNodes.push(node, parentNode);
+      return { nodes: newNodes };
     });
-  },
-  insertNodeAfter: (node, siblingNodeId) => {
-    set((state) => {
-      if (state.nodes.has(node.node_id)) return state;
-      // Find parent of sibling
-      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
-      if (!parent) return state;
-      const idx = parent.children.indexOf(siblingNodeId);
-      parent.children.splice(idx + 1, 0, node.node_id);
-      state.nodes.set(node.node_id, node);
-      return { nodes: new Map(state.nodes) };
-    });
+    return updatedNodes;
   },
 
-  insertNodeBefore: (node, siblingNodeId) => {
+  insertNodeRelativeTo: (node, relNodeId, offset = 1) => {
+    // * Verified
+    // TODO: add offset validations
+    const updatedNodes: NodeDataType[] = [];
     set((state) => {
       if (state.nodes.has(node.node_id)) return state;
-      // Find parent of sibling
-      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
-      if (!parent) return state;
-      const idx = parent.children.indexOf(siblingNodeId);
-      parent.children.splice(idx, 0, node.node_id);
-      state.nodes.set(node.node_id, node);
-      return { nodes: new Map(state.nodes) };
+      const parentNode = state.getNodeParent(relNodeId);
+      if (!parentNode) return state;
+      // Get index of the destination node
+      const idx = parentNode.children.indexOf(relNodeId);
+      if (idx === -1) return state;
+      // Insert node as sibling of destination node
+      // newParent.children;
+      const newParentChildren = [...parentNode.children];
+      newParentChildren.splice(idx + offset, 0, node.node_id);
+      // Remove node from old parent
+      const newNodes = new Map(state.nodes);
+      newNodes.set(node.node_id, node);
+      const updatedParentNode = { ...parentNode, children: newParentChildren };
+      newNodes.set(updatedParentNode.node_id, updatedParentNode);
+      updatedNodes.push(node, updatedParentNode);
+      return { nodes: newNodes };
     });
+    return updatedNodes;
   },
 
   updateNode: (nodeId, newNodeData) => {
+    // * Verified
+    let updatedNode = null;
     set((state) => {
       const node = state.nodes.get(nodeId);
       if (!node) return state;
-      state.nodes.set(nodeId, { ...node, ...newNodeData });
+      updatedNode = { ...node, ...newNodeData };
+      state.nodes.set(nodeId, updatedNode);
       return { nodes: new Map(state.nodes) };
     });
+    return updatedNode;
   },
 
   getNodeChildren: (nodeId) => {
@@ -213,6 +239,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   getNodeParent: (nodeId) => {
+    // * Verified
     const state = get();
     for (const node of state.nodes.values()) {
       if (node.children.includes(nodeId)) return node;
@@ -220,65 +247,121 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     return null;
   },
 
+  getNodeSibling: (nodeId, offset) => {
+    // * Verified
+    if (offset === 0) return null;
+    const state = get();
+    if (!state.nodes.has(nodeId)) return null;
+    const parentNode = state.getNodeParent(nodeId);
+    if (!parentNode) return null;
+    const idx = parentNode.children.indexOf(nodeId);
+    if (idx === -1) return null;
+    const siblingNodeId = parentNode.children[idx + offset];
+    if (!siblingNodeId) return null;
+    return state.nodes.get(siblingNodeId) || null;
+  },
+
+  getNodeIndex: (nodeId) => {
+    // * Verified
+    const state = get();
+    const nodeParent = state.getNodeParent(nodeId);
+    if (!nodeParent) return null;
+    return nodeParent.children.indexOf(nodeId);
+  },
+
   moveNode: (nodeId, parentNodeId, index = -1) => {
+    // * Working
+    const updatedNodes: NodeDataType[] = [];
     set((state) => {
-      for (const n of state.nodes.values()) {
-        n.children = n.children.filter((id) => id !== nodeId);
-      }
-      const parent = state.nodes.get(parentNodeId);
-      if (!parent) return state;
-      if (index === -1 || index >= parent.children.length) {
-        parent.children.push(nodeId);
+      if (!state.nodes.get(nodeId)) return state;
+      const oldParent = state.getNodeParent(nodeId);
+      if (!oldParent) return state;
+      const newParent = state.nodes.get(parentNodeId);
+      if (!newParent) return state;
+
+      // Remove node from old parent
+      const oldParentChildren = oldParent.children.filter((id) => id !== nodeId);
+      // Insert node as child of new parent
+      const newParentChildren = [...newParent.children];
+      if (index === -1 || index >= newParentChildren.length) {
+        newParentChildren.push(nodeId);
       } else {
-        parent.children.splice(index, 0, nodeId);
+        newParentChildren.splice(index, 0, nodeId);
       }
-      return { nodes: new Map(state.nodes) };
+
+      const newNodes = new Map(state.nodes);
+      const updatedOldParent = { ...oldParent, children: oldParentChildren };
+      const updatedNewParent = { ...newParent, children: newParentChildren };
+      newNodes.set(oldParent.node_id, updatedOldParent);
+      newNodes.set(newParent.node_id, updatedNewParent);
+      updatedNodes.push(updatedOldParent, updatedNewParent);
+      return { nodes: newNodes };
     });
+    return updatedNodes;
   },
 
-  moveNodeAfter: (nodeId, siblingNodeId) => {
+  moveNodeRealtiveTo: (nodeId, relNodeId, offset) => {
+    // * Verified
+    // TODO: Add offset validations
+    const updatedNodes: NodeDataType[] = [];
     set((state) => {
-      // Remove nodeId from any parent's children
-      for (const n of state.nodes.values()) {
-        n.children = n.children.filter((id) => id !== nodeId);
-      }
-      // Find parent of sibling
-      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
-      if (!parent) return state;
-      const idx = parent.children.indexOf(siblingNodeId);
-      parent.children.splice(idx + 1, 0, nodeId);
-      return { nodes: new Map(state.nodes) };
-    });
-  },
+      if (offset === 0) return state;
+      if (!state.nodes.get(nodeId)) return state;
+      const oldParent = state.getNodeParent(nodeId);
+      if (!oldParent) return state;
+      const newParent = state.getNodeParent(relNodeId);
+      if (!newParent) return state;
+      // Get index of the relative node
+      const idx = newParent.children.indexOf(relNodeId);
+      if (idx === -1) return state;
 
-  moveNodeBefore: (nodeId, siblingNodeId) => {
-    set((state) => {
-      // Remove nodeId from any parent's children
-      for (const n of state.nodes.values()) {
-        n.children = n.children.filter((id) => id !== nodeId);
-      }
-      // Find parent of sibling
-      const parent = Array.from(state.nodes.values()).find((n) => n.children.includes(siblingNodeId));
-      if (!parent) return state;
-      const idx = parent.children.indexOf(siblingNodeId);
-      parent.children.splice(idx, 0, nodeId);
-      return { nodes: new Map(state.nodes) };
+      // Remove node from old parent
+      const oldParentChildren = oldParent.children.filter((id) => id !== nodeId);
+      // Insert node as sibling of relative node
+      const newParentChildren = [...newParent.children];
+      newParentChildren.splice(idx + offset, 0, nodeId);
+
+      const newNodes = new Map(state.nodes);
+      const updatedOldParent = { ...oldParent, children: oldParentChildren };
+      const updatedNewParent = { ...newParent, children: newParentChildren };
+      newNodes.set(oldParent.node_id, updatedOldParent);
+      newNodes.set(newParent.node_id, updatedNewParent);
+      updatedNodes.push(updatedOldParent, updatedNewParent);
+      return { nodes: newNodes };
     });
+
+    return updatedNodes;
   },
 
   deleteNode: (nodeId) => {
+    // * Verified
+    let updatedParentNode: NodeDataType | null = null;
+    const removedNodeIds: string[] = [];
     set((state) => {
       const node = state.nodes.get(nodeId);
       if (!node) return state;
-      node.children.forEach((id) => {
-        get().deleteNode(id);
-      });
-      state.nodes.delete(nodeId);
-      for (const n of state.nodes.values()) {
-        n.children = n.children.filter((id) => id !== nodeId);
+      const parentNode = state.getNodeParent(nodeId);
+      if (!parentNode) return state;
+      const newParentChildren = parentNode.children.filter((id) => id !== nodeId);
+      updatedParentNode = { ...parentNode, children: newParentChildren };
+      const newNodes = new Map(state.nodes);
+
+      function deleteRecursive(id: string) {
+        const n = state.nodes.get(id);
+        if (!n) return;
+        for (const childId of n.children) {
+          deleteRecursive(childId);
+        }
+        newNodes.delete(id);
+        removedNodeIds.push(id);
       }
-      return { nodes: new Map(state.nodes) };
+      deleteRecursive(nodeId);
+
+      newNodes.set(updatedParentNode.node_id, updatedParentNode);
+
+      return { nodes: newNodes };
     });
+    return [updatedParentNode, removedNodeIds];
   },
 
   queryNodesByText: (text, docId) => {
@@ -286,155 +369,4 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     const nodes = docId ? get().getDocumentNodes(docId) : Array.from(state.nodes.values());
     return nodes.filter((n) => n.content.includes(text));
   },
-
-  clearStore: () => {
-    set({
-      currentDocId: "",
-      rootGroupId: "",
-      groups: new Map(),
-      documents: new Map(),
-      nodes: new Map(),
-    });
-  },
 }));
-
-// getDocumentZ: (docId) => {
-//     const doc = get().documents.find((d) => d.document_id === docId);
-//     return doc || null;
-//   },
-//   getNodeZ: (docId: string, nodeId: string) => {
-//     const doc = get().getDocumentZ(docId);
-//     if (!doc) return null;
-//     return doc.nodes.find((n) => n.id === nodeId) || null;
-//   },
-//   getNodeChildrenZ: (docId: string, nodeId: string) => {
-//     const node = get().getNodeZ(docId, nodeId);
-//     if (!node) return [];
-//     const childNodes: NodeDataType[] = [];
-//     for (const childId of node.children) {
-//       const childNode = get().getNodeZ(docId, childId);
-//       if (childNode) childNodes.push(childNode);
-//     }
-//     return childNodes;
-//   },
-//   updateNodeZ: (docId, nodeId, newNodeData) => {
-//     set((state) => ({
-//       documents: state.documents.map((doc) =>
-//         doc.document_id === docId
-//           ? {
-//               ...doc,
-//               nodes: doc.nodes.map((node) => (node.id === nodeId ? { ...node, ...newNodeData } : node)),
-//             }
-//           : doc,
-//       ),
-//     }));
-//   },
-
-//   addNodeZ: (docId, parentNodeId, nodeData, index = -1) => {
-//     set((state) => {
-//       const doc = state.documents.find((d) => d.document_id === docId);
-//       if (!doc) return state;
-
-//       // Find parent node to determine correct index
-//       const parentNode = doc.nodes.find((n) => n.id === parentNodeId);
-//       const insertIndex = index === -1 && parentNode ? parentNode.children.length : index;
-
-//       // Insert new node's id into parent's children at index
-//       const newNodes = doc.nodes.map((node) =>
-//         node.id === parentNodeId
-//           ? {
-//               ...node,
-//               children: [...node.children.slice(0, insertIndex), nodeData.id, ...node.children.slice(insertIndex)],
-//             }
-//           : node,
-//       );
-
-//       newNodes.push(nodeData);
-
-//       return {
-//         documents: state.documents.map((d) => (d.document_id === docId ? { ...d, nodes: newNodes } : d)),
-//       };
-//     });
-//   },
-
-//   moveNodeZ: (srcDocId, srcNodeId, destDocId, destNodeId, index) => {
-//     set((state) => {
-//       let srcDoc = state.documents.find((d) => d.document_id === srcDocId);
-//       let destDoc = state.documents.find((d) => d.document_id === destDocId);
-//       if (!srcDoc || !destDoc) return state;
-
-//       // Find parent of srcNodeId
-//       let parentNodeId: string | null = null;
-//       for (const node of srcDoc.nodes) {
-//         if (node.children.includes(srcNodeId)) {
-//           parentNodeId = node.id;
-//           break;
-//         }
-//       }
-
-//       let newSrcNodes = srcDoc.nodes;
-//       if (parentNodeId) {
-//         newSrcNodes = newSrcNodes.map((node) => (node.id === parentNodeId ? { ...node, children: node.children.filter((id) => id !== srcNodeId) } : node));
-//       }
-
-//       // Find destination node to determine correct index
-//       const destNode = destDoc.nodes.find((n) => n.id === destNodeId);
-//       const insertIndex = index === -1 && destNode ? destNode.children.length : index;
-
-//       // Move node to destDoc/destNodeId at index
-//       let newDestNodes = destDoc.nodes.map((node) =>
-//         node.id === destNodeId
-//           ? {
-//               ...node,
-//               children: [...node.children.slice(0, insertIndex), srcNodeId, ...node.children.slice(insertIndex)],
-//             }
-//           : node,
-//       );
-
-//       // If moving across docs, move the node data as well
-//       if (srcDocId !== destDocId) {
-//         const movingNode = srcDoc.nodes.find((n) => n.id === srcNodeId);
-//         if (movingNode) {
-//           newDestNodes = [...newDestNodes, movingNode];
-//           newSrcNodes = newSrcNodes.filter((n) => n.id !== srcNodeId);
-//         }
-//       }
-
-//       return {
-//         documents: state.documents.map((d) => {
-//           if (d.document_id === srcDocId) return { ...d, nodes: newSrcNodes };
-//           if (d.document_id === destDocId) return { ...d, nodes: newDestNodes };
-//           return d;
-//         }),
-//       };
-//     });
-//   },
-//   // ! Recursive
-//   deleteNodeZ: (docId, nodeId) => {
-//     set((state) => {
-//       const doc = state.documents.find((d) => d.document_id === docId);
-//       if (!doc) return state;
-//       // Build a fast lookup map for all nodes
-//       const map = new Map(doc.nodes.map((n) => [n.id, n]));
-
-//       function collectDescendants(map: Map<string, NodeDataType>, nodeId: string): string[] {
-//         const node = map.get(nodeId);
-//         if (!node) return [];
-//         return node.children.flatMap((childId) => [childId, ...collectDescendants(map, childId)]);
-//       }
-
-//       // Collect all descendant IDs (recursive)
-//       const idsToDelete = [nodeId, ...collectDescendants(map, nodeId)];
-//       // Remove nodes that are in idsToDelete
-//       let newNodes = doc.nodes.filter((n) => !idsToDelete.includes(n.id));
-//       // Clean up children arrays in remaining nodes
-//       newNodes = newNodes.map((n) => ({
-//         ...n,
-//         children: n.children.filter((id) => !idsToDelete.includes(id)),
-//       }));
-
-//       return {
-//         documents: state.documents.map((d) => (d.document_id === docId ? { ...d, nodes: newNodes } : d)),
-//       };
-//     });
-//   },

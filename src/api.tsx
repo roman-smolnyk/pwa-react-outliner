@@ -1,48 +1,64 @@
+import { IDBApi } from "./db";
+import { mockupDocument, mockupGroup, mockupNodes } from "./mockupData";
 import { useStore } from "./stateStore";
-import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType, DocumentWithNodesDataType } from "./types";
-
-import { DB } from "./db";
+import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType } from "./types";
 
 export class DataNotLoadedError extends Error {}
 
 export const TreeRoAPI: TreeRoAPIType = {
   useStore: useStore, // expose to userscript
-  changesQueue: [],
+  IDBApi: IDBApi, // expose to userscript
+
   dataIsLoaded: false,
+  changesQueue: [],
 
   // Async method to load initial data
   async loadInitialData() {
     // await DB.resetDb();
-    let currentDocId = await DB.loadCurrentDocumentId();
-    let rootGroupId = await DB.loadRootGroupId();
-    const groups = await DB.loadGroups();
-    const documents = await DB.loadDocuments();
-    const nodes = await DB.loadNodes();
+    let currentDocId = await IDBApi.loadCurrentDocumentId();
+    let rootGroupId = await IDBApi.loadRootGroupId();
+    const groups = await IDBApi.loadGroups();
+    const documents = await IDBApi.loadDocuments();
+    const nodes = await IDBApi.loadNodes();
 
     if (!rootGroupId) {
-      const newRootNode = TreeRoAPI.createNode("Untitled");
-      const newDocument = TreeRoAPI.createDocument(newRootNode.node_id);
-      const newRootGroup = TreeRoAPI.createGroup("Root Group");
-      newRootGroup.children.push(newDocument.document_id);
-      currentDocId = newDocument.document_id;
-      rootGroupId = newRootGroup.group_id;
+      currentDocId = mockupDocument.document_id;
+      rootGroupId = mockupGroup.group_id;
+      nodes.push(...mockupNodes);
+      documents.push(mockupDocument);
+      groups.push(mockupGroup);
 
-      nodes.push(newRootNode);
-      documents.push(newDocument);
-      groups.push(newRootGroup);
-
-      await DB.saveNode(newRootNode);
-      await DB.saveDocument(newDocument);
-      await DB.saveGroup(newRootGroup);
-      await DB.saveRootGroupId(rootGroupId);
-      await DB.saveCurrentDocumentId(currentDocId);
-
-      // Temp
-      const newNode = TreeRoAPI.createNode("Sample Text");
-      newRootNode.children.push(newNode.node_id);
-      nodes.push(newNode);
-      await DB.saveNode(newNode);
+      await IDBApi.saveNodes(mockupNodes);
+      await IDBApi.saveDocument(mockupDocument);
+      await IDBApi.saveGroup(mockupGroup);
+      await IDBApi.saveRootGroupId(rootGroupId);
+      await IDBApi.saveCurrentDocumentId(currentDocId);
     }
+
+    // if (!rootGroupId) {
+    //   const newRootNode = TreeRoAPI.createNode("Untitled");
+    //   const newDocument = TreeRoAPI.createDocument(newRootNode.node_id);
+    //   const newRootGroup = TreeRoAPI.createGroup("Root Group");
+    //   newRootGroup.children.push(newDocument.document_id);
+    //   currentDocId = newDocument.document_id;
+    //   rootGroupId = newRootGroup.group_id;
+
+    //   nodes.push(newRootNode);
+    //   documents.push(newDocument);
+    //   groups.push(newRootGroup);
+
+    //   await DB.saveNode(newRootNode);
+    //   await DB.saveDocument(newDocument);
+    //   await DB.saveGroup(newRootGroup);
+    //   await DB.saveRootGroupId(rootGroupId);
+    //   await DB.saveCurrentDocumentId(currentDocId);
+
+    //   // Temp
+    //   const newNode = TreeRoAPI.createNode("Sample Text");
+    //   newRootNode.children.push(newNode.node_id);
+    //   nodes.push(newNode);
+    //   await DB.saveNode(newNode);
+    // }
 
     useStore.setState({
       stateIsInitialized: true,
@@ -104,7 +120,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   listGroups() {
-    return () => Array.from(useStore.getState().groups.values());
+    return Array.from(useStore.getState().groups.values());
   },
 
   createGroup(name = "New Group", collapsed = false) {
@@ -138,7 +154,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   listDocuments() {
-    return () => Array.from(useStore.getState().documents.values());
+    return Array.from(useStore.getState().documents.values());
   },
 
   getDocumentRootNodeId(docId) {
@@ -196,22 +212,24 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   insertNode(node, parentNodeId, index = -1) {
-    useStore.getState().insertNode(node, parentNodeId, index);
+    const updatedNodes = useStore.getState().insertNode(node, parentNodeId, index);
+    if (updatedNodes.length === 0) return [];
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
   },
 
-  insertNodeAfter(node, siblingNodeId) {
-    useStore.getState().insertNodeAfter(node, siblingNodeId);
-  },
-
-  insertNodeBefore(node, siblingNodeId) {
-    useStore.getState().insertNodeBefore(node, siblingNodeId);
+  insertNodeRelativeTo(node, relNodeId, offset = 1) {
+    const updatedNodes = useStore.getState().insertNodeRelativeTo(node, relNodeId, offset);
+    if (updatedNodes.length === 0) return [];
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
   },
 
   updateNode(nodeId, newNodeData) {
-    useStore.getState().updateNode(nodeId, { modified: Date.now(), ...newNodeData });
-    const node = useStore.getState().nodes.get(nodeId);
-    if (!node) return;
-    DB.saveNode(node);
+    const updatedNode = useStore.getState().updateNode(nodeId, { modified: Date.now(), ...newNodeData });
+    if (!updatedNode) return null;
+    IDBApi.saveNode(updatedNode);
+    return updatedNode;
   },
 
   getNodeChildren(nodeId) {
@@ -222,20 +240,34 @@ export const TreeRoAPI: TreeRoAPIType = {
     return useStore.getState().getNodeParent(nodeId);
   },
 
+  getNodeSibling(nodeId, offset) {
+    return useStore.getState().getNodeSibling(nodeId, offset);
+  },
+
+  getNodeIndex(nodeId) {
+    return useStore.getState().getNodeIndex(nodeId);
+  },
+
   moveNode(nodeId, parentNodeId, index) {
-    useStore.getState().moveNode(nodeId, parentNodeId, index);
+    const updatedNodes = useStore.getState().moveNode(nodeId, parentNodeId, index);
+    if (updatedNodes.length === 0) return [];
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
   },
 
-  moveNodeAfter(nodeId, siblingNodeId) {
-    useStore.getState().moveNodeAfter(nodeId, siblingNodeId);
-  },
-
-  moveNodeBefore(nodeId, siblingNodeId) {
-    useStore.getState().moveNodeBefore(nodeId, siblingNodeId);
+  moveNodeRealtiveTo(nodeId, relNodeId, offset) {
+    const updatedNodes = useStore.getState().moveNodeRealtiveTo(nodeId, relNodeId, offset);
+    if (updatedNodes.length === 0) return [];
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
   },
 
   deleteNode(nodeId) {
-    useStore.getState().deleteNode(nodeId);
+    const [updatedParentNode, removedNodeIds] = useStore.getState().deleteNode(nodeId);
+    if (!updatedParentNode) return [null, []];
+    IDBApi.saveNode(updatedParentNode);
+    IDBApi.deleteNodes(removedNodeIds);
+    return [updatedParentNode, removedNodeIds];
   },
 
   queryNodesByText(text, docId) {
@@ -263,6 +295,22 @@ export const TreeRoAPI: TreeRoAPIType = {
       });
     };
     collapseRecursively(nodeId);
+  },
+
+  placeCaretAtStart(el) {
+    if (!el || !el.isContentEditable) return;
+
+    const range = document.createRange();
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    // Start at the beginning of the element
+    range.setStart(el, 0);
+    range.collapse(true);
+
+    // Clear existing selections and apply new one
+    selection.removeAllRanges();
+    selection.addRange(range);
   },
 };
 
