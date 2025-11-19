@@ -1,16 +1,47 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
-// import { documentSample, outlinerStructureSample } from "./mockupData";
-// useRef, useState
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState, useLayoutEffect } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { TreeRoAPI } from "./api";
 import { useStore } from "./stateStore";
 import { printDOM } from "./utils";
+
+function getCursorIndexInTextContent(container: HTMLElement): number {
+  const selection = window.getSelection();
+  if (!selection || !selection.anchorNode) return -1;
+
+  let index = 0;
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    if (node === selection.anchorNode) {
+      index += selection.anchorOffset;
+      break;
+    } else {
+      index += node.textContent?.length ?? 0;
+    }
+  }
+
+  return index;
+}
+
+function logSplitText(container: HTMLElement) {
+  const text = container.textContent ?? "";
+  const cursorIndex = getCursorIndexInTextContent(container);
+
+  if (cursorIndex >= 0) {
+    const before = text.slice(0, cursorIndex);
+    const after = text.slice(cursorIndex);
+    console.log("Before:", before);
+    console.log("After:", after);
+  }
+}
 
 function NodeComponent({ nodeId }: { nodeId: string }) {
   const logPrefix = `NodeComponent [${nodeId}]`;
@@ -19,22 +50,12 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
   const refContenteditable = useRef<HTMLDivElement>(null);
   const refRendered = useRef<HTMLDivElement>(null);
 
-  const [renderIt, setRenderIt] = useState(false);
-  const [showRender, setShowRender] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   // zustand subscribe
   const node = useStore((state) => {
     return state.nodes.get(nodeId);
   });
-
-  useEffect(() => {
-    // TODO:
-    // if (!node) return;
-    const nodeParent = TreeRoAPI.getNodeParent(node?.node_id)
-    if (nodeParent?.collapsed === false) {
-      setRenderIt(true);
-    }
-  }, [node?.collapsed]);
 
   if (!node) return;
 
@@ -49,7 +70,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
             type="button"
             // data-node-id={node.id}
             onClick={() => {
-              console.debug("Node-bullet onClick");
+              // console.debug("Node-bullet onClick");
               TreeRoAPI.toggleNodeCollapse(node.node_id);
             }}
           >
@@ -79,18 +100,17 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
             )}
           </button>
           <div className="NodeContent-container flex-grow ml-2">
-            {/** biome-ignore lint/a11y/noStaticElementInteractions: explanation */}
             <div
               ref={refContenteditable}
               // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
-              className={`NodeContent-edit trailing-nl ${showRender ? "hidden" : ""}`}
+              className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
               contentEditable
               suppressContentEditableWarning
               tabIndex={-1}
               spellCheck={true}
               autoCorrect="off"
               onPaste={(e) => {
-                console.debug(`${logPrefix} -> onPaste`, e);
+                // console.debug(`${logPrefix} -> onPaste`, e);
                 e.preventDefault();
                 const text = e.clipboardData.getData("text/plain");
                 // document.execCommand("insertText", false, text);
@@ -102,7 +122,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                 selection.collapseToEnd();
               }}
               onInput={(e) => {
-                console.debug(`${logPrefix} -> onInput`);
+                // console.debug(`${logPrefix} -> onInput`);
                 // const el = ref.current?.querySelector(".NodeContent-edit");
                 // console.debug(`${logPrefix} -> NodeContent-edit`, el);
                 // if (el) printDOM(el as HTMLElement);
@@ -115,17 +135,18 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.ctrlKey) {
-                  console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
+                  // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
                   e.preventDefault();
                   const newNode = TreeRoAPI.createNode("", true);
                   TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id);
+                  //
                   setTimeout(() => {
                     const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
-                    console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-                    if (el) TreeRoAPI.placeCaretAtStart(el as HTMLElement);
+                    // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
+                    if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
                   }, 0);
                 } else if (e.key === "Enter") {
-                  console.debug(`${logPrefix} -> onKeyDown [Enter]`);
+                  // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
                   e.preventDefault();
                   const selection = window.getSelection();
                   if (!selection?.rangeCount) return;
@@ -153,20 +174,20 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                     if (siblingNode) {
                       setTimeout(() => {
                         const el = document.querySelector(`[data-id="${siblingNode.node_id}"] .NodeContent-edit`);
-                        console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-                        if (el) TreeRoAPI.placeCaretAtStart(el as HTMLElement);
+                        // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
+                        if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
                       }, 0);
                     }
                   }
                 } else if (e.key === "Tab" && e.shiftKey) {
-                  console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
+                  // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
                   e.preventDefault(); // block default focus change
                   const nodeParent = TreeRoAPI.getNodeParent(node.node_id);
                   if (!nodeParent) return;
-                  console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
+                  // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
                   TreeRoAPI.moveNodeRealtiveTo(node.node_id, nodeParent.node_id, 1);
                 } else if (e.key === "Tab") {
-                  console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
+                  // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
                   e.preventDefault(); // block default focus change
                   const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
                   if (!siblingNode) return;
@@ -182,24 +203,34 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                 if (newContent !== node.content) {
                   TreeRoAPI.updateNode(node.node_id, { content: newContent });
                 }
-                setShowRender(true);
+                setIsEditing(false);
               }}
             >
               {node.content}
             </div>
-            {renderIt && (
-              // biome-ignore lint/a11y/noStaticElementInteractions: explanation
-              // biome-ignore lint/a11y/useKeyWithClickEvents: explanation
+            {
               <div
                 ref={refRendered}
-                className={`NodeContent-render cursor-text ${showRender ? "" : "hidden"}`}
-                onClick={(e) => {
-                  setShowRender(false);
+                className={`NodeContent-render cursor-text ${isEditing ? "hidden" : ""}`}
+                onMouseDown={(e) => {
+                  // console.log(`${logPrefix} -> onMouseDown`);
+                  const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+                  // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
+                  setIsEditing(true);
+                  setTimeout(() => {
+                    console.log(`onClick setTimeout -> charIndex`, charIndex);
+                    TreeRoAPI.setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+                  }, 100);
                 }}
+                // onMouseUp={() => console.log(`${logPrefix} -> onMouseUp`)}
+                // onClick={(e) => {
+                //   const charIndex = TreeRoAPI.getCharIndexFromCaret(e.currentTarget);
+                //   console.log(`onClick -> charIndex`, charIndex);
+                // }}
               >
                 {/* TODO: useMemo */}
                 <Markdown
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
                     input(props) {
@@ -209,10 +240,10 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                     },
                     code(props) {
                       const { children, className, node, ...rest } = props;
-                      console.info("node", node);
-                      console.info("className", className);
-                      console.info("children", children);
-                      console.info("rest", rest);
+                      // console.info("node", node);
+                      // console.info("className", className);
+                      // console.info("children", children);
+                      // console.info("rest", rest);
 
                       const match = /language-(\w+)/.exec(className || "");
                       const codeString = String(children).replace(/\n$/, "");
@@ -228,7 +259,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
 
                       const CustomDiv = (props) => <div className="!p-2 rounded-lg" {...props} />;
 
-                      return (
+                      return match ? (
                         <div style={{ position: "relative" }}>
                           <button
                             onClick={async (e) => {
@@ -236,34 +267,24 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                               e.stopPropagation();
                               try {
                                 await navigator.clipboard.writeText(codeString);
-                                console.debug("Copied to clipboard:", codeString);
                               } catch (err) {
                                 console.error("Failed to copy:", err);
                               }
                             }}
                             type="button"
                             className="absolute top-1 right-1 px-2 p-1 text-xs rounded-md opacity-0 
-                            hover:opacity-100 transition-opacity cursor-pointer
-                            border border-red-400 bg-gray-100"
-                            // style={{
-                            //   position: "absolute",
-                            //   top: "0.25rem",
-                            //   right: "0.25rem",
-                            //   fontSize: "0.8rem",
-                            //   padding: "0.2rem 0.4rem",
-                            //   cursor: "pointer",
-                            // }}
+                 hover:opacity-100 transition-opacity cursor-pointer
+                 border border-red-400 bg-gray-100"
                           >
                             Copy
                           </button>
-                          {match ? (
-                            <SyntaxHighlighter PreTag={CustomDiv} language={match[1]}>
-                              {codeString}
-                            </SyntaxHighlighter>
-                          ) : (
-                            <code className={className}>{children}</code>
-                          )}
+                          {/* showLineNumbers */}
+                          <SyntaxHighlighter PreTag={CustomDiv} language={match[1]}>
+                            {codeString}
+                          </SyntaxHighlighter>
                         </div>
+                      ) : (
+                        <code className={`${className} px-1 rounded-md text-red-600 bg-gray-100`}>{children}</code>
                       );
                     },
                   }}
@@ -271,7 +292,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                   {node.content}
                 </Markdown>
               </div>
-            )}
+            }
           </div>
           <button className="Node-options ml-1 cursor-pointer" type="button">
             {/* <span>⋮</span> */}
@@ -297,7 +318,6 @@ export default function DocumentComponent() {
     TreeRoAPI.loadInitialData();
   }, []);
 
-  const stateIsInitialized = useStore((state) => state.stateIsInitialized);
   const currentDocId = useStore((state) => state.currentDocId);
 
   const rootNode = useStore((state) => {
@@ -307,7 +327,7 @@ export default function DocumentComponent() {
     return state.nodes.get(rootNodeId);
   });
 
-  console.debug(`${logPrefix} -> meta`, stateIsInitialized, currentDocId);
+  // console.debug(`${logPrefix} -> meta`, stateIsInitialized, currentDocId);
   console.debug(`${logPrefix} -> rootNode`, rootNode);
 
   if (!rootNode) return null;
@@ -318,7 +338,7 @@ export default function DocumentComponent() {
   // };
 
   const childNodes = TreeRoAPI.getNodeChildren(rootNode.node_id);
-  console.debug(`${logPrefix} -> childNodes`, childNodes);
+  // console.debug(`${logPrefix} -> childNodes`, childNodes);
 
   return (
     <>

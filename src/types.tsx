@@ -193,5 +193,7 @@ export interface TreeRoAPIType {
   toggleNodeCollapse(nodeId: string): void;
   collapseAllNodeChildren(nodeId: string): void;
   // ---------------- Caret Methods  ----------------
-  placeCaretAtStart(el: HTMLElement): void;
+  getCharIndexFromCaret(element: HTMLElement): number;
+  setCaretAtCharIndex(element: HTMLElement, index: number): void;
+  getCharIndexFromMouse(element: HTMLElement, x: number, y: number): number;
 }
