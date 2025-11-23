@@ -1,7 +1,7 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 
-import { memo, useEffect, useRef, useState, useLayoutEffect } from "react";
+import { memo, useEffect, useRef, useState, useLayoutEffect, useCallback } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import rehypeRaw from "rehype-raw";
@@ -11,41 +11,16 @@ import { TreeRoAPI } from "./api";
 import { useStore } from "./stateStore";
 import { printDOM } from "./utils";
 
-function getCursorIndexInTextContent(container: HTMLElement): number {
-  const selection = window.getSelection();
-  if (!selection || !selection.anchorNode) return -1;
+import { DndContext, DragOverlay, useDraggable, useDroppable, closestCenter } from "@dnd-kit/core";
+// import type { DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 
-  let index = 0;
-  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-
-  while (walker.nextNode()) {
-    const node = walker.currentNode as Text;
-    if (node === selection.anchorNode) {
-      index += selection.anchorOffset;
-      break;
-    } else {
-      index += node.textContent?.length ?? 0;
-    }
-  }
-
-  return index;
-}
-
-function logSplitText(container: HTMLElement) {
-  const text = container.textContent ?? "";
-  const cursorIndex = getCursorIndexInTextContent(container);
-
-  if (cursorIndex >= 0) {
-    const before = text.slice(0, cursorIndex);
-    const after = text.slice(cursorIndex);
-    console.log("Before:", before);
-    console.log("After:", after);
-  }
-}
+import { CSS as DndCss } from "@dnd-kit/utilities";
+import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 
 function NodeComponent({ nodeId }: { nodeId: string }) {
   const logPrefix = `NodeComponent [${nodeId}]`;
-  console.debug(logPrefix);
+  // console.debug(logPrefix);
   const refNode = useRef<HTMLDivElement>(null);
   const refContenteditable = useRef<HTMLDivElement>(null);
   const refRendered = useRef<HTMLDivElement>(null);
@@ -57,20 +32,72 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
     return state.nodes.get(nodeId);
   });
 
-  if (!node) return;
+  const { attributes, listeners, setNodeRef, isOver } = useSortable({
+    id: nodeId,
+  });
+  // const { attributes, listeners, setNodeRef: setDraggableRef } = useDraggable({ id: nodeId });
+  // const { setNodeRef: setDroppableRef, isOver } = useDroppable({ id: nodeId });
+
+  // Merge refs: both draggable and droppable need to attach to the same DOM node
+  // const combinedRef = useCallback(
+  //   (node) => {
+  //     setDraggableRef(node);
+  //     // setDroppableRef(node);
+  //     refNode.current =
+  //   },
+  //   [setDraggableRef, ],
+  // );
+
+  const combinedRef = (element: HTMLDivElement | null) => {
+    setNodeRef(element); // dnd-kit needs this
+    refNode.current = element; // your own ref
+  };
+
+  if (!node) return null;
 
   const childNodes = TreeRoAPI.getNodeChildren(node.node_id);
 
+  console.log(isOver);
+
+  // console.log("Listeners", listeners);
+  // console.log("attributes", attributes);
+
+  function wrapPointerDown(originalHandler: (event: PointerEvent) => void) {
+    // biome-ignore lint/complexity/useArrowFunction: explanation
+    return function (event: PointerEvent) {
+      const proxyEvent = new Proxy(event, {
+        get(target, prop: keyof PointerEvent) {
+          if (prop === "preventDefault") {
+            console.debug("preventDefault");
+            return () => {};
+          }
+          return target[prop];
+        },
+      }) as PointerEvent;
+
+      originalHandler(proxyEvent);
+    };
+  }
+  // if (listeners?.onPointerDown) {
+  //   // console.log("Listeners", listeners);
+  //   const handler = listeners.onPointerDown as (event: PointerEvent) => void;
+  //   listeners.onPointerDown = wrapPointerDown(handler);
+  // }
+
   return (
-    <div ref={refNode} className={`Node-outer`} data-id={node.node_id}>
+    // data-id={node.node_id}
+    <div ref={combinedRef} id={node.node_id} className={`Node-outer`}>
       <div className="Node-inner">
         <div className="Node-self flex items-start">
           <button
             className="Node-bullet w-4 h-6 cursor-pointer"
             type="button"
+            // ref={setBulletDropRef}
+            {...listeners}
+            {...attributes}
             // data-node-id={node.id}
-            onClick={() => {
-              // console.debug("Node-bullet onClick");
+            onPointerUpCapture={() => {
+              console.debug("Node-bullet onClick");
               TreeRoAPI.toggleNodeCollapse(node.node_id);
             }}
           >
@@ -126,7 +153,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                 // const el = ref.current?.querySelector(".NodeContent-edit");
                 // console.debug(`${logPrefix} -> NodeContent-edit`, el);
                 // if (el) printDOM(el as HTMLElement);
-                printDOM(e.currentTarget);
+                // printDOM(e.currentTarget);
 
                 // Remove <br> that browser insearts in empty contenteditable
                 if (e.currentTarget.innerHTML === "<br>") {
@@ -137,8 +164,8 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                 if (e.key === "Enter" && e.ctrlKey) {
                   // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
                   e.preventDefault();
-                  const newNode = TreeRoAPI.createNode("", true);
-                  TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id);
+                  const newNode = TreeRoAPI.createNode("");
+                  TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id, 1);
                   //
                   setTimeout(() => {
                     const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
@@ -185,13 +212,15 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
                   const nodeParent = TreeRoAPI.getNodeParent(node.node_id);
                   if (!nodeParent) return;
                   // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
-                  TreeRoAPI.moveNodeRealtiveTo(node.node_id, nodeParent.node_id, 1);
+                  TreeRoAPI.moveNodeRelativeTo(node.node_id, nodeParent.node_id, 1);
                 } else if (e.key === "Tab") {
                   // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
                   e.preventDefault(); // block default focus change
                   const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
                   if (!siblingNode) return;
                   TreeRoAPI.moveNode(node.node_id, siblingNode.node_id);
+                  // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
+                  TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
                 }
               }}
               onBlur={(e) => {
@@ -300,6 +329,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
         </div>
+        {isOver && <div className="">###################################################################</div>}
         <div className={`NodeChildren border-l ml-2 pl-2 ${node.collapsed ? "hidden" : ""}`}>
           {childNodes.map((child) => (
             <MemoizedNodeComponent key={child.node_id} nodeId={child.node_id} />
@@ -313,6 +343,8 @@ const MemoizedNodeComponent = memo(NodeComponent);
 
 export default function DocumentComponent() {
   const logPrefix = `DocumentComponent`;
+
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
     TreeRoAPI.loadInitialData();
@@ -328,7 +360,17 @@ export default function DocumentComponent() {
   });
 
   // console.debug(`${logPrefix} -> meta`, stateIsInitialized, currentDocId);
-  console.debug(`${logPrefix} -> rootNode`, rootNode);
+  // console.debug(`${logPrefix} -> rootNode`, rootNode);
+
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 10,
+      distance: 5,
+    },
+  });
+
+  const sensors = useSensors(pointerSensor);
 
   if (!rootNode) return null;
 
@@ -341,10 +383,39 @@ export default function DocumentComponent() {
   // console.debug(`${logPrefix} -> childNodes`, childNodes);
 
   return (
-    <>
-      {/* <h1 className="TestTestTest hidden text-3xl font-bold underline m-8">
-        Hello world!
-      </h1> */}
+    <DndContext
+      sensors={sensors}
+      // collisionDetection={closestCenter}
+      onDragStart={(event) => {
+        setActiveId(event.active.id as string);
+      }}
+      onDragEnd={(event) => {
+        if (!event.over) return;
+        const activeId = String(event.active.id);
+        const overId = String(event.over.id);
+
+        // console.log("onDragEnd", activeId, overId);
+
+        if (activeId === overId) return;
+        const activeNode = TreeRoAPI.getNode(activeId);
+        const overNode = TreeRoAPI.getNode(overId);
+        const activeParent = TreeRoAPI.getNodeParent(activeId);
+        const overParent = TreeRoAPI.getNodeParent(overId);
+        if (!activeParent || !overParent || !activeNode || !overNode) return;
+
+        console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
+
+        if (overNode.collapsed === false && overNode.children.length !== 0) {
+          console.log(activeNode, overNode);
+          TreeRoAPI.moveNode(activeId, overId, 0);
+        } else {
+          TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
+        }
+
+        if (activeParent === overParent) {
+        }
+      }}
+    >
       <div className="Document mx-2 sm:mx-8 md:mx-16 lg:mx-32 xl:mx-64" data-id={currentDocId}>
         <div className="RootNode-self">
           {/* text-2xl font-bold */}
@@ -358,10 +429,23 @@ export default function DocumentComponent() {
             {childNodes.map((childNode) => (
               <MemoizedNodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
             ))}
+            <DragOverlay>
+              {activeId ? (
+                <div
+                  style={{
+                    padding: "4px",
+                    border: "1px solid #ccc",
+                    background: "#eee",
+                  }}
+                >
+                  Move node
+                </div>
+              ) : null}
+            </DragOverlay>
             <div className="h-100" /> {/* spacer */}
           </div>
         </div>
       </div>
-    </>
+    </DndContext>
   );
 }

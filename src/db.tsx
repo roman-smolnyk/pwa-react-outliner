@@ -30,7 +30,7 @@ export const IDBApi: IDBApiType = {
   logPrefix: "IDBApi",
 
   async resetDb() {
-    console.debug(`${this.logPrefix}.resetDb`);
+    // console.debug(`${this.logPrefix}.resetDb`);
     // Close current connection if open
     if (db) {
       db.close();
@@ -44,75 +44,75 @@ export const IDBApi: IDBApiType = {
   },
   // ---------------- Meta ----------------
   async saveCurrentDocumentId(docId: string) {
-    console.debug(`${this.logPrefix}.saveCurrentDocumentId`, docId);
+    // console.debug(`${this.logPrefix}.saveCurrentDocumentId`, docId);
     const db = await getDB();
     await db.put("meta", docId, "current_document_id");
   },
 
   async loadCurrentDocumentId(): Promise<string | null> {
-    console.debug(`${this.logPrefix}.loadCurrentDocumentId`);
+    // console.debug(`${this.logPrefix}.loadCurrentDocumentId`);
     const db = await getDB();
     return (await db.get("meta", "current_document_id")) ?? null;
   },
 
   async saveRootGroupId(groupId: string) {
-    console.debug(`${this.logPrefix}.saveRootGroupId`, groupId);
+    // console.debug(`${this.logPrefix}.saveRootGroupId`, groupId);
     const db = await getDB();
     await db.put("meta", groupId, "root_group_id");
   },
 
   async loadRootGroupId(): Promise<string | null> {
-    console.debug(`${this.logPrefix}.loadRootGroupId`);
+    // console.debug(`${this.logPrefix}.loadRootGroupId`);
     const db = await getDB();
     return (await db.get("meta", "root_group_id")) ?? null;
   },
   // ------------------ Groups ------------------
   async saveGroup(group: GroupDataType) {
-    console.debug(`${this.logPrefix}.saveGroup`, group);
+    // console.debug(`${this.logPrefix}.saveGroup`, group);
     const db = await getDB();
     await db.put("groups", group);
   },
 
   async loadGroups(): Promise<GroupDataType[]> {
-    console.debug(`${this.logPrefix}.loadGroups`);
+    // console.debug(`${this.logPrefix}.loadGroups`);
     const db = await getDB();
     return db.getAll("groups");
   },
 
   async deleteGroup(groupId: string) {
-    console.debug(`${this.logPrefix}.deleteGroup`);
+    // console.debug(`${this.logPrefix}.deleteGroup`);
     const db = await getDB();
     await db.delete("groups", groupId);
   },
 
   // ------------------ Documents ------------------
   async saveDocument(doc: DocumentDataType) {
-    console.debug(`${this.logPrefix}.saveDocument`);
+    // console.debug(`${this.logPrefix}.saveDocument`);
     const db = await getDB();
     await db.put("documents", doc);
   },
 
   async loadDocuments(): Promise<DocumentDataType[]> {
-    console.debug(`${this.logPrefix}.loadDocuments`);
+    // console.debug(`${this.logPrefix}.loadDocuments`);
     const db = await getDB();
     return db.getAll("documents");
   },
 
   async deleteDocument(docId: string) {
-    console.debug(`${this.logPrefix}.deleteDocument`, docId);
+    // console.debug(`${this.logPrefix}.deleteDocument`, docId);
     const db = await getDB();
     await db.delete("documents", docId);
   },
 
   // ------------------ Nodes ------------------
   async saveNode(node: NodeDataType) {
-    console.debug(`${this.logPrefix}.saveNode`, node);
+    // console.debug(`${this.logPrefix}.saveNode`, node);
     const db = await getDB();
     await db.put("nodes", node);
   },
 
   async saveNodes(nodes: NodeDataType | NodeDataType[]) {
-    console.debug(`${this.logPrefix}.saveNodes`, nodes);
+    // console.debug(`${this.logPrefix}.saveNodes`, nodes);
     const db = await getDB();
     const tx = db.transaction("nodes", "readwrite");
     const store = tx.objectStore("nodes");
@@ -127,19 +127,19 @@ export const IDBApi: IDBApiType = {
   },
 
   async loadNodes(): Promise<NodeDataType[]> {
-    console.debug(`${this.logPrefix}.loadNodes`);
+    // console.debug(`${this.logPrefix}.loadNodes`);
     const db = await getDB();
     return db.getAll("nodes");
   },
 
   async deleteNode(nodeId: string) {
-    console.debug(`${this.logPrefix}.deleteNode`, nodeId);
+    // console.debug(`${this.logPrefix}.deleteNode`, nodeId);
     const db = await getDB();
     await db.delete("nodes", nodeId);
   },
 
   async deleteNodes(nodeIds: string | string[]) {
-    console.debug(`${this.logPrefix}.deleteNodes`, nodeIds);
+    // console.debug(`${this.logPrefix}.deleteNodes`, nodeIds);
     const db = await getDB();
     const tx = db.transaction("nodes", "readwrite");
     const store = tx.objectStore("nodes");
@@ -154,7 +154,7 @@ export const IDBApi: IDBApiType = {
   },
 
   async queryNodesByPredicate(predicate: (node: NodeDataType) => boolean): Promise<NodeDataType[]> {
-    console.debug(`${this.logPrefix}.queryNodesByPredicate`);
+    // console.debug(`${this.logPrefix}.queryNodesByPredicate`);
     const nodes = await this.loadNodes();
     return nodes.filter(predicate);
   },

@@ -116,15 +116,16 @@ export interface zustandUseStoreType {
 
   // ---------------- Node Methods ----------------
   insertNode: (node: NodeDataType, parentNodeId: string, index?: number) => NodeDataType[];
-  insertNodeRelativeTo: (node: NodeDataType, relNodeId: string, offset?: number) => NodeDataType[];
+  insertNodeRelativeTo: (node: NodeDataType, relNodeId: string, offset: number) => NodeDataType[];
   updateNode: (nodeId: string, newNodeData: Partial<NodeDataType>) => NodeDataType | null;
   getNodeChildren: (nodeId: string) => NodeDataType[];
   getNodeParent: (nodeId: string) => NodeDataType | null;
   getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
   getNodeIndex: (nodeId: string) => number | null;
   moveNode: (nodeId: string, parentNodeId: string, index?: number) => NodeDataType[];
-  moveNodeRealtiveTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
+  moveNodeRelativeTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
   deleteNode: (nodeId: string) => [NodeDataType | null, string[]];
+  getNodeDescendantsIds: (nodeId: string) => string[];
   queryNodesByText: (text: string, docId?: string) => NodeDataType[];
 }
 
@@ -177,17 +178,18 @@ export interface TreeRoAPIType {
   openDocument(docId: string): void; // sets currentDocId
 
   // ---------------- Node Methods ----------------
-  listNodes(docId?: string): NodeDataType[];
   createNode(content?: string, collapsed?: boolean, args?: Partial<NodeDataType>): NodeDataType;
   insertNode(node: NodeDataType, parentNodeId: string, index?: number): NodeDataType[];
-  insertNodeRelativeTo(node: NodeDataType, relNodeId: string, offset?: number): NodeDataType[];
+  insertNodeRelativeTo(node: NodeDataType, relNodeId: string, offset: number): NodeDataType[];
   updateNode(nodeId: string, newNodeData: Partial<NodeDataType>): NodeDataType | null;
+  getAllNodes(docId?: string): NodeDataType[];
+  getNode: (nodeId: string) => NodeDataType | null;
   getNodeChildren(nodeId: string): NodeDataType[];
   getNodeParent(nodeId: string): NodeDataType | null;
   getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
   getNodeIndex: (nodeId: string) => number | null;
   moveNode: (nodeId: string, parentNodeId: string, index?: number) => NodeDataType[];
-  moveNodeRealtiveTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
+  moveNodeRelativeTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
   deleteNode(nodeId: string): [NodeDataType | null, string[]];
   queryNodesByText(text: string, docId?: string): NodeDataType[];
   toggleNodeCollapse(nodeId: string): void;

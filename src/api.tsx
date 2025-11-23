@@ -193,11 +193,6 @@ export const TreeRoAPI: TreeRoAPIType = {
     useStore.setState({ currentDocId: docId });
   },
 
-  listNodes(docId) {
-    if (docId) return useStore.getState().getDocumentNodes(docId);
-    return Array.from(useStore.getState().nodes.values());
-  },
-
   createNode(content = "", collapsed = false, args = {}) {
     const newNode: NodeDataType = {
       node_id: crypto.randomUUID(),
@@ -218,7 +213,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     return updatedNodes;
   },
 
-  insertNodeRelativeTo(node, relNodeId, offset = 1) {
+  insertNodeRelativeTo(node, relNodeId, offset) {
     const updatedNodes = useStore.getState().insertNodeRelativeTo(node, relNodeId, offset);
     if (updatedNodes.length === 0) return [];
     IDBApi.saveNodes(updatedNodes);
@@ -230,6 +225,15 @@ export const TreeRoAPI: TreeRoAPIType = {
     if (!updatedNode) return null;
     IDBApi.saveNode(updatedNode);
     return updatedNode;
+  },
+
+  getAllNodes(docId) {
+    if (docId) return useStore.getState().getDocumentNodes(docId);
+    return Array.from(useStore.getState().nodes.values());
+  },
+
+  getNode(nodeId) {
+    return useStore.getState().nodes.get(nodeId) || null;
   },
 
   getNodeChildren(nodeId) {
@@ -255,8 +259,8 @@ export const TreeRoAPI: TreeRoAPIType = {
     return updatedNodes;
   },
 
-  moveNodeRealtiveTo(nodeId, relNodeId, offset) {
-    const updatedNodes = useStore.getState().moveNodeRealtiveTo(nodeId, relNodeId, offset);
+  moveNodeRelativeTo(nodeId, relNodeId, offset) {
+    const updatedNodes = useStore.getState().moveNodeRelativeTo(nodeId, relNodeId, offset);
     if (updatedNodes.length === 0) return [];
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
