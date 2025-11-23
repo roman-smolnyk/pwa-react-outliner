@@ -11,6 +11,8 @@ import { TreeRoAPI } from "./api";
 import { useStore } from "./stateStore";
 import { printDOM } from "./utils";
 
+import type { NodeDataType } from "./types";
+
 import { DndContext, DragOverlay, useDraggable, useDroppable, closestCenter } from "@dnd-kit/core";
 // import type { DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
@@ -18,14 +20,215 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { CSS as DndCss } from "@dnd-kit/utilities";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 
-function NodeComponent({ nodeId }: { nodeId: string }) {
-  const logPrefix = `NodeComponent [${nodeId}]`;
-  // console.debug(logPrefix);
-  const refNode = useRef<HTMLDivElement>(null);
-  const refContenteditable = useRef<HTMLDivElement>(null);
-  const refRendered = useRef<HTMLDivElement>(null);
-
+const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
+  const logPrefix = `NodeContentComponent [${node.node_id}]`;
+  console.debug(logPrefix);
+  const ref = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  return (
+    <div className="NodeContent-container flex-grow ml-2">
+      <div
+        ref={ref}
+        // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
+        className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
+        contentEditable
+        suppressContentEditableWarning
+        tabIndex={-1}
+        spellCheck={true}
+        autoCorrect="off"
+        onPaste={(e) => {
+          // console.debug(`${logPrefix} -> onPaste`, e);
+          e.preventDefault();
+          const text = e.clipboardData.getData("text/plain");
+          // document.execCommand("insertText", false, text);
+          const selection = window.getSelection();
+          if (!selection?.rangeCount) return;
+          selection.deleteFromDocument();
+          selection.getRangeAt(0).insertNode(document.createTextNode(text));
+          // Move caret to end of inserted text
+          selection.collapseToEnd();
+        }}
+        onInput={(e) => {
+          // console.debug(`${logPrefix} -> onInput`);
+          // const el = ref.current?.querySelector(".NodeContent-edit");
+          // console.debug(`${logPrefix} -> NodeContent-edit`, el);
+          // if (el) printDOM(el as HTMLElement);
+          // printDOM(e.currentTarget);
+
+          // Remove <br> that browser insearts in empty contenteditable
+          if (e.currentTarget.innerHTML === "<br>") {
+            e.currentTarget.innerHTML = "";
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && e.ctrlKey) {
+            // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
+            e.preventDefault();
+            const newNode = TreeRoAPI.createNode("");
+            TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id, 1);
+            //
+            setTimeout(() => {
+              const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
+              // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
+              if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
+            }, 0);
+          } else if (e.key === "Enter") {
+            // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (!selection?.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            // Delete any selected text
+            range.deleteContents();
+            // create new text node
+            const newlineNode = document.createTextNode("\n");
+            // Insert the newline at the caret
+            range.insertNode(newlineNode);
+            // Move caret to end of inserted text
+            // Move caret after the newline
+            range.setStartAfter(newlineNode);
+            range.setEndAfter(newlineNode);
+            // Collapse selection to caret
+            selection.removeAllRanges();
+            selection.addRange(range);
+          } else if (e.key === "Backspace") {
+            // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
+            const text = e.currentTarget.textContent ?? "";
+            if (text.length === 0) {
+              e.preventDefault(); // stop browser default
+              const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
+              TreeRoAPI.deleteNode(node.node_id);
+              if (siblingNode) {
+                setTimeout(() => {
+                  const el = document.querySelector(`[data-id="${siblingNode.node_id}"] .NodeContent-edit`);
+                  // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
+                  if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
+                }, 0);
+              }
+            }
+          } else if (e.key === "Tab" && e.shiftKey) {
+            // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
+            e.preventDefault(); // block default focus change
+            const nodeParent = TreeRoAPI.getNodeParent(node.node_id);
+            if (!nodeParent) return;
+            // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
+            TreeRoAPI.moveNodeRelativeTo(node.node_id, nodeParent.node_id, 1);
+          } else if (e.key === "Tab") {
+            // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
+            e.preventDefault(); // block default focus change
+            const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
+            if (!siblingNode) return;
+            TreeRoAPI.moveNode(node.node_id, siblingNode.node_id);
+            // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
+            TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
+          }
+        }}
+        onBlur={(e) => {
+          console.debug(`${logPrefix} -> onBlur`);
+          // const newContent = getPlainTextWithNewlines(e.currentTarget);
+          const newContent = e.currentTarget.textContent || "";
+          // const newContent = e.currentTarget.textContent ?? "";
+          // console.debug(`${logPrefix} -> onBlur`, newContent);
+          if (newContent !== node.content) {
+            TreeRoAPI.updateNode(node.node_id, { content: newContent });
+          }
+          setIsEditing(false);
+        }}
+      >
+        {node.content}
+      </div>
+      {
+        <div
+          className={`NodeContent-render cursor-text ${isEditing ? "hidden" : ""}`}
+          onMouseDown={(e) => {
+            // console.log(`${logPrefix} -> onMouseDown`);
+            const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+            // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
+            setIsEditing(true);
+            setTimeout(() => {
+              console.log(`onClick setTimeout -> charIndex`, charIndex);
+              TreeRoAPI.setCaretAtCharIndex(ref.current as HTMLElement, charIndex);
+            }, 100);
+          }}
+          // onMouseUp={() => console.log(`${logPrefix} -> onMouseUp`)}
+          // onClick={(e) => {
+          //   const charIndex = TreeRoAPI.getCharIndexFromCaret(e.currentTarget);
+          //   console.log(`onClick -> charIndex`, charIndex);
+          // }}
+        >
+          {/* TODO: useMemo */}
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkBreaks]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              input(props) {
+                // Always normalize checked to boolean
+                const { checked, ...rest } = props;
+                return <input {...rest} checked={!!checked} readOnly />;
+              },
+              code(props) {
+                const { children, className, ...rest } = props;
+                // console.info("className", className);
+                // console.info("children", children);
+                // console.info("rest", rest);
+
+                const match = /language-(\w+)/.exec(className || "");
+                const codeString = String(children).replace(/\n$/, "");
+                // return (match ? (
+                //   <SyntaxHighlighter PreTag="div" language={match[1]}>
+                //     {String(children).replace(/\n$/, "")}
+                //   </SyntaxHighlighter>
+                // ) : (
+                //   <code {...rest} className={className}>
+                //     {children}
+                //   </code>
+                // ))
+
+                const CustomDiv = (props) => <div className="!p-2 rounded-lg" {...props} />;
+
+                return match ? (
+                  <div style={{ position: "relative" }}>
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        try {
+                          await navigator.clipboard.writeText(codeString);
+                        } catch (err) {
+                          console.error("Failed to copy:", err);
+                        }
+                      }}
+                      type="button"
+                      className="absolute top-1 right-1 px-2 p-1 text-xs rounded-md opacity-0 
+                 hover:opacity-100 transition-opacity cursor-pointer
+                 border border-red-400 bg-gray-100"
+                    >
+                      Copy
+                    </button>
+                    {/* showLineNumbers */}
+                    <SyntaxHighlighter PreTag={CustomDiv} language={match[1]}>
+                      {codeString}
+                    </SyntaxHighlighter>
+                  </div>
+                ) : (
+                  <code className={`${className} px-1 rounded-md text-red-600 bg-gray-100`}>{children}</code>
+                );
+              },
+            }}
+          >
+            {node.content}
+          </Markdown>
+        </div>
+      }
+    </div>
+  );
+});
+
+const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
+  const logPrefix = `NodeComponent [${nodeId}]`;
+  console.debug(logPrefix);
+  const refNode = useRef<HTMLDivElement>(null);
 
   // zustand subscribe
   const node = useStore((state) => {
@@ -57,7 +260,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
 
   const childNodes = TreeRoAPI.getNodeChildren(node.node_id);
 
-  console.log(isOver);
+  // console.log(isOver);
 
   // console.log("Listeners", listeners);
   // console.log("attributes", attributes);
@@ -126,203 +329,7 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
               </div>
             )}
           </button>
-          <div className="NodeContent-container flex-grow ml-2">
-            <div
-              ref={refContenteditable}
-              // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
-              className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
-              contentEditable
-              suppressContentEditableWarning
-              tabIndex={-1}
-              spellCheck={true}
-              autoCorrect="off"
-              onPaste={(e) => {
-                // console.debug(`${logPrefix} -> onPaste`, e);
-                e.preventDefault();
-                const text = e.clipboardData.getData("text/plain");
-                // document.execCommand("insertText", false, text);
-                const selection = window.getSelection();
-                if (!selection?.rangeCount) return;
-                selection.deleteFromDocument();
-                selection.getRangeAt(0).insertNode(document.createTextNode(text));
-                // Move caret to end of inserted text
-                selection.collapseToEnd();
-              }}
-              onInput={(e) => {
-                // console.debug(`${logPrefix} -> onInput`);
-                // const el = ref.current?.querySelector(".NodeContent-edit");
-                // console.debug(`${logPrefix} -> NodeContent-edit`, el);
-                // if (el) printDOM(el as HTMLElement);
-                // printDOM(e.currentTarget);
-
-                // Remove <br> that browser insearts in empty contenteditable
-                if (e.currentTarget.innerHTML === "<br>") {
-                  e.currentTarget.innerHTML = "";
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && e.ctrlKey) {
-                  // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
-                  e.preventDefault();
-                  const newNode = TreeRoAPI.createNode("");
-                  TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id, 1);
-                  //
-                  setTimeout(() => {
-                    const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
-                    // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-                    if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
-                  }, 0);
-                } else if (e.key === "Enter") {
-                  // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
-                  e.preventDefault();
-                  const selection = window.getSelection();
-                  if (!selection?.rangeCount) return;
-                  const range = selection.getRangeAt(0);
-                  // Delete any selected text
-                  range.deleteContents();
-                  // create new text node
-                  const newlineNode = document.createTextNode("\n");
-                  // Insert the newline at the caret
-                  range.insertNode(newlineNode);
-                  // Move caret to end of inserted text
-                  // Move caret after the newline
-                  range.setStartAfter(newlineNode);
-                  range.setEndAfter(newlineNode);
-                  // Collapse selection to caret
-                  selection.removeAllRanges();
-                  selection.addRange(range);
-                } else if (e.key === "Backspace") {
-                  // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
-                  const text = e.currentTarget.textContent ?? "";
-                  if (text.length === 0) {
-                    e.preventDefault(); // stop browser default
-                    const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
-                    TreeRoAPI.deleteNode(node.node_id);
-                    if (siblingNode) {
-                      setTimeout(() => {
-                        const el = document.querySelector(`[data-id="${siblingNode.node_id}"] .NodeContent-edit`);
-                        // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-                        if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
-                      }, 0);
-                    }
-                  }
-                } else if (e.key === "Tab" && e.shiftKey) {
-                  // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
-                  e.preventDefault(); // block default focus change
-                  const nodeParent = TreeRoAPI.getNodeParent(node.node_id);
-                  if (!nodeParent) return;
-                  // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
-                  TreeRoAPI.moveNodeRelativeTo(node.node_id, nodeParent.node_id, 1);
-                } else if (e.key === "Tab") {
-                  // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
-                  e.preventDefault(); // block default focus change
-                  const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
-                  if (!siblingNode) return;
-                  TreeRoAPI.moveNode(node.node_id, siblingNode.node_id);
-                  // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
-                  TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
-                }
-              }}
-              onBlur={(e) => {
-                console.debug(`${logPrefix} -> onBlur`);
-                // const newContent = getPlainTextWithNewlines(e.currentTarget);
-                const newContent = e.currentTarget.textContent || "";
-                // const newContent = e.currentTarget.textContent ?? "";
-                // console.debug(`${logPrefix} -> onBlur`, newContent);
-                if (newContent !== node.content) {
-                  TreeRoAPI.updateNode(node.node_id, { content: newContent });
-                }
-                setIsEditing(false);
-              }}
-            >
-              {node.content}
-            </div>
-            {
-              <div
-                ref={refRendered}
-                className={`NodeContent-render cursor-text ${isEditing ? "hidden" : ""}`}
-                onMouseDown={(e) => {
-                  // console.log(`${logPrefix} -> onMouseDown`);
-                  const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
-                  // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
-                  setIsEditing(true);
-                  setTimeout(() => {
-                    console.log(`onClick setTimeout -> charIndex`, charIndex);
-                    TreeRoAPI.setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
-                  }, 100);
-                }}
-                // onMouseUp={() => console.log(`${logPrefix} -> onMouseUp`)}
-                // onClick={(e) => {
-                //   const charIndex = TreeRoAPI.getCharIndexFromCaret(e.currentTarget);
-                //   console.log(`onClick -> charIndex`, charIndex);
-                // }}
-              >
-                {/* TODO: useMemo */}
-                <Markdown
-                  remarkPlugins={[remarkGfm, remarkBreaks]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={{
-                    input(props) {
-                      // Always normalize checked to boolean
-                      const { checked, ...rest } = props;
-                      return <input {...rest} checked={!!checked} readOnly />;
-                    },
-                    code(props) {
-                      const { children, className, node, ...rest } = props;
-                      // console.info("node", node);
-                      // console.info("className", className);
-                      // console.info("children", children);
-                      // console.info("rest", rest);
-
-                      const match = /language-(\w+)/.exec(className || "");
-                      const codeString = String(children).replace(/\n$/, "");
-                      // return (match ? (
-                      //   <SyntaxHighlighter PreTag="div" language={match[1]}>
-                      //     {String(children).replace(/\n$/, "")}
-                      //   </SyntaxHighlighter>
-                      // ) : (
-                      //   <code {...rest} className={className}>
-                      //     {children}
-                      //   </code>
-                      // ))
-
-                      const CustomDiv = (props) => <div className="!p-2 rounded-lg" {...props} />;
-
-                      return match ? (
-                        <div style={{ position: "relative" }}>
-                          <button
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              try {
-                                await navigator.clipboard.writeText(codeString);
-                              } catch (err) {
-                                console.error("Failed to copy:", err);
-                              }
-                            }}
-                            type="button"
-                            className="absolute top-1 right-1 px-2 p-1 text-xs rounded-md opacity-0 
-                 hover:opacity-100 transition-opacity cursor-pointer
-                 border border-red-400 bg-gray-100"
-                          >
-                            Copy
-                          </button>
-                          {/* showLineNumbers */}
-                          <SyntaxHighlighter PreTag={CustomDiv} language={match[1]}>
-                            {codeString}
-                          </SyntaxHighlighter>
-                        </div>
-                      ) : (
-                        <code className={`${className} px-1 rounded-md text-red-600 bg-gray-100`}>{children}</code>
-                      );
-                    },
-                  }}
-                >
-                  {node.content}
-                </Markdown>
-              </div>
-            }
-          </div>
+          <NodeContentComponent node={node} />
           <button className="Node-options ml-1 cursor-pointer" type="button">
             {/* <span>⋮</span> */}
             <i className="ph-bold ph-dots-three-vertical"></i>
@@ -332,14 +339,13 @@ function NodeComponent({ nodeId }: { nodeId: string }) {
         {isOver && <div className="">###################################################################</div>}
         <div className={`NodeChildren border-l ml-2 pl-2 ${node.collapsed ? "hidden" : ""}`}>
           {childNodes.map((child) => (
-            <MemoizedNodeComponent key={child.node_id} nodeId={child.node_id} />
+            <NodeComponent key={child.node_id} nodeId={child.node_id} />
           ))}
         </div>
       </div>
     </div>
   );
-}
-const MemoizedNodeComponent = memo(NodeComponent);
+});
 
 export default function DocumentComponent() {
   const logPrefix = `DocumentComponent`;
@@ -427,7 +433,7 @@ export default function DocumentComponent() {
           </div>
           <div className="RootNodeChildren">
             {childNodes.map((childNode) => (
-              <MemoizedNodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
+              <NodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
             ))}
             <DragOverlay>
               {activeId ? (
