@@ -13,7 +13,6 @@ export interface NodeDataType {
 export interface DocumentDataType {
   document_id: string;
   root_node_id: string;
-  // nodes: NodeDataType[];
   // As title used root node content
 }
 
@@ -37,6 +36,15 @@ export interface OutlinerStructureDataType {
   root_group_id: string;
   // groups: GroupDataType[];
   // documents: DocumentDataType[];
+}
+
+export interface FlattenedNodeType {
+  node_id: string;
+  parent_id: string | null;
+  depth: number;
+  index: number;
+  collapsed: boolean;
+  children: string[];
 }
 
 // -----------------------
@@ -91,8 +99,10 @@ export interface zustandUseStoreType {
   groups: Map<string, GroupDataType>;
   documents: Map<string, DocumentDataType>;
   nodes: Map<string, NodeDataType>;
+  rerenderNodesToggle: Record<string, boolean>;
 
-  // on logout clear store
+  // ---------------- State Storage methods ----------------
+  triggerNodeRender: (nodeId: string) => void;
   clearStoreState: () => void;
 
   // ---------------- Group Methods ----------------
@@ -108,11 +118,12 @@ export interface zustandUseStoreType {
   // insertDocumentAfter: (document: DocumentDataType, siblingId: string) => void;
   // insertDocumentBefore: (document: DocumentDataType, siblingId: string) => void;
   updateDocument: (docId: string, newDocData: Partial<DocumentDataType>) => void;
-  getDocumentNodes: (docId: string) => NodeDataType[];
+  getDocumentNodes: (docId: string) => DocumentWithNodesDataType | null;
   moveDocument: (docId: string, parentGroupId: string, index?: number) => void;
   // moveDocumentAfter: (docId: string, siblingId: string) => void;
   // moveDocumentBefore: (docId: string, siblingId: string) => void;
   deleteDocument: (docId: string) => void;
+  // buildTree: (docId: string) => void;
 
   // ---------------- Node Methods ----------------
   insertNode: (node: NodeDataType, parentNodeId: string, index?: number) => NodeDataType[];
@@ -122,12 +133,16 @@ export interface zustandUseStoreType {
   getNodeParent: (nodeId: string) => NodeDataType | null;
   getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
   getNodeIndex: (nodeId: string) => number | null;
+  getNodeDescendantsIds: (nodeId: string) => string[];
   moveNode: (nodeId: string, parentNodeId: string, index?: number) => NodeDataType[];
   moveNodeRelativeTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
   deleteNode: (nodeId: string) => [NodeDataType | null, string[]];
-  getNodeDescendantsIds: (nodeId: string) => string[];
-  queryNodesByText: (text: string, docId?: string) => NodeDataType[];
+  // queryNodesByText: (text: string, docId?: string) => NodeDataType[];
 }
+
+// -----------------------
+// TreeRo API
+// -----------------------
 
 export interface ChangeEventType {
   type: "insert" | "update" | "delete" | "move";
@@ -138,9 +153,10 @@ export interface ChangeEventType {
 export interface TreeRoAPIType {
   // Zustand store
   useStore: UseBoundStore<StoreApi<zustandUseStoreType>>;
-
   // Database API
   IDBApi: IDBApiType;
+  // Api version
+  version: string;
 
   // State
   dataIsLoaded: boolean;
@@ -172,7 +188,7 @@ export interface TreeRoAPIType {
   createDocument(rootNodeId: string): DocumentDataType;
   insertDocument(document: DocumentDataType, parentGroupId: string, index?: number): void;
   updateDocument(docId: string, newDocData: Partial<DocumentDataType>): void;
-  getDocumentNodes(docId: string): NodeDataType[];
+  getDocumentNodes(docId: string): DocumentWithNodesDataType | null;
   moveDocument(docId: string, parentGroupId: string, index?: number): void;
   deleteDocument(docId: string): void;
   openDocument(docId: string): void; // sets currentDocId
@@ -188,14 +204,23 @@ export interface TreeRoAPIType {
   getNodeParent(nodeId: string): NodeDataType | null;
   getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
   getNodeIndex: (nodeId: string) => number | null;
+  getNodeDescendantsIds: (nodeId: string) => string[];
   moveNode: (nodeId: string, parentNodeId: string, index?: number) => NodeDataType[];
   moveNodeRelativeTo: (nodeId: string, relNodeId: string, offset: number) => NodeDataType[];
   deleteNode(nodeId: string): [NodeDataType | null, string[]];
-  queryNodesByText(text: string, docId?: string): NodeDataType[];
+  // queryNodesByText(text: string, docId?: string): NodeDataType[];
   toggleNodeCollapse(nodeId: string): void;
   collapseAllNodeChildren(nodeId: string): void;
   // ---------------- Caret Methods  ----------------
   getCharIndexFromCaret(element: HTMLElement): number;
   setCaretAtCharIndex(element: HTMLElement, index: number): void;
   getCharIndexFromMouse(element: HTMLElement, x: number, y: number): number;
+}
+
+// -----------------------
+// Zustand dragNDrop store
+// -----------------------
+export interface DragNDropStoreType {
+  placement: string;
+  descendantsIds: string[];
 }

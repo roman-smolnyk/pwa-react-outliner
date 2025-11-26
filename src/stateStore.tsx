@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { NodeDataType, zustandUseStoreType, GroupDataType, DocumentDataType } from "./types";
+import type { NodeDataType, zustandUseStoreType, GroupDataType, DocumentDataType, DocumentWithNodesDataType, DragNDropStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
@@ -9,6 +9,14 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   groups: new Map(),
   documents: new Map(),
   nodes: new Map(),
+  rerenderNodesToggle: {},
+
+  triggerNodeRender: (nodeId) => {
+    // * Verified
+    set((state) => {
+      return { rerenderNodesToggle: { ...state.rerenderNodesToggle, [nodeId]: !state.rerenderNodesToggle[nodeId] } };
+    });
+  },
 
   clearStoreState: () => {
     // * Verified
@@ -123,9 +131,9 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   getDocumentNodes: (docId) => {
     const state = get();
     const doc = state.documents.get(docId);
-    if (!doc) return [];
+    if (!doc) return null;
     const root = state.nodes.get(doc.root_node_id);
-    if (!root) return [];
+    if (!root) return null;
     const collect = (node: NodeDataType): NodeDataType[] => {
       return [
         node,
@@ -135,7 +143,9 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
         }),
       ];
     };
-    return collect(root);
+    const docWithNodes: DocumentWithNodesDataType = { document_id: doc.document_id, root_node_id: doc.root_node_id, nodes: collect(root) };
+
+    return docWithNodes;
   },
 
   moveDocument: (docId, parentGroupId, index = -1) => {
@@ -267,6 +277,23 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     const nodeParent = state.getNodeParent(nodeId);
     if (!nodeParent) return null;
     return nodeParent.children.indexOf(nodeId);
+  },
+
+  getNodeDescendantsIds: (nodeId) => {
+    const descendants: string[] = [];
+    const state = get();
+    const node = state.nodes.get(nodeId);
+    if (!node) return descendants;
+    function getDescendants(id: string) {
+      const nodeChild = state.nodes.get(id);
+      for (const childId of nodeChild?.children || []) {
+        descendants.push(childId);
+        getDescendants(childId);
+      }
+    }
+    getDescendants(nodeId);
+
+    return descendants;
   },
 
   moveNode: (nodeId, parentNodeId, index = -1) => {
@@ -408,26 +435,14 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     return [updatedParentNode, removedNodeIds];
   },
 
-  getNodeDescendantsIds: (nodeId) => {
-    const descendants: string[] = [];
-    const state = get();
-    const node = state.nodes.get(nodeId);
-    if (!node) return descendants;
-    function getDescendants(id: string) {
-      const nodeChild = state.nodes.get(id);
-      for (const childId of nodeChild?.children || []) {
-        descendants.push(childId);
-        getDescendants(childId);
-      }
-    }
-    getDescendants(nodeId);
+  // queryNodesByText: (text, docId) => {
+  //   const state = get();
+  //   const nodes = docId ? get().getDocumentNodes(docId) : Array.from(state.nodes.values());
+  //   return nodes.filter((n) => n.content.includes(text));
+  // },
+}));
 
-    return descendants;
-  },
-
-  queryNodesByText: (text, docId) => {
-    const state = get();
-    const nodes = docId ? get().getDocumentNodes(docId) : Array.from(state.nodes.values());
-    return nodes.filter((n) => n.content.includes(text));
-  },
+export const useDragNDropStore = create<DragNDropStoreType>(() => ({
+  placement: "",
+  descendantsIds: [],
 }));

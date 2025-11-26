@@ -1,37 +1,32 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
-
-import { memo, useEffect, useRef, useState, useLayoutEffect, useCallback } from "react";
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+// @ts-ignore TS6133: declared but never read
+import { memo, useEffect, useRef, useState, useLayoutEffect, useCallback, useMemo } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 import { TreeRoAPI } from "./api";
-import { useStore } from "./stateStore";
-import { printDOM } from "./utils";
-
+import { useDragNDropStore, useStore } from "./stateStore";
 import type { NodeDataType } from "./types";
-
-import { DndContext, DragOverlay, useDraggable, useDroppable, closestCenter } from "@dnd-kit/core";
-// import type { DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
-
-import { CSS as DndCss } from "@dnd-kit/utilities";
-import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import { memoizeWithTimeout } from "./utilities";
 
 const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
   const logPrefix = `NodeContentComponent [${node.node_id}]`;
-  console.debug(logPrefix);
+  // console.debug(logPrefix);
   const ref = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="NodeContent-container flex-grow ml-2">
+    <div className="NodeContent-container" data-id={node.node_id}>
       <div
         ref={ref}
         // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
         className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
+        data-id={node.node_id}
         contentEditable
         suppressContentEditableWarning
         tabIndex={-1}
@@ -140,14 +135,15 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
       </div>
       {
         <div
-          className={`NodeContent-render cursor-text ${isEditing ? "hidden" : ""}`}
-          onMouseDown={(e) => {
-            // console.log(`${logPrefix} -> onMouseDown`);
+          className={`NodeContent-render  ${isEditing ? "hidden" : ""}`}
+          data-id={node.node_id}
+          onPointerDown={(e) => {
+            // console.log(`${logPrefix} -> onPointerDown`);
             const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
             // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
             setIsEditing(true);
             setTimeout(() => {
-              console.log(`onClick setTimeout -> charIndex`, charIndex);
+              console.log(`onPointerDown setTimeout -> charIndex`, charIndex);
               TreeRoAPI.setCaretAtCharIndex(ref.current as HTMLElement, charIndex);
             }, 100);
           }}
@@ -157,7 +153,6 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
           //   console.log(`onClick -> charIndex`, charIndex);
           // }}
         >
-          {/* TODO: useMemo */}
           <Markdown
             remarkPlugins={[remarkGfm, remarkBreaks]}
             rehypePlugins={[rehypeRaw]}
@@ -168,6 +163,7 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
                 return <input {...rest} checked={!!checked} readOnly />;
               },
               code(props) {
+                // @ts-ignore TS6133: declared but never read
                 const { children, className, ...rest } = props;
                 // console.info("className", className);
                 // console.info("children", children);
@@ -175,17 +171,8 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
 
                 const match = /language-(\w+)/.exec(className || "");
                 const codeString = String(children).replace(/\n$/, "");
-                // return (match ? (
-                //   <SyntaxHighlighter PreTag="div" language={match[1]}>
-                //     {String(children).replace(/\n$/, "")}
-                //   </SyntaxHighlighter>
-                // ) : (
-                //   <code {...rest} className={className}>
-                //     {children}
-                //   </code>
-                // ))
 
-                const CustomDiv = (props) => <div className="!p-2 rounded-lg" {...props} />;
+                // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;
 
                 return match ? (
                   <div style={{ position: "relative" }}>
@@ -200,14 +187,15 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
                         }
                       }}
                       type="button"
-                      className="absolute top-1 right-1 px-2 p-1 text-xs rounded-md opacity-0 
-                 hover:opacity-100 transition-opacity cursor-pointer
-                 border border-red-400 bg-gray-100"
+                      className="cursor-pointer absolute top-1 right-1 px-2 p-1
+                                 text-xs rounded-md 
+                                 opacity-0 hover:opacity-100 transition-opacity 
+                                 border border-red-400 bg-gray-100"
                     >
                       Copy
                     </button>
                     {/* showLineNumbers */}
-                    <SyntaxHighlighter PreTag={CustomDiv} language={match[1]}>
+                    <SyntaxHighlighter PreTag={(props) => <div className="p-2! rounded-lg" {...props} />} language={match[1]}>
                       {codeString}
                     </SyntaxHighlighter>
                   </div>
@@ -226,30 +214,40 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
 });
 
 const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
+  // @ts-ignore TS6133: declared but never read
   const logPrefix = `NodeComponent [${nodeId}]`;
-  console.debug(logPrefix);
+  // console.debug(logPrefix);
   const refNode = useRef<HTMLDivElement>(null);
 
-  // zustand subscribe
+  // zustand subscribe to node
   const node = useStore((state) => {
     return state.nodes.get(nodeId);
   });
 
-  const { attributes, listeners, setNodeRef, isOver } = useSortable({
+  // useSortable merges useDraggable and useDroppable functionality, so you can do
+  const { attributes, listeners, setNodeRef, isOver, over, active, isDragging } = useSortable({
     id: nodeId,
   });
-  // const { attributes, listeners, setNodeRef: setDraggableRef } = useDraggable({ id: nodeId });
-  // const { setNodeRef: setDroppableRef, isOver } = useDroppable({ id: nodeId });
 
-  // Merge refs: both draggable and droppable need to attach to the same DOM node
-  // const combinedRef = useCallback(
-  //   (node) => {
-  //     setDraggableRef(node);
-  //     // setDroppableRef(node);
-  //     refNode.current =
-  //   },
-  //   [setDraggableRef, ],
-  // );
+  if (isDragging) {
+    console.debug("isDragging", attributes, listeners);
+  }
+
+  if (isOver) {
+    console.debug("isOver", attributes, listeners);
+  }
+
+  // zustand subscribe to rerender trigger
+  useStore((state) => {
+    return state.rerenderNodesToggle[nodeId];
+  });
+
+  let placement = null;
+  if (isOver && active?.id && over?.id && active.id !== over.id) {
+    if (!useDragNDropStore.getState().descendantsIds.includes(nodeId)) {
+      placement = useDragNDropStore.getState().placement;
+    }
+  }
 
   const combinedRef = (element: HTMLDivElement | null) => {
     setNodeRef(element); // dnd-kit needs this
@@ -260,47 +258,21 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
 
   const childNodes = TreeRoAPI.getNodeChildren(node.node_id);
 
-  // console.log(isOver);
-
-  // console.log("Listeners", listeners);
-  // console.log("attributes", attributes);
-
-  function wrapPointerDown(originalHandler: (event: PointerEvent) => void) {
-    // biome-ignore lint/complexity/useArrowFunction: explanation
-    return function (event: PointerEvent) {
-      const proxyEvent = new Proxy(event, {
-        get(target, prop: keyof PointerEvent) {
-          if (prop === "preventDefault") {
-            console.debug("preventDefault");
-            return () => {};
-          }
-          return target[prop];
-        },
-      }) as PointerEvent;
-
-      originalHandler(proxyEvent);
-    };
-  }
-  // if (listeners?.onPointerDown) {
-  //   // console.log("Listeners", listeners);
-  //   const handler = listeners.onPointerDown as (event: PointerEvent) => void;
-  //   listeners.onPointerDown = wrapPointerDown(handler);
-  // }
-
   return (
     // data-id={node.node_id}
-    <div ref={combinedRef} id={node.node_id} className={`Node-outer`}>
+    <div ref={combinedRef} id={node.node_id} className={`Node-outer ${isDragging ? "bg-gray-200" : ""}`}>
       <div className="Node-inner">
-        <div className="Node-self flex items-start">
+        {over?.id === node.node_id && placement === "above" && <DropIndicatorComponent />}
+        <div className="Node-self" data-id={node.node_id}>
           <button
-            className="Node-bullet w-4 h-6 cursor-pointer"
+            className="Node-bullet"
             type="button"
             // ref={setBulletDropRef}
             {...listeners}
             {...attributes}
             // data-node-id={node.id}
             onPointerUpCapture={() => {
-              console.debug("Node-bullet onClick");
+              console.debug("Node-bullet onPointerUpCapture");
               TreeRoAPI.toggleNodeCollapse(node.node_id);
             }}
           >
@@ -309,7 +281,8 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
                 // <PlusIcon className="size-4 text-500" />
                 // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
                 // <PlusCircle className="size-4" />
-                <i className="ph-light ph-plus-circle"></i>
+                <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
+                // <i className="ph-bold ph-plus-circle"></i>
                 // <div>
                 //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
                 //     <span className="w-1 h-1 bg-black rounded-full"></span>
@@ -317,27 +290,30 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
                 // </div>
               ) : (
                 // <Minus className="size-4" />
-                <i className="ph-light ph-minus"></i>
+                <i className="ph ph-minus text-[0.9rem]"></i>
               )
             ) : (
               // <span>●</span>
-              <div>
-                <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span>
-                {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
-                  <span className="w-2 h-2 bg-black rounded-full"></span>
-                </span> */}
-              </div>
+              <i className="ph-fill ph-circle text-[0.5rem]"></i>
+              // <div>
+
+              //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
+              //   {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
+              //     <span className="w-2 h-2 bg-black rounded-full"></span>
+              //   </span> */}
+              // </div>
             )}
           </button>
           <NodeContentComponent node={node} />
-          <button className="Node-options ml-1 cursor-pointer" type="button">
+          <button className="Node-options" type="button">
             {/* <span>⋮</span> */}
-            <i className="ph-bold ph-dots-three-vertical"></i>
+            <i className="ph-bold ph-dots-three-vertical text-[1rem]"></i>
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
         </div>
-        {isOver && <div className="">###################################################################</div>}
-        <div className={`NodeChildren border-l ml-2 pl-2 ${node.collapsed ? "hidden" : ""}`}>
+        {over?.id === node.node_id && placement === "below" && <DropIndicatorComponent />}
+        {over?.id === node.node_id && placement === "indent" && <DropIndicatorComponent shrink={true} />}
+        <div className={`NodeChildren border-l ml-2 pl-5 ${node.collapsed ? "hidden" : ""}`}>
           {childNodes.map((child) => (
             <NodeComponent key={child.node_id} nodeId={child.node_id} />
           ))}
@@ -347,7 +323,17 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   );
 });
 
+export function DropIndicatorComponent({ shrink = false }) {
+  // console.debug(placement);
+  return (
+    <div className="flex items-start justify-end">
+      <div className={`h-1 rounded bg-blue-500 ${shrink ? "w-3/4" : "w-full"}`} />
+    </div>
+  );
+}
+
 export default function DocumentComponent() {
+  // @ts-ignore TS6133: declared but never read
   const logPrefix = `DocumentComponent`;
 
   const [activeId, setActiveId] = useState("");
@@ -365,14 +351,17 @@ export default function DocumentComponent() {
     return state.nodes.get(rootNodeId);
   });
 
+  // const nodes = useStore.getState().nodes;
+  // const rootNodeId = rootNode?.node_id;
+
   // console.debug(`${logPrefix} -> meta`, stateIsInitialized, currentDocId);
   // console.debug(`${logPrefix} -> rootNode`, rootNode);
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      delay: 250,
-      tolerance: 10,
-      distance: 5,
+      delay: 250, // Minimum time (in milliseconds) the pointer must be pressed before the drag activates.
+      tolerance: 10, // Maximum movement (in pixels) allowed during the delay period. Prevents interrupt on mobile screens
+      distance: 5, // Minimum distance (in pixels) the pointer must move before the drag activates.
     },
   });
 
@@ -385,20 +374,71 @@ export default function DocumentComponent() {
   //   const bullet = target.closest<HTMLButtonElement>(".Node-bullet");
   // };
 
-  const childNodes = TreeRoAPI.getNodeChildren(rootNode.node_id);
+  const childNodes = TreeRoAPI.getNodeChildren(rootNode?.node_id || "");
+
   // console.debug(`${logPrefix} -> childNodes`, childNodes);
 
   return (
     <DndContext
+      // collisionDetection={closestCenter}
       sensors={sensors}
       // collisionDetection={closestCenter}
       onDragStart={(event) => {
+        // console.log("onDragStart", event);
         setActiveId(event.active.id as string);
+        // const el = document.getElementById(`${event.active.id}`)!;
+        // el.classList.add("bg-gray-200");
+      }}
+      onDragMove={(event) => {
+        // console.debug("onDragMove", event);
+        const activatorEvent = event.activatorEvent as PointerEvent;
+        const pointerX = activatorEvent.clientX + event.delta.x;
+        const pointerY = activatorEvent.clientY + event.delta.y;
+        if (event.over) {
+          // const rect = event.over.rect;
+
+          // TODO: check if rect properties does not change on scroll
+          const rect = memoizeWithTimeout(
+            (nodeId: string) => {
+              console.debug("memoizeWithTimeout");
+              const el = document.querySelector(`.Node-self[data-id="${nodeId}"]`)!;
+              return el.getBoundingClientRect();
+            },
+            [event.over.id as string],
+            30_000,
+          );
+          // const el = document.querySelector(`.Node-self[data-id="${event.over.id}"]`)!;
+          // const rect = el.getBoundingClientRect();
+          // const middleX = rect.left + rect.width / 2;
+          const middleX = 200;
+          const middleY = rect.top + rect.height / 2;
+          const offsetFromLeft = pointerX - rect.left;
+          // console.debug("middleY pointerY", middleY, pointerY);
+          const shouldIndent = offsetFromLeft > middleX;
+          const position = pointerY > middleY ? "below" : "above";
+          const placement = shouldIndent && position === "below" ? "indent" : position;
+          // console.debug("placement", placement);
+
+          const descendantsIds = TreeRoAPI.getNodeDescendantsIds(event.active.id as string);
+
+          useDragNDropStore.setState({ descendantsIds: descendantsIds });
+          useDragNDropStore.setState({ placement: placement });
+
+          // Trigger rerender only for one node
+          useStore.getState().triggerNodeRender(event.over.id as string);
+        }
+      }}
+      // @ts-ignore TS6133: declared but never read
+      onDragOver={(event) => {
+        // console.debug(`onDragOver`, event);
       }}
       onDragEnd={(event) => {
         if (!event.over) return;
         const activeId = String(event.active.id);
         const overId = String(event.over.id);
+
+        // const el = document.getElementById(`${event.active.id}`)!;
+        // el.classList.remove("bg-gray-200");
 
         // console.log("onDragEnd", activeId, overId);
 
@@ -413,42 +453,31 @@ export default function DocumentComponent() {
 
         if (overNode.collapsed === false && overNode.children.length !== 0) {
           console.log(activeNode, overNode);
-          TreeRoAPI.moveNode(activeId, overId, 0);
+          // TreeRoAPI.moveNode(activeId, overId, 0);
         } else {
-          TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
+          // TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
         }
 
         if (activeParent === overParent) {
         }
       }}
     >
-      <div className="Document mx-2 sm:mx-8 md:mx-16 lg:mx-32 xl:mx-64" data-id={currentDocId}>
-        <div className="RootNode-self">
-          {/* text-2xl font-bold */}
-          <div className="RootNode flex items-start">
-            {/* <h1 className="RootNodeContent">{rootNode.content}</h1> */}
-            <div contentEditable suppressContentEditableWarning>
-              {rootNode.content}
+      <div className="Document" data-id={currentDocId}>
+        <div className="RootNode-outer">
+          <div className="RootNode-inner">
+            <div className="RootNode-self">
+              <NodeContentComponent node={rootNode} />
             </div>
-          </div>
-          <div className="RootNodeChildren">
-            {childNodes.map((childNode) => (
-              <NodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
-            ))}
-            <DragOverlay>
-              {activeId ? (
-                <div
-                  style={{
-                    padding: "4px",
-                    border: "1px solid #ccc",
-                    background: "#eee",
-                  }}
-                >
-                  Move node
-                </div>
-              ) : null}
-            </DragOverlay>
-            <div className="h-100" /> {/* spacer */}
+            <div className="RootNodeChildren">
+              {childNodes.map((childNode) => (
+                <NodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
+              ))}
+              {/* Remember that it is located in the document container so it inherits styles and behaviour */}
+              <DragOverlay>
+                {activeId ? <div className="inline-block border border-black bg-white px-1 cursor-grabbing">Move node</div> : null}
+              </DragOverlay>
+              <div className="Document-bottom-spacer h-100" />
+            </div>
           </div>
         </div>
       </div>

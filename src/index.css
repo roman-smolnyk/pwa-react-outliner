@@ -1,7 +1,10 @@
 /** biome-ignore-all lint/suspicious/noUnknownAtRules: explanation */
 @import "tailwindcss";
+@import "@phosphor-icons/web/regular";
+@import "@phosphor-icons/web/thin";
 @import "@phosphor-icons/web/light";
 @import "@phosphor-icons/web/bold";
+@import "@phosphor-icons/web/fill";
 @import "@phosphor-icons/web/duotone";
 
 @font-face {
@@ -51,32 +54,45 @@ Dynalist uses actual newline in the note text to achive the same result
   white-space: pre;
 }
 
-.Node-self {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+.Document {
+  /* Marging based on the screen size */
+  @apply mx-2 sm:mx-8 md:mx-16 lg:mx-32 xl:mx-64 2xl:mx-64;
 }
 
+.RootNode-self {
+  @apply flex items-start;
+}
 
+.Node-self {
+  @apply flex;
+  @apply items-start;
+  @apply gap-1;
+}
 
 .Node-bullet,
 .Node-options {
-  flex: 0 0 auto;
-  /* fixed width */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @apply flex flex-none;
+  @apply items-center justify-center;
+  @apply cursor-pointer;
+  @apply min-h-6;
+  @apply min-w-6;
 }
 
 .NodeContent-container {
-  flex: 1 1 auto;
-  /* flexible center */
-  min-width: 0;
+  @apply flex-auto;
   /* critical: allows child to shrink and wrap */
+  @apply min-w-0;
+
 }
 
 .NodeContent-edit {
-  @apply select-text outline-none whitespace-pre-wrap break-words cursor-text;
+  @apply cursor-text;
+  @apply select-text;
+  @apply outline-none;
+  @apply whitespace-pre-wrap;
+  @apply wrap-break-word;
+  @apply min-h-6;
+
 
   text-decoration-skip-ink: none;
   text-rendering: optimizeLegibility;
@@ -84,7 +100,9 @@ Dynalist uses actual newline in the note text to achive the same result
 }
 
 .NodeContent-render {
-  @apply min-h-[1.5em];
+  @apply wrap-break-word;
+  @apply cursor-text;
+  @apply min-h-6;
 }
 
 .NodeContent-render code {

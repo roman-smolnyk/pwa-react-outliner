@@ -21,7 +21,10 @@
 				"noBlankTarget": "off"
 			},
 			"correctness": {
-				"useUniqueElementIds": "off"
+				"useUniqueElementIds": "off",
+				"noUnusedImports": "off",
+				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "off"
 			},
 			"a11y": {
 				"noStaticElementInteractions": "off",
@@ -29,6 +32,9 @@
 			},
 			"style": {
 				"noNonNullAssertion": "off"
+			},
+			"suspicious": {
+				"noTsIgnore": "off"
 			}
 		}
 	},

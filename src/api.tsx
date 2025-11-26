@@ -1,13 +1,15 @@
 import { IDBApi } from "./db";
 import { mockupDocument, mockupGroup, mockupNodes } from "./mockupData";
 import { useStore } from "./stateStore";
-import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType } from "./types";
+// @ts-ignore TS6133: declared but never read
+import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType, DocumentWithNodesDataType } from "./types";
 
 export class DataNotLoadedError extends Error {}
 
 export const TreeRoAPI: TreeRoAPIType = {
   useStore: useStore, // expose to userscript
   IDBApi: IDBApi, // expose to userscript
+  version: "0.0.1",
 
   dataIsLoaded: false,
   changesQueue: [],
@@ -228,7 +230,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   getAllNodes(docId) {
-    if (docId) return useStore.getState().getDocumentNodes(docId);
+    if (docId) return useStore.getState().getDocumentNodes(docId)?.nodes || [];
     return Array.from(useStore.getState().nodes.values());
   },
 
@@ -250,6 +252,10 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   getNodeIndex(nodeId) {
     return useStore.getState().getNodeIndex(nodeId);
+  },
+
+  getNodeDescendantsIds(nodeId) {
+    return useStore.getState().getNodeDescendantsIds(nodeId);
   },
 
   moveNode(nodeId, parentNodeId, index) {
@@ -274,14 +280,18 @@ export const TreeRoAPI: TreeRoAPIType = {
     return [updatedParentNode, removedNodeIds];
   },
 
-  queryNodesByText(text, docId) {
-    return useStore.getState().queryNodesByText(text, docId);
-  },
+  // queryNodesByText(text, docId) {
+  //   return useStore.getState().queryNodesByText(text, docId);
+  // },
 
   toggleNodeCollapse(nodeId) {
-    const node = useStore.getState().nodes.get(nodeId);
+    // * Verified
+    const node = this.getNode(nodeId);
     if (!node || node.children.length === 0) return;
-    useStore.getState().updateNode(nodeId, { collapsed: !node.collapsed });
+    const updatedNode = useStore.getState().updateNode(nodeId, { collapsed: !node.collapsed });
+    if (!updatedNode) return null;
+    IDBApi.saveNode(updatedNode);
+    return updatedNode;
   },
 
   collapseAllNodeChildren(nodeId: string) {
