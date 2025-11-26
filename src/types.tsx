@@ -220,7 +220,8 @@ export interface TreeRoAPIType {
 // -----------------------
 // Zustand dragNDrop store
 // -----------------------
-export interface DragNDropStoreType {
-  placement: string;
-  descendantsIds: string[];
+export interface zustandUIStoreType {
+  dragNDropPlacement: string;
+  draggableNodeDescendantsIds: string[];
+  
 }

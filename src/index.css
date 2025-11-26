@@ -92,6 +92,7 @@ Dynalist uses actual newline in the note text to achive the same result
   @apply whitespace-pre-wrap;
   @apply wrap-break-word;
   @apply min-h-6;
+  @apply leading-tight;
 
 
   text-decoration-skip-ink: none;
@@ -103,6 +104,10 @@ Dynalist uses actual newline in the note text to achive the same result
   @apply wrap-break-word;
   @apply cursor-text;
   @apply min-h-6;
+}
+
+.NodeChildren {
+  @apply flex flex-col gap-1 border-l border-gray-200 ml-2 pl-5;
 }
 
 .NodeContent-render code {
@@ -126,6 +131,21 @@ Dynalist uses actual newline in the note text to achive the same result
     @apply text-2xl font-semibold;
   }
 
+}
+
+table {
+  border-collapse: collapse;
+  /* width: 100%; */
+}
+
+th,
+td {
+  border: 1px solid #000000;
+  padding: 4px 8px;
+}
+
+p {
+  @apply leading-tight;
 }
 
 /* 

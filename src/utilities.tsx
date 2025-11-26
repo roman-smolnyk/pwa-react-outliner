@@ -10,6 +10,44 @@ export function arrayMove<T>(array: T[], from: number, to: number): T[] {
   return newArray;
 }
 
+export function arrayRelativeMove<T>(array: T[], item: T, relativeTo: T, offset: number): T[] {
+  // ["A", "B", "C", "D", "E"]
+  // For convenience when user pass -1 in reality it should be 0 as on move shift to right happens
+  offset = offset < 0 ? offset + 1 : offset;
+  const newArray = array.slice(); // shallow copy
+
+  const itemIndex = newArray.indexOf(item);
+  const refIndex = newArray.indexOf(relativeTo);
+  if (itemIndex === -1 || refIndex === -1) return array;
+  // remove item first
+  const [removed] = newArray.splice(itemIndex, 1);
+
+  const currentRefIndex = newArray.indexOf(relativeTo);
+  // compute target index
+  let targetIndex = currentRefIndex + offset;
+
+  // clamp to array bounds
+  targetIndex = Math.max(0, Math.min(targetIndex, newArray.length));
+
+  newArray.splice(targetIndex, 0, removed);
+  console.debug(
+    "arrayRelativeMove",
+    {
+      array: array,
+      item: item,
+      relativeTo: relativeTo,
+      offset: offset,
+      itemIndex: itemIndex,
+      refIndex: refIndex,
+      currentRefIndex: currentRefIndex,
+      targetIndex: targetIndex,
+    },
+    newArray,
+  );
+
+  return newArray;
+}
+
 export function generateFlattenedNodes(nodes: Map<string, NodeDataType>, rootNodeId: string, activeId: string) {
   if (!rootNodeId || !activeId) return [];
 

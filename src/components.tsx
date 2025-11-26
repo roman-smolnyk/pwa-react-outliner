@@ -3,30 +3,33 @@
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 // @ts-ignore TS6133: declared but never read
-import { memo, useEffect, useRef, useState, useLayoutEffect, useCallback, useMemo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { TreeRoAPI } from "./api";
-import { useDragNDropStore, useStore } from "./stateStore";
-import type { NodeDataType } from "./types";
-import { memoizeWithTimeout } from "./utilities";
+import { useStore, useUIStore } from "./stateStore";
 
-const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
-  const logPrefix = `NodeContentComponent [${node.node_id}]`;
+const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
+  const logPrefix = `NodeContentComponent [${nodeId}]`;
   // console.debug(logPrefix);
-  const ref = useRef<HTMLDivElement>(null);
+  const refContenteditable = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  useEffect(() => {
+    console.log("MOUNTED");
+    return () => console.log("UNMOUNTED");
+  }, []);
+
   return (
-    <div className="NodeContent-container" data-id={node.node_id}>
+    <div className="NodeContent-container" data-id={nodeId}>
       <div
-        ref={ref}
+        ref={refContenteditable}
         // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
         className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
-        data-id={node.node_id}
+        data-id={nodeId}
         contentEditable
         suppressContentEditableWarning
         tabIndex={-1}
@@ -61,7 +64,7 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
             const newNode = TreeRoAPI.createNode("");
-            TreeRoAPI.insertNodeRelativeTo(newNode, node.node_id, 1);
+            TreeRoAPI.insertNodeRelativeTo(newNode, nodeId, 1);
             //
             setTimeout(() => {
               const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
@@ -92,11 +95,11 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
             const text = e.currentTarget.textContent ?? "";
             if (text.length === 0) {
               e.preventDefault(); // stop browser default
-              const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
-              TreeRoAPI.deleteNode(node.node_id);
+              const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
+              TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
                 setTimeout(() => {
-                  const el = document.querySelector(`[data-id="${siblingNode.node_id}"] .NodeContent-edit`);
+                  const el = document.querySelector(`.NodeContent-edit[data-id="${siblingNode.node_id}"]`);
                   // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
                   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
                 }, 0);
@@ -105,18 +108,35 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
           } else if (e.key === "Tab" && e.shiftKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            const nodeParent = TreeRoAPI.getNodeParent(node.node_id);
+            const nodeParent = TreeRoAPI.getNodeParent(nodeId);
             if (!nodeParent) return;
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
-            TreeRoAPI.moveNodeRelativeTo(node.node_id, nodeParent.node_id, 1);
+            e.currentTarget.blur();
+            TreeRoAPI.moveNodeRelativeTo(nodeId, nodeParent.node_id, 1);
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            const siblingNode = TreeRoAPI.getNodeSibling(node.node_id, -1);
+            // const currentElement = e.currentTarget;
+            const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
             if (!siblingNode) return;
-            TreeRoAPI.moveNode(node.node_id, siblingNode.node_id);
+            e.currentTarget.blur();
+            TreeRoAPI.moveNode(nodeId, siblingNode.node_id);
             // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
             TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
+            // setTimeout(() => {
+            //   setIsEditing(true);
+            //   // currentElement.focus();
+            // }, 100);
+          } else if (e.key === "ArrowUp" && e.altKey) {
+            e.preventDefault();
+            const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
+            const index = TreeRoAPI.getNodeIndex(nodeId)!;
+            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index - 1);
+          } else if (e.key === "ArrowDown" && e.altKey) {
+            e.preventDefault();
+            const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
+            const index = TreeRoAPI.getNodeIndex(nodeId)!;
+            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index + 1);
           }
         }}
         onBlur={(e) => {
@@ -125,26 +145,26 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
           const newContent = e.currentTarget.textContent || "";
           // const newContent = e.currentTarget.textContent ?? "";
           // console.debug(`${logPrefix} -> onBlur`, newContent);
-          if (newContent !== node.content) {
-            TreeRoAPI.updateNode(node.node_id, { content: newContent });
+          if (newContent !== nodeContent) {
+            TreeRoAPI.updateNode(nodeId, { content: newContent });
           }
           setIsEditing(false);
         }}
       >
-        {node.content}
+        {nodeContent}
       </div>
       {
         <div
           className={`NodeContent-render  ${isEditing ? "hidden" : ""}`}
-          data-id={node.node_id}
+          data-id={nodeId}
           onPointerDown={(e) => {
             // console.log(`${logPrefix} -> onPointerDown`);
             const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
             // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
             setIsEditing(true);
             setTimeout(() => {
-              console.log(`onPointerDown setTimeout -> charIndex`, charIndex);
-              TreeRoAPI.setCaretAtCharIndex(ref.current as HTMLElement, charIndex);
+              // console.log(`onPointerDown setTimeout -> charIndex`, charIndex);
+              TreeRoAPI.setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
             }, 100);
           }}
           // onMouseUp={() => console.log(`${logPrefix} -> onMouseUp`)}
@@ -175,27 +195,10 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
                 // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;
 
                 return match ? (
-                  <div style={{ position: "relative" }}>
-                    <button
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        try {
-                          await navigator.clipboard.writeText(codeString);
-                        } catch (err) {
-                          console.error("Failed to copy:", err);
-                        }
-                      }}
-                      type="button"
-                      className="cursor-pointer absolute top-1 right-1 px-2 p-1
-                                 text-xs rounded-md 
-                                 opacity-0 hover:opacity-100 transition-opacity 
-                                 border border-red-400 bg-gray-100"
-                    >
-                      Copy
-                    </button>
+                  <div className="relative">
+                    <ButtonCopyCodeComponent textToCopy={codeString} />
                     {/* showLineNumbers */}
-                    <SyntaxHighlighter PreTag={(props) => <div className="p-2! rounded-lg" {...props} />} language={match[1]}>
+                    <SyntaxHighlighter PreTag={SyntaxHighlighterPreTagComponent} language={match[1]}>
                       {codeString}
                     </SyntaxHighlighter>
                   </div>
@@ -205,13 +208,66 @@ const NodeContentComponent = memo(({ node }: { node: NodeDataType }) => {
               },
             }}
           >
-            {node.content}
+            {nodeContent}
           </Markdown>
         </div>
       }
     </div>
   );
 });
+
+const ButtonCopyCodeComponent = ({ textToCopy }: { textToCopy: string }) => {
+  return (
+    <button
+      onPointerDown={async (e) => {
+        console.debug("onPointerDown -> Copy");
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+        } catch (err) {
+          console.error("Failed to copy:", err);
+        }
+      }}
+      type="button"
+      className="cursor-pointer absolute top-1 right-1 px-2 p-1
+                 text-xs rounded-md 
+                opacity-0 hover:opacity-100 transition-opacity 
+                 border border-gray-400 bg-white"
+    >
+      Copy
+    </button>
+  );
+};
+
+// @ts-ignore TS7006: Parameter 'props' implicitly has an 'any' type.
+const SyntaxHighlighterPreTagComponent = (props) => {
+  return (
+    <div
+      className="p-2! rounded-lg"
+      {...props}
+      onPointerDownCapture={(event) => {
+        console.debug("onPointerDown DIV");
+        const el = event.currentTarget;
+        const rect = el.getBoundingClientRect();
+
+        const scrollbarWidth = el.offsetWidth - el.clientWidth;
+        const scrollbarHeight = el.offsetHeight - el.clientHeight;
+
+        console.debug({ scrollbarWidth: scrollbarWidth, scrollbarHeight: scrollbarHeight });
+
+        const scrollbarX = event.clientY > rect.bottom - 16; // horizontal scrollbar height
+        const scrollbarY = event.clientX > rect.right - 16; // vertical scrollbar width
+
+        if (scrollbarX || scrollbarY) {
+          console.debug("stopPropagation");
+          // User is interacting with the scrollbar → don't toggle edit mode
+          event.stopPropagation();
+        }
+      }}
+    />
+  );
+};
 
 const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   // @ts-ignore TS6133: declared but never read
@@ -230,11 +286,11 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   });
 
   if (isDragging) {
-    console.debug("isDragging", attributes, listeners);
+    // console.debug("isDragging", attributes, listeners);
   }
 
   if (isOver) {
-    console.debug("isOver", attributes, listeners);
+    // console.debug("isOver", attributes, listeners);
   }
 
   // zustand subscribe to rerender trigger
@@ -244,8 +300,8 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
 
   let placement = null;
   if (isOver && active?.id && over?.id && active.id !== over.id) {
-    if (!useDragNDropStore.getState().descendantsIds.includes(nodeId)) {
-      placement = useDragNDropStore.getState().placement;
+    if (!useUIStore.getState().draggableNodeDescendantsIds.includes(nodeId)) {
+      placement = useUIStore.getState().dragNDropPlacement;
     }
   }
 
@@ -304,16 +360,17 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
               // </div>
             )}
           </button>
-          <NodeContentComponent node={node} />
+          <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
           <button className="Node-options" type="button">
             {/* <span>⋮</span> */}
             <i className="ph-bold ph-dots-three-vertical text-[1rem]"></i>
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
+          <div className="text-xs">{node.node_id.split("-").pop()}</div>
         </div>
         {over?.id === node.node_id && placement === "below" && <DropIndicatorComponent />}
-        {over?.id === node.node_id && placement === "indent" && <DropIndicatorComponent shrink={true} />}
-        <div className={`NodeChildren border-l ml-2 pl-5 ${node.collapsed ? "hidden" : ""}`}>
+        {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+        <div className={`NodeChildren ${node.collapsed ? "hidden" : ""}`}>
           {childNodes.map((child) => (
             <NodeComponent key={child.node_id} nodeId={child.node_id} />
           ))}
@@ -392,37 +449,40 @@ export default function DocumentComponent() {
       onDragMove={(event) => {
         // console.debug("onDragMove", event);
         const activatorEvent = event.activatorEvent as PointerEvent;
-        const pointerX = activatorEvent.clientX + event.delta.x;
-        const pointerY = activatorEvent.clientY + event.delta.y;
+        const pointerX = activatorEvent.pageX + event.delta.x;
+        const pointerY = activatorEvent.pageY + event.delta.y;
         if (event.over) {
           // const rect = event.over.rect;
+          const el = document.querySelector(`.Node-self[data-id="${event.over.id}"]`)!;
+          const rect = el.getBoundingClientRect();
 
-          // TODO: check if rect properties does not change on scroll
-          const rect = memoizeWithTimeout(
-            (nodeId: string) => {
-              console.debug("memoizeWithTimeout");
-              const el = document.querySelector(`.Node-self[data-id="${nodeId}"]`)!;
-              return el.getBoundingClientRect();
-            },
-            [event.over.id as string],
-            30_000,
-          );
-          // const el = document.querySelector(`.Node-self[data-id="${event.over.id}"]`)!;
-          // const rect = el.getBoundingClientRect();
-          // const middleX = rect.left + rect.width / 2;
+          const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+          const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+          const rectPageTop = rect.top + scrollY;
+          // const rectPageBottom = rect.bottom + scrollY;
+
           const middleX = 200;
-          const middleY = rect.top + rect.height / 2;
-          const offsetFromLeft = pointerX - rect.left;
-          // console.debug("middleY pointerY", middleY, pointerY);
+          const middleY = rectPageTop + rect.height / 2;
+          const offsetFromLeft = pointerX - (rect.left + scrollX);
+          // console.debug({
+          //   offsetFromLeft: offsetFromLeft,
+          //   middleY: middleY,
+          //   pointerY: pointerY,
+          //   pageY: activatorEvent.pageY,
+          //   clientY: activatorEvent.clientY,
+          //   pageX: activatorEvent.pageX,
+          //   clientX: activatorEvent.clientX,
+          // });
           const shouldIndent = offsetFromLeft > middleX;
           const position = pointerY > middleY ? "below" : "above";
-          const placement = shouldIndent && position === "below" ? "indent" : position;
+          const placement = shouldIndent && position === "below" ? "inside" : position;
           // console.debug("placement", placement);
 
           const descendantsIds = TreeRoAPI.getNodeDescendantsIds(event.active.id as string);
 
-          useDragNDropStore.setState({ descendantsIds: descendantsIds });
-          useDragNDropStore.setState({ placement: placement });
+          useUIStore.setState({ draggableNodeDescendantsIds: descendantsIds });
+          useUIStore.setState({ dragNDropPlacement: placement });
 
           // Trigger rerender only for one node
           useStore.getState().triggerNodeRender(event.over.id as string);
@@ -443,6 +503,7 @@ export default function DocumentComponent() {
         // console.log("onDragEnd", activeId, overId);
 
         if (activeId === overId) return;
+        const placement = useUIStore.getState().dragNDropPlacement;
         const activeNode = TreeRoAPI.getNode(activeId);
         const overNode = TreeRoAPI.getNode(overId);
         const activeParent = TreeRoAPI.getNodeParent(activeId);
@@ -450,15 +511,25 @@ export default function DocumentComponent() {
         if (!activeParent || !overParent || !activeNode || !overNode) return;
 
         console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
-
-        if (overNode.collapsed === false && overNode.children.length !== 0) {
-          console.log(activeNode, overNode);
-          // TreeRoAPI.moveNode(activeId, overId, 0);
-        } else {
-          // TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
-        }
-
-        if (activeParent === overParent) {
+        if (placement === "below") {
+          if (overNode.collapsed === false && overNode.children.length !== 0) {
+            console.debug("placement below 1");
+            TreeRoAPI.moveNode(activeId, overId, 0);
+          } else {
+            console.debug("placement below 2");
+            TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
+          }
+        } else if (placement === "above") {
+          console.debug("placement above");
+          TreeRoAPI.moveNodeRelativeTo(activeId, overId, -1);
+        } else if (placement === "inside") {
+          if (overNode.collapsed === false && overNode.children.length !== 0) {
+            console.debug("placement inside 1");
+            TreeRoAPI.moveNode(activeId, overId, 0);
+          } else {
+            console.debug("placement inside 2");
+            TreeRoAPI.moveNode(activeId, overId, -1);
+          }
         }
       }}
     >
@@ -466,9 +537,9 @@ export default function DocumentComponent() {
         <div className="RootNode-outer">
           <div className="RootNode-inner">
             <div className="RootNode-self">
-              <NodeContentComponent node={rootNode} />
+              <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
             </div>
-            <div className="RootNodeChildren">
+            <div className="RootNodeChildren flex flex-col gap-1">
               {childNodes.map((childNode) => (
                 <NodeComponent key={childNode.node_id} nodeId={childNode.node_id} />
               ))}

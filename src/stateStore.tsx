@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
-import type { NodeDataType, zustandUseStoreType, GroupDataType, DocumentDataType, DocumentWithNodesDataType, DragNDropStoreType } from "./types";
+import { arrayRelativeMove, arrayMove } from "./utilities";
+import type { NodeDataType, zustandUseStoreType, GroupDataType, DocumentDataType, DocumentWithNodesDataType, zustandUIStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
@@ -186,16 +187,16 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       const parentNode = state.nodes.get(parentNodeId);
       if (!parentNode) return state;
 
-      const parentNodeChildren = [...parentNode.children];
+      const newParentNodeChildren = [...parentNode.children];
 
-      let targetIndex = index < 0 ? parentNodeChildren.length + index : index;
-      targetIndex = Math.max(0, Math.min(targetIndex, parentNodeChildren.length));
+      let targetIndex = index < 0 ? newParentNodeChildren.length + index : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, newParentNodeChildren.length));
       // Insert node
-      parentNodeChildren.splice(targetIndex, 0, node.node_id);
+      newParentNodeChildren.splice(targetIndex, 0, node.node_id);
 
       const newNodes = new Map(state.nodes);
       newNodes.set(node.node_id, node);
-      newNodes.set(parentNode.node_id, { ...parentNode, children: parentNodeChildren });
+      newNodes.set(parentNode.node_id, { ...parentNode, children: newParentNodeChildren });
       updatedNodes.push(node, parentNode);
       return { nodes: newNodes };
     });
@@ -203,29 +204,17 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   insertNodeRelativeTo: (node, relNodeId, offset) => {
-    // * Verified
-    const updatedNodes: NodeDataType[] = [];
-    set((state) => {
-      if (state.nodes.has(node.node_id)) return state; // exists
-      const parentNode = state.getNodeParent(relNodeId);
-      if (!parentNode) return state;
-      const relNodeIndex = parentNode.children.indexOf(relNodeId);
-      if (relNodeIndex === -1) return state;
+    const state = get(); // get current state outside of set
+    const parentNode = state.getNodeParent(relNodeId);
+    if (!parentNode || state.nodes.has(node.node_id)) return [];
 
-      const parentChildren = [...parentNode.children];
-      let targetIndex = relNodeIndex + offset;
-      targetIndex = Math.max(0, Math.min(targetIndex, parentChildren.length));
-      // Insert node
-      parentChildren.splice(targetIndex, 0, node.node_id);
+    const relNodeIndex = parentNode.children.indexOf(relNodeId);
+    if (relNodeIndex === -1) return [];
 
-      const newNodes = new Map(state.nodes);
-      const updatedParentNode = { ...parentNode, children: parentChildren };
-      newNodes.set(node.node_id, node);
-      newNodes.set(updatedParentNode.node_id, updatedParentNode);
-      updatedNodes.push(node, updatedParentNode);
-      return { nodes: newNodes };
-    });
-    return updatedNodes;
+    offset = offset < 0 ? offset + 1 : offset;
+    const targetIndex = relNodeIndex + offset;
+
+    return state.insertNode(node, parentNode.node_id, targetIndex);
   },
 
   updateNode: (nodeId, newNodeData) => {
@@ -314,32 +303,40 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       const newNodes = new Map(state.nodes);
       if (nodeParent.node_id === otherNodeParent.node_id) {
         // same parent
-        const nodeParentChildren = [...nodeParent.children];
-        let targetIndex = index < 0 ? nodeParentChildren.length + index : index;
-        // remove node
-        nodeParentChildren.splice(nodeIndex, 1);
-        if (nodeIndex < targetIndex) targetIndex -= 1;
-        targetIndex = Math.max(0, Math.min(targetIndex, nodeParentChildren.length));
-        // insert node
-        nodeParentChildren.splice(targetIndex, 0, nodeId);
-        const updatedParent = { ...nodeParent, children: nodeParentChildren };
+        const rawTarget = index < 0 ? nodeParent.children.length + index : index;
+        const targetIndex = Math.max(0, Math.min(rawTarget, nodeParent.children.length));
+        // move
+        const newNodeParentChildren = arrayMove(nodeParent.children, nodeIndex, targetIndex);
+
+        // const nodeParentChildren = [...nodeParent.children];
+        // let targetIndex = index < 0 ? nodeParentChildren.length + index : index;
+        // // remove node
+        // nodeParentChildren.splice(nodeIndex, 1);
+        // if (nodeIndex < targetIndex) targetIndex -= 1;
+        // targetIndex = Math.max(0, Math.min(targetIndex, nodeParentChildren.length));
+        // // insert node
+        // nodeParentChildren.splice(targetIndex, 0, nodeId);
+
+        const updatedParent = { ...nodeParent, children: newNodeParentChildren };
         newNodes.set(nodeParent.node_id, updatedParent);
         updatedNodes.push(updatedParent);
         return { nodes: newNodes };
       } else {
         // other parent
-        const nodeParentChildren = [...nodeParent.children];
-        // Remove node
-        nodeParentChildren.splice(nodeIndex, 1);
-        const otherNodeParentChildren = [...otherNodeParent.children];
+        const newNodeParentChildren = [...nodeParent.children];
+        const newOtherNodeParentChildren = [...otherNodeParent.children];
+        // remove node
+        newNodeParentChildren.splice(nodeIndex, 1);
 
-        let targetIndex = index < 0 ? otherNodeParentChildren.length + index : index;
-        targetIndex = Math.max(0, Math.min(targetIndex, otherNodeParentChildren.length));
-        // insert nide
-        otherNodeParentChildren.splice(targetIndex, 0, nodeId);
+        let targetIndex = index < 0 ? newOtherNodeParentChildren.length + index + 1 : index;
+        targetIndex = Math.max(0, Math.min(targetIndex, newOtherNodeParentChildren.length));
+        // insert node
+        newOtherNodeParentChildren.splice(targetIndex, 0, nodeId);
 
-        const updatedOldParent = { ...nodeParent, children: nodeParentChildren };
-        const updatedNewParent = { ...otherNodeParent, children: otherNodeParentChildren };
+        console.debug({ index: index, targetIndex: targetIndex, otherNodeParentchildren: otherNodeParent.children });
+
+        const updatedOldParent = { ...nodeParent, children: newNodeParentChildren };
+        const updatedNewParent = { ...otherNodeParent, children: newOtherNodeParentChildren };
         newNodes.set(nodeParent.node_id, updatedOldParent);
         newNodes.set(otherNodeParent.node_id, updatedNewParent);
         updatedNodes.push(updatedOldParent, updatedNewParent);
@@ -369,31 +366,28 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       const newNodes = new Map(state.nodes);
       if (nodeParent.node_id === relNodeParent.node_id) {
         // same parent
-        const nodeParentChildren = [...nodeParent.children];
-        // Remove node
-        nodeParentChildren.splice(nodeIndex, 1);
-        let targetIndex = relNodeIndex + offset;
-        if (nodeIndex < relNodeIndex) targetIndex -= 1;
-        targetIndex = Math.max(0, Math.min(targetIndex, nodeParentChildren.length));
-        // Insert node
-        nodeParentChildren.splice(targetIndex, 0, nodeId);
-        const updatedParent = { ...nodeParent, children: nodeParentChildren };
+
+        const newNodeParentChildren = arrayRelativeMove(nodeParent.children, nodeId, relNodeId, offset);
+
+        const updatedParent = { ...nodeParent, children: newNodeParentChildren };
         newNodes.set(nodeParent.node_id, updatedParent);
         updatedNodes.push(updatedParent);
         return { nodes: newNodes };
       } else {
         // other parent
-        const nodeParentChildren = [...nodeParent.children];
-        const relNodeParentChildren = [...relNodeParent.children];
+        const newNodeParentChildren = [...nodeParent.children];
+        const newRelNodeParentChildren = [...relNodeParent.children];
 
+        offset = offset < 0 ? offset + 1 : offset;
         let targetIndex = relNodeIndex + offset;
-        targetIndex = Math.max(0, Math.min(targetIndex, relNodeParentChildren.length));
+        targetIndex = Math.max(0, Math.min(targetIndex, newRelNodeParentChildren.length));
         // Remove node
-        nodeParentChildren.splice(nodeIndex, 1);
+        newNodeParentChildren.splice(nodeIndex, 1);
         // Insert node
-        relNodeParentChildren.splice(targetIndex, 0, nodeId);
-        const updatedOldParent = { ...nodeParent, children: nodeParentChildren };
-        const updatedNewParent = { ...relNodeParent, children: relNodeParentChildren };
+        newRelNodeParentChildren.splice(targetIndex, 0, nodeId);
+
+        const updatedOldParent = { ...nodeParent, children: newNodeParentChildren };
+        const updatedNewParent = { ...relNodeParent, children: newRelNodeParentChildren };
         newNodes.set(nodeParent.node_id, updatedOldParent);
         newNodes.set(relNodeParent.node_id, updatedNewParent);
         updatedNodes.push(updatedOldParent, updatedNewParent);
@@ -442,7 +436,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   // },
 }));
 
-export const useDragNDropStore = create<DragNDropStoreType>(() => ({
-  placement: "",
-  descendantsIds: [],
+export const useUIStore = create<zustandUIStoreType>(() => ({
+  dragNDropPlacement: "",
+  draggableNodeDescendantsIds: [],
 }));

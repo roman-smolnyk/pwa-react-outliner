@@ -32,6 +32,7 @@ export const mockupNodes: NodeDataType[] = [
       "371a3d38-fbce-477e-94f0-681e6ba7251c",
       "c945f6e7-b07e-4229-8ca9-6692a21d0d92",
       "3ce54b44-cb03-4342-a86f-213b6e4f1605",
+      "afbbbce9-cb5c-4967-9b73-5bd1f12eda39",
     ],
   },
   {
@@ -168,6 +169,14 @@ export const mockupNodes: NodeDataType[] = [
   {
     node_id: "3ce54b44-cb03-4342-a86f-213b6e4f1605",
     content: "Image:\n![Image](https://picsum.photos/300/200)",
+    collapsed: false,
+    created: Date.now(),
+    modified: Date.now(),
+    children: [],
+  },
+  {
+    node_id: "afbbbce9-cb5c-4967-9b73-5bd1f12eda39",
+    content: "| Syntax      | Description |\n| ----------- | ----------- |\n| Header      | Title       |\n| Paragraph   | Text        |",
     collapsed: false,
     created: Date.now(),
     modified: Date.now(),

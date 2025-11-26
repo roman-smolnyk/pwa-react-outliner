@@ -1,8 +1,7 @@
 import { IDBApi } from "./db";
 import { mockupDocument, mockupGroup, mockupNodes } from "./mockupData";
 import { useStore } from "./stateStore";
-// @ts-ignore TS6133: declared but never read
-import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType, DocumentWithNodesDataType } from "./types";
+import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType } from "./types";
 
 export class DataNotLoadedError extends Error {}
 
