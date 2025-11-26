@@ -6,9 +6,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { memo, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { TreeRoAPI } from "./api";
 import { useStore, useUIStore } from "./stateStore";
 
@@ -127,12 +129,12 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
             //   setIsEditing(true);
             //   // currentElement.focus();
             // }, 100);
-          } else if (e.key === "ArrowUp" && e.altKey) {
+          } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
             const index = TreeRoAPI.getNodeIndex(nodeId)!;
             TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index - 1);
-          } else if (e.key === "ArrowDown" && e.altKey) {
+          } else if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
             const index = TreeRoAPI.getNodeIndex(nodeId)!;
@@ -174,8 +176,8 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
           // }}
         >
           <Markdown
-            remarkPlugins={[remarkGfm, remarkBreaks]}
-            rehypePlugins={[rehypeRaw]}
+            remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+            rehypePlugins={[rehypeRaw, rehypeKatex]}
             components={{
               input(props) {
                 // Always normalize checked to boolean
@@ -250,11 +252,6 @@ const SyntaxHighlighterPreTagComponent = (props) => {
         console.debug("onPointerDown DIV");
         const el = event.currentTarget;
         const rect = el.getBoundingClientRect();
-
-        const scrollbarWidth = el.offsetWidth - el.clientWidth;
-        const scrollbarHeight = el.offsetHeight - el.clientHeight;
-
-        console.debug({ scrollbarWidth: scrollbarWidth, scrollbarHeight: scrollbarHeight });
 
         const scrollbarX = event.clientY > rect.bottom - 16; // horizontal scrollbar height
         const scrollbarY = event.clientX > rect.right - 16; // vertical scrollbar width
@@ -370,7 +367,7 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
         </div>
         {over?.id === node.node_id && placement === "below" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
-        <div className={`NodeChildren ${node.collapsed ? "hidden" : ""}`}>
+        <div className={`NodeChildren ${node.collapsed ? "hidden!" : ""}`}>
           {childNodes.map((child) => (
             <NodeComponent key={child.node_id} nodeId={child.node_id} />
           ))}
@@ -536,7 +533,7 @@ export default function DocumentComponent() {
       <div className="Document" data-id={currentDocId}>
         <div className="RootNode-outer">
           <div className="RootNode-inner">
-            <div className="RootNode-self">
+            <div className="RootNode-self mb-3">
               <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
             </div>
             <div className="RootNodeChildren flex flex-col gap-1">

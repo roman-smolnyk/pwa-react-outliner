@@ -6,6 +6,7 @@
 @import "@phosphor-icons/web/bold";
 @import "@phosphor-icons/web/fill";
 @import "@phosphor-icons/web/duotone";
+@import "katex/dist/katex.min.css";
 
 @font-face {
   font-family: 'Roboto';
@@ -146,6 +147,30 @@ td {
 
 p {
   @apply leading-tight;
+}
+
+ol {
+  @apply leading-tight;
+  @apply list-decimal list-inside;
+}
+
+ol ol {
+  /* add indent to nested lists */
+  @apply pl-4;
+}
+
+ul {
+  @apply leading-tight;
+  @apply list-disc list-inside;
+}
+
+ul ul {
+  /* add indent to nested lists */
+  @apply pl-4;
+}
+
+blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-700 my-4;
 }
 
 /* 
