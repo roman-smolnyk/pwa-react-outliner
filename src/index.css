@@ -7,6 +7,7 @@
 @import "@phosphor-icons/web/fill";
 @import "@phosphor-icons/web/duotone";
 @import "katex/dist/katex.min.css";
+@import "react-toastify/dist/ReactToastify.css";
 
 @font-face {
   font-family: 'Roboto';

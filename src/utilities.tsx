@@ -189,7 +189,6 @@ export function getPlainTextWithNewlines(element: HTMLElement): string {
 
 // biome-ignore lint/suspicious/noExplicitAny: explanation
 const cache = new Map<string, { value: any; expiration: number }>();
-// @ts-ignore TS6133: declared but never read
 // biome-ignore lint/suspicious/noExplicitAny: explanation
 export function memoizeWithTimeout<F extends (...args: any[]) => any>(fn: F, args: Parameters<F>, timeout = 30_000): ReturnType<F> {
   const key = JSON.stringify([fn.toString(), args]);

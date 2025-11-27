@@ -1,7 +1,13 @@
-import { visit } from "unist-util-visit";
-import type { Root, Text, Break } from "mdast";
+import type { Root, Text } from "mdast";
 import type { Node } from "unist";
-import { findAndReplace } from "mdast-util-find-and-replace";
+import { visit } from "unist-util-visit";
+// import { findAndReplace } from "mdast-util-find-and-replace";
+
+/*
+remarkPlugins uses MDAST (Markdown AST).
+rehypePlugins uses HAST (HTML AST)
+Under the hood mdast-util-to-hast used
+*/
 
 interface Highlight extends Node {
   type: "highlight";
@@ -17,10 +23,6 @@ declare module "mdast" {
     highlight: Highlight;
   }
 }
-
-// remarkPlugins uses MDAST (Markdown AST).
-// rehypePlugins uses HAST (HTML AST)
-// Under the hood mdast-util-to-hast used
 
 // Custom plugin to detect ==highlight==
 export function remarkHighlight() {
