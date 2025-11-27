@@ -193,11 +193,13 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
       targetIndex = Math.max(0, Math.min(targetIndex, newParentNodeChildren.length));
       // Insert node
       newParentNodeChildren.splice(targetIndex, 0, node.node_id);
+      const newParentNode = { ...parentNode, children: newParentNodeChildren };
 
       const newNodes = new Map(state.nodes);
       newNodes.set(node.node_id, node);
-      newNodes.set(parentNode.node_id, { ...parentNode, children: newParentNodeChildren });
-      updatedNodes.push(node, parentNode);
+      newNodes.set(parentNode.node_id, newParentNode);
+      updatedNodes.push(node, newParentNode);
+      // console.debug("insertNodeX", { node: node, parentNode: parentNode, targetIndex: targetIndex, newParentNodeChildren: newParentNodeChildren });
       return { nodes: newNodes };
     });
     return updatedNodes;
@@ -399,7 +401,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   deleteNode: (nodeId) => {
-    // * Verified
+    // TODO: Test it
     let updatedParentNode: NodeDataType | null = null;
     const removedNodeIds: string[] = [];
     set((state) => {

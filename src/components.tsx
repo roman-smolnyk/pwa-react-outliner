@@ -13,6 +13,9 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { TreeRoAPI } from "./api";
 import { useStore, useUIStore } from "./stateStore";
+import { remarkHighlight } from "./markdownPlugins";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   const logPrefix = `NodeContentComponent [${nodeId}]`;
@@ -25,12 +28,25 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
     return () => console.log("UNMOUNTED");
   }, []);
 
+  // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
+  let preprocessedContent = nodeContent.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n "));
+  // Convert \n\n 2+ into "&nbsp;\n " except if next is list *-
+  preprocessedContent = preprocessedContent.replace(/(?<=\n)(?![*-])\n/g, "&nbsp;\n ");
+  // Preserve trailing
+  if (preprocessedContent.endsWith("\n") || preprocessedContent.endsWith("\n ")) {
+    preprocessedContent = `${preprocessedContent}<br>`;
+  }
+  // For exactly 2 newlines
+  // preprocessedContent = preprocessedContent.replace(/(?<!\n)\n\n(?!\n)(?![*-])/g, "&nbsp;\n ");
+  // For 3+ newlines
+  // preprocessedContent = preprocessedContent.replace(/(\n\n)\n+(?![*-])/g, "$1&nbsp;\n ");
+
   return (
     <div className="NodeContent-container" data-id={nodeId}>
       <div
         ref={refContenteditable}
-        // className={`NodeContent-edit ${node.content ? "trailing-nl" : ""}`}
-        className={`NodeContent-edit trailing-nl ${isEditing ? "" : "hidden"}`}
+        // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
+        className={`NodeContent-contenteditable trailing-nl ${isEditing ? "" : "hidden"}`}
         data-id={nodeId}
         contentEditable
         suppressContentEditableWarning
@@ -51,8 +67,8 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
         }}
         onInput={(e) => {
           // console.debug(`${logPrefix} -> onInput`);
-          // const el = ref.current?.querySelector(".NodeContent-edit");
-          // console.debug(`${logPrefix} -> NodeContent-edit`, el);
+          // const el = ref.current?.querySelector(".NodeContent-contenteditable");
+          // console.debug(`${logPrefix} -> NodeContent-contenteditable`, el);
           // if (el) printDOM(el as HTMLElement);
           // printDOM(e.currentTarget);
 
@@ -69,7 +85,7 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
             TreeRoAPI.insertNodeRelativeTo(newNode, nodeId, 1);
             //
             setTimeout(() => {
-              const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-edit`);
+              const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-contenteditable`);
               // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
               if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
             }, 0);
@@ -101,7 +117,7 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
               TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
                 setTimeout(() => {
-                  const el = document.querySelector(`.NodeContent-edit[data-id="${siblingNode.node_id}"]`);
+                  const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
                   // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
                   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
                 }, 0);
@@ -176,9 +192,16 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
           // }}
         >
           <Markdown
-            remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+            remarkPlugins={[remarkGfm, remarkBreaks, remarkMath, remarkHighlight]}
             rehypePlugins={[rehypeRaw, rehypeKatex]}
             components={{
+              span({ node, className, ...props }) {
+                // console.debug("md-highlight", node, props);
+                if (className?.includes("md-highlight")) {
+                  return <span {...props} className={`${className} bg-yellow-200 px-1`} />;
+                }
+                return <span {...props} />;
+              },
               input(props) {
                 // Always normalize checked to boolean
                 const { checked, ...rest } = props;
@@ -192,15 +215,17 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
                 // console.info("rest", rest);
 
                 const match = /language-(\w+)/.exec(className || "");
+                const isInline = match ? false : !String(children).endsWith("\n");
+                console.debug("children", `"${String(children).replace("\n", "\\n")}"`, className, rest);
                 const codeString = String(children).replace(/\n$/, "");
 
                 // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;
 
-                return match ? (
+                return !isInline ? (
                   <div className="relative">
                     <ButtonCopyCodeComponent textToCopy={codeString} />
                     {/* showLineNumbers */}
-                    <SyntaxHighlighter PreTag={SyntaxHighlighterPreTagComponent} language={match[1]}>
+                    <SyntaxHighlighter PreTag={SyntaxHighlighterPreTagComponent} language={match?.[1] ? match[1] : ""}>
                       {codeString}
                     </SyntaxHighlighter>
                   </div>
@@ -210,7 +235,8 @@ const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; no
               },
             }}
           >
-            {nodeContent}
+            {/* {nodeContent.replace(/\n/gi, '\n &nbsp;')} */}
+            {preprocessedContent}
           </Markdown>
         </div>
       }
@@ -225,9 +251,20 @@ const ButtonCopyCodeComponent = ({ textToCopy }: { textToCopy: string }) => {
         console.debug("onPointerDown -> Copy");
         e.preventDefault();
         e.stopPropagation();
+        toast.dismiss();
         try {
           await navigator.clipboard.writeText(textToCopy);
+          toast("Copied", {
+            // style: {
+            //   width: "200px",
+            //   height: "50px",
+            //   padding: "0px",
+            //   margin: "0px",
+            //   fontSize: "0.85rem",
+            // },
+          });
         } catch (err) {
+          toast.error("Failed to copy");
           console.error("Failed to copy:", err);
         }
       }}
@@ -256,7 +293,17 @@ const SyntaxHighlighterPreTagComponent = (props) => {
         const scrollbarX = event.clientY > rect.bottom - 16; // horizontal scrollbar height
         const scrollbarY = event.clientX > rect.right - 16; // vertical scrollbar width
 
-        if (scrollbarX || scrollbarY) {
+        const style = window.getComputedStyle(event.currentTarget);
+        const overflowY = style.overflowY;
+        const overflowX = style.overflowX;
+
+        const hasVerticalScroll = event.currentTarget.scrollHeight > event.currentTarget.clientHeight;
+        const hasHorizontalScroll = event.currentTarget.scrollWidth > event.currentTarget.clientWidth;
+
+        const canScrollY = hasVerticalScroll && (overflowY === "auto" || overflowY === "scroll");
+        const canScrollX = hasHorizontalScroll && (overflowX === "auto" || overflowX === "scroll");
+
+        if ((canScrollX || canScrollY) && (scrollbarX || scrollbarY)) {
           console.debug("stopPropagation");
           // User is interacting with the scrollbar → don't toggle edit mode
           event.stopPropagation();
@@ -363,7 +410,7 @@ const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             <i className="ph-bold ph-dots-three-vertical text-[1rem]"></i>
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
-          <div className="text-xs">{node.node_id.split("-").pop()}</div>
+          {/* <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div> */}
         </div>
         {over?.id === node.node_id && placement === "below" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
@@ -544,6 +591,7 @@ export default function DocumentComponent() {
               <DragOverlay>
                 {activeId ? <div className="inline-block border border-black bg-white px-1 cursor-grabbing">Move node</div> : null}
               </DragOverlay>
+              <ToastContainer position="top-right" autoClose={3_000} hideProgressBar={true} closeButton={true} style={{ top: 50 }} />
               <div className="Document-bottom-spacer h-100" />
             </div>
           </div>

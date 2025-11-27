@@ -210,6 +210,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   insertNode(node, parentNodeId, index = -1) {
     const updatedNodes = useStore.getState().insertNode(node, parentNodeId, index);
     if (updatedNodes.length === 0) return [];
+    console.debug("insertNode", updatedNodes);
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
   },
@@ -217,6 +218,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   insertNodeRelativeTo(node, relNodeId, offset) {
     const updatedNodes = useStore.getState().insertNodeRelativeTo(node, relNodeId, offset);
     if (updatedNodes.length === 0) return [];
+    console.debug("insertNodeRelativeTo", updatedNodes);
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
   },
