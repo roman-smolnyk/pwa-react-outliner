@@ -1,17 +1,18 @@
 import { IDBApi } from "./db";
 import { mockupDocument, mockupGroup, mockupNodes } from "./mockupData";
-import { useStore } from "./stateStore";
+import { useStore, useUIStore } from "./stateStore";
 import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType } from "./types";
 
 export class DataNotLoadedError extends Error {}
 
 export const TreeRoAPI: TreeRoAPIType = {
   useStore: useStore, // expose to userscript
+  useUIStore: useUIStore, // expose to userscript
   IDBApi: IDBApi, // expose to userscript
   version: "0.0.1",
 
   dataIsLoaded: false,
-  changesQueue: [],
+  queue: [],
 
   // Async method to load initial data
   async loadInitialData() {
@@ -197,6 +198,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   createNode(content = "", collapsed = false, args = {}) {
     const newNode: NodeDataType = {
       node_id: crypto.randomUUID(),
+      parent_id: null,
       content,
       collapsed,
       created: Date.now(),
@@ -207,18 +209,26 @@ export const TreeRoAPI: TreeRoAPIType = {
     return newNode;
   },
 
-  insertNode(node, parentNodeId, index = -1) {
-    const updatedNodes = useStore.getState().insertNode(node, parentNodeId, index);
+  insertNode(node, targetNodeId, index = -1) {
+    const updatedNodes = useStore.getState().insertNode(node, targetNodeId, index);
     if (updatedNodes.length === 0) return [];
     console.debug("insertNode", updatedNodes);
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
   },
 
-  insertNodeRelativeTo(node, relNodeId, offset) {
-    const updatedNodes = useStore.getState().insertNodeRelativeTo(node, relNodeId, offset);
+  insertNodeBefore(node, referenceNodeId) {
+    const updatedNodes = useStore.getState().insertNodeBefore(node, referenceNodeId);
     if (updatedNodes.length === 0) return [];
-    console.debug("insertNodeRelativeTo", updatedNodes);
+    console.debug("insertNodeBefore", updatedNodes);
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
+  },
+
+  insertNodeAfter(node, referenceNodeId) {
+    const updatedNodes = useStore.getState().insertNodeAfter(node, referenceNodeId);
+    if (updatedNodes.length === 0) return [];
+    console.debug("insertNodeAfter", updatedNodes);
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
   },
@@ -259,15 +269,22 @@ export const TreeRoAPI: TreeRoAPIType = {
     return useStore.getState().getNodeDescendantsIds(nodeId);
   },
 
-  moveNode(nodeId, parentNodeId, index) {
-    const updatedNodes = useStore.getState().moveNode(nodeId, parentNodeId, index);
+  moveNode(movedNodeId, targetNodeId, index) {
+    const updatedNodes = useStore.getState().moveNode(movedNodeId, targetNodeId, index);
     if (updatedNodes.length === 0) return [];
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
   },
 
-  moveNodeRelativeTo(nodeId, relNodeId, offset) {
-    const updatedNodes = useStore.getState().moveNodeRelativeTo(nodeId, relNodeId, offset);
+  moveNodeBefore: (movedNodeId, referenceNodeId) => {
+    const updatedNodes = useStore.getState().moveNodeBefore(movedNodeId, referenceNodeId);
+    if (updatedNodes.length === 0) return [];
+    IDBApi.saveNodes(updatedNodes);
+    return updatedNodes;
+  },
+
+  moveNodeAfter: (movedNodeId, referenceNodeId) => {
+    const updatedNodes = useStore.getState().moveNodeAfter(movedNodeId, referenceNodeId);
     if (updatedNodes.length === 0) return [];
     IDBApi.saveNodes(updatedNodes);
     return updatedNodes;
@@ -388,6 +405,12 @@ export const TreeRoAPI: TreeRoAPIType = {
       }
     }
     return charIndex;
+  },
+
+  activateNodeEdit(nodeId, caretPosition = 0) {
+    useUIStore.setState({ activeEditNodeId: nodeId });
+    useUIStore.setState({ activeEditCaretPosition: caretPosition });
+    useUIStore.getState().triggerNodeContentRender(nodeId);
   },
 };
 

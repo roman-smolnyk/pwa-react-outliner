@@ -115,7 +115,7 @@ export function MarkdownComponent({ children }: { children: string }) {
 
           const match = /language-(\w+)/.exec(className || "");
           const isInline = match ? false : !String(children).endsWith("\n");
-          console.debug("children", `"${String(children).replace("\n", "\\n")}"`, className, rest);
+          // console.debug("children", `"${String(children).replace("\n", "\\n")}"`, className, rest);
           const codeString = String(children).replace(/\n$/, "");
 
           // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;

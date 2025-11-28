@@ -7,18 +7,35 @@ import { MarkdownComponent } from "../components/markdownComp";
 import { useStore, useUIStore } from "../stateStore";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
-  const logPrefix = `NodeContentComponent [${nodeId}]`;
+  const _logPrefix = `NodeContentComponent [${nodeId}]`;
   // console.debug(logPrefix);
   const refContenteditable = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    console.log("MOUNTED");
-    return () => console.log("UNMOUNTED");
-  }, []);
+  // zustand subscribe to rerender trigger
+  useUIStore((state) => {
+    return state.nodesContentToRender[nodeId];
+  });
+
+  // useEffect(() => {
+  //   console.debug(`${_logPrefix} -> MOUNTED`);
+  //   return () => console.debug(`${_logPrefix} -> MOUNTED`);
+  // }, []);
+
+  const activeEditNodeId = useUIStore.getState().activeEditNodeId;
+  if (nodeId === activeEditNodeId) {
+    console.debug("activeEditNodeId", activeEditNodeId);
+    useUIStore.setState({ activeEditNodeId: "" });
+    setIsEditing(true);
+    setTimeout(() => {
+      if (refContenteditable.current) {
+        TreeRoAPI.setCaretAtCharIndex(refContenteditable.current, useUIStore.getState().activeEditCaretPosition);
+      }
+    }, 0);
+  }
 
   return (
-    <div className="NodeContent-container" data-id={nodeId}>
+    <div className={`NodeContent-container  ${isEditing ? "bg-gray-50" : ""}`} data-id={nodeId}>
       <div
         ref={refContenteditable}
         // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
@@ -29,6 +46,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         tabIndex={-1}
         spellCheck={true}
         autoCorrect="off"
+        // Override paste behaviour
         onPaste={(e) => {
           // console.debug(`${logPrefix} -> onPaste`, e);
           e.preventDefault();
@@ -48,23 +66,27 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // if (el) printDOM(el as HTMLElement);
           // printDOM(e.currentTarget);
 
-          // Remove <br> that browser insearts in empty contenteditable
+          // Remove <br> that browser insearts in the empty contenteditable
           if (e.currentTarget.innerHTML === "<br>") {
             e.currentTarget.innerHTML = "";
           }
         }}
         onKeyDown={(e) => {
+          // Create new node
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
             const newNode = TreeRoAPI.createNode("");
-            TreeRoAPI.insertNodeRelativeTo(newNode, nodeId, 1);
+            TreeRoAPI.insertNodeAfter(newNode, nodeId);
+            TreeRoAPI.activateNodeEdit(newNode.node_id);
+            // useUIStore.setState({ activeEditNodeId: newNode.node_id });
             //
-            setTimeout(() => {
-              const el = document.querySelector(`[data-id="${newNode.node_id}"] .NodeContent-contenteditable`);
-              // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-              if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
-            }, 0);
+            // setTimeout(() => {
+            //   const el: HTMLDivElement | null = document.querySelector(`.NodeContent-contenteditable[data-id="${newNode.node_id}"]`);
+            //   console.debug(`${_logPrefix} -> setCaretAtCharIndex`, el);
+            //   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
+            // }, 0);
+            // Override Enter => Insert "\n"
           } else if (e.key === "Enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
             e.preventDefault();
@@ -84,6 +106,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // Collapse selection to caret
             selection.removeAllRanges();
             selection.addRange(range);
+            // Remove node if empty
           } else if (e.key === "Backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
             const text = e.currentTarget.textContent ?? "";
@@ -92,13 +115,18 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
               TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
-                setTimeout(() => {
-                  const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
-                  // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
-                  if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
-                }, 0);
+                console.debug("siblingNode", siblingNode);
+                TreeRoAPI.activateNodeEdit(siblingNode.node_id, -1);
+                // useUIStore.setState({ activeEditNodeId: siblingNode.node_id });
+                // useUIStore.getState().triggerNodeRender(siblingNode.node_id);
+                // setTimeout(() => {
+                //   const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
+                //   // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
+                //   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
+                // }, 0);
               }
             }
+            // Unindent node
           } else if (e.key === "Tab" && e.shiftKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
@@ -106,7 +134,10 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             if (!nodeParent) return;
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
             e.currentTarget.blur();
-            TreeRoAPI.moveNodeRelativeTo(nodeId, nodeParent.node_id, 1);
+            TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
+            const index = TreeRoAPI.getCharIndexFromCaret(refContenteditable.current as HTMLElement);
+            TreeRoAPI.activateNodeEdit(nodeId, index);
+            // Indent node
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
@@ -117,15 +148,15 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             TreeRoAPI.moveNode(nodeId, siblingNode.node_id);
             // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
             TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
-            // setTimeout(() => {
-            //   setIsEditing(true);
-            //   // currentElement.focus();
-            // }, 100);
+            const index = TreeRoAPI.getCharIndexFromCaret(refContenteditable.current as HTMLElement);
+            TreeRoAPI.activateNodeEdit(nodeId, index);
+            // Move node up
           } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
             const index = TreeRoAPI.getNodeIndex(nodeId)!;
-            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index - 1);
+            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, Math.max(0, index - 1));
+            // Move node down
           } else if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
@@ -133,8 +164,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index + 1);
           }
         }}
+        // On lost focus update
         onBlur={(e) => {
-          console.debug(`${logPrefix} -> onBlur`);
+          console.debug(`${_logPrefix} -> onBlur`);
           // const newContent = getPlainTextWithNewlines(e.currentTarget);
           const newContent = e.currentTarget.textContent || "";
           // const newContent = e.currentTarget.textContent ?? "";
@@ -179,9 +211,14 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   // console.debug(logPrefix);
   const refNode = useRef<HTMLDivElement>(null);
 
-  // zustand subscribe to node
+  // zustand subscribe
   const node = useStore((state) => {
     return state.nodes.get(nodeId);
+  });
+
+  // zustand subscribe to rerender trigger
+  useUIStore((state) => {
+    return state.nodesToRender[nodeId];
   });
 
   // useSortable merges useDraggable and useDroppable functionality, so you can do
@@ -196,11 +233,6 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
   }
-
-  // zustand subscribe to rerender trigger
-  useStore((state) => {
-    return state.rerenderNodesToggle[nodeId];
-  });
 
   let placement = null;
   if (isOver && active?.id && over?.id && active.id !== over.id) {
@@ -222,7 +254,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
     // data-id={node.node_id}
     <div ref={combinedRef} id={node.node_id} className={`Node-outer ${isDragging ? "bg-gray-200" : ""}`}>
       <div className="Node-inner">
-        {over?.id === node.node_id && placement === "above" && <DropIndicatorComponent />}
+        {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
         <div className="Node-self" data-id={node.node_id}>
           <button
             className="Node-bullet"
@@ -251,6 +283,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
               ) : (
                 // <Minus className="size-4" />
                 <i className="ph ph-minus text-[0.9rem]"></i>
+                // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
               )
             ) : (
               // <span>●</span>
@@ -270,9 +303,9 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             <i className="ph-bold ph-dots-three-vertical text-[1rem]"></i>
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
-          {/* <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div> */}
+          <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div>
         </div>
-        {over?.id === node.node_id && placement === "below" && <DropIndicatorComponent />}
+        {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
         <div className={`NodeChildren ${node.collapsed ? "hidden!" : ""}`}>
           {childNodes.map((child) => (

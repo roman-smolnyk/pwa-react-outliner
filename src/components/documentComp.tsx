@@ -33,9 +33,9 @@ export default function DocumentComponent() {
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      delay: 250, // Minimum time (in milliseconds) the pointer must be pressed before the drag activates.
+      delay: 100, // Minimum time (in milliseconds) the pointer must be pressed before the drag activates.
       tolerance: 10, // Maximum movement (in pixels) allowed during the delay period. Prevents interrupt on mobile screens
-      distance: 5, // Minimum distance (in pixels) the pointer must move before the drag activates.
+      // distance: 5, // Minimum distance (in pixels) the pointer must move before the drag activates.
     },
   });
 
@@ -92,8 +92,8 @@ export default function DocumentComponent() {
           //   clientX: activatorEvent.clientX,
           // });
           const shouldIndent = offsetFromLeft > middleX;
-          const position = pointerY > middleY ? "below" : "above";
-          const placement = shouldIndent && position === "below" ? "inside" : position;
+          const position = pointerY > middleY ? "after" : "before";
+          const placement = shouldIndent && position === "before" ? "inside" : position;
           // console.debug("placement", placement);
 
           const descendantsIds = TreeRoAPI.getNodeDescendantsIds(event.active.id as string);
@@ -102,7 +102,7 @@ export default function DocumentComponent() {
           useUIStore.setState({ dragNDropPlacement: placement });
 
           // Trigger rerender only for one node
-          useStore.getState().triggerNodeRender(event.over.id as string);
+          useUIStore.getState().triggerNodeRender(event.over.id as string);
         }
       }}
       onDragOver={(_event) => {
@@ -127,29 +127,30 @@ export default function DocumentComponent() {
         if (!activeParent || !overParent || !activeNode || !overNode) return;
 
         console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
-        if (placement === "below") {
+        if (placement === "after") {
           if (overNode.collapsed === false && overNode.children.length !== 0) {
-            console.debug("placement below 1");
+            console.debug("placement after moveNode");
             TreeRoAPI.moveNode(activeId, overId, 0);
           } else {
-            console.debug("placement below 2");
-            TreeRoAPI.moveNodeRelativeTo(activeId, overId, 1);
+            console.debug("placement after moveNodeAfter");
+            TreeRoAPI.moveNodeAfter(activeId, overId);
           }
-        } else if (placement === "above") {
-          console.debug("placement above");
-          TreeRoAPI.moveNodeRelativeTo(activeId, overId, -1);
+        } else if (placement === "before") {
+          console.debug("placement before moveNodeBefore");
+          TreeRoAPI.moveNodeBefore(activeId, overId);
         } else if (placement === "inside") {
           if (overNode.collapsed === false && overNode.children.length !== 0) {
-            console.debug("placement inside 1");
+            console.debug("placement inside moveNode 0");
             TreeRoAPI.moveNode(activeId, overId, 0);
           } else {
-            console.debug("placement inside 2");
+            console.debug("placement inside moveNode -1");
             TreeRoAPI.moveNode(activeId, overId, -1);
           }
         }
       }}
     >
       <div className="Document" data-id={currentDocId}>
+        <div className="Document-top-spacer h-20" />
         <div className="RootNode-outer">
           <div className="RootNode-inner">
             <div className="RootNode-self mb-3">
