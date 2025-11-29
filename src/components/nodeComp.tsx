@@ -35,7 +35,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   }
 
   return (
-    <div className={`NodeContent-container  ${isEditing ? "bg-gray-50" : ""}`} data-id={nodeId}>
+    <div className={`NodeContent-container  ${isEditing ? "bg-gray-100" : ""}`} data-id={nodeId}>
       <div
         ref={refContenteditable}
         // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
