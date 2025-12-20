@@ -15,6 +15,8 @@ import { Yjs } from "./yjsEnv";
 import { IDBLocal } from "./idbEnv";
 import { WebsocketProvider } from "y-websocket";
 
+import { Conf } from "./config";
+
 export class DataNotLoadedError extends Error {}
 
 export const TreeRoAPI: TreeRoAPIType = {
@@ -47,7 +49,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
       Yjs.undoManager.stopCapturing();
 
-      const provider = new WebsocketProvider("ws://localhost:1234", roomToken, Yjs.ydoc);
+      const provider = new WebsocketProvider(Conf.WSS_SERVER, roomToken, Yjs.ydoc);
       provider.on("status", (e) => {
         console.log("WebsocketProvider status", e.status);
       });
