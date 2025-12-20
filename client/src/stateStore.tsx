@@ -3,7 +3,7 @@ import type { zustandUseStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
-  localConfig: { current_document_id: "" },
+  localConfig: { currentDocumentId: "" },
   meta: { root_group_id: "" },
   groups: new Map(),
   documents: new Map(),

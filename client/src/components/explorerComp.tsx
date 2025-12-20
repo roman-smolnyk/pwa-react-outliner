@@ -195,7 +195,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
   });
 
   const currentDocumentId = useStore((state) => {
-    return state.localConfig.current_document_id;
+    return state.localConfig.currentDocumentId;
   });
 
   const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({

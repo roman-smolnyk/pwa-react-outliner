@@ -11,11 +11,11 @@ export default function DocumentComponent() {
   const ref = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState("");
 
-  const currentDocumentId = useStore((state) => state.localConfig.current_document_id);
+  const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
 
   const rootNode = useStore((state) => {
     if (!TreeRoAPI.isIntialized()) return null;
-    const rootNodeId = TreeRoAPI.getDocumentRootNodeId(state.localConfig.current_document_id);
+    const rootNodeId = TreeRoAPI.getDocumentRootNodeId(state.localConfig.currentDocumentId);
     // console.debug("rootNodeId", rootNodeId)
     if (!rootNodeId) return null;
     return state.nodes.get(rootNodeId);

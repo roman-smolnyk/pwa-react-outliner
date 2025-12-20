@@ -13,6 +13,7 @@ import type {
 } from "./types";
 import { Yjs } from "./yjsEnv";
 import { IDBLocal } from "./idbEnv";
+import { WebsocketProvider } from "y-websocket";
 
 export class DataNotLoadedError extends Error {}
 
@@ -25,35 +26,42 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   // Async method to load initial data
   async initialize(callback) {
-    const localConfig = await IDBLocal.getLocalConfig();
-    if (localConfig) {
-      console.log("localConfig", localConfig);
-      useStore.setState({
-        localConfig: localConfig,
-      });
-    }
-
     Yjs.idbPersistence.whenSynced.then(() => {
       console.log("persistence.whenSynced.then");
 
       // Yjs.idbPersistence.clearData();
 
+      let roomToken = this.getRoomToken();
+
       Yjs.undoManager.stopCapturing();
 
       // console.log("ymeta", ymeta.toJSON());
-      if (!Yjs.ymeta.get("root_group_id")) {
+      // if (!Yjs.ymeta.get("root_group_id")) {
+      if (!roomToken) {
         console.log("TreeRoApi.initialize -> New Data");
         this.initRootData();
         fillInMockupData();
+        roomToken = crypto.randomUUID();
+        this.setRoomToken(roomToken);
       }
 
       Yjs.undoManager.stopCapturing();
+
+      const provider = new WebsocketProvider("ws://localhost:1234", roomToken, Yjs.ydoc);
+      provider.on("status", (e) => {
+        console.log("WebsocketProvider status", e.status);
+      });
 
       // const allRootTypes = Object.values(Yjs.ydoc.share);
       // Yjs.undoManager.addToScope(allRootTypes);
 
       useStore.setState({
         stateIsInitialized: true,
+        localConfig: {
+          currentDocumentId: this.getCurrentDocumentId() || "",
+          roomToken: this.getRoomToken() || "",
+          isAuthorized: this.isAuthorized(),
+        },
         meta: Yjs.ymeta.toJSON() as MetaDataType,
         groups: new Map(Object.entries(Yjs.ygroups.toJSON())) as Map<string, GroupDataType>,
         documents: new Map(Object.entries(Yjs.ydocuments.toJSON())) as Map<string, DocumentDataType>,
@@ -267,14 +275,55 @@ export const TreeRoAPI: TreeRoAPIType = {
     Yjs.ymeta.set("root_group_id", group_id);
   },
 
+  clearData(reload) {
+    TreeRoAPI.Yjs.idbPersistence.clearData();
+    localStorage.clear();
+    // TreeRoAPI.setRoomToken( "bc214e79-e18e-4e63-a1f5-10aa8ebafc3f")
+    if (reload) {
+      window.location.replace(window.location.href);
+    }
+  },
+
+  isAuthorized() {
+    return localStorage.getItem("isAuthorized") === "true";
+  },
+
+  setIsAuthorized(isAuthorized) {
+    console.log("setIsAuthorized", isAuthorized);
+    localStorage.setItem("isAuthorized", isAuthorized ? "true" : "false");
+    useStore.setState((state) => {
+      const uLocalConfig = { ...state.localConfig };
+      uLocalConfig.isAuthorized = isAuthorized;
+      return { localConfig: uLocalConfig };
+    });
+  },
+
+  getRoomToken() {
+    return localStorage.getItem("roomToken");
+  },
+
+  setRoomToken(roomToken) {
+    console.log("setRoomToken", roomToken);
+    localStorage.setItem("roomToken", roomToken);
+    useStore.setState((state) => {
+      const uLocalConfig = { ...state.localConfig };
+      uLocalConfig.roomToken = roomToken;
+      return { localConfig: uLocalConfig };
+    });
+  },
+
   getCurrentDocumentId() {
-    return useStore.getState().localConfig.current_document_id;
+    return localStorage.getItem("currentDocumentId");
   },
 
   setCurrentDocumentId(documentId) {
     console.log("setCurrentDocumentId", documentId);
-    IDBLocal.setLocalConfig({ current_document_id: documentId });
-    useStore.setState({ localConfig: { current_document_id: documentId } });
+    localStorage.setItem("currentDocumentId", documentId);
+    useStore.setState((state) => {
+      const uLocalConfig = { ...state.localConfig };
+      uLocalConfig.currentDocumentId = documentId;
+      return { localConfig: uLocalConfig };
+    });
   },
 
   getRootGroupId() {

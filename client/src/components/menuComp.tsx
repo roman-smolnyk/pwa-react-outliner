@@ -14,7 +14,9 @@ import {
   UserRoundIcon,
   ZoomInIcon,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { useState } from "react";
+import { TreeRoAPI } from "../api";
 
 function MenuItem({ icon, label, danger, onClick }: { icon: React.ReactNode; label: string; danger?: boolean; onClick: () => void }) {
   return (
@@ -60,28 +62,32 @@ export default function MenuComponent() {
             {...getFloatingProps()}
           >
             <MenuItem
-              icon={<UserRoundIcon className="w-full h-full"  />}
-              label="Profile"
+              icon={<UserRoundIcon className="w-full h-full" />}
+              label="Copy Token"
               onClick={() => {
                 setOpen(false);
+                navigator.clipboard
+                  .writeText(TreeRoAPI.getRoomToken() as string)
+                  .then(() => toast("Copied"))
+                  .catch(() => toast.error("Failed to copy"));
               }}
             />
             <MenuItem
-              icon={<BoltIcon className="w-full h-full"  />}
+              icon={<BoltIcon className="w-full h-full" />}
               label="Settings"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<HardDriveDownloadIcon className="w-full h-full"  />}
+              icon={<HardDriveDownloadIcon className="w-full h-full" />}
               label="Export Backup"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<HardDriveUploadIcon className="w-full h-full"  />}
+              icon={<HardDriveUploadIcon className="w-full h-full" />}
               label="Import Backup"
               onClick={() => {
                 setOpen(false);
@@ -89,11 +95,12 @@ export default function MenuComponent() {
             />
             <hr className="m-1 border-gray-300" />
             <MenuItem
-              icon={<LogInIcon className="w-full h-full"  />}
+              icon={<LogInIcon className="w-full h-full" />}
               label="Exit"
               danger
               onClick={() => {
                 setOpen(false);
+                TreeRoAPI.clearData(true);
               }}
             />
           </div>
@@ -138,42 +145,42 @@ export function NodeOptionsComponent() {
             {...getFloatingProps()}
           >
             <MenuItem
-              icon={<ZoomInIcon className="w-full h-full"  />}
+              icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<PlusIcon className="w-full h-full"  />}
+              icon={<PlusIcon className="w-full h-full" />}
               label="Expand All"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<MinusIcon className="w-full h-full"  />}
+              icon={<MinusIcon className="w-full h-full" />}
               label="Collapse All"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<ArrowDownNarrowWideIcon className="w-full h-full"  />}
+              icon={<ArrowDownNarrowWideIcon className="w-full h-full" />}
               label="Sort"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<InboxIcon className="w-full h-full"  />}
+              icon={<InboxIcon className="w-full h-full" />}
               label="Set as Inbox"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <MenuItem
-              icon={<UploadIcon className="w-full h-full"  />}
+              icon={<UploadIcon className="w-full h-full" />}
               label="Export"
               onClick={() => {
                 setOpen(false);

@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "adb": "adb reverse tcp:5173 tcp:5173",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "adb": "adb reverse tcp:5173 tcp:5173",
+    "wss": "npx y-websocket"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -19,6 +20,7 @@
     "@phosphor-icons/web": "^2.1.2",
     "@tailwindcss/vite": "^4.1.16",
     "@y-sweet/client": "^0.9.1",
+    "@y/websocket-server": "^0.1.1",
     "diff": "^8.0.2",
     "idb": "^8.0.3",
     "katex": "^0.16.25",
@@ -37,7 +39,7 @@
     "tailwindcss": "^4.1.16",
     "unist-util-visit": "^5.0.0",
     "y-indexeddb": "^9.0.12",
-    "y-sweet": "^0.9.1",
+    "y-websocket": "^3.0.0",
     "yjs": "^13.6.27",
     "zustand": "^5.0.8"
   },

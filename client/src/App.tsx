@@ -8,26 +8,13 @@ import { useEffect, useState } from "react";
 
 import MainAppComponent from "./components/mainAppComp";
 
-function SpinnerComponent() {
-  return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-    </div>
-  );
-}
+import { LoginFormComponent } from "./components/authComp";
 
 function App() {
-  const [loading, setLoading] = useState(true);
+  TreeRoAPI.useStore((state) => state.localConfig.isAuthorized);
 
-  useEffect(() => {
-    TreeRoAPI.initialize(() => {
-      setLoading(false);
-      // document.querySelector("#root > .spinner")?.remove();
-    });
-  }, []);
-
-  if (loading) {
-    return <SpinnerComponent />;
+  if (!TreeRoAPI.isAuthorized()) {
+    return <LoginFormComponent />;
   }
 
   return <MainAppComponent />;

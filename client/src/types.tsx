@@ -75,7 +75,9 @@ export interface FlattenedNodeType {
 }
 
 export interface LocalConfigType {
-  current_document_id: string;
+  currentDocumentId: string;
+  roomToken: string;
+  isAuthorized: boolean;
 }
 
 export interface LocalIndexedDbDataType {
@@ -142,9 +144,14 @@ export interface TreeRoAPIType {
   isIntialized(): boolean;
   _addUpdateStateObserver(): void;
   initRootData(): void;
+  clearData(reload?: boolean): void;
 
   // ---------------- Meta Methods ----------------
-  getCurrentDocumentId(): string;
+  isAuthorized(): boolean;
+  setIsAuthorized(isAuthorized: boolean): void;
+  getRoomToken(): string | null;
+  setRoomToken(roomToken: string): void;
+  getCurrentDocumentId(): string | null;
   setCurrentDocumentId(documentId: string): void;
   getRootGroupId(): string;
 

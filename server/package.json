@@ -15,7 +15,8 @@
   "type": "module",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "y-sweet": "^0.9.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

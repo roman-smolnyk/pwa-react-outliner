@@ -2,7 +2,7 @@
 import { diffChars } from "diff";
 import { IndexeddbPersistence } from "y-indexeddb";
 // import { YSweetProvider } from "@y-sweet/client";
-// import { WebsocketProvider } from "y-websocket";
+import type { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import type { YDocumentDataType, YGroupDataType, YMetaDataType, YNodeDataType } from "./types";
 // import { WebsocketProvider } from "y-websocket";
@@ -21,8 +21,6 @@ const undoManager = new Y.UndoManager(ydoc);
 
 const idbPersistence = new IndexeddbPersistence(ROOM_NAME, ydoc);
 // * To clear idb: idbPersistence.clearData()
-
-// const provider = new WebsocketProvider("ws://localhost:1234", ROOM_NAME, ydoc);
 
 class YMetaWrap {
   ymeta: YMetaDataType;
@@ -56,26 +54,27 @@ class YNodeWrap {
     return this.ynode.get("content");
   }
   set content(v: string) {
-    // ! Should be done under ydoc.transact()
     const ytext = this.ynode.get("content");
     const oldText = ytext.toString();
     const diff = diffChars(oldText, v);
 
     let index = 0;
     console.debug(`YNode.content -> diff`, diff);
-    for (const part of diff) {
-      if (part.removed) {
-        // remove this many chars from current index
-        ytext.delete(index, part.value.length);
-      } else if (part.added) {
-        // insert at current index
-        ytext.insert(index, part.value);
-        index += part.value.length;
-      } else {
-        // unchanged segment
-        index += part.value.length;
+    Yjs.ydoc.transact(() => {
+      for (const part of diff) {
+        if (part.removed) {
+          // remove this many chars from current index
+          ytext.delete(index, part.value.length);
+        } else if (part.added) {
+          // insert at current index
+          ytext.insert(index, part.value);
+          index += part.value.length;
+        } else {
+          // unchanged segment
+          index += part.value.length;
+        }
       }
-    }
+    });
   }
   get collapsed(): boolean {
     return this.ynode.get("collapsed");
@@ -162,7 +161,7 @@ export const Yjs = {
   undoManager: undoManager,
 
   idbPersistence: idbPersistence,
-  // provider: provider,
+  provider: null as WebsocketProvider | null,
 
   YMetaWrap: YMetaWrap,
   YNodeWrap: YNodeWrap,

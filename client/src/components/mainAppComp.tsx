@@ -7,7 +7,21 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { TreeRoAPI } from "../api";
 import { ToastContainer } from "react-toastify";
 
+import { useEffect, useState } from "react";
+
+import { LoginFormComponent } from "./authComp.tsx";
+
+function SpinnerComponent() {
+  return (
+    <div className="flex h-screen w-screen items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+    </div>
+  );
+}
+
 export default function MainAppComponent() {
+  const [loading, setLoading] = useState(true);
+
   useHotkeys("ctrl+z, meta+z", () => {
     console.warn("ctrl+z, meta+z");
     TreeRoAPI.Yjs.undoManager.undo();
@@ -16,6 +30,17 @@ export default function MainAppComponent() {
     console.warn("ctrl+shift+z, meta+shift+z");
     TreeRoAPI.Yjs.undoManager.redo();
   });
+
+  useEffect(() => {
+    TreeRoAPI.initialize(() => {
+      setLoading(false);
+      // document.querySelector("#root > .spinner")?.remove();
+    });
+  }, []);
+
+  if (loading) {
+    return <SpinnerComponent />;
+  }
 
   return (
     <ReadOnlyContextProvider>
