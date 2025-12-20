@@ -1,20 +1,36 @@
+import type { IDBPDatabase } from "idb";
+import type * as Y from "yjs";
 import type { StoreApi, UseBoundStore } from "zustand";
-// import type { IDBPDatabase } from "idb";
+import type { Yjs } from "./yjsEnv";
 
 export interface NodeDataType {
   node_id: string;
-  parent_id: string | null; // only root node and new node have parent_id === null;
+  // only root node and new node have parent_id === null;
+  parent_id: string | null;
   content: string;
   collapsed: boolean;
   created: number;
   modified: number;
   children: string[];
 }
+export interface YNodeDataType extends Y.Map<string | null | boolean | number | Y.Array<string> | Y.Text> {
+  get(key: "node_id"): string;
+  get(key: "parent_id"): string | null;
+  get(key: "content"): Y.Text;
+  get(key: "collapsed"): boolean;
+  get(key: "created"): number;
+  get(key: "modified"): number;
+  get(key: "children"): Y.Array<string>;
+}
 
 export interface DocumentDataType {
   document_id: string;
   root_node_id: string;
   // As title used root node content
+}
+export interface YDocumentDataType extends Y.Map<string> {
+  get(key: "document_id"): string;
+  get(key: "root_node_id"): string;
 }
 
 // This one is for atomic updates, atom = document
@@ -29,15 +45,25 @@ export interface GroupDataType {
   group_id: string;
   name: string;
   collapsed: boolean;
-  children: (string | string)[]; // can be document_id or group_id
+  children: string[]; // can be document_id or group_id
+}
+export interface YGroupDataType extends Y.Map<string | boolean | Y.Array<string>> {
+  get(key: "group_id"): string;
+  get(key: "name"): string;
+  get(key: "collapsed"): boolean;
+  get(key: "children"): Y.Array<string>;
 }
 
-export interface OutlinerStructureDataType {
-  current_document_id: string;
+export interface MetaDataType {
   root_group_id: string;
-  // groups: GroupDataType[];
-  // documents: DocumentDataType[];
 }
+export interface YMetaDataType extends Y.Map<string> {
+  get(key: "root_group_id"): string;
+}
+
+// export interface SettingsDataType {
+//   count: string;
+// }
 
 export interface FlattenedNodeType {
   node_id: string;
@@ -48,190 +74,125 @@ export interface FlattenedNodeType {
   children: string[];
 }
 
-// -----------------------
-// IndexedDB Database
-// -----------------------
-export interface TreeRoIndexedDbType {
-  groups: GroupDataType;
-  documents: DocumentDataType;
-  nodes: NodeDataType;
-  // meta
+export interface LocalConfigType {
+  current_document_id: string;
 }
 
-export interface IDBApiType {
-  logPrefix: string;
-  // Meta
-  resetDb(): Promise<void>;
-  saveCurrentDocumentId(docId: string): Promise<void>;
-  loadCurrentDocumentId(): Promise<string | null>;
-  saveRootGroupId(groupId: string): Promise<void>;
-  loadRootGroupId(): Promise<string | null>;
+export interface LocalIndexedDbDataType {
+  localConfig: LocalConfigType;
+}
 
-  // Groups
-  saveGroup(group: GroupDataType): Promise<void>;
-  loadGroups(): Promise<GroupDataType[]>;
-  deleteGroup(groupId: string): Promise<void>;
-
-  // Documents
-  saveDocument(doc: DocumentDataType): Promise<void>;
-  loadDocuments(): Promise<DocumentDataType[]>;
-  deleteDocument(docId: string): Promise<void>;
-
-  // Nodes
-  saveNode(node: NodeDataType): Promise<void>;
-  saveNodes(nodes: NodeDataType | NodeDataType[]): Promise<void>;
-  loadNodes(): Promise<NodeDataType[]>;
-  deleteNode(nodeId: string): Promise<void>;
-  deleteNodes(nodeIds: string | string[]): Promise<void>;
-  queryNodesByPredicate(predicate: (node: NodeDataType) => boolean): Promise<NodeDataType[]>;
+export interface IDBLocalType {
+  db: IDBPDatabase<LocalIndexedDbDataType> | null;
+  clearData(): Promise<void>;
+  getLocalConfig(): Promise<LocalConfigType | undefined>;
+  setLocalConfig(localConfig: LocalConfigType): Promise<void>;
 }
 
 // -----------------------
 // Zustand store
 // -----------------------
 export interface zustandUseStoreType {
-  // useStore.setState({ currentDocId: "" });
-  // const node = useStore.getState().nodes.get(nodeId)
-
-  // ---------------- State ----------------
+  // ---------------- Data State ----------------
   stateIsInitialized: boolean;
-  currentDocId: string;
-  rootGroupId: string;
+  localConfig: LocalConfigType;
+  meta: MetaDataType;
   groups: Map<string, GroupDataType>;
   documents: Map<string, DocumentDataType>;
   nodes: Map<string, NodeDataType>;
+  // ---------------- UI State ----------------
+  nodesToRender: Record<string, boolean>;
+  nodesContentToRender: Record<string, boolean>;
 
-  // ---------------- State Storage methods ----------------
-  clearStoreState: () => void;
+  dndRectEl: HTMLDivElement | null;
+  dndPlacement: string;
+  dndDescendantsIds: string[];
+  dndToRerender: Record<string, boolean>;
 
-  // ---------------- Group Methods ----------------
-  insertGroup: (group: GroupDataType, parentGroupId: string, index?: number) => void;
-  updateGroup: (groupId: string, newGroupData: Partial<GroupDataType>) => void;
-  getGroupChildren: (groupId: string) => (GroupDataType | DocumentDataType)[];
-  moveGroup: (groupId: string, parentGroupId: string, index?: number) => void;
-  deleteGroup: (groupId: string) => void;
+  activeEditNodeId: string;
+  activeEditCaretPosition: number;
 
-  // ---------------- Document Methods ----------------
-  getDocumentRootNodeId: (docId: string) => string | null;
-  insertDocument: (document: DocumentDataType, parentGroupId: string, index?: number) => void;
-  // insertDocumentAfter: (document: DocumentDataType, siblingId: string) => void;
-  // insertDocumentBefore: (document: DocumentDataType, siblingId: string) => void;
-  updateDocument: (docId: string, newDocData: Partial<DocumentDataType>) => void;
-  getDocumentNodes: (docId: string) => DocumentWithNodesDataType | null;
-  moveDocument: (docId: string, parentGroupId: string, index?: number) => void;
-  // moveDocumentAfter: (docId: string, siblingId: string) => void;
-  // moveDocumentBefore: (docId: string, siblingId: string) => void;
-  deleteDocument: (docId: string) => void;
-  // buildTree: (docId: string) => void;
+  explorerIsOpened: boolean;
 
-  // ---------------- Node Methods ----------------
-  insertNode: (node: NodeDataType, parentNodeId: string, index?: number) => NodeDataType[];
-  insertNodeBefore: (node: NodeDataType, referenceNodeId: string) => NodeDataType[];
-  insertNodeAfter: (node: NodeDataType, referenceNodeId: string) => NodeDataType[];
-  updateNode: (nodeId: string, newNodeData: Partial<NodeDataType>) => NodeDataType | null;
-  getNodeChildren: (nodeId: string) => NodeDataType[];
-  getNodeParent: (nodeId: string) => NodeDataType | null;
-  getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
-  getNodeIndex: (nodeId: string) => number | null;
-  getNodeDescendantsIds: (nodeId: string) => string[];
-  moveNode: (movedNodeId: string, targetNodeId: string, index?: number) => NodeDataType[];
-  moveNodeBefore: (movedNodeId: string, referenceNodeId: string) => NodeDataType[];
-  moveNodeAfter: (movedNodeId: string, referenceNodeId: string) => NodeDataType[];
-  deleteNode: (nodeId: string) => [NodeDataType | null, string[]];
-  // queryNodesByText: (text: string, docId?: string) => NodeDataType[];
+  triggerNodeRender: (nodeId: string) => void;
+  triggerNodeContentRender: (nodeId: string) => void;
+  triggerDnDRender: (id: string) => void;
+
+  getCharIndexFromCaret: (element: HTMLElement) => number;
+  setCaretAtCharIndex: (element: HTMLElement, index: number) => void;
+  getCharIndexFromMouse: (element: HTMLElement, x: number, y: number) => number;
+  activateNodeEdit: (nodeId: string, caretPosition?: number) => void;
 }
 
 // -----------------------
 // TreeRo API
 // -----------------------
-
-export interface ChangeEventType {
-  type: "insert" | "update" | "delete" | "move";
-  target: "group" | "document" | "node";
-  payload: GroupDataType | DocumentDataType | NodeDataType;
-}
-
+// TODO: Check order!!!
 export interface TreeRoAPIType {
-  // Zustand store
-  useStore: UseBoundStore<StoreApi<zustandUseStoreType>>;
-  useUIStore: UseBoundStore<StoreApi<zustandUIStoreType>>;
-  // Database API
-  IDBApi: IDBApiType;
   // Api version
   version: string;
+  // Yjs
+  Yjs: typeof Yjs;
+  // idb local
+  IDBLocal: IDBLocalType;
+  // Zustand store
+  useStore: UseBoundStore<StoreApi<zustandUseStoreType>>;
 
-  // State
-  dataIsLoaded: boolean;
-  queue: ChangeEventType[] | []; // refine with a ChangeEvent type later
-
-  // ---------------- DB Methods ----------------
-  loadInitialData(): Promise<void>;
-  // updateStateFromStructure(structure: OutlinerStructureDataType): void;
-  // updateStateFromDoc(doc: DocumentWithNodesDataType): void;
+  initialize(callback?: () => void): Promise<void>;
+  isIntialized(): boolean;
+  _addUpdateStateObserver(): void;
+  initRootData(): void;
 
   // ---------------- Meta Methods ----------------
-  getCurrentDocId(): string;
-  setCurrentDocId(docId: string): void;
+  getCurrentDocumentId(): string;
+  setCurrentDocumentId(documentId: string): void;
   getRootGroupId(): string;
-  setRootGroupId(groupId: string): void;
 
   // ---------------- Group Methods ----------------
-  listGroups(): GroupDataType[];
-  createGroup(name?: string, collapsed?: boolean): GroupDataType;
-  insertGroup(group: GroupDataType, parentGroupId: string, index?: number): void;
-  updateGroup(groupId: string, newGroupData: Partial<GroupDataType>): void;
-  getGroupChildren(groupId: string): (GroupDataType | DocumentDataType)[];
-  moveGroup(groupId: string, parentGroupId: string, index?: number): void;
+  insertNewGroup(targetGroupId: string, name?: string, index?: number): string | null;
+  insertNewGroupBefore(referenceGroupId: string, name?: string): string | null;
+  insertNewGroupAfter(referenceGroupId: string, name?: string): string | null;
+  getGroups(groupId?: string): InstanceType<typeof Yjs.YGroupWrap>[];
+  getGroup(groupId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
+  getGroupChildren(groupId: string): (InstanceType<typeof Yjs.YGroupWrap> | InstanceType<typeof Yjs.YDocumentWrap>)[];
+  getParentGroup(childId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
+  getGroupDescendantsIds(groupId: string): string[];
+  updateGroup(groupId: string, { name, collapsed }: { name?: string | undefined; collapsed?: boolean | undefined }): void;
+  moveGroup(movedGroupId: string, targetGroupId: string, index: number): void;
+  moveGroupBefore(movedGroupId: string, referenceId: string): void;
+  moveGroupAfter(movedGroupId: string, referenceId: string): void;
   deleteGroup(groupId: string): void;
+  toggleGroupCollapse(groupId: string): void;
 
   // ---------------- Document Methods ----------------
-  listDocuments(): DocumentDataType[];
-  getDocumentRootNodeId(docId: string): string | null;
-  createDocument(rootNodeId: string): DocumentDataType;
-  insertDocument(document: DocumentDataType, parentGroupId: string, index?: number): void;
-  updateDocument(docId: string, newDocData: Partial<DocumentDataType>): void;
-  getDocumentNodes(docId: string): DocumentWithNodesDataType | null;
-  moveDocument(docId: string, parentGroupId: string, index?: number): void;
-  deleteDocument(docId: string): void;
-  openDocument(docId: string): void; // sets currentDocId
+  insertNewDocument(targetGroupId: string, rootNodeContent?: string, index?: number): string | null;
+  insertNewDocumentBefore(referenceId: string, rootNodeContent?: string): void;
+  insertNewDocumentAfter(referenceId: string, rootNodeContent?: string): void;
+  getDocuments(groupId?: string): InstanceType<typeof Yjs.YDocumentWrap>[];
+  getDocument(documentId: string): InstanceType<typeof Yjs.YDocumentWrap> | null;
+  getDocumentRootNodeId(documentId: string): string | null;
+  updateDocument(documentId: string, rootNodeContent: string): void;
+  moveDocument(movedDocumentId: string, targetGroupId: string, index: number): void;
+  moveDocumentBefore(movedDocumentId: string, referenceId: string): void;
+  moveDocumentAfter(movedDocumentId: string, referenceId: string): void;
+  deleteDocument(documentId: string): void; // TODO
 
   // ---------------- Node Methods ----------------
-  createNode(content?: string, collapsed?: boolean, args?: Partial<NodeDataType>): NodeDataType;
-  insertNode(node: NodeDataType, targetNodeId: string, index?: number): NodeDataType[];
-  insertNodeBefore: (node: NodeDataType, referenceNodeId: string) => NodeDataType[];
-  insertNodeAfter: (node: NodeDataType, referenceNodeId: string) => NodeDataType[];
-  updateNode(nodeId: string, newNodeData: Partial<NodeDataType>): NodeDataType | null;
-  getAllNodes(docId?: string): NodeDataType[];
-  getNode: (nodeId: string) => NodeDataType | null;
-  getNodeChildren(nodeId: string): NodeDataType[];
-  getNodeParent(nodeId: string): NodeDataType | null;
-  getNodeSibling: (nodeId: string, offset: number) => NodeDataType | null;
-  getNodeIndex: (nodeId: string) => number | null;
+  insertNewNode(targetNodeId: string, content?: string, index?: number, args?: Partial<NodeDataType>): string | null;
+  insertNewNodeBefore(referenceNodeId: string, content?: string, args?: Partial<NodeDataType>): string | null;
+  insertNewNodeAfter(referenceNodeId: string, content?: string, args?: Partial<NodeDataType>): string | null;
+  getNodes(documentId?: string): InstanceType<typeof Yjs.YNodeWrap>[];
+  getNode(nodeId: string): InstanceType<typeof Yjs.YNodeWrap> | null;
+  getNodeChildren(nodeId: string): InstanceType<typeof Yjs.YNodeWrap>[];
+  getNodeParent(nodeId: string): InstanceType<typeof Yjs.YNodeWrap> | null;
+  getNodeSibling(nodeId: string, offset: number): InstanceType<typeof Yjs.YNodeWrap> | null;
+  getNodeIndex(nodeId: string): number | null;
   getNodeDescendantsIds: (nodeId: string) => string[];
-  moveNode: (movedNodeId: string, targetNodeId: string, index?: number) => NodeDataType[];
-  moveNodeBefore: (movedNodeId: string, referenceNodeId: string) => NodeDataType[];
-  moveNodeAfter: (movedNodeId: string, referenceNodeId: string) => NodeDataType[];
-  deleteNode(nodeId: string): [NodeDataType | null, string[]];
-  // queryNodesByText(text: string, docId?: string): NodeDataType[];
+  updateNode(nodeId: string, { content, collapsed }: { content?: string | undefined; collapsed?: boolean | undefined }): void;
+  moveNode(movedNodeId: string, targetNodeId: string, index: number): void;
+  moveNodeBefore(movedNodeId: string, referenceNodeId: string): void;
+  moveNodeAfter(movedNodeId: string, referenceNodeId: string): void;
+  deleteNode(nodeId: string): void;
   toggleNodeCollapse(nodeId: string): void;
-  collapseAllNodeChildren(nodeId: string): void;
-  // ---------------- Caret Methods  ----------------
-  getCharIndexFromCaret(element: HTMLElement): number;
-  setCaretAtCharIndex(element: HTMLElement, index: number): void;
-  getCharIndexFromMouse(element: HTMLElement, x: number, y: number): number;
-  activateNodeEdit(nodeId: string, caretPosition?: number): void;
-}
-
-// -----------------------
-// Zustand dragNDrop store
-// -----------------------
-export interface zustandUIStoreType {
-  nodesToRender: Record<string, boolean>;
-  nodesContentToRender: Record<string, boolean>;
-  dragNDropPlacement: string;
-  draggableNodeDescendantsIds: string[];
-  activeEditNodeId: string;
-  activeEditCaretPosition: number;
-  triggerNodeRender: (nodeId: string) => void;
-  triggerNodeContentRender: (nodeId: string) => void;
+  toggleNodeDescendantsCollapse(nodeId: string): void;
 }
