@@ -1,6 +1,8 @@
 // yjsEnv.ts
 import { diffChars } from "diff";
 import { IndexeddbPersistence } from "y-indexeddb";
+// import { YSweetProvider } from "@y-sweet/client";
+// import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import type { YDocumentDataType, YGroupDataType, YMetaDataType, YNodeDataType } from "./types";
 // import { WebsocketProvider } from "y-websocket";
@@ -19,6 +21,8 @@ const undoManager = new Y.UndoManager(ydoc);
 
 const idbPersistence = new IndexeddbPersistence(ROOM_NAME, ydoc);
 // * To clear idb: idbPersistence.clearData()
+
+// const provider = new WebsocketProvider("ws://localhost:1234", ROOM_NAME, ydoc);
 
 class YMetaWrap {
   ymeta: YMetaDataType;
@@ -158,6 +162,7 @@ export const Yjs = {
   undoManager: undoManager,
 
   idbPersistence: idbPersistence,
+  // provider: provider,
 
   YMetaWrap: YMetaWrap,
   YNodeWrap: YNodeWrap,
