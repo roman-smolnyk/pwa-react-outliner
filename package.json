@@ -22,7 +22,6 @@
     "idb": "^8.0.3",
     "katex": "^0.16.25",
     "lucide-react": "^0.553.0",
-    "npx": "^10.2.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hotkeys-hook": "^5.2.1",
