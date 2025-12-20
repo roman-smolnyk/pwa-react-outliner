@@ -4,16 +4,18 @@ import { useSortable } from "@dnd-kit/sortable";
 import { memo, useEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
-import { useStore, useUIStore } from "../stateStore";
+import { useStore } from "../stateStore";
+import { useReadOnly } from "../etc/readonlyContext";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   const _logPrefix = `NodeContentComponent [${nodeId}]`;
   // console.debug(logPrefix);
   const refContenteditable = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { readOnly, setReadOnly } = useReadOnly();
 
   // zustand subscribe to rerender trigger
-  useUIStore((state) => {
+  useStore((state) => {
     return state.nodesContentToRender[nodeId];
   });
 
@@ -22,24 +24,25 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   //   return () => console.debug(`${_logPrefix} -> MOUNTED`);
   // }, []);
 
-  const activeEditNodeId = useUIStore.getState().activeEditNodeId;
+  const activeEditNodeId = useStore.getState().activeEditNodeId;
   if (nodeId === activeEditNodeId) {
     console.debug("activeEditNodeId", activeEditNodeId);
-    useUIStore.setState({ activeEditNodeId: "" });
+    useStore.setState({ activeEditNodeId: "" });
     setIsEditing(true);
     setTimeout(() => {
       if (refContenteditable.current) {
-        TreeRoAPI.setCaretAtCharIndex(refContenteditable.current, useUIStore.getState().activeEditCaretPosition);
+        TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().activeEditCaretPosition);
       }
     }, 0);
   }
 
   return (
-    <div className={`NodeContent-container  ${isEditing ? "bg-gray-100" : ""}`} data-id={nodeId}>
+    <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
+      {/* // * Add small padding to allow mobile users place cursor at the beggining */}
       <div
         ref={refContenteditable}
         // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
-        className={`NodeContent-contenteditable trailing-nl ${isEditing ? "" : "hidden"}`}
+        className={`NodeContent-contenteditable cursor-text select-text outline-none whitespace-pre-wrap wrap-break-word leading-tight min-h-5 px-1 trailing-nl ${isEditing ? "" : "hidden"}`}
         data-id={nodeId}
         contentEditable
         suppressContentEditableWarning
@@ -76,9 +79,10 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
-            const newNode = TreeRoAPI.createNode("");
-            TreeRoAPI.insertNodeAfter(newNode, nodeId);
-            TreeRoAPI.activateNodeEdit(newNode.node_id);
+            // const newNode = TreeRoAPI.createNode("");
+            // TreeRoAPI.insertNodeAfter(newNode, nodeId);
+            const newNodeId = TreeRoAPI.insertNewNodeAfter(nodeId, "New Node")!;
+            TreeRoAPI.useStore.getState().activateNodeEdit(newNodeId);
             // useUIStore.setState({ activeEditNodeId: newNode.node_id });
             //
             // setTimeout(() => {
@@ -116,9 +120,8 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
                 console.debug("siblingNode", siblingNode);
-                TreeRoAPI.activateNodeEdit(siblingNode.node_id, -1);
+                TreeRoAPI.useStore.getState().activateNodeEdit(siblingNode.node_id, -1);
                 // useUIStore.setState({ activeEditNodeId: siblingNode.node_id });
-                // useUIStore.getState().triggerNodeRender(siblingNode.node_id);
                 // setTimeout(() => {
                 //   const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
                 //   // console.debug(`${logPrefix} -> placeCaretAtStart`, el);
@@ -132,11 +135,11 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             e.preventDefault(); // block default focus change
             const nodeParent = TreeRoAPI.getNodeParent(nodeId);
             if (!nodeParent) return;
-            // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, nodeParent);
+            console.debug(`onKeyDown [Tab + shiftKey]`, nodeParent.ynode.toJSON());
             e.currentTarget.blur();
             TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
-            const index = TreeRoAPI.getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.activateNodeEdit(nodeId, index);
+            const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
+            TreeRoAPI.useStore.getState().activateNodeEdit(nodeId, index);
             // Indent node
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
@@ -145,11 +148,11 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
             if (!siblingNode) return;
             e.currentTarget.blur();
-            TreeRoAPI.moveNode(nodeId, siblingNode.node_id);
+            TreeRoAPI.moveNode(nodeId, siblingNode.node_id, -1);
             // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
             TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
-            const index = TreeRoAPI.getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.activateNodeEdit(nodeId, index);
+            const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
+            TreeRoAPI.useStore.getState().activateNodeEdit(nodeId, index);
             // Move node up
           } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
@@ -181,17 +184,30 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
       </div>
       {
         <div
-          className={`NodeContent-render  ${isEditing ? "hidden" : ""}`}
+          className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "" : "cursor-text"}`}
           data-id={nodeId}
           onPointerDown={(e) => {
-            // console.log(`${logPrefix} -> onPointerDown`);
-            const charIndex = TreeRoAPI.getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
-            // console.log(`${logPrefix} -> onMouseDown -> charIndex`, charIndex);
-            setIsEditing(true);
-            setTimeout(() => {
-              // console.log(`onPointerDown setTimeout -> charIndex`, charIndex);
-              TreeRoAPI.setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
-            }, 100);
+            if (readOnly) return;
+            if (e.pointerType === "touch") {
+              // isTouch = true;
+              // pointerStart = { x: e.clientX, y: e.clientY };
+            } else {
+              const charIndex = TreeRoAPI.useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+              setIsEditing(true);
+              setTimeout(() => {
+                TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+              }, 100);
+            }
+          }}
+          onPointerUp={(e) => {
+            if (readOnly) return;
+            if (e.pointerType === "touch") {
+              const charIndex = TreeRoAPI.useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+              setIsEditing(true);
+              setTimeout(() => {
+                TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+              }, 100);
+            }
           }}
           // onMouseUp={() => console.log(`${logPrefix} -> onMouseUp`)}
           // onClick={(e) => {
@@ -207,9 +223,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
 });
 
 export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
-  const _logPrefix = `NodeComponent [${nodeId}]`;
-  // console.debug(logPrefix);
-  const refNode = useRef<HTMLDivElement>(null);
+  // console.debug(`NodeComponent: ${nodeId}`);
+  const ref = useRef<HTMLDivElement>(null);
+  const refNodeSelf = useRef<HTMLDivElement>(null);
 
   // zustand subscribe
   const node = useStore((state) => {
@@ -217,47 +233,54 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
   });
 
   // zustand subscribe to rerender trigger
-  useUIStore((state) => {
+  useStore((state) => {
     return state.nodesToRender[nodeId];
   });
 
-  // useSortable merges useDraggable and useDroppable functionality, so you can do
-  const { attributes, listeners, setNodeRef, isOver, over, active, isDragging } = useSortable({
-    id: nodeId,
+  useStore((state) => {
+    return state.dndToRerender[nodeId];
   });
 
-  if (isDragging) {
-    // console.debug("isDragging", attributes, listeners);
-  }
+  const { readOnly, setReadOnly } = useReadOnly();
 
-  if (isOver) {
-    // console.debug("isOver", attributes, listeners);
-  }
-
-  let placement = null;
-  if (isOver && active?.id && over?.id && active.id !== over.id) {
-    if (!useUIStore.getState().draggableNodeDescendantsIds.includes(nodeId)) {
-      placement = useUIStore.getState().dragNDropPlacement;
-    }
-  }
+  // useSortable merges useDraggable and useDroppable functionality, so you can do
+  const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
+    id: nodeId,
+    disabled: readOnly,
+  });
 
   const combinedRef = (element: HTMLDivElement | null) => {
     setNodeRef(element); // dnd-kit needs this
-    refNode.current = element; // your own ref
+    ref.current = element; // your own ref
   };
+
+  if (isDragging) {
+    // console.debug("isDragging", attributes, listeners);
+    const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
+    useStore.setState({ dndDescendantsIds: descendantsIds });
+  }
+
+  let placement = null;
+  if (isOver) {
+    // console.debug("isOver", attributes, listeners);
+    TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+    if (active?.id && over?.id && active.id !== over.id) {
+      if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
+        placement = TreeRoAPI.useStore.getState().dndPlacement;
+      }
+    }
+  }
 
   if (!node) return null;
 
-  const childNodes = TreeRoAPI.getNodeChildren(node.node_id);
-
   return (
     // data-id={node.node_id}
-    <div ref={combinedRef} id={node.node_id} className={`Node-outer ${isDragging ? "bg-gray-200" : ""}`}>
+    <div id={node.node_id} className={`Node-outer ${isDragging ? "bg-gray-200" : ""}`} ref={combinedRef}>
       <div className="Node-inner">
         {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
-        <div className="Node-self" data-id={node.node_id}>
+        <div className="Node-self flex items-start" ref={refNodeSelf} data-id={node.node_id}>
           <button
-            className="Node-bullet"
+            className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
             type="button"
             // ref={setBulletDropRef}
             {...listeners}
@@ -298,18 +321,24 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             )}
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <button className="Node-options" type="button">
+          <button
+            className="Node-options flex-none min-h-5 min-w-5 cursor-pointer 
+                       flex items-center justify-center"
+            type="button"
+          >
             {/* <span>⋮</span> */}
-            <i className="ph-bold ph-dots-three-vertical text-[1rem]"></i>
+            <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
             {/* <EllipsisVertical className="size-4" /> */}
           </button>
-          <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div>
+
+          {/* // ! ID */}
+          {/* <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div> */}
         </div>
         {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
-        <div className={`NodeChildren ${node.collapsed ? "hidden!" : ""}`}>
-          {childNodes.map((child) => (
-            <NodeComponent key={child.node_id} nodeId={child.node_id} />
+        <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
+          {node.children.map((childId) => (
+            <NodeComponent key={childId} nodeId={childId} />
           ))}
         </div>
       </div>

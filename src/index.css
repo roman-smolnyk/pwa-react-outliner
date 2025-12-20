@@ -6,8 +6,6 @@
 @import "@phosphor-icons/web/bold";
 @import "@phosphor-icons/web/fill";
 @import "@phosphor-icons/web/duotone";
-@import "katex/dist/katex.min.css";
-@import "react-toastify/dist/ReactToastify.css";
 
 @font-face {
   font-family: 'Roboto';
@@ -44,9 +42,18 @@
 
 :root {
   font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+  --sidebar-width: clamp(200px, 20vw, 500px);
 }
 
-/* 
+/* Mobile-first: small screens */
+@media (max-width: 639px) {
+  :root {
+    --sidebar-width: clamp(200px, 75vw, 300px);
+  }
+}
+
+
+/*
 Add pseudo element(newline) to the contenteditable to prevent trailing newline from collapsing
 Dynalist uses actual newline in the note text to achive the same result
 */
@@ -56,45 +63,44 @@ Dynalist uses actual newline in the note text to achive the same result
   white-space: pre;
 }
 
-.Document {
-  /* Marging based on the screen size */
-  @apply mx-2 sm:mx-8 md:mx-16 lg:mx-32 xl:mx-64 2xl:mx-64;
-}
+/* Marging based on the screen size */
+/* .Document {
+  @apply px-2 sm:px-8 md:px-16 lg:px-32 xl:px-64 2xl:px-64;
+} */
 
-.RootNode-self {
+/* .RootNode-self {
   @apply flex items-start;
-}
+} */
 
-.Node-self {
+/* .Node-self {
   @apply flex;
   @apply items-start;
-  @apply gap-1;
-}
+} */
 
-.Node-bullet,
+/* .Node-bullet,
 .Node-options {
   @apply flex flex-none;
   @apply items-center justify-center;
   @apply cursor-pointer;
   @apply min-h-5;
   @apply min-w-5;
-}
+} */
 
-.NodeContent-container {
-  @apply flex-auto;
+/* .NodeContent-container {
+  @apply flex-auto; */
   /* critical: allows child to shrink and wrap */
-  @apply min-w-0;
+  /* @apply min-w-0;
 
-}
+} */
 
 .NodeContent-contenteditable {
-  @apply cursor-text;
+  /* @apply cursor-text;
   @apply select-text;
   @apply outline-none;
   @apply whitespace-pre-wrap;
   @apply wrap-break-word;
   @apply min-h-5;
-  @apply leading-tight;
+  @apply leading-tight; */
 
 
   text-decoration-skip-ink: none;
@@ -102,17 +108,17 @@ Dynalist uses actual newline in the note text to achive the same result
 
 }
 
-.NodeContent-render {
+/* .NodeContent-render {
   @apply wrap-break-word;
-  @apply cursor-text;
   @apply min-h-5;
-}
+} */
 
-.NodeChildren {
+/* .NodeChildren {
   @apply flex flex-col gap-2;
   @apply border-l border-gray-200;
   @apply ml-2 pl-5;
-}
+} */
+
 
 .NodeContent-render code {
   /* max-width: 100% !important; */
@@ -123,6 +129,11 @@ Dynalist uses actual newline in the note text to achive the same result
   /* overflow-x: auto !important; */
   /* allow scroll instead of breaking layout */
   /* box-sizing: border-box !important; */
+}
+
+
+body {
+  position: relative;
 }
 
 

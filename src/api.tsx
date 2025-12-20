@@ -1,441 +1,1016 @@
-import { IDBApi } from "./db";
-import { mockupDocument, mockupGroup, mockupNodes } from "./mockupData";
-import { useStore, useUIStore } from "./stateStore";
-import type { DocumentDataType, GroupDataType, NodeDataType, TreeRoAPIType } from "./types";
+import * as Y from "yjs";
+import { fillInMockupData } from "./etc/mockupData";
+import { useStore } from "./stateStore";
+import type {
+  DocumentDataType,
+  GroupDataType,
+  MetaDataType,
+  NodeDataType,
+  TreeRoAPIType,
+  YDocumentDataType,
+  YGroupDataType,
+  YNodeDataType,
+} from "./types";
+import { Yjs } from "./yjsEnv";
+import { IDBLocal } from "./idbEnv";
 
 export class DataNotLoadedError extends Error {}
 
 export const TreeRoAPI: TreeRoAPIType = {
-  useStore: useStore, // expose to userscript
-  useUIStore: useUIStore, // expose to userscript
-  IDBApi: IDBApi, // expose to userscript
   version: "0.0.1",
-
-  dataIsLoaded: false,
-  queue: [],
+  // expose to userscript
+  Yjs: Yjs,
+  IDBLocal: IDBLocal,
+  useStore: useStore,
 
   // Async method to load initial data
-  async loadInitialData() {
-    // await DB.resetDb();
-    let currentDocId = await IDBApi.loadCurrentDocumentId();
-    let rootGroupId = await IDBApi.loadRootGroupId();
-    const groups = await IDBApi.loadGroups();
-    const documents = await IDBApi.loadDocuments();
-    const nodes = await IDBApi.loadNodes();
-
-    if (!rootGroupId) {
-      currentDocId = mockupDocument.document_id;
-      rootGroupId = mockupGroup.group_id;
-      nodes.push(...mockupNodes);
-      documents.push(mockupDocument);
-      groups.push(mockupGroup);
-
-      await IDBApi.saveNodes(mockupNodes);
-      await IDBApi.saveDocument(mockupDocument);
-      await IDBApi.saveGroup(mockupGroup);
-      await IDBApi.saveRootGroupId(rootGroupId);
-      await IDBApi.saveCurrentDocumentId(currentDocId);
+  async initialize(callback) {
+    const localConfig = await IDBLocal.getLocalConfig();
+    if (localConfig) {
+      console.log("localConfig", localConfig);
+      useStore.setState({
+        localConfig: localConfig,
+      });
     }
 
-    // if (!rootGroupId) {
-    //   const newRootNode = TreeRoAPI.createNode("Untitled");
-    //   const newDocument = TreeRoAPI.createDocument(newRootNode.node_id);
-    //   const newRootGroup = TreeRoAPI.createGroup("Root Group");
-    //   newRootGroup.children.push(newDocument.document_id);
-    //   currentDocId = newDocument.document_id;
-    //   rootGroupId = newRootGroup.group_id;
+    Yjs.idbPersistence.whenSynced.then(() => {
+      console.log("persistence.whenSynced.then");
 
-    //   nodes.push(newRootNode);
-    //   documents.push(newDocument);
-    //   groups.push(newRootGroup);
+      // Yjs.idbPersistence.clearData();
 
-    //   await DB.saveNode(newRootNode);
-    //   await DB.saveDocument(newDocument);
-    //   await DB.saveGroup(newRootGroup);
-    //   await DB.saveRootGroupId(rootGroupId);
-    //   await DB.saveCurrentDocumentId(currentDocId);
+      Yjs.undoManager.stopCapturing();
 
-    //   // Temp
-    //   const newNode = TreeRoAPI.createNode("Sample Text");
-    //   newRootNode.children.push(newNode.node_id);
-    //   nodes.push(newNode);
-    //   await DB.saveNode(newNode);
-    // }
+      // console.log("ymeta", ymeta.toJSON());
+      if (!Yjs.ymeta.get("root_group_id")) {
+        console.log("TreeRoApi.initialize -> New Data");
+        this.initRootData();
+        fillInMockupData();
+      }
 
-    useStore.setState({
-      stateIsInitialized: true,
-      currentDocId: currentDocId || "",
-      rootGroupId: rootGroupId,
-      groups: new Map(groups.map((g) => [g.group_id, g])),
-      documents: new Map(documents.map((d) => [d.document_id, d])),
-      nodes: new Map(nodes.map((n) => [n.node_id, n])),
+      Yjs.undoManager.stopCapturing();
+
+      // const allRootTypes = Object.values(Yjs.ydoc.share);
+      // Yjs.undoManager.addToScope(allRootTypes);
+
+      useStore.setState({
+        stateIsInitialized: true,
+        meta: Yjs.ymeta.toJSON() as MetaDataType,
+        groups: new Map(Object.entries(Yjs.ygroups.toJSON())) as Map<string, GroupDataType>,
+        documents: new Map(Object.entries(Yjs.ydocuments.toJSON())) as Map<string, DocumentDataType>,
+        nodes: new Map(Object.entries(Yjs.ynodes.toJSON())) as Map<string, NodeDataType>,
+      });
+
+      this._addUpdateStateObserver();
+
+      if (callback) callback();
     });
   },
 
-  // updateStateFromStructure(structure) {
-  //   const groups = useStore.getState().groups;
-  //   const documents = useStore.getState().documents;
-
-  //   structure.groups.forEach((group) => {
-  //     groups.set(group.group_id, group);
-  //     group.children.forEach((id) => {
-  //       const g = structure.groups.find((a) => a.group_id === id);
-  //       if (g) {
-  //         groups.set(id, g);
-  //       } else {
-  //         const d = structure.documents.find((a) => a.document_id === id);
-  //         if (d) documents.set(id, d);
-  //       }
-  //     });
-  //   });
-
-  //   useStore.setState({
-  //     currentDocId: structure.current_document_id,
-  //     rootGroupId: structure.root_group_id,
-  //     groups: new Map(groups),
-  //     documents: new Map(documents),
-  //   });
-  // },
-
-  // updateStateFromDoc(doc) {
-  //   const nodes = useStore.getState().nodes;
-  //   doc.nodes.forEach((n) => {
-  //     nodes.set(n.node_id, n);
-  //   });
-  //   useStore.setState({ nodes: new Map(nodes) });
-  // },
-
-  getCurrentDocId() {
-    return useStore.getState().currentDocId;
+  isIntialized() {
+    return useStore.getState().stateIsInitialized;
   },
 
-  setCurrentDocId(docId) {
-    useStore.setState({ currentDocId: docId });
+  _addUpdateStateObserver() {
+    // Update state
+    // TODO: Add documents, meta
+    // ########################### Nodes ##################################
+    Yjs.ynodes.observeDeep((events) => {
+      // when nested Y.Array or, Y.Text changes, two events are fired, for themself and for parent Y.Map
+      console.log("ynodes.observeDeep", events);
+      for (const event of events) {
+        console.debug("event.changes.added", event.changes.added);
+        console.debug("event.changes.deleted", event.changes.deleted);
+        console.debug("event.changes.delta", event.changes.delta);
+        console.debug("event.changes.keys", event.changes.keys);
+        for (const [key, change] of event.changes.keys) {
+          if (change.action === "add") {
+            const ynode = TreeRoAPI.Yjs.YNodeWrap.get(key);
+            console.debug("add", key, ynode?.ynode.toJSON(), change.oldValue);
+            if (ynode) {
+              useStore.setState((state) => {
+                const uNodes = new Map(state.nodes);
+                uNodes.set(ynode.node_id, ynode.ynode.toJSON() as NodeDataType);
+                return { nodes: uNodes };
+              });
+            }
+          } else if (change.action === "delete") {
+            console.debug("delete", key, change.oldValue);
+            useStore.setState((state) => {
+              const uNodes = new Map(state.nodes);
+              uNodes.delete(key);
+              return { nodes: uNodes };
+            });
+          } else if (change.action === "update") {
+            console.debug("update", key, change.oldValue);
+          }
+        }
+        if (event.target instanceof Y.Text) {
+          // node text changed
+          const ynode = event.target.parent as YNodeDataType;
+          console.debug("Y.Text", event.target.toJSON(), ynode.toJSON());
+          useStore.setState((state) => {
+            const uNodes = new Map(state.nodes);
+            uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
+            return { nodes: uNodes };
+          });
+        } else if (event.target instanceof Y.Array) {
+          // node array changed
+          const ynode = event.target.parent as YNodeDataType;
+          console.debug("Y.Array", event.target.toJSON(), ynode.toJSON());
+          useStore.setState((state) => {
+            const uNodes = new Map(state.nodes);
+            uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
+            return { nodes: uNodes };
+          });
+        } else if (event.target instanceof Y.Map) {
+          if (!event.target.parent) {
+            // This is root ynodes
+            continue;
+          }
+          const ynode = event.target as YNodeDataType;
+          useStore.setState((state) => {
+            const uNodes = new Map(state.nodes);
+            uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
+            return { nodes: uNodes };
+          });
+
+          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ynode?.toJSON());
+        } else {
+          console.debug("ELSE", event.target.toJSON());
+        }
+      }
+    });
+
+    // ########################### Groups ##################################
+
+    Yjs.ygroups.observeDeep((events) => {
+      console.log("ygroups.observeDeep", events);
+      for (const event of events) {
+        console.debug("event.changes.added", event.changes.added);
+        console.debug("event.changes.deleted", event.changes.deleted);
+        console.debug("event.changes.delta", event.changes.delta);
+        console.debug("event.changes.keys", event.changes.keys);
+        for (const [key, change] of event.changes.keys) {
+          if (change.action === "add") {
+            const ygroup = TreeRoAPI.Yjs.YGroupWrap.get(key);
+            console.debug("add", key, ygroup?.ygroup.toJSON(), change.oldValue);
+            if (ygroup) {
+              useStore.setState((state) => {
+                const uGroups = new Map(state.groups);
+                uGroups.set(ygroup.group_id, ygroup.ygroup.toJSON() as GroupDataType);
+                return { groups: uGroups };
+              });
+            }
+          } else if (change.action === "delete") {
+            console.debug("delete", key, change.oldValue);
+            useStore.setState((state) => {
+              const uGroups = new Map(state.groups);
+              uGroups.delete(key);
+              return { groups: uGroups };
+            });
+          } else if (change.action === "update") {
+            console.debug("update", key, change.oldValue);
+          }
+        }
+        if (event.target instanceof Y.Array) {
+          // node array changed
+          const ygroup = event.target.parent as YGroupDataType;
+          console.debug("Y.Array", event.target.toJSON(), ygroup.toJSON());
+          useStore.setState((state) => {
+            const uGroups = new Map(state.groups);
+            uGroups.set(ygroup.get("group_id"), ygroup.toJSON() as GroupDataType);
+            return { groups: uGroups };
+          });
+        } else if (event.target instanceof Y.Map) {
+          if (!event.target.parent) {
+            // This is root ygroups
+            continue;
+          }
+          const ygroup = event.target as YGroupDataType;
+          useStore.setState((state) => {
+            const uGroups = new Map(state.groups);
+            uGroups.set(ygroup.get("group_id"), ygroup.toJSON() as GroupDataType);
+            return { groups: uGroups };
+          });
+
+          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ygroup?.toJSON());
+        } else {
+          console.debug("ELSE", event.target.toJSON());
+        }
+      }
+    });
+
+    // ########################### Documents ##################################
+
+    Yjs.ydocuments.observeDeep((events) => {
+      console.log("ydocuments.observeDeep", events);
+      for (const event of events) {
+        console.debug("event.changes.added", event.changes.added);
+        console.debug("event.changes.deleted", event.changes.deleted);
+        console.debug("event.changes.delta", event.changes.delta);
+        console.debug("event.changes.keys", event.changes.keys);
+        for (const [key, change] of event.changes.keys) {
+          if (change.action === "add") {
+            const ydocument = TreeRoAPI.Yjs.YDocumentWrap.get(key);
+            console.debug("add", key, ydocument?.ydocument.toJSON(), change.oldValue);
+            if (ydocument) {
+              useStore.setState((state) => {
+                const uDocuments = new Map(state.documents);
+                uDocuments.set(ydocument.document_id, ydocument.ydocument.toJSON() as DocumentDataType);
+                return { documents: uDocuments };
+              });
+            }
+          } else if (change.action === "delete") {
+            console.debug("delete", key, change.oldValue);
+            useStore.setState((state) => {
+              const uDocuments = new Map(state.documents);
+              uDocuments.delete(key);
+              return { documents: uDocuments };
+            });
+          } else if (change.action === "update") {
+            console.debug("update", key, change.oldValue);
+          }
+        }
+        if (event.target instanceof Y.Map) {
+          if (!event.target.parent) {
+            // This is root ygroups
+            continue;
+          }
+          const ydocument = event.target as YDocumentDataType;
+          useStore.setState((state) => {
+            const uDocuments = new Map(state.documents);
+            uDocuments.set(ydocument.get("document_id"), ydocument.toJSON() as DocumentDataType);
+            return { documents: uDocuments };
+          });
+
+          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ydocument?.toJSON());
+        } else {
+          console.debug("ELSE", event.target.toJSON());
+        }
+      }
+    });
+  },
+
+  initRootData() {
+    const ygroup = new Y.Map() as YGroupDataType;
+    const group_id = crypto.randomUUID();
+    ygroup.set("group_id", group_id);
+    ygroup.set("name", "root");
+    ygroup.set("collapsed", false);
+    ygroup.set("children", new Y.Array<string>());
+
+    Yjs.ygroups.set(group_id, ygroup);
+
+    const document_id = this.insertNewDocument(group_id, "# Root Node/Doc Title")!;
+
+    TreeRoAPI.setCurrentDocumentId(document_id);
+    Yjs.ymeta.set("root_group_id", group_id);
+  },
+
+  getCurrentDocumentId() {
+    return useStore.getState().localConfig.current_document_id;
+  },
+
+  setCurrentDocumentId(documentId) {
+    console.log("setCurrentDocumentId", documentId);
+    useStore.setState({ localConfig: { current_document_id: documentId } });
+    IDBLocal.setLocalConfig({ current_document_id: documentId });
   },
 
   getRootGroupId() {
-    return useStore.getState().rootGroupId;
+    return Yjs.ymeta.get("root_group_id");
   },
 
-  setRootGroupId(groupId) {
-    useStore.setState({ rootGroupId: groupId });
+  // ---------------- Group Methods ----------------
+
+  insertNewGroup(targetGroupId, name = "New Group", index = -1) {
+    const group_id = crypto.randomUUID();
+    const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
+    if (!targetYgroup) {
+      console.error(`insertGroup: targetGroupId=${targetGroupId} is missing`);
+      return null;
+    }
+    Yjs.ydoc.transact(() => {
+      const ygroup = new Y.Map() as YGroupDataType;
+      ygroup.set("group_id", group_id);
+      ygroup.set("name", name);
+      ygroup.set("collapsed", false);
+      ygroup.set("children", new Y.Array<string>());
+
+      Yjs.ygroups.set(group_id, ygroup);
+      const targetYgroupChildren = targetYgroup.children;
+
+      let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYgroupChildren.length));
+      targetYgroupChildren.insert(targetIndex, [group_id]);
+    });
+    return group_id;
   },
 
-  listGroups() {
-    return Array.from(useStore.getState().groups.values());
+  insertNewGroupBefore(referenceId, name = "New Group") {
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return null;
+
+    const parentYgroup = this.getParentGroup(referenceId);
+    if (!parentYgroup) return null;
+    const referenceYnodeIndex = parentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYnodeIndex === -1) return null;
+
+    const targetIndex = referenceYnodeIndex;
+
+    return this.insertNewGroup(parentYgroup.group_id, name, targetIndex);
   },
 
-  createGroup(name = "New Group", collapsed = false) {
-    const newGroup: GroupDataType = {
-      group_id: crypto.randomUUID(),
-      name: name,
-      collapsed: collapsed,
-      children: [],
-    };
-    return newGroup;
+  insertNewGroupAfter(referenceId, name = "New Group") {
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return null;
+
+    const parentYgroup = this.getParentGroup(referenceId);
+    if (!parentYgroup) return null;
+    const referenceYnodeIndex = parentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYnodeIndex === -1) return null;
+
+    const targetIndex = referenceYnodeIndex + 1;
+
+    return this.insertNewGroup(parentYgroup.group_id, name, targetIndex);
   },
 
-  insertGroup(group, parentGroupId, index = -1) {
-    useStore.getState().insertGroup(group, parentGroupId, index);
+  getGroups(groupId) {
+    // TODO: Descendants
+    const groups = [];
+    if (groupId) {
+      const ygroup = Yjs.YGroupWrap.get(groupId);
+      if (!ygroup) return [];
+      for (const id of ygroup.children) {
+        const item = Yjs.YGroupWrap.get(id);
+        if (item) groups.push(item);
+      }
+    } else {
+      for (const ygroup of Yjs.ygroups.values()) {
+        groups.push(new Yjs.YGroupWrap(ygroup));
+      }
+    }
+    return groups;
   },
 
-  updateGroup(groupId, newGroupData) {
-    useStore.getState().updateGroup(groupId, newGroupData);
+  getGroup(groupId) {
+    return Yjs.YGroupWrap.get(groupId);
   },
 
   getGroupChildren(groupId) {
-    return useStore.getState().getGroupChildren(groupId);
+    const items = [];
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup) return [];
+    for (const id of ygroup.children) {
+      const item = Yjs.YGroupWrap.get(id) || Yjs.YDocumentWrap.get(id);
+      if (item) items.push(item);
+    }
+    return items;
   },
 
-  moveGroup(groupId, parentGroupId, index) {
-    useStore.getState().moveGroup(groupId, parentGroupId, index);
+  getParentGroup(childId) {
+    for (const ygroup of this.getGroups()) {
+      if (ygroup.children.toArray().indexOf(childId) !== -1) {
+        return ygroup;
+      }
+    }
+    return null;
+  },
+
+  getGroupDescendantsIds(groupId) {
+    const descendants: string[] = [];
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup) return descendants;
+
+    function _getDescendants(id: string) {
+      const childYgroup = Yjs.YGroupWrap.get(id);
+      if (childYgroup) {
+        for (const childId of childYgroup.children) {
+          descendants.push(childId);
+          _getDescendants(childId);
+        }
+      }
+    }
+
+    _getDescendants(groupId);
+    return descendants;
+  },
+
+  updateGroup(groupId, { name, collapsed } = {}) {
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup) return;
+    if (name) {
+      Yjs.ydoc.transact(() => {
+        ygroup.name = name;
+      });
+    }
+    if (collapsed !== undefined) {
+      Yjs.ydoc.transact(() => {
+        ygroup.collapsed = collapsed;
+      });
+    }
+  },
+
+  moveGroup(movedGroupId, targetGroupId, index) {
+    // Can't move self into self
+    if (movedGroupId === targetGroupId) return;
+    // Is it exist?
+    const movedYgroup = Yjs.YGroupWrap.get(movedGroupId);
+    if (!movedYgroup) return;
+    // Parent exists?
+    const movedYgroupParent = this.getParentGroup(movedGroupId);
+    if (!movedYgroupParent) return;
+    const movedYgroupIndex = movedYgroupParent.children.toArray().indexOf(movedGroupId);
+    if (movedYgroupIndex === -1) return;
+    const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
+    if (!targetYgroup) return;
+    // Can't move it in the own children
+    const descendants = this.getGroupDescendantsIds(movedGroupId);
+    if (descendants.includes(targetGroupId)) return;
+
+    if (movedYgroupParent.group_id === targetYgroup.group_id) {
+      // same parent
+      let targetIndex = index < 0 ? movedYgroupParent.children.length + index : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, movedYgroupParent.children.length));
+      // No sense
+      if (movedYgroupIndex === targetIndex) return;
+      Yjs.ydoc.transact(() => {
+        movedYgroupParent.children.delete(movedYgroupIndex);
+        movedYgroupParent.children.insert(targetIndex, [movedGroupId]);
+      });
+    } else {
+      // other parent
+      // +1 as now array will be larger
+      let targetIndex = index < 0 ? targetYgroup.children.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYgroup.children.length));
+      Yjs.ydoc.transact(() => {
+        // remove node
+        movedYgroupParent.children.delete(movedYgroupIndex);
+        // insert node
+        targetYgroup.children.insert(targetIndex, [movedGroupId]);
+      });
+    }
+  },
+
+  moveGroupBefore(movedGroupId, referenceId) {
+    if (movedGroupId === referenceId) return;
+    const movedYgroup = Yjs.YGroupWrap.get(movedGroupId);
+    if (!movedYgroup) return;
+    const movedYgroupParent = this.getParentGroup(movedGroupId);
+    if (!movedYgroupParent) return;
+    const movedYgroupIndex = movedYgroupParent.children.toArray().indexOf(movedGroupId);
+    if (movedYgroupIndex === -1) return;
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return;
+    const referenceParentYgroup = this.getParentGroup(referenceId);
+    if (!referenceParentYgroup) return;
+    const referenceYitemIndex = referenceParentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYitemIndex === -1) return;
+
+    let targetIndex = movedYgroupIndex < referenceYitemIndex ? referenceYitemIndex - 1 : referenceYitemIndex;
+    targetIndex = Math.max(0, targetIndex);
+
+    return this.moveGroup(movedGroupId, referenceParentYgroup.group_id, targetIndex);
+  },
+
+  moveGroupAfter(movedGroupId, referenceId) {
+    if (movedGroupId === referenceId) return;
+    const movedYgroup = Yjs.YGroupWrap.get(movedGroupId);
+    if (!movedYgroup) return;
+    const movedYgroupParent = this.getParentGroup(movedGroupId);
+    if (!movedYgroupParent) return;
+    const movedYgroupIndex = movedYgroupParent.children.toArray().indexOf(movedGroupId);
+    if (movedYgroupIndex === -1) return;
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return;
+    const referenceParentYgroup = this.getParentGroup(referenceId);
+    if (!referenceParentYgroup) return;
+    const referenceYitemIndex = referenceParentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYitemIndex === -1) return;
+
+    let targetIndex = 0;
+    if (movedYgroupParent.group_id === referenceParentYgroup.group_id) {
+      targetIndex = movedYgroupIndex > referenceYitemIndex ? referenceYitemIndex + 1 : referenceYitemIndex;
+    } else {
+      targetIndex = referenceYitemIndex + 1;
+    }
+
+    targetIndex = Math.min(targetIndex, referenceParentYgroup.children.length);
+
+    return this.moveGroup(movedGroupId, referenceParentYgroup.group_id, targetIndex);
   },
 
   deleteGroup(groupId) {
-    useStore.getState().deleteGroup(groupId);
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup) return;
+    const parentYgroup = this.getParentGroup(groupId);
+    if (!parentYgroup) return;
+    const groupIndex = parentYgroup.children.toArray().indexOf(groupId);
+    if (groupIndex === -1) return;
+
+    const descendants = this.getGroupDescendantsIds(groupId);
+    Yjs.ydoc.transact(() => {
+      parentYgroup.children.delete(groupIndex);
+      for (const id of [groupId, ...descendants]) {
+        Yjs.ygroups.delete(id);
+        Yjs.ydocuments.delete(id);
+      }
+    });
   },
 
-  listDocuments() {
-    return Array.from(useStore.getState().documents.values());
+  toggleGroupCollapse(groupId) {
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup || ygroup.children.length === 0) return;
+    console.debug(ygroup.collapsed, ">", !ygroup.collapsed);
+    this.updateGroup(groupId, { collapsed: !ygroup.collapsed });
   },
 
-  getDocumentRootNodeId(docId) {
-    return useStore.getState().getDocumentRootNodeId(docId);
+  // ---------------- Document Methods ----------------
+
+  insertNewDocument(targetGroupId, rootNodeContent = "New Document", index = -1) {
+    const document_id = crypto.randomUUID();
+
+    const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
+    if (!targetYgroup) {
+      console.error(`insertDocument: targetGroupId=${targetGroupId} is missing`);
+      return null;
+    }
+
+    Yjs.ydoc.transact(() => {
+      const rootYnode = new Y.Map() as YNodeDataType;
+      const node_id = crypto.randomUUID();
+      rootYnode.set("node_id", node_id);
+      rootYnode.set("parent_id", null);
+      rootYnode.set("content", new Y.Text(rootNodeContent));
+      rootYnode.set("collapsed", false);
+      rootYnode.set("created", Date.now());
+      rootYnode.set("modified", Date.now());
+      rootYnode.set("children", new Y.Array<string>());
+
+      const ydocument = new Y.Map() as YDocumentDataType;
+      ydocument.set("document_id", document_id);
+      ydocument.set("root_node_id", node_id);
+
+      Yjs.ynodes.set(node_id, rootYnode);
+      Yjs.ydocuments.set(document_id, ydocument);
+
+      const targetYgroupChildren = targetYgroup.children;
+      let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYgroupChildren.length));
+      targetYgroupChildren.insert(targetIndex, [document_id]);
+    });
+    return document_id;
   },
 
-  createDocument(rootNodeId) {
-    const newDoc: DocumentDataType = {
-      document_id: crypto.randomUUID(),
-      root_node_id: rootNodeId,
-    };
-    return newDoc;
+  insertNewDocumentBefore(referenceId, rootNodeContent = "New Document") {
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return null;
+
+    const parentYgroup = this.getParentGroup(referenceId);
+    if (!parentYgroup) return null;
+    const referenceYnodeIndex = parentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYnodeIndex === -1) return null;
+
+    const targetIndex = referenceYnodeIndex;
+
+    return this.insertNewDocument(parentYgroup.group_id, rootNodeContent, targetIndex);
   },
 
-  insertDocument(document, parentGroupId, index = -1) {
-    useStore.getState().insertDocument(document, parentGroupId, index);
+  insertNewDocumentAfter(referenceId, rootNodeContent = "New Document") {
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return null;
+
+    const parentYgroup = this.getParentGroup(referenceId);
+    if (!parentYgroup) return null;
+    const referenceYnodeIndex = parentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYnodeIndex === -1) return null;
+
+    const targetIndex = referenceYnodeIndex + 1;
+
+    return this.insertNewDocument(parentYgroup.group_id, rootNodeContent, targetIndex);
   },
 
-  updateDocument(docId, newDocData) {
-    useStore.getState().updateDocument(docId, newDocData);
+  getDocuments(groupId) {
+    // TODO: Descendants
+    const documents = [];
+    if (groupId) {
+      const ygroup = Yjs.YGroupWrap.get(groupId);
+      if (!ygroup) return [];
+      for (const id of ygroup.children) {
+        const item = Yjs.YDocumentWrap.get(id);
+        if (item) documents.push(item);
+      }
+    } else {
+      for (const ydocument of Yjs.ydocuments.values()) {
+        documents.push(new Yjs.YDocumentWrap(ydocument));
+      }
+    }
+    return documents;
   },
 
-  getDocumentNodes(docId) {
-    return useStore.getState().getDocumentNodes(docId);
+  getDocument(documentId) {
+    return Yjs.YDocumentWrap.get(documentId);
   },
 
-  moveDocument(docId, parentGroupId, index) {
-    useStore.getState().moveDocument(docId, parentGroupId, index);
+  getDocumentRootNodeId(documentId) {
+    const ydocument = Yjs.YDocumentWrap.get(documentId);
+    if (!ydocument) return null;
+    return ydocument.root_node_id;
   },
 
-  deleteDocument(docId) {
-    useStore.getState().deleteDocument(docId);
+  updateDocument(documentId, rootNodeContent) {
+    const ydocument = Yjs.YDocumentWrap.get(documentId);
+    if (!ydocument) return;
+    const ynode = Yjs.YNodeWrap.get(ydocument.root_node_id);
+    if (!ynode) return;
+    Yjs.ydoc.transact(() => {
+      ynode.content = rootNodeContent;
+    });
   },
 
-  openDocument(docId) {
-    useStore.setState({ currentDocId: docId });
+  moveDocument(movedDocumentId, targetGroupId, index) {
+    // Can't move self into self
+    if (movedDocumentId === targetGroupId) return;
+    // Is it exist?
+    const movedYdocument = Yjs.YDocumentWrap.get(movedDocumentId);
+    if (!movedYdocument) return;
+    // Parent exists?
+    const movedYdocumentParent = this.getParentGroup(movedDocumentId);
+    if (!movedYdocumentParent) return;
+    const movedYgroupIndex = movedYdocumentParent.children.toArray().indexOf(movedDocumentId);
+    if (movedYgroupIndex === -1) return;
+    const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
+    if (!targetYgroup) return;
+
+    if (movedYdocumentParent.group_id === targetYgroup.group_id) {
+      // same parent
+      let targetIndex = index < 0 ? movedYdocumentParent.children.length + index : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, movedYdocumentParent.children.length));
+      // No sense
+      if (movedYgroupIndex === targetIndex) return;
+      Yjs.ydoc.transact(() => {
+        movedYdocumentParent.children.delete(movedYgroupIndex);
+        movedYdocumentParent.children.insert(targetIndex, [movedDocumentId]);
+      });
+    } else {
+      // other parent
+      // +1 as now array will be larger
+      let targetIndex = index < 0 ? targetYgroup.children.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYgroup.children.length));
+      Yjs.ydoc.transact(() => {
+        // remove node
+        movedYdocumentParent.children.delete(movedYgroupIndex);
+        // insert node
+        targetYgroup.children.insert(targetIndex, [movedDocumentId]);
+      });
+    }
   },
 
-  createNode(content = "", collapsed = false, args = {}) {
-    const newNode: NodeDataType = {
-      node_id: crypto.randomUUID(),
-      parent_id: null,
-      content,
-      collapsed,
-      created: Date.now(),
-      modified: Date.now(),
-      children: [],
-      ...args,
-    };
-    return newNode;
+  moveDocumentBefore(movedDocumentId, referenceId) {
+    if (movedDocumentId === referenceId) return;
+    const movedYdocument = Yjs.YDocumentWrap.get(movedDocumentId);
+    if (!movedYdocument) return;
+    const movedParentYgroup = this.getParentGroup(movedDocumentId);
+    if (!movedParentYgroup) return;
+    const movedYdocumentIndex = movedParentYgroup.children.toArray().indexOf(movedDocumentId);
+    if (movedYdocumentIndex === -1) return;
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return;
+    const referenceParentYgroup = this.getParentGroup(referenceId);
+    if (!referenceParentYgroup) return;
+    const referenceYitemIndex = referenceParentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYitemIndex === -1) return;
+
+    let targetIndex = movedYdocumentIndex < referenceYitemIndex ? referenceYitemIndex - 1 : referenceYitemIndex;
+    targetIndex = Math.max(0, targetIndex);
+
+    return this.moveDocument(movedDocumentId, referenceParentYgroup.group_id, targetIndex);
   },
 
-  insertNode(node, targetNodeId, index = -1) {
-    const updatedNodes = useStore.getState().insertNode(node, targetNodeId, index);
-    if (updatedNodes.length === 0) return [];
-    console.debug("insertNode", updatedNodes);
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+  moveDocumentAfter(movedDocumentId, referenceId) {
+    if (movedDocumentId === referenceId) return;
+    const movedYdocument = Yjs.YDocumentWrap.get(movedDocumentId);
+    if (!movedYdocument) return;
+    const movedParentYgroup = this.getParentGroup(movedDocumentId);
+    if (!movedParentYgroup) return;
+    const movedYdocumentIndex = movedParentYgroup.children.toArray().indexOf(movedDocumentId);
+    if (movedYdocumentIndex === -1) return;
+    const referenceYitem = Yjs.YGroupWrap.get(referenceId) || Yjs.YDocumentWrap.get(referenceId);
+    if (!referenceYitem) return;
+    const referenceParentYgroup = this.getParentGroup(referenceId);
+    if (!referenceParentYgroup) return;
+    const referenceYitemIndex = referenceParentYgroup.children.toArray().indexOf(referenceId);
+    if (referenceYitemIndex === -1) return;
+
+    let targetIndex = 0;
+    if (movedParentYgroup.group_id === referenceParentYgroup.group_id) {
+      targetIndex = movedYdocumentIndex > referenceYitemIndex ? referenceYitemIndex + 1 : referenceYitemIndex;
+    } else {
+      targetIndex = referenceYitemIndex + 1;
+    }
+
+    targetIndex = Math.min(targetIndex, referenceParentYgroup.children.length);
+
+    return this.moveGroup(movedDocumentId, referenceParentYgroup.group_id, targetIndex);
   },
 
-  insertNodeBefore(node, referenceNodeId) {
-    const updatedNodes = useStore.getState().insertNodeBefore(node, referenceNodeId);
-    if (updatedNodes.length === 0) return [];
-    console.debug("insertNodeBefore", updatedNodes);
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+  deleteDocument(documentId) {
+    const ydocument = Yjs.YDocumentWrap.get(documentId);
+    if (!ydocument) return;
+    const parentYgroup = this.getParentGroup(documentId);
+    if (!parentYgroup) return;
+    const ydocumentIndex = parentYgroup.children.toArray().indexOf(documentId);
+    if (ydocumentIndex === -1) return;
+
+    Yjs.ydoc.transact(() => {
+      parentYgroup.children.delete(ydocumentIndex);
+      Yjs.ydocuments.delete(documentId);
+    });
   },
 
-  insertNodeAfter(node, referenceNodeId) {
-    const updatedNodes = useStore.getState().insertNodeAfter(node, referenceNodeId);
-    if (updatedNodes.length === 0) return [];
-    console.debug("insertNodeAfter", updatedNodes);
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+  // ---------------- Node Methods ----------------
+
+  insertNewNode(targetNodeId, content = "", index = -1, args = {}) {
+    const node_id = crypto.randomUUID();
+
+    const targetYnode = Yjs.YNodeWrap.get(targetNodeId);
+    if (!targetYnode) {
+      console.error(`insertDocument: targetNodeId=${targetNodeId} is missing`);
+      return null;
+    }
+
+    Yjs.ydoc.transact(() => {
+      const ynode = new Y.Map() as YNodeDataType;
+      ynode.set("node_id", node_id);
+      ynode.set("parent_id", args?.parent_id || targetYnode.node_id);
+      ynode.set("content", new Y.Text(content));
+      ynode.set("collapsed", args?.collapsed || false);
+      ynode.set("created", args?.created || Date.now());
+      ynode.set("modified", args?.modified || Date.now());
+      const arr = new Y.Array<string>();
+      arr.push(args?.children || []);
+      ynode.set("children", arr);
+
+      Yjs.ynodes.set(node_id, ynode);
+
+      const targetYgroupChildren = targetYnode.children;
+      let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYgroupChildren.length));
+      targetYgroupChildren.insert(targetIndex, [node_id]);
+    });
+    return node_id;
   },
 
-  updateNode(nodeId, newNodeData) {
-    const updatedNode = useStore.getState().updateNode(nodeId, { modified: Date.now(), ...newNodeData });
-    if (!updatedNode) return null;
-    IDBApi.saveNode(updatedNode);
-    return updatedNode;
+  insertNewNodeBefore(referenceNodeId, content = "", args = {}) {
+    const referenceNode = Yjs.YNodeWrap.get(referenceNodeId);
+    if (!referenceNode) return null;
+    const referenceNodeParent = this.getNodeParent(referenceNodeId);
+    if (!referenceNodeParent) return null;
+    const referenceYnodeIndex = referenceNodeParent.children.toArray().indexOf(referenceNodeId);
+
+    const targetIndex = referenceYnodeIndex;
+
+    return this.insertNewNode(referenceNodeParent.node_id, content, targetIndex, args);
   },
 
-  getAllNodes(docId) {
-    if (docId) return useStore.getState().getDocumentNodes(docId)?.nodes || [];
-    return Array.from(useStore.getState().nodes.values());
+  insertNewNodeAfter(referenceNodeId, content = "", args = {}) {
+    const referenceNode = Yjs.YNodeWrap.get(referenceNodeId);
+    if (!referenceNode) return null;
+    const referenceNodeParent = this.getNodeParent(referenceNodeId);
+    if (!referenceNodeParent) return null;
+    const referenceYnodeIndex = referenceNodeParent.children.toArray().indexOf(referenceNodeId);
+
+    const targetIndex = referenceYnodeIndex + 1;
+
+    return this.insertNewNode(referenceNodeParent.node_id, content, targetIndex, args);
+  },
+
+  updateNode(nodeId, { content, collapsed } = {}) {
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode) return;
+    Yjs.ydoc.transact(() => {
+      if (content !== undefined) {
+        ynode.content = content;
+      }
+      if (collapsed !== undefined) {
+        ynode.collapsed = collapsed;
+      }
+      ynode.modified = Date.now();
+    });
+  },
+
+  getNodes(documentId) {
+    const nodes = [];
+    if (documentId) {
+      const ydocument = Yjs.YDocumentWrap.get(documentId);
+      if (!ydocument) return [];
+      const ynode = Yjs.YNodeWrap.get(ydocument.root_node_id);
+      if (!ynode) return [];
+      nodes.push(ynode);
+      for (const id of this.getNodeDescendantsIds(ynode.node_id)) {
+        const yn = Yjs.YNodeWrap.get(id);
+        if (yn) nodes.push(yn);
+      }
+    } else {
+      for (const ynode of Yjs.ynodes.values()) {
+        nodes.push(new Yjs.YNodeWrap(ynode));
+      }
+    }
+    return nodes;
   },
 
   getNode(nodeId) {
-    return useStore.getState().nodes.get(nodeId) || null;
+    return Yjs.YNodeWrap.get(nodeId);
   },
 
   getNodeChildren(nodeId) {
-    return useStore.getState().getNodeChildren(nodeId);
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    const children = [];
+    for (const child_id of ynode?.children || []) {
+      const childYnode = Yjs.YNodeWrap.get(child_id);
+      if (childYnode) {
+        children.push(childYnode);
+      }
+    }
+
+    return children;
   },
 
   getNodeParent(nodeId) {
-    return useStore.getState().getNodeParent(nodeId);
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode) return null;
+    if (!ynode.parent_id) return null;
+    return Yjs.YNodeWrap.get(ynode.parent_id);
   },
 
   getNodeSibling(nodeId, offset) {
-    return useStore.getState().getNodeSibling(nodeId, offset);
+    if (offset === 0) return null;
+    if (!Yjs.ynodes.has(nodeId)) return null;
+    const nodeParent = this.getNodeParent(nodeId);
+    if (!nodeParent) return null;
+    const nodeIndex = nodeParent.children.toArray().indexOf(nodeId);
+    if (nodeIndex === -1) return null;
+    const siblingNodeId = nodeParent.children.get(nodeIndex + offset);
+    if (!siblingNodeId) return null;
+    return Yjs.YNodeWrap.get(siblingNodeId);
   },
 
   getNodeIndex(nodeId) {
-    return useStore.getState().getNodeIndex(nodeId);
+    if (!Yjs.ynodes.has(nodeId)) return null;
+    const nodeParent = this.getNodeParent(nodeId);
+    if (!nodeParent) return null;
+    const nodeIndex = nodeParent.children.toArray().indexOf(nodeId);
+    return nodeIndex;
   },
 
   getNodeDescendantsIds(nodeId) {
-    return useStore.getState().getNodeDescendantsIds(nodeId);
+    const descendants: string[] = [];
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode) return descendants;
+
+    function _getDescendants(id: string) {
+      const nodeChild = Yjs.YNodeWrap.get(id);
+      for (const childId of nodeChild?.children || []) {
+        descendants.push(childId);
+        _getDescendants(childId);
+      }
+    }
+
+    _getDescendants(nodeId);
+    return descendants;
   },
 
   moveNode(movedNodeId, targetNodeId, index) {
-    const updatedNodes = useStore.getState().moveNode(movedNodeId, targetNodeId, index);
-    if (updatedNodes.length === 0) return [];
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+    // Can't move self into self
+    if (movedNodeId === targetNodeId) return;
+    // Is it exist?
+    const movedYnode = Yjs.YNodeWrap.get(movedNodeId);
+    if (!movedYnode) return;
+    // Parent exists?
+    const movedYnodeParent = this.getNodeParent(movedNodeId);
+    if (!movedYnodeParent) return;
+    const movedYnodeIndex = movedYnodeParent.children.toArray().indexOf(movedNodeId);
+    if (movedYnodeIndex === -1) return;
+    const targetYnode = Yjs.YNodeWrap.get(targetNodeId);
+    if (!targetYnode) return;
+    // Can't move it in the own children
+    const descendants = this.getNodeDescendantsIds(movedNodeId);
+    if (descendants.includes(targetNodeId)) return;
+
+    if (movedYnodeParent.node_id === targetYnode.node_id) {
+      // same parent
+      let targetIndex = index < 0 ? movedYnodeParent.children.length + index : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, movedYnodeParent.children.length));
+      // No sense
+      if (movedYnodeIndex === targetIndex) return;
+      // [A, B, C, D, E] (A, E, 4): [B, C, D, E] > [B, C, D, E, A]
+      // [A, B, C, D, E] (E, A, 0): [A, B, C, D] > [E, A, B, C, D]
+      // [A, B, C, D, E] (B, D, 3): [A, C, D, E] > [A, C, D, B, E]
+      // [A, B, C, D, E] (D, B, 1): [A, B, C, E] > [A, D, B, C, E]
+      // [A, B, C, D, E] (B, B, 0): [A, C, D, E] > [B, A, C, D, E]
+      // [A, B, C, D, E] (B, B, 2): [A, C, D, E] > [B, A, C, D, E]
+      Yjs.ydoc.transact(() => {
+        movedYnodeParent.children.delete(movedYnodeIndex);
+        movedYnodeParent.children.insert(targetIndex, [movedNodeId]);
+      });
+    } else {
+      // other parent
+      // +1 as now array will be larger
+      let targetIndex = index < 0 ? targetYnode.children.length + index + 1 : index;
+      targetIndex = Math.max(0, Math.min(targetIndex, targetYnode.children.length));
+      // [A, B, C, D, E] 5 - 1
+      Yjs.ydoc.transact(() => {
+        // remove node
+        movedYnodeParent.children.delete(movedYnodeIndex);
+        // insert node
+        targetYnode.children.insert(targetIndex, [movedNodeId]);
+        movedYnode.parent_id = targetYnode.node_id;
+      });
+    }
   },
 
-  moveNodeBefore: (movedNodeId, referenceNodeId) => {
-    const updatedNodes = useStore.getState().moveNodeBefore(movedNodeId, referenceNodeId);
-    if (updatedNodes.length === 0) return [];
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+  moveNodeBefore(movedNodeId, referenceNodeId) {
+    if (movedNodeId === referenceNodeId) return;
+    const movedYnode = Yjs.YNodeWrap.get(movedNodeId);
+    if (!movedYnode) return;
+    const movedYnodeParent = this.getNodeParent(movedNodeId);
+    if (!movedYnodeParent) return;
+    const movedYnodeIndex = movedYnodeParent.children.toArray().indexOf(movedNodeId);
+    if (movedYnodeIndex === -1) return;
+    const referenceYnode = Yjs.YNodeWrap.get(referenceNodeId);
+    if (!referenceYnode) return;
+    const referenceYnodeParent = this.getNodeParent(referenceNodeId);
+    if (!referenceYnodeParent) return;
+    const referenceYnodeIndex = referenceYnodeParent.children.toArray().indexOf(referenceNodeId);
+    if (referenceYnodeIndex === -1) return;
+
+    let targetIndex = movedYnodeIndex < referenceYnodeIndex ? referenceYnodeIndex - 1 : referenceYnodeIndex;
+    targetIndex = Math.max(0, targetIndex);
+
+    return this.moveNode(movedNodeId, referenceYnodeParent.node_id, targetIndex);
   },
 
-  moveNodeAfter: (movedNodeId, referenceNodeId) => {
-    const updatedNodes = useStore.getState().moveNodeAfter(movedNodeId, referenceNodeId);
-    if (updatedNodes.length === 0) return [];
-    IDBApi.saveNodes(updatedNodes);
-    return updatedNodes;
+  moveNodeAfter(movedNodeId, referenceNodeId) {
+    if (movedNodeId === referenceNodeId) return;
+    const movedYnode = Yjs.YNodeWrap.get(movedNodeId);
+    if (!movedYnode) return;
+    const movedYnodeParent = this.getNodeParent(movedNodeId);
+    if (!movedYnodeParent) return;
+    const movedYnodeIndex = movedYnodeParent.children.toArray().indexOf(movedNodeId);
+    if (movedYnodeIndex === -1) return;
+    const referenceYnode = Yjs.YNodeWrap.get(referenceNodeId);
+    if (!referenceYnode) return;
+    const referenceYnodeParent = this.getNodeParent(referenceNodeId);
+    if (!referenceYnodeParent) return;
+    const referenceYnodeIndex = referenceYnodeParent.children.toArray().indexOf(referenceNodeId);
+    if (referenceYnodeIndex === -1) return;
+
+    let targetIndex = 0;
+    if (movedYnodeParent.node_id === referenceYnodeParent.node_id) {
+      targetIndex = movedYnodeIndex > referenceYnodeIndex ? referenceYnodeIndex + 1 : referenceYnodeIndex;
+    } else {
+      targetIndex = referenceYnodeIndex + 1;
+    }
+
+    targetIndex = Math.min(targetIndex, referenceYnodeParent.children.length);
+
+    return this.moveNode(movedNodeId, referenceYnodeParent.node_id, targetIndex);
   },
 
   deleteNode(nodeId) {
-    const [updatedParentNode, removedNodeIds] = useStore.getState().deleteNode(nodeId);
-    if (!updatedParentNode) return [null, []];
-    IDBApi.saveNode(updatedParentNode);
-    IDBApi.deleteNodes(removedNodeIds);
-    return [updatedParentNode, removedNodeIds];
-  },
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode) return;
+    const ynodeParent = this.getNodeParent(nodeId);
+    if (!ynodeParent) return;
+    const ynodeIndex = ynodeParent.children.toArray().indexOf(nodeId);
 
-  // queryNodesByText(text, docId) {
-  //   return useStore.getState().queryNodesByText(text, docId);
-  // },
+    const descendants = this.getNodeDescendantsIds(nodeId);
+    Yjs.ydoc.transact(() => {
+      ynodeParent.children.delete(ynodeIndex);
+      for (const id of [nodeId, ...descendants]) {
+        Yjs.ynodes.delete(id);
+      }
+    });
+  },
 
   toggleNodeCollapse(nodeId) {
-    // * Verified
-    const node = this.getNode(nodeId);
-    if (!node || node.children.length === 0) return;
-    const updatedNode = useStore.getState().updateNode(nodeId, { collapsed: !node.collapsed });
-    if (!updatedNode) return null;
-    IDBApi.saveNode(updatedNode);
-    return updatedNode;
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode || ynode.children.length === 0) return;
+    this.updateNode(nodeId, { collapsed: !ynode.collapsed });
   },
 
-  collapseAllNodeChildren(nodeId: string) {
-    const { nodes, updateNode, getNodeChildren } = useStore.getState();
-
-    const collapseRecursively = (id: string) => {
-      const node = nodes.get(id);
-      if (!node) return;
-      // Collapse this node
-      updateNode(id, { collapsed: true });
-      // Collapse all children recursively
-      const children = getNodeChildren(id);
-      children.forEach((child) => {
-        collapseRecursively(child.node_id);
-      });
-    };
-    collapseRecursively(nodeId);
-  },
-
-  getCharIndexFromCaret(element) {
-    const selection = window.getSelection();
-    if (!selection || !selection.anchorNode) return -1;
-
-    let charIndex = 0;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
-    while (walker.nextNode()) {
-      const node = walker.currentNode as Text;
-      if (node === selection.anchorNode) {
-        charIndex += selection.anchorOffset;
-        break;
-      } else {
-        charIndex += node.textContent?.length ?? 0;
+  toggleNodeDescendantsCollapse(nodeId) {
+    const ynode = Yjs.YNodeWrap.get(nodeId);
+    if (!ynode || ynode.children.length === 0) return;
+    Yjs.ydoc.transact(() => {
+      ynode.collapsed = !ynode.collapsed;
+      for (const id of this.getNodeDescendantsIds(nodeId)) {
+        const yn = Yjs.YNodeWrap.get(id);
+        if (yn) yn.collapsed = !ynode.collapsed;
       }
-    }
-    return charIndex;
-  },
-
-  setCaretAtCharIndex(element, index) {
-    const range = document.createRange();
-    const selection = window.getSelection();
-    if (!selection) return;
-
-    if (index === -1) {
-      // Special case: place caret at end
-      range.selectNodeContents(element);
-      range.collapse(false); // collapse to end
-      selection.removeAllRanges();
-      selection.addRange(range);
-      return;
-    }
-
-    let remaining = index;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
-
-    while (walker.nextNode()) {
-      const node = walker.currentNode as Text;
-      const len = node.textContent?.length ?? 0;
-
-      if (remaining <= len) {
-        // Found the node containing our index
-        // range.setStart(node, remaining);
-        // range.setEnd(node, remaining);
-        range.setStart(node, remaining);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return;
-      } else {
-        remaining -= len;
-      }
-    }
-
-    // If index is beyond text length, place at end
-    range.selectNodeContents(element);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  },
-
-  getCharIndexFromMouse(element, x, y) {
-    const pos = document.caretPositionFromPoint(x, y);
-    if (!pos) return -1;
-
-    let charIndex = 0;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    while (walker.nextNode()) {
-      const node = walker.currentNode;
-      if (node === pos.offsetNode) {
-        charIndex += pos.offset;
-        break;
-      } else {
-        charIndex += node.textContent?.length ?? 0;
-      }
-    }
-    return charIndex;
-  },
-
-  activateNodeEdit(nodeId, caretPosition = 0) {
-    useUIStore.setState({ activeEditNodeId: nodeId });
-    useUIStore.setState({ activeEditCaretPosition: caretPosition });
-    useUIStore.getState().triggerNodeContentRender(nodeId);
+    });
   },
 };
-
-// function wrapApiMethods<T extends object>(api: T, options?: { skip?: (keyof T)[] }): T {
-//   const skip = new Set(options?.skip ?? []);
-
-//   for (const key of Object.keys(api) as (keyof T)[]) {
-//     const original = api[key];
-
-//     if (typeof original === "function" && !skip.has(key)) {
-//       api[key] = function (this: any, ...args: any[]) {
-//         if (!this.dataIsLoaded) {
-//           throw new DataNotLoadedError("Data is not loaded");
-//         }
-//         return original.apply(this, args);
-//       } as T[typeof key];
-//     }
-//   }
-
-//   return api;
-// }
-
-// wrapApiMethods(TreeRoAPI, {
-//   skip: ["useStore", "dataIsLoaded", "loadInitialData", "throwErrorIfDataNotLoaded", TreeRoAPI.createGroup, TreeRoAPI.createDocument, TreeRoAPI.createNode],
-// });
 
 declare global {
   interface Window {
