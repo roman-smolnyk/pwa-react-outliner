@@ -273,8 +273,8 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   setCurrentDocumentId(documentId) {
     console.log("setCurrentDocumentId", documentId);
-    useStore.setState({ localConfig: { current_document_id: documentId } });
     IDBLocal.setLocalConfig({ current_document_id: documentId });
+    useStore.setState({ localConfig: { current_document_id: documentId } });
   },
 
   getRootGroupId() {
@@ -413,20 +413,38 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   moveGroup(movedGroupId, targetGroupId, index) {
     // Can't move self into self
-    if (movedGroupId === targetGroupId) return;
+    if (movedGroupId === targetGroupId) {
+      console.error(`movedGroupId === targetGroupId`, movedGroupId, targetGroupId);
+      return;
+    }
     // Is it exist?
     const movedYgroup = Yjs.YGroupWrap.get(movedGroupId);
-    if (!movedYgroup) return;
+    if (!movedYgroup) {
+      console.error(`movedYgroup does not exist`, movedGroupId);
+      return;
+    }
     // Parent exists?
     const movedYgroupParent = this.getParentGroup(movedGroupId);
-    if (!movedYgroupParent) return;
+    if (!movedYgroupParent) {
+      console.error(`movedYgroupParent does not exist`, movedGroupId);
+      return;
+    }
     const movedYgroupIndex = movedYgroupParent.children.toArray().indexOf(movedGroupId);
-    if (movedYgroupIndex === -1) return;
+    if (movedYgroupIndex === -1) {
+      console.error(`movedYgroupIndex does not exist`, movedGroupId);
+      return;
+    }
     const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
-    if (!targetYgroup) return;
+    if (!targetYgroup) {
+      console.error(`targetYgroup does not exist`, movedGroupId);
+      return;
+    }
     // Can't move it in the own children
     const descendants = this.getGroupDescendantsIds(movedGroupId);
-    if (descendants.includes(targetGroupId)) return;
+    if (descendants.includes(targetGroupId)) {
+      console.error(`Can't move group as own descendant`, movedGroupId, descendants);
+      return;
+    }
 
     if (movedYgroupParent.group_id === targetYgroup.group_id) {
       // same parent
@@ -637,8 +655,8 @@ export const TreeRoAPI: TreeRoAPIType = {
     // Parent exists?
     const movedYdocumentParent = this.getParentGroup(movedDocumentId);
     if (!movedYdocumentParent) return;
-    const movedYgroupIndex = movedYdocumentParent.children.toArray().indexOf(movedDocumentId);
-    if (movedYgroupIndex === -1) return;
+    const movedYdocuemntIndex = movedYdocumentParent.children.toArray().indexOf(movedDocumentId);
+    if (movedYdocuemntIndex === -1) return;
     const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
     if (!targetYgroup) return;
 
@@ -647,9 +665,9 @@ export const TreeRoAPI: TreeRoAPIType = {
       let targetIndex = index < 0 ? movedYdocumentParent.children.length + index : index;
       targetIndex = Math.max(0, Math.min(targetIndex, movedYdocumentParent.children.length));
       // No sense
-      if (movedYgroupIndex === targetIndex) return;
+      if (movedYdocuemntIndex === targetIndex) return;
       Yjs.ydoc.transact(() => {
-        movedYdocumentParent.children.delete(movedYgroupIndex);
+        movedYdocumentParent.children.delete(movedYdocuemntIndex);
         movedYdocumentParent.children.insert(targetIndex, [movedDocumentId]);
       });
     } else {
@@ -659,7 +677,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       targetIndex = Math.max(0, Math.min(targetIndex, targetYgroup.children.length));
       Yjs.ydoc.transact(() => {
         // remove node
-        movedYdocumentParent.children.delete(movedYgroupIndex);
+        movedYdocumentParent.children.delete(movedYdocuemntIndex);
         // insert node
         targetYgroup.children.insert(targetIndex, [movedDocumentId]);
       });
@@ -711,7 +729,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
     targetIndex = Math.min(targetIndex, referenceParentYgroup.children.length);
 
-    return this.moveGroup(movedDocumentId, referenceParentYgroup.group_id, targetIndex);
+    return this.moveDocument(movedDocumentId, referenceParentYgroup.group_id, targetIndex);
   },
 
   deleteDocument(documentId) {
@@ -882,20 +900,38 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   moveNode(movedNodeId, targetNodeId, index) {
     // Can't move self into self
-    if (movedNodeId === targetNodeId) return;
+    if (movedNodeId === targetNodeId) {
+      console.error(`movedNodeId === targetNodeId`, movedNodeId, targetNodeId);
+      return;
+    }
     // Is it exist?
     const movedYnode = Yjs.YNodeWrap.get(movedNodeId);
-    if (!movedYnode) return;
+    if (!movedYnode) {
+      console.error(`movedYnode does not exist`, movedNodeId);
+      return;
+    }
     // Parent exists?
     const movedYnodeParent = this.getNodeParent(movedNodeId);
-    if (!movedYnodeParent) return;
+    if (!movedYnodeParent) {
+      console.error(`movedYnodeParent does not exist`, movedNodeId);
+      return;
+    }
     const movedYnodeIndex = movedYnodeParent.children.toArray().indexOf(movedNodeId);
-    if (movedYnodeIndex === -1) return;
+    if (movedYnodeIndex === -1) {
+      console.error(`movedYnodeIndex does not exist`, movedNodeId);
+      return;
+    }
     const targetYnode = Yjs.YNodeWrap.get(targetNodeId);
-    if (!targetYnode) return;
+    if (!targetYnode) {
+      console.error(`targetYnode does not exist`, movedNodeId);
+      return;
+    }
     // Can't move it in the own children
     const descendants = this.getNodeDescendantsIds(movedNodeId);
-    if (descendants.includes(targetNodeId)) return;
+    if (descendants.includes(targetNodeId)) {
+      console.error(`Can't move node as own descendant`, movedNodeId, descendants);
+      return;
+    }
 
     if (movedYnodeParent.node_id === targetYnode.node_id) {
       // same parent

@@ -1,18 +1,19 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useStore } from "../stateStore";
 import { useReadOnly } from "../etc/readonlyContext";
+import { NodeOptionsComponent } from "./menuComp";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   const _logPrefix = `NodeContentComponent [${nodeId}]`;
   // console.debug(logPrefix);
   const refContenteditable = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const { readOnly, setReadOnly } = useReadOnly();
+  const { readOnly } = useReadOnly();
 
   // zustand subscribe to rerender trigger
   useStore((state) => {
@@ -241,7 +242,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
     return state.dndToRerender[nodeId];
   });
 
-  const { readOnly, setReadOnly } = useReadOnly();
+  const { readOnly } = useReadOnly();
 
   // useSortable merges useDraggable and useDroppable functionality, so you can do
   const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
@@ -321,15 +322,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             )}
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <button
-            className="Node-options flex-none min-h-5 min-w-5 cursor-pointer 
-                       flex items-center justify-center"
-            type="button"
-          >
-            {/* <span>⋮</span> */}
-            <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
-            {/* <EllipsisVertical className="size-4" /> */}
-          </button>
+          <NodeOptionsComponent />
 
           {/* // ! ID */}
           {/* <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div> */}

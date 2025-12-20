@@ -43,8 +43,7 @@ export function HeaderComponent() {
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-h-8 z-50 
-      overflow-x-auto
+      className="Header fixed top-0 right-0 min-h-8 overflow-x-auto z-50
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
@@ -53,7 +52,7 @@ export function HeaderComponent() {
         <div className="flex items-center gap-2">
           {!explorerIsOpened && (
             <ButtonComponent
-              onClick={(event) => {
+              onClick={(_) => {
                 TreeRoAPI.useStore.setState({ explorerIsOpened: true });
               }}
             >
@@ -62,14 +61,14 @@ export function HeaderComponent() {
           )}
           <div></div>
           <ButtonComponent
-            onClick={(event) => {
+            onClick={(_) => {
               TreeRoAPI.Yjs.undoManager.undo();
             }}
           >
             <UndoIcon className="text-gray-600" />
           </ButtonComponent>
           <ButtonComponent
-            onClick={(event) => {
+            onClick={(_) => {
               TreeRoAPI.Yjs.undoManager.redo();
             }}
           >
@@ -97,7 +96,7 @@ export function HeaderComponent() {
           <ListChecksIcon className="text-gray-600" />
           {readOnly ? (
             <ButtonComponent
-              onClick={(event) => {
+              onClick={(_) => {
                 setReadOnly(false);
               }}
             >
@@ -105,7 +104,7 @@ export function HeaderComponent() {
             </ButtonComponent>
           ) : (
             <ButtonComponent
-              onClick={(event) => {
+              onClick={(_) => {
                 setReadOnly(true);
               }}
             >
@@ -114,6 +113,7 @@ export function HeaderComponent() {
           )}
 
           <SearchIcon className="text-gray-600" />
+          {/* <EllipsisVerticalIcon className="text-gray-600" /> */}
           <MenuComponent />
         </div>
       </div>

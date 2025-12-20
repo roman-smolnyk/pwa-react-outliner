@@ -118,7 +118,8 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
           return <input {...rest} checked={!!checked} readOnly />;
         },
         code(props) {
-          const { children, className, ...rest } = props;
+          // ...rest
+          const { children, className } = props;
           // console.info("className", className);
           // console.info("children", children);
           // console.info("rest", rest);

@@ -1,4 +1,4 @@
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
+import { DndContext, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
 import type { DragEndEvent, DragMoveEvent, DragStartEvent, DragOverEvent } from "@dnd-kit/core";
 
 export function DnDWrapperComponent({
@@ -84,7 +84,7 @@ export function DnDWrapperComponent({
           clientX: clientX,
           clientY: clientY,
           scrollX: scrollX,
-          scrollY: scrollX,
+          scrollY: scrollY,
         };
 
         console.debug(dndCoordinates);

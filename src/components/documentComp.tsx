@@ -1,13 +1,14 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
-import { useEffect, useState } from "react";
+import { DragOverlay } from "@dnd-kit/core";
+import { useState, useEffect, useRef } from "react";
 import { TreeRoAPI } from "../api";
 import { NodeComponent, NodeContentComponent } from "../components/nodeComp";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
 
 export default function DocumentComponent() {
+  const ref = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState("");
 
   const currentDocumentId = useStore((state) => state.localConfig.current_document_id);
@@ -20,14 +21,21 @@ export default function DocumentComponent() {
     return state.nodes.get(rootNodeId);
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
+  useEffect(() => {
+    if (ref.current?.parentElement) {
+      ref.current.parentElement.scrollTop = 0;
+    }
+  }, [currentDocumentId]);
+
   if (!rootNode) return null;
 
   return (
     <div
-      className="Document relative z-1 
+      className="Document relative min-w-xs z-1 
     px-5 md:px-16 lg:px-32 xl:px-56 2xl:px-70
-    text-lg md:text-base
     "
+      ref={ref}
       data-id={currentDocumentId}
     >
       <div className="Document-top-spacer h-20" />

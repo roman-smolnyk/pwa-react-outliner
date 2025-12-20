@@ -1,54 +1,194 @@
-import { BoltIcon, EllipsisVerticalIcon, HardDriveDownloadIcon, HardDriveUploadIcon, LogInIcon, UserRoundIcon } from "lucide-react";
+import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import {
+  ArrowDownNarrowWideIcon,
+  BoltIcon,
+  EllipsisVerticalIcon,
+  HardDriveDownloadIcon,
+  HardDriveUploadIcon,
+  InboxIcon,
+  LinkIcon,
+  LogInIcon,
+  MinusIcon,
+  PlusIcon,
+  UploadIcon,
+  UserRoundIcon,
+  ZoomInIcon,
+} from "lucide-react";
 import { useState } from "react";
 
-interface MenuPosition {
-  x: number;
-  y: number;
+function MenuItem({ icon, label, danger, onClick }: { icon: React.ReactNode; label: string; danger?: boolean; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className={`p-1 flex gap-2 items-center hover:bg-gray-200 ${danger ? "text-red-600" : "text-gray-700"}`}>
+      <div className="size-6 md:size-5">{icon}</div>
+      <span className="text-base md:text-sm">{label}</span>
+    </button>
+  );
 }
 
 export default function MenuComponent() {
-  const [menuPos, setMenuPos] = useState<MenuPosition | null>(null);
+  const [open, setOpen] = useState(false);
 
-  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault(); // Prevent default browser menu
-    setMenuPos({ x: e.pageX, y: e.pageY });
-  };
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-end",
+    middleware: [offset(6), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
 
-  const handleClick = () => {
-    setMenuPos(null); // Close menu on click elsewhere
-  };
+  const click = useClick(context, {
+    event: "mousedown",
+  });
+
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
   return (
-    <div className="" onContextMenu={handleContextMenu} onClick={handleClick}>
-      <button className="cursor-pointer active:scale-90 transition" type="button">
+    <>
+      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
         <EllipsisVerticalIcon className="text-gray-600" />
       </button>
 
-      {menuPos && (
-        <div className="absolute w-40 py-2 bg-white shadow-lg rounded-md flex flex-col gap-1" style={{ top: menuPos.y, left: menuPos.x }}>
-          <button className="p-1 hover:bg-gray-200 cursor-pointer flex gap-2" type="button">
-            <UserRoundIcon className="text-gray-600" />
-            <span>Profile</span>
-          </button>
-          <button className="p-1 hover:bg-gray-200 cursor-pointer flex gap-2" type="button">
-            <BoltIcon className="text-gray-600" />
-            <span>Settings</span>
-          </button>
-          <button className="p-1 hover:bg-gray-200 cursor-pointer flex gap-2" type="button">
-            <HardDriveDownloadIcon className="text-gray-600" />
-            <span>Export Backup</span>
-          </button>
-          <button className="p-1 hover:bg-gray-200 cursor-pointer flex gap-2" type="button">
-            <HardDriveUploadIcon className="text-gray-600" />
-            <span>Import Backup</span>
-          </button>
-          <hr className="m-1! text-gray-300!" />
-          <button className="p-1 hover:bg-gray-200 cursor-pointer text-red-600 flex gap-2" type="button">
-            <LogInIcon className="" />
-            <span>Exit</span>
-          </button>
-        </div>
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-40 py-2 z-50 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <MenuItem
+              icon={<UserRoundIcon className="w-full h-full"  />}
+              label="Profile"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<BoltIcon className="w-full h-full"  />}
+              label="Settings"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<HardDriveDownloadIcon className="w-full h-full"  />}
+              label="Export Backup"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<HardDriveUploadIcon className="w-full h-full"  />}
+              label="Import Backup"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <hr className="m-1 border-gray-300" />
+            <MenuItem
+              icon={<LogInIcon className="w-full h-full"  />}
+              label="Exit"
+              danger
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+          </div>
+        </FloatingPortal>
       )}
-    </div>
+    </>
+  );
+}
+
+export function NodeOptionsComponent() {
+  const [open, setOpen] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-end",
+    // middleware: [offset(6), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context, {
+    event: "mousedown",
+  });
+
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  return (
+    <>
+      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+      </button>
+
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-40 py-2 z-50 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <MenuItem
+              icon={<ZoomInIcon className="w-full h-full"  />}
+              label="Zoom In"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<PlusIcon className="w-full h-full"  />}
+              label="Expand All"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<MinusIcon className="w-full h-full"  />}
+              label="Collapse All"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<ArrowDownNarrowWideIcon className="w-full h-full"  />}
+              label="Sort"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<InboxIcon className="w-full h-full"  />}
+              label="Set as Inbox"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<UploadIcon className="w-full h-full"  />}
+              label="Export"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<LinkIcon className="w-full h-full" />}
+              label="Copy link"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
   );
 }

@@ -32,7 +32,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
 
   useStore((state) => {
     return state.dndToRerender[groupId];
@@ -60,6 +60,12 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
 
   if (!group) return;
 
+  if (isDragging) {
+    // console.debug("isDragging", attributes, listeners);
+    const descendantsIds = TreeRoAPI.getGroupDescendantsIds(groupId);
+    useStore.setState({ dndDescendantsIds: descendantsIds });
+  }
+
   let placement = null;
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
@@ -84,9 +90,9 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
           data-id={groupId}
         >
           <button
-            className="GroupItem-bullet flex flex-none size-6 md:size-5
+            className="GroupItem-bullet flex-none size-6 md:size-5
             cursor-pointer
-            items-center justify-center"
+            flex items-center justify-center"
             type="button"
             {...listeners}
             {...attributes}
@@ -110,10 +116,9 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
           <div
             className="GroupItem-btn flex-1 min-w-0 cursor-pointer
             flex items-start"
-            {...listeners}
-            {...attributes}
             onPointerUpCapture={() => {
-              console.log("onPointerUpCapture");
+              console.debug("onPointerUpCapture");
+              TreeRoAPI.toggleGroupCollapse(groupId);
             }}
           >
             {!isEditing ? (
@@ -173,7 +178,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
 
   useStore((state) => {
     return state.dndToRerender[documentId];
@@ -210,12 +215,20 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
 
   if (!document_ || !rootNode) return;
 
+  if (isDragging) {
+    // console.debug("isDragging", attributes, listeners);
+    useStore.setState({ dndDescendantsIds: [] });
+  }
+
   let placement = null;
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
     TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
     if (active?.id && over?.id && active.id !== over.id) {
-      placement = TreeRoAPI.useStore.getState().dndPlacement;
+      if (!useStore.getState().dndDescendantsIds.includes(documentId)) {
+        console.debug(documentId, useStore.getState().dndDescendantsIds);
+        placement = TreeRoAPI.useStore.getState().dndPlacement;
+      }
     }
   }
 
@@ -234,18 +247,24 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
           ref={refNodeSelf}
           data-id={documentId}
         >
-          <div
-            className="DocumentItem-btn flex items-start cursor-pointer flex-1 min-w-0"
+          <button
+            className="GroupItem-bullet flex-none size-6 md:size-5
+            cursor-pointer
+            flex items-center justify-center"
+            type="button"
             {...listeners}
             {...attributes}
+          >
+            <FileTextIcon className="w-full h-full text-gray-600 " />
+          </button>
+
+          <div
+            className="DocumentItem-title flex-1 min-w-0 cursor-pointer flex items-start"
             onPointerUpCapture={() => {
+              TreeRoAPI.setCurrentDocumentId(documentId);
               console.log("onPointerUpCapture");
             }}
           >
-            <div className="flex-none mr-1 size-6 md:size-5">
-              <FileTextIcon className="w-full h-full text-gray-600 " />
-            </div>
-
             {!isEditing ? (
               <div ref={refX} className="flex-1 truncate">
                 <PlainMarkdownComponent>{rootNode.content}</PlainMarkdownComponent>
@@ -263,8 +282,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
           {/* // ! ID */}
           {/* <div className="DocumentDebugId text-xs">{document.document_id.split("-").pop()}</div> */}
         </div>
-        {over?.id === documentId && placement === "after" && <DropIndicatorComponent />}
-        {over?.id === documentId && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+        {over?.id === documentId && (placement === "after" || placement === "inside") && <DropIndicatorComponent />}
       </div>
     </div>
   );
@@ -289,14 +307,15 @@ function NavBarComponent() {
 
   return (
     <div
-      className="ExplorerHeader fixed top-0 bg-white min-h-8 shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
+      className="ExplorerHeader fixed top-0 min-h-8 
+      bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
       <div className="px-2 py-3 md:py-1 flex items-center">
         {/* Left icons */}
         <div className="flex items-center gap-2">
           <ButtonComponent
-            onClick={(event) => {
+            onClick={(_) => {
               TreeRoAPI.useStore.setState({ explorerIsOpened: false });
             }}
           >
@@ -306,13 +325,13 @@ function NavBarComponent() {
 
         {/* Right icons */}
         <div className="flex ml-auto items-center gap-2">
-          <ButtonComponent onClick={(event) => {}}>
+          <ButtonComponent onClick={(_) => {}}>
             <FilePlusIcon className="text-gray-600" />
           </ButtonComponent>
-          <ButtonComponent onClick={(event) => {}}>
+          <ButtonComponent onClick={(_) => {}}>
             <FolderPlusIcon className="text-gray-600" />
           </ButtonComponent>
-          <ButtonComponent onClick={(event) => {}}>
+          <ButtonComponent onClick={(_) => {}}>
             <SearchIcon className="text-gray-600" />
           </ButtonComponent>
           <div></div>
@@ -325,9 +344,9 @@ function NavBarComponent() {
 export default function ExplorerComponent() {
   const [activeId, setActiveId] = useState("");
 
-  const onResize = (w: number) => {
-    document.documentElement.style.setProperty("--sidebar-width", `${w}px`);
-  };
+  // const onResize = (w: number) => {
+  //   document.documentElement.style.setProperty("--sidebar-width", `${w}px`);
+  // };
 
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
@@ -391,14 +410,57 @@ export default function ExplorerComponent() {
             console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
             if (activeDocument && overDocument) {
               if (placement === "after") {
-                console.debug("placement after moveDocumentAfter");
+                console.debug("moveDocumentAfter", placement);
                 TreeRoAPI.moveDocumentAfter(activeId, overId);
               } else if (placement === "before") {
-                console.debug("placement before moveDocumentBefore");
+                console.debug("moveDocumentBefore", placement);
                 TreeRoAPI.moveDocumentBefore(activeId, overId);
               } else if (placement === "inside") {
-                console.debug("placement after moveDocumentAfter");
+                console.debug("moveDocumentAfter", placement);
                 TreeRoAPI.moveDocumentAfter(activeId, overId);
+              }
+            } else if (activeDocument && overGroup) {
+              if (placement === "after") {
+                console.debug("moveDocumentAfter", placement);
+                TreeRoAPI.moveDocumentAfter(activeId, overId);
+              } else if (placement === "before") {
+                console.debug("moveDocumentBefore", placement);
+                TreeRoAPI.moveDocumentBefore(activeId, overId);
+              } else if (placement === "inside") {
+                if (overGroup.collapsed === false && overGroup.children.length !== 0) {
+                  console.debug("moveDocument", placement, 0);
+                  TreeRoAPI.moveDocument(activeId, overId, 0);
+                } else {
+                  console.debug("moveDocument", placement, -1);
+                  TreeRoAPI.moveDocument(activeId, overId, -1);
+                }
+              }
+            } else if (activeGroup && overDocument) {
+              if (placement === "after") {
+                console.debug("moveGroupAfter", placement);
+                TreeRoAPI.moveGroupAfter(activeId, overId);
+              } else if (placement === "before") {
+                console.debug("moveGroupBefore", placement);
+                TreeRoAPI.moveGroupBefore(activeId, overId);
+              } else if (placement === "inside") {
+                console.debug("moveGroupAfter", placement);
+                TreeRoAPI.moveGroupAfter(activeId, overId);
+              }
+            } else if (activeGroup && overGroup) {
+              if (placement === "after") {
+                console.debug("moveGroupAfter", placement);
+                TreeRoAPI.moveGroupAfter(activeId, overId);
+              } else if (placement === "before") {
+                console.debug("moveGroupBefore", placement);
+                TreeRoAPI.moveGroupBefore(activeId, overId);
+              } else if (placement === "inside") {
+                if (overGroup.collapsed === false && overGroup.children.length !== 0) {
+                  console.debug("moveGroup", placement, 0);
+                  TreeRoAPI.moveGroup(activeId, overId, 0);
+                } else {
+                  console.debug("moveGroup", placement, -1);
+                  TreeRoAPI.moveGroup(activeId, overId, -1);
+                }
               }
             }
 

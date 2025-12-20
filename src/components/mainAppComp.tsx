@@ -19,7 +19,10 @@ export default function MainAppComponent() {
 
   return (
     <ReadOnlyContextProvider>
-      <div className="flex h-screen overflow-hidden">
+      <div
+        className="flex h-screen overflow-hidden
+      text-lg md:text-base"
+      >
         <div className="shrink-0">
           <ExplorerComponent />
         </div>
@@ -29,7 +32,6 @@ export default function MainAppComponent() {
           <div className="flex-1 overflow-y-auto min-w-0">
             <OutlineDocument />
           </div>
-          
         </div>
         <ToastContainer position="top-right" autoClose={3_000} hideProgressBar={true} closeButton={true} style={{ top: 50 }} />
         <PWABadge />
