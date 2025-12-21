@@ -307,7 +307,7 @@ function NavBarComponent() {
 
   return (
     <div
-      className="ExplorerHeader fixed top-0 min-h-8 
+      className="ExplorerHeader fixed top-0 left-0 min-h-8 
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
@@ -367,7 +367,7 @@ export default function ExplorerComponent() {
       className={`Explorer relative z-75
                bg-white shadow-[1px_0px_5px_rgba(0,0,0,0.15)]
                  ${explorerIsOpened ? "" : "hidden"}`}
-      style={{ width: "var(--sidebar-width)" }}
+      style={{ width: "var(--sidebar-width)", minWidth: "var(--sidebar-width)" }}
     >
       <NavBarComponent />
       <div className="Explorer-scroll h-full overflow-y-auto overscroll-y-contain">

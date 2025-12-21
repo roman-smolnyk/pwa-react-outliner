@@ -150,6 +150,7 @@ export interface TreeRoAPIType {
   // ---------------- Meta Methods ----------------
   isAuthorized(): boolean;
   setIsAuthorized(isAuthorized: boolean): void;
+  generateRoomToken(): string;
   getRoomToken(): string | null;
   setRoomToken(roomToken: string): void;
   getCurrentDocumentId(): string | null;

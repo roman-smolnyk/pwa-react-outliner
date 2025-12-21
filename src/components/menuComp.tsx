@@ -68,7 +68,9 @@ export default function MainMenuComponent() {
                 setOpen(false);
                 navigator.clipboard
                   .writeText(TreeRoAPI.getRoomToken() as string)
-                  .then(() => toast("Copied"))
+                  .then(() => {
+                    toast("Copied", { containerId: "main", className: "min-h-0! h-10! w-30! rounded-xl! top-5! md:top-0! right-5! md:right-0!" });
+                  })
                   .catch(() => toast.error("Failed to copy"));
               }}
             />
@@ -117,7 +119,7 @@ export function NodeOptionsComponent() {
     open,
     onOpenChange: setOpen,
     placement: "bottom-end",
-    middleware: [ flip(),],
+    middleware: [flip()],
     whileElementsMounted: autoUpdate,
   });
 

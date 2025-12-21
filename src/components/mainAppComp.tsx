@@ -8,7 +8,6 @@ import { FooterComponent, HeaderComponent } from "../components/headerFooterComp
 import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
 import ExplorerComponent from "./explorerComp.tsx";
 
-
 function SpinnerComponent() {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
@@ -51,7 +50,17 @@ export default function MainAppComponent() {
         <OutlineDocument />
       </div>
       <FooterComponent />
-      <ToastContainer position="top-right" autoClose={3_000} hideProgressBar={true} closeButton={true} style={{ top: 50 }} />
+      <ToastContainer
+        containerId="main"
+        position="top-right"
+        autoClose={3_000}
+        hideProgressBar={true}
+        closeButton={false}
+        closeOnClick={true}
+        draggable={true}
+        limit={3}
+        style={{ top: 50 }}
+      />
       <PWABadge />
     </ReadOnlyContextProvider>
   );

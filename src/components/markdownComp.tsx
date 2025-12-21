@@ -29,13 +29,8 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
         try {
           await navigator.clipboard.writeText(textToCopy);
           toast("Copied", {
-            // style: {
-            //   width: "200px",
-            //   height: "50px",
-            //   padding: "0px",
-            //   margin: "0px",
-            //   fontSize: "0.85rem",
-            // },
+            containerId: "main",
+            className: "min-h-0! h-10! w-30! rounded-xl! top-5! md:top-0! right-5! md:right-0!",
           });
         } catch (err) {
           toast.error("Failed to copy");
