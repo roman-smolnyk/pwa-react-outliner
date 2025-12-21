@@ -32,7 +32,7 @@ function PWABadge() {
   }
 
   return (
-    <div className="PWABadge mb-20" role="alert" aria-labelledby="toast-message">
+    <div className="PWABadge mb-30" role="alert" aria-labelledby="toast-message">
       { (offlineReady || needRefresh)
       && (
         <div className="PWABadge-toast">

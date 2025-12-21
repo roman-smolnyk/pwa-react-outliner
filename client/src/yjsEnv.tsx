@@ -161,7 +161,7 @@ export const Yjs = {
   undoManager: undoManager,
 
   idbPersistence: idbPersistence,
-  provider: null as WebsocketProvider | null,
+  wsProvider: null as WebsocketProvider | null,
 
   YMetaWrap: YMetaWrap,
   YNodeWrap: YNodeWrap,

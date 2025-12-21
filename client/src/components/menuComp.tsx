@@ -27,7 +27,7 @@ function MenuItem({ icon, label, danger, onClick }: { icon: React.ReactNode; lab
   );
 }
 
-export default function MenuComponent() {
+export default function MainMenuComponent() {
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -117,7 +117,7 @@ export function NodeOptionsComponent() {
     open,
     onOpenChange: setOpen,
     placement: "bottom-end",
-    // middleware: [offset(6), flip(), shift({ padding: 8 })],
+    middleware: [ flip(),],
     whileElementsMounted: autoUpdate,
   });
 

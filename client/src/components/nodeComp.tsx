@@ -9,13 +9,13 @@ import { useReadOnly } from "../etc/readonlyContext";
 import { NodeOptionsComponent } from "./menuComp";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
-  const _logPrefix = `NodeContentComponent [${nodeId}]`;
   // console.debug(logPrefix);
   const refContenteditable = useRef<HTMLDivElement>(null);
+  
   const [isEditing, setIsEditing] = useState(false);
   const { readOnly } = useReadOnly();
 
-  // zustand subscribe to rerender trigger
+  // subscribe
   useStore((state) => {
     return state.nodesContentToRender[nodeId];
   });
@@ -25,14 +25,14 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   //   return () => console.debug(`${_logPrefix} -> MOUNTED`);
   // }, []);
 
-  const activeEditNodeId = useStore.getState().activeEditNodeId;
+  const activeEditNodeId = useStore.getState().activeNodeId;
   if (nodeId === activeEditNodeId) {
     console.debug("activeEditNodeId", activeEditNodeId);
-    useStore.setState({ activeEditNodeId: "" });
+    useStore.setState({ activeNodeId: "" });
     setIsEditing(true);
     setTimeout(() => {
       if (refContenteditable.current) {
-        TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().activeEditCaretPosition);
+        useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().currentCaretPosition);
       }
     }, 0);
   }
@@ -43,7 +43,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
       <div
         ref={refContenteditable}
         // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
-        className={`NodeContent-contenteditable cursor-text select-text outline-none whitespace-pre-wrap wrap-break-word leading-tight min-h-5 px-1 trailing-nl ${isEditing ? "" : "hidden"}`}
+        className={`NodeContent-contenteditable min-h-5 px-1 cursor-text select-text outline-none 
+          whitespace-pre-wrap wrap-break-word leading-tight trailing-nl 
+          ${isEditing ? "" : "hidden"}`}
         data-id={nodeId}
         contentEditable
         suppressContentEditableWarning
@@ -83,7 +85,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // const newNode = TreeRoAPI.createNode("");
             // TreeRoAPI.insertNodeAfter(newNode, nodeId);
             const newNodeId = TreeRoAPI.insertNewNodeAfter(nodeId, "New Node")!;
-            TreeRoAPI.useStore.getState().activateNodeEdit(newNodeId);
+            TreeRoAPI.useStore.getState().activateNode(newNodeId);
             // useUIStore.setState({ activeEditNodeId: newNode.node_id });
             //
             // setTimeout(() => {
@@ -121,7 +123,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
                 console.debug("siblingNode", siblingNode);
-                TreeRoAPI.useStore.getState().activateNodeEdit(siblingNode.node_id, -1);
+                TreeRoAPI.useStore.getState().activateNode(siblingNode.node_id, -1);
                 // useUIStore.setState({ activeEditNodeId: siblingNode.node_id });
                 // setTimeout(() => {
                 //   const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
@@ -140,7 +142,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             e.currentTarget.blur();
             TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
             const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.useStore.getState().activateNodeEdit(nodeId, index);
+            TreeRoAPI.useStore.getState().activateNode(nodeId, index);
             // Indent node
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
@@ -153,7 +155,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
             TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
             const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.useStore.getState().activateNodeEdit(nodeId, index);
+            TreeRoAPI.useStore.getState().activateNode(nodeId, index);
             // Move node up
           } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
@@ -170,22 +172,21 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         }}
         // On lost focus update
         onBlur={(e) => {
-          console.debug(`${_logPrefix} -> onBlur`);
+          console.debug(`onBlur`);
           // const newContent = getPlainTextWithNewlines(e.currentTarget);
           const newContent = e.currentTarget.textContent || "";
-          // const newContent = e.currentTarget.textContent ?? "";
-          // console.debug(`${logPrefix} -> onBlur`, newContent);
           if (newContent !== nodeContent) {
             TreeRoAPI.updateNode(nodeId, { content: newContent });
           }
           setIsEditing(false);
+          useStore.setState({ activeNodeId: "" });
         }}
       >
         {nodeContent}
       </div>
       {
         <div
-          className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "" : "cursor-text"}`}
+          className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "cursor-default" : "cursor-text"}`}
           data-id={nodeId}
           onPointerDown={(e) => {
             if (readOnly) return;
@@ -193,20 +194,22 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               // isTouch = true;
               // pointerStart = { x: e.clientX, y: e.clientY };
             } else {
-              const charIndex = TreeRoAPI.useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+              const charIndex = useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
               setIsEditing(true);
+              useStore.setState({ activeNodeId: nodeId });
               setTimeout(() => {
-                TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+                useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
               }, 100);
             }
           }}
           onPointerUp={(e) => {
             if (readOnly) return;
             if (e.pointerType === "touch") {
-              const charIndex = TreeRoAPI.useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
+              const charIndex = useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
               setIsEditing(true);
+              useStore.setState({ activeNodeId: nodeId });
               setTimeout(() => {
-                TreeRoAPI.useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+                useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
               }, 100);
             }
           }}

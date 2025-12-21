@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";
 import { useStore } from "../stateStore";
-import MenuComponent from "./menuComp";
+import MainMenuComponent from "./menuComp";
 
 function ButtonComponent({ children, onClick }: { children: React.ReactNode; onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
   return (
@@ -114,7 +114,7 @@ export function HeaderComponent() {
 
           <SearchIcon className="text-gray-600" />
           {/* <EllipsisVerticalIcon className="text-gray-600" /> */}
-          <MenuComponent />
+          <MainMenuComponent />
         </div>
       </div>
     </div>

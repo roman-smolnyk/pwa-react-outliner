@@ -45,6 +45,10 @@
   --sidebar-width: clamp(200px, 20vw, 500px);
 }
 
+html {
+  overflow-y: hidden;
+}
+
 /* Mobile-first: small screens */
 @media (max-width: 639px) {
   :root {
@@ -212,6 +216,12 @@ a {
 blockquote {
   @apply border-l-4 border-gray-300 pl-4 italic text-gray-700;
 }
+
+* {
+  scrollbar-width: thin;            
+  scrollbar-color: #888 #f1f1f1;   
+}
+
 
 /* 
 :root {

@@ -49,8 +49,9 @@ export const TreeRoAPI: TreeRoAPIType = {
 
       Yjs.undoManager.stopCapturing();
 
-      const provider = new WebsocketProvider(Conf.WSS_SERVER, roomToken, Yjs.ydoc);
-      provider.on("status", (e) => {
+      const wsProvider = new WebsocketProvider(Conf.WSS_SERVER, roomToken, Yjs.ydoc);
+      TreeRoAPI.Yjs.wsProvider = wsProvider;
+      wsProvider.on("status", (e) => {
         console.log("WebsocketProvider status", e.status);
       });
 

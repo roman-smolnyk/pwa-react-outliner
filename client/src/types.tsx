@@ -111,8 +111,8 @@ export interface zustandUseStoreType {
   dndDescendantsIds: string[];
   dndToRerender: Record<string, boolean>;
 
-  activeEditNodeId: string;
-  activeEditCaretPosition: number;
+  activeNodeId: string;
+  currentCaretPosition: number;
 
   explorerIsOpened: boolean;
 
@@ -123,7 +123,8 @@ export interface zustandUseStoreType {
   getCharIndexFromCaret: (element: HTMLElement) => number;
   setCaretAtCharIndex: (element: HTMLElement, index: number) => void;
   getCharIndexFromMouse: (element: HTMLElement, x: number, y: number) => number;
-  activateNodeEdit: (nodeId: string, caretPosition?: number) => void;
+
+  activateNode: (nodeId: string, caretPosition?: number) => void;
 }
 
 // -----------------------

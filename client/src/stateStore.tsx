@@ -3,7 +3,7 @@ import type { zustandUseStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
-  localConfig: { currentDocumentId: "" },
+  localConfig: { currentDocumentId: "", roomToken: "", isAuthorized: false },
   meta: { root_group_id: "" },
   groups: new Map(),
   documents: new Map(),
@@ -17,8 +17,8 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   dndDescendantsIds: [],
   dndToRerender: {},
 
-  activeEditNodeId: "",
-  activeEditCaretPosition: 0,
+  activeNodeId: "",
+  currentCaretPosition: 0,
 
   explorerIsOpened: true,
 
@@ -116,9 +116,9 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
     return charIndex;
   },
 
-  activateNodeEdit: (nodeId, caretPosition = 0) => {
-    set({ activeEditNodeId: nodeId });
-    set({ activeEditCaretPosition: caretPosition });
+  activateNode: (nodeId, caretPosition = 0) => {
+    set({ activeNodeId: nodeId });
+    set({ currentCaretPosition: caretPosition });
     get().triggerNodeContentRender(nodeId);
   },
 }));
