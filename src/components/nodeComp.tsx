@@ -6,12 +6,12 @@ import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useStore } from "../stateStore";
 import { useReadOnly } from "../etc/readonlyContext";
-import { NodeOptionsComponent } from "./menuComp";
+import { NodeOptionsComponent } from "./menusComp";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   // console.debug(logPrefix);
   const refContenteditable = useRef<HTMLDivElement>(null);
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const { readOnly } = useReadOnly();
 
@@ -326,9 +326,8 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
           <NodeOptionsComponent />
-
           {/* // ! ID */}
-          {/* <div className="NodeDebugId text-xs">{node.node_id.split("-").pop()}</div> */}
+          {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
         </div>
         {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}

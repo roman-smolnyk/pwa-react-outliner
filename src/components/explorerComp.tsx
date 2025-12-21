@@ -1,14 +1,22 @@
 import { DragOverlay } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
-import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
-import { useState, memo, useRef, useLayoutEffect } from "react";
+import {
+  FilePlusIcon,
+  FileTextIcon,
+  FolderDownIcon,
+  FolderIcon,
+  FolderInputIcon,
+  FolderPlusIcon,
+  PanelLeftCloseIcon,
+  SearchIcon,
+} from "lucide-react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
-
 import { PlainMarkdownComponent } from "./markdownComp";
-
-import { FolderInputIcon, FolderDownIcon, FolderIcon, FileTextIcon } from "lucide-react";
+import { GroupOptionsComponent } from "./menusComp";
+import { DocumentOptionsComponent } from "./menusComp";
 
 function ButtonComponent({ children, onClick }: { children: React.ReactNode; onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
   return (
@@ -129,14 +137,13 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
               <div>{group.name}</div>
             )}
           </div>
-          <button className="GroupItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
-            {/* <span>⋮</span> */}
+          <GroupOptionsComponent />
+          {/* <button className="GroupItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
-            {/* <EllipsisVertical className="size-4" /> */}
-          </button>
+          </button> */}
 
           {/* // ! ID */}
-          {/* <div className="DocumentDebugId text-xs">{document.document_id.split("-").pop()}</div> */}
+          {/* <div className="DocumentDebugId text-xs min-w-10">{groupId.slice(30)}</div> */}
         </div>
         {over?.id === groupId && placement === "after" && <DropIndicatorComponent />}
         {over?.id === groupId && placement === "inside" && <DropIndicatorComponent shrink={true} />}
@@ -273,14 +280,13 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
               <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} />
             )}
           </div>
-          <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
-            {/* <span>⋮</span> */}
+          <DocumentOptionsComponent />
+          {/* <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
-            {/* <EllipsisVertical className="size-4" /> */}
-          </button>
+          </button> */}
 
           {/* // ! ID */}
-          {/* <div className="DocumentDebugId text-xs">{document.document_id.split("-").pop()}</div> */}
+          {/* <div className="DocumentDebugId text-xs min-w-10">{documentId.slice(30)}</div> */}
         </div>
         {over?.id === documentId && (placement === "after" || placement === "inside") && <DropIndicatorComponent />}
       </div>

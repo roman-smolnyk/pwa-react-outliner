@@ -22,6 +22,8 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
 
   explorerIsOpened: true,
 
+  wsStatus: "disconnected",
+
   triggerNodeRender: (nodeId) => {
     set((state) => {
       return { nodesToRender: { ...state.nodesToRender, [nodeId]: !state.nodesToRender[nodeId] } };

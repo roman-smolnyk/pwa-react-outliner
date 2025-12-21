@@ -13,6 +13,11 @@ import {
   UploadIcon,
   UserRoundIcon,
   ZoomInIcon,
+  Trash2Icon,
+  SquarePenIcon,
+  FilePlusIcon,
+  FolderPlusIcon,
+  Share2Icon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -58,7 +63,7 @@ export default function MainMenuComponent() {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-50 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <MenuItem
@@ -102,7 +107,9 @@ export default function MainMenuComponent() {
               danger
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.clearData(true);
+                if (confirm("All data on this device will be wiped. Are you sure?")) {
+                  TreeRoAPI.clearData(true);
+                }
               }}
             />
           </div>
@@ -143,7 +150,7 @@ export function NodeOptionsComponent() {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-50 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <MenuItem
@@ -191,6 +198,144 @@ export function NodeOptionsComponent() {
             <MenuItem
               icon={<LinkIcon className="w-full h-full" />}
               label="Copy link"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
+  );
+}
+
+export function GroupOptionsComponent() {
+  const [open, setOpen] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-end",
+    middleware: [flip()],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context, {
+    event: "mousedown",
+  });
+
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  return (
+    <>
+      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+      </button>
+
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <MenuItem
+              icon={<SquarePenIcon className="w-full h-full" />}
+              label="Rename"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<FilePlusIcon className="w-full h-full" />}
+              label="New Document"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<FolderPlusIcon className="w-full h-full" />}
+              label="New Folder"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<Trash2Icon className="w-full h-full" />}
+              label="Delete"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
+  );
+}
+
+export function DocumentOptionsComponent() {
+  const [open, setOpen] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-end",
+    middleware: [flip()],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context, {
+    event: "mousedown",
+  });
+
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  return (
+    <>
+      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+      </button>
+
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <MenuItem
+              icon={<SquarePenIcon className="w-full h-full" />}
+              label="Rename"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<InboxIcon className="w-full h-full" />}
+              label="Set as Inbox"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<Share2Icon className="w-full h-full" />}
+              label="Share"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              icon={<Trash2Icon className="w-full h-full" />}
+              label="Delete"
               onClick={() => {
                 setOpen(false);
               }}

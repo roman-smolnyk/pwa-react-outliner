@@ -116,6 +116,8 @@ export interface zustandUseStoreType {
 
   explorerIsOpened: boolean;
 
+  wsStatus: "connecting" | "connected" | "disconnected";
+
   triggerNodeRender: (nodeId: string) => void;
   triggerNodeContentRender: (nodeId: string) => void;
   triggerDnDRender: (id: string) => void;

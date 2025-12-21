@@ -4,7 +4,7 @@ import {
   ArrowRightToLineIcon,
   ArrowUpIcon,
   CalendarDays,
-  // RefreshCwIcon,
+  RefreshCwIcon,
   CloudCheckIcon,
   ListChecksIcon,
   MoveIcon,
@@ -15,7 +15,7 @@ import {
   RedoIcon,
   RotateCwIcon,
   SearchIcon,
-  // CloudAlertIcon,
+  CloudAlertIcon,
   SquarePlusIcon,
   // ZoomInIcon,
   Trash2Icon,
@@ -25,7 +25,8 @@ import { useEffect, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";
 import { useStore } from "../stateStore";
-import MainMenuComponent from "./menuComp";
+import MainMenuComponent from "./menusComp";
+import { toast } from "react-toastify";
 
 function ButtonComponent({ children, onClick }: { children: React.ReactNode; onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
   return (
@@ -39,6 +40,7 @@ export function HeaderComponent() {
   const { readOnly, setReadOnly } = useReadOnly();
 
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
+  const wsStatus = useStore((state) => state.wsStatus);
 
   return (
     <div
@@ -89,9 +91,19 @@ export function HeaderComponent() {
 
         {/* Right icons */}
         <div className="flex ml-auto items-center gap-2">
-          {/* <RefreshCwIcon className="text-gray-600 animate-spin" /> */}
-          {/* <CloudAlertIcon className="text-gray-600" /> */}
-          <CloudCheckIcon className="text-gray-600" />
+          <ButtonComponent
+            onClick={(_) => {
+              toast(`WS Server status: ${wsStatus}`, {
+                containerId: "main",
+                className: "min-h-0! h-10! w-60! rounded-xl! top-5! md:top-0! right-5! md:right-0!",
+              });
+            }}
+          >
+            {wsStatus === "connecting" && <CloudAlertIcon className="text-gray-600" />}
+            {wsStatus === "connected" && <CloudCheckIcon className="text-gray-600" />}
+            {wsStatus === "disconnected" && <RefreshCwIcon className="text-gray-600 animate-spin" />}
+          </ButtonComponent>
+
           <ListChecksIcon className="text-gray-600" />
           {readOnly ? (
             <ButtonComponent
