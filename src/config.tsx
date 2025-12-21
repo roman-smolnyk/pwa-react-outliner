@@ -1,3 +1,3 @@
 export const Conf = {
-  WSS_SERVER: "ws://localhost:1234",
+  WSS_SERVER: "wss://y-websocket-server-t1tj.onrender.com",
 };
