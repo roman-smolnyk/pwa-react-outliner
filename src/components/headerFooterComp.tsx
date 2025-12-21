@@ -44,7 +44,7 @@ export function HeaderComponent() {
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-h-8 overflow-x-auto z-50
+      className="Header fixed top-0 right-0 min-h-8 overflow-x-auto overflow-y-hidden z-50
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
