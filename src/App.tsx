@@ -3,12 +3,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 import { TreeRoAPI } from "./api";
-
-import { useEffect, useState } from "react";
-
-import MainAppComponent from "./components/mainAppComp";
-
 import { LoginFormComponent } from "./components/authComp";
+import MainAppComponent from "./components/mainAppComp";
 
 function App() {
   TreeRoAPI.useStore((state) => state.localConfig.isAuthorized);

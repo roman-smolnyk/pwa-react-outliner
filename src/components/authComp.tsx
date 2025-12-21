@@ -19,7 +19,7 @@ export function LoginFormComponent() {
           <button
             type="button"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            onClick={(e) => {
+            onClick={(_) => {
               console.debug("Login", token);
               TreeRoAPI.setRoomToken(token);
               TreeRoAPI.setIsAuthorized(true);
@@ -30,7 +30,7 @@ export function LoginFormComponent() {
           <button
             type="button"
             className="w-full bg-gray-300 text-gray-800 p-2 rounded hover:bg-gray-400"
-            onClick={(e) => {
+            onClick={(_) => {
               console.debug("New Account");
               TreeRoAPI.setIsAuthorized(true);
             }}

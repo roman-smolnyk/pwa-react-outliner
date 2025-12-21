@@ -9,7 +9,7 @@ import {
   ListChecksIcon,
   MoveIcon,
   PanelLeftIcon,
-  EllipsisVerticalIcon,
+  // EllipsisVerticalIcon,
   PencilIcon,
   PencilOffIcon,
   RedoIcon,
@@ -21,7 +21,6 @@ import {
   Trash2Icon,
   UndoIcon,
 } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";

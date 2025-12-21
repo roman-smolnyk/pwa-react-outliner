@@ -1,15 +1,13 @@
+import { useEffect, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { ToastContainer } from "react-toastify";
 import PWABadge from "../PWABadge.tsx";
+import { TreeRoAPI } from "../api";
 import OutlineDocument from "../components/documentComp.tsx";
 import { FooterComponent, HeaderComponent } from "../components/headerFooterComp.tsx";
-import ExplorerComponent from "./explorerComp.tsx";
 import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
-import { useHotkeys } from "react-hotkeys-hook";
-import { TreeRoAPI } from "../api";
-import { ToastContainer } from "react-toastify";
+import ExplorerComponent from "./explorerComp.tsx";
 
-import { useEffect, useState } from "react";
-
-import { LoginFormComponent } from "./authComp.tsx";
 
 function SpinnerComponent() {
   return (

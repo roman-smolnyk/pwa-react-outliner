@@ -2,6 +2,9 @@ import { TreeRoAPI } from "../api";
 
 export function fillInMockupData() {
   const currentDocId = TreeRoAPI.getCurrentDocumentId();
+  if (!currentDocId){
+    throw new Error(`fillInMockupData: Missing currentDocId`)
+  }
   const ydocument = TreeRoAPI.getDocument(currentDocId)!;
   for (const content of data) {
     TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
