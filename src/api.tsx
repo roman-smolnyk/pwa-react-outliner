@@ -135,6 +135,7 @@ export const TreeRoAPI: TreeRoAPIType = {
           useStore.setState((state) => {
             const uNodes = new Map(state.nodes);
             uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
+            console.debug("Update", ynode.get("node_id"));
             return { nodes: uNodes };
           });
         } else if (event.target instanceof Y.Array) {

@@ -1,11 +1,9 @@
-// yjsEnv.ts
 import { diffChars } from "diff";
 import { IndexeddbPersistence } from "y-indexeddb";
-// import { YSweetProvider } from "@y-sweet/client";
 import type { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import type { YDocumentDataType, YGroupDataType, YMetaDataType, YNodeDataType } from "./types";
-// import { WebsocketProvider } from "y-websocket";
+// import { YSweetProvider } from "@y-sweet/client";
 
 const ROOM_NAME = "TreeRo-db";
 // const WS_URL = "wss://your-server-url";

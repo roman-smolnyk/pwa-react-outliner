@@ -31,6 +31,7 @@ function ButtonComponent({
     </button>
   );
 }
+
 function DropIndicatorComponent({ shrink = false }) {
   // console.debug(placement);
   return (
@@ -174,7 +175,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
               <GroupItemTitleComponent groupId={groupId} name={group.name} setRenaming={setIsEditing} />
             )}
           </div>
-          <GroupOptionsComponent setRenaming={setIsEditing} />
+          <GroupOptionsComponent groupId={groupId} setRenaming={setIsEditing} />
           {/* <button className="GroupItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -272,12 +273,6 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
     ref.current = element; // your own ref
   };
 
-  useLayoutEffect(() => {
-    if (!refX.current) return;
-
-    refX.current.innerText = refX.current.textContent?.replace("\n", " ") || "";
-  }, []);
-
   if (!document_ || !rootNode) return;
 
   if (isDragging) {
@@ -339,7 +334,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
               <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} setRenaming={setIsEditing} />
             )}
           </div>
-          <DocumentOptionsComponent setRenaming={setIsEditing} />
+          <DocumentOptionsComponent documentId={documentId} setRenaming={setIsEditing} />
           {/* <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -370,6 +365,8 @@ export function ExplorerItemComponent({ itemId }: { itemId: string }) {
 function NavBarComponent() {
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
+  const rootGroupId = useStore((state) => state.meta.root_group_id);
+
   return (
     <div
       className="ExplorerHeader fixed top-0 left-0 min-h-8 
@@ -386,13 +383,23 @@ function NavBarComponent() {
 
         {/* Right icons */}
         <div className="flex ml-auto items-center gap-2">
-          <ButtonComponent className="text-red-200" onClick={() => {}}>
+          <ButtonComponent
+            className="CreateNewDocument"
+            onClick={() => {
+              TreeRoAPI.insertNewDocument(rootGroupId, "New Document", 0);
+            }}
+          >
             <FilePlusIcon />
           </ButtonComponent>
-          <ButtonComponent className="text-red-200" onClick={() => {}}>
+          <ButtonComponent
+            className="CreateNewGroup"
+            onClick={() => {
+              TreeRoAPI.insertNewGroup(rootGroupId, "New Folder", 0);
+            }}
+          >
             <FolderPlusIcon />
           </ButtonComponent>
-          <ButtonComponent className="text-red-200" onClick={() => {}}>
+          <ButtonComponent className="SearchInExplorer text-yellow-400" onClick={() => {}}>
             <SearchIcon />
           </ButtonComponent>
           <div></div>

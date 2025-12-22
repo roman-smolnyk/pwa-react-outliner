@@ -111,7 +111,7 @@ export function HeaderComponent() {
             {wsStatus === "disconnected" && <RefreshCwIcon className="animate-spin" />}
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <ListChecksIcon />
           </ButtonComponent>
 
@@ -125,7 +125,7 @@ export function HeaderComponent() {
             </ButtonComponent>
           )}
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <SearchIcon />
           </ButtonComponent>
 
@@ -156,35 +156,35 @@ export function FooterComponent() {
     >
       <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center gap-2">
         <div className="flex gap-2 flex-nowrap min-w-max">
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <ArrowLeftToLineIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <ArrowRightToLineIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <ArrowUpIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <ArrowDownIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <SquarePlusIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <MoveIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <CalendarDays />
           </ButtonComponent>
 
-          <ButtonComponent className="text-red-200">
+          <ButtonComponent className="text-yellow-400">
             <Trash2Icon />
           </ButtonComponent>
         </div>

@@ -1,5 +1,5 @@
-import { DndContext, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
-import type { DragEndEvent, DragMoveEvent, DragStartEvent, DragOverEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 
 export function DnDWrapperComponent({
   children,

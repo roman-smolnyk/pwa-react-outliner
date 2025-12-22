@@ -1,6 +1,6 @@
-import { openDB } from "idb";
 import type { IDBPDatabase } from "idb";
-import type { LocalConfigType, LocalIndexedDbDataType, IDBLocalType } from "./types";
+import { openDB } from "idb";
+import type { IDBLocalType, LocalConfigType, LocalIndexedDbDataType } from "./types";
 
 let db: IDBPDatabase<LocalIndexedDbDataType> | null = null;
 

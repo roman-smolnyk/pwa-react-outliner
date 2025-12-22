@@ -4,8 +4,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { memo, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
-import { useStore } from "../stateStore";
 import { useReadOnly } from "../etc/readonlyContext";
+import { useStore } from "../stateStore";
 import { NodeOptionsComponent } from "./menusComp";
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
@@ -84,7 +84,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             e.preventDefault();
             // const newNode = TreeRoAPI.createNode("");
             // TreeRoAPI.insertNodeAfter(newNode, nodeId);
-            const newNodeId = TreeRoAPI.insertNewNodeAfter(nodeId, "New Node")!;
+            const newNodeId = TreeRoAPI.insertNewNodeAfter(nodeId)!;
             TreeRoAPI.useStore.getState().activateNode(newNodeId);
             // useUIStore.setState({ activeEditNodeId: newNode.node_id });
             //
@@ -325,7 +325,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             )}
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <NodeOptionsComponent />
+          <NodeOptionsComponent nodeId={nodeId} />
           {/* // ! ID */}
           {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
         </div>

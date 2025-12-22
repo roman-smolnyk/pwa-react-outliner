@@ -1,11 +1,12 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { DragOverlay } from "@dnd-kit/core";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { NodeComponent, NodeContentComponent } from "../components/nodeComp";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
+import { NodeOptionsComponent } from "./menusComp";
 
 export default function DocumentComponent() {
   const ref = useRef<HTMLDivElement>(null);
@@ -41,6 +42,7 @@ export default function DocumentComponent() {
           <div className="RootNode-inner">
             <div className="RootNode-self flex items-start mb-3">
               <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
+              <NodeOptionsComponent nodeId={rootNode.node_id} />
             </div>
             <div className="RootNodeChildren flex flex-col gap-1">
               <DnDWrapperComponent
