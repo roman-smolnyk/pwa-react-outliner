@@ -10,22 +10,27 @@ import {
   PanelLeftCloseIcon,
   SearchIcon,
 } from "lucide-react";
-import { memo, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
 import { PlainMarkdownComponent } from "./markdownComp";
-import { GroupOptionsComponent } from "./menusComp";
-import { DocumentOptionsComponent } from "./menusComp";
+import { DocumentOptionsComponent, GroupOptionsComponent } from "./menusComp";
 
-function ButtonComponent({ children, onClick }: { children: React.ReactNode; onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+function ButtonComponent({
+  children,
+  className,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <button className="cursor-pointer active:scale-90 transition" type="button" onClick={onClick}>
+    <button type="button" className={`cursor-pointer active:scale-90 transition text-gray-600 ${className ?? ""}`} {...props}>
       {children}
     </button>
   );
 }
-
 function DropIndicatorComponent({ shrink = false }) {
   // console.debug(placement);
   return (
@@ -35,12 +40,43 @@ function DropIndicatorComponent({ shrink = false }) {
   );
 }
 
+function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: string; name: string; setRenaming: (v: boolean) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState(name);
+
+  useEffect(() => {
+    const input = ref.current;
+    if (!input) return;
+    input.focus();
+    // place cursor at the beginning
+    input.setSelectionRange(0, 0);
+  }, []);
+
+  return (
+    <input
+      className="w-full min-w-0 max-w-full border-none outline-none rounded focus:ring-2 focus:ring-gray-400"
+      ref={ref}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={(e) => {
+        const value = e.target.value;
+        if (value !== name) {
+          TreeRoAPI.updateGroup(groupId, { name: value });
+        }
+        setRenaming(false);
+      }}
+      onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
+    />
+  );
+}
+
 const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
   const refX = useRef<HTMLDivElement>(null);
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
-  const [isEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useStore((state) => {
     return state.dndToRerender[groupId];
@@ -92,8 +128,8 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
         {over?.id === groupId && placement === "before" && <DropIndicatorComponent />}
         <div
           className="GroupItem-self py-1 md:py-0
-        hover:bg-gray-200
-        flex items-start gap-1"
+                   hover:bg-gray-100
+                     flex items-start gap-1"
           ref={refNodeSelf}
           data-id={groupId}
         >
@@ -122,10 +158,11 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
           </button>
 
           <div
-            className="GroupItem-btn flex-1 min-w-0 cursor-pointer
-            flex items-start"
+            className="GroupItem-title flex-1 min-w-0 cursor-pointer select-none
+                       flex items-start"
             onPointerUpCapture={() => {
               console.debug("onPointerUpCapture");
+              if (isEditing) return;
               TreeRoAPI.toggleGroupCollapse(groupId);
             }}
           >
@@ -134,10 +171,10 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
                 {group.name}
               </div>
             ) : (
-              <div>{group.name}</div>
+              <GroupItemTitleComponent groupId={groupId} name={group.name} setRenaming={setIsEditing} />
             )}
           </div>
-          <GroupOptionsComponent />
+          <GroupOptionsComponent setRenaming={setIsEditing} />
           {/* <button className="GroupItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -149,8 +186,8 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
         {over?.id === groupId && placement === "inside" && <DropIndicatorComponent shrink={true} />}
         <div
           className={`GroupItemChildren flex-col ml-2 pl-4
-          border-l border-gray-200 
-          flex gap-1 ${group.collapsed ? "hidden!" : ""}`}
+                     border-l border-gray-200 
+                     flex gap-1 ${group.collapsed ? "hidden!" : ""}`}
         >
           {group.children.map((childId) => (
             <ExplorerItemComponent key={childId} itemId={childId} />
@@ -161,19 +198,40 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
   );
 });
 
-function DocumentItemTitleComponent({ rootNodeId, nodeContent }: { rootNodeId: string; nodeContent: string }) {
-  const [name, setName] = useState(nodeContent);
+function DocumentItemTitleComponent({
+  rootNodeId,
+  nodeContent,
+  setRenaming,
+}: {
+  rootNodeId: string;
+  nodeContent: string;
+  setRenaming: (v: boolean) => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState(nodeContent);
+
+  useEffect(() => {
+    const input = ref.current;
+    if (!input) return;
+    input.focus();
+    // place cursor at the beginning
+    input.setSelectionRange(0, 0);
+  }, []);
 
   return (
     <input
+      className="w-full min-w-0 max-w-full border-none outline-none
+                 rounded focus:ring-2 focus:ring-gray-400"
+      ref={ref}
       type="text"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
       onBlur={(e) => {
         const value = e.target.value;
         if (value !== nodeContent) {
           TreeRoAPI.updateNode(rootNodeId, { content: value });
         }
+        setRenaming(false);
       }}
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
     />
@@ -185,7 +243,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
-  const [isEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useStore((state) => {
     return state.dndToRerender[documentId];
@@ -248,16 +306,15 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
       <div className="DocumentItem-inner">
         {over?.id === documentId && placement === "before" && <DropIndicatorComponent />}
         <div
-          className="DocumentItem-self py-1 md:py-0
-        hover:bg-gray-100
-        flex items-start gap-1 "
+          className={`DocumentItem-self py-1 md:py-0
+                     ${currentDocumentId === documentId ? "hover:bg-gray-200" : "hover:bg-gray-100"}
+                     flex items-start gap-1`}
           ref={refNodeSelf}
           data-id={documentId}
         >
           <button
-            className="GroupItem-bullet flex-none size-6 md:size-5
-            cursor-pointer
-            flex items-center justify-center"
+            className="GroupItem-bullet flex-none size-6 md:size-5 cursor-pointer
+                       flex items-center justify-center"
             type="button"
             {...listeners}
             {...attributes}
@@ -266,10 +323,12 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
           </button>
 
           <div
-            className="DocumentItem-title flex-1 min-w-0 cursor-pointer flex items-start"
+            className="DocumentItem-title flex-1 min-w-0 cursor-pointer select-none
+                       flex items-start"
             onPointerUpCapture={() => {
+              console.debug("onPointerUpCapture");
+              if (isEditing) return;
               TreeRoAPI.setCurrentDocumentId(documentId);
-              console.log("onPointerUpCapture");
             }}
           >
             {!isEditing ? (
@@ -277,10 +336,10 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
                 <PlainMarkdownComponent>{rootNode.content}</PlainMarkdownComponent>
               </div>
             ) : (
-              <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} />
+              <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} setRenaming={setIsEditing} />
             )}
           </div>
-          <DocumentOptionsComponent />
+          <DocumentOptionsComponent setRenaming={setIsEditing} />
           {/* <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -314,31 +373,27 @@ function NavBarComponent() {
   return (
     <div
       className="ExplorerHeader fixed top-0 left-0 min-h-8 
-      bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
+               bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
       <div className="px-2 py-3 md:py-1 flex items-center">
         {/* Left icons */}
         <div className="flex items-center gap-2">
-          <ButtonComponent
-            onClick={(_) => {
-              TreeRoAPI.useStore.setState({ explorerIsOpened: false });
-            }}
-          >
-            <PanelLeftCloseIcon className="text-gray-600" />
+          <ButtonComponent onClick={() => TreeRoAPI.useStore.setState({ explorerIsOpened: false })}>
+            <PanelLeftCloseIcon />
           </ButtonComponent>
         </div>
 
         {/* Right icons */}
         <div className="flex ml-auto items-center gap-2">
-          <ButtonComponent onClick={(_) => {}}>
-            <FilePlusIcon className="text-gray-600" />
+          <ButtonComponent className="text-red-200" onClick={() => {}}>
+            <FilePlusIcon />
           </ButtonComponent>
-          <ButtonComponent onClick={(_) => {}}>
-            <FolderPlusIcon className="text-gray-600" />
+          <ButtonComponent className="text-red-200" onClick={() => {}}>
+            <FolderPlusIcon />
           </ButtonComponent>
-          <ButtonComponent onClick={(_) => {}}>
-            <SearchIcon className="text-gray-600" />
+          <ButtonComponent className="text-red-200" onClick={() => {}}>
+            <SearchIcon />
           </ButtonComponent>
           <div></div>
         </div>

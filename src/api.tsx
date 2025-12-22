@@ -49,22 +49,24 @@ export const TreeRoAPI: TreeRoAPIType = {
 
       Yjs.undoManager.stopCapturing();
 
-      const wsProvider = new WebsocketProvider(Conf.WSS_SERVER, roomToken, Yjs.ydoc);
-      TreeRoAPI.Yjs.wsProvider = wsProvider;
-      wsProvider.on("status", (e) => {
-        console.log("WebsocketProvider status", e.status);
-        if (e.status === "connecting") {
-          useStore.setState({ wsStatus: "connecting" });
-        } else if (e.status === "connected") {
-          useStore.setState({ wsStatus: "connected" });
-        } else if (e.status === "disconnected") {
-          useStore.setState({ wsStatus: "disconnected" });
-        }
-      });
+      if (Conf.WS_IS_ON) {
+        const wsProvider = new WebsocketProvider(Conf.WS_SERVER, roomToken, Yjs.ydoc);
+        TreeRoAPI.Yjs.wsProvider = wsProvider;
+        wsProvider.on("status", (e) => {
+          console.log("WebsocketProvider status", e.status);
+          if (e.status === "connecting") {
+            useStore.setState({ wsStatus: "connecting" });
+          } else if (e.status === "connected") {
+            useStore.setState({ wsStatus: "connected" });
+          } else if (e.status === "disconnected") {
+            useStore.setState({ wsStatus: "disconnected" });
+          }
+        });
+      }
 
-      Yjs.ydoc.on("update", (arg0, arg1, arg2, arg3) => {
-        console.log(`Yjs.ydoc.on("update")`, arg0, arg1, arg2, arg3);
-      });
+      // Yjs.ydoc.on("update", (arg0, arg1, arg2, arg3) => {
+      //   console.log(`Yjs.ydoc.on("update")`, arg0, arg1, arg2, arg3);
+      // });
 
       // const allRootTypes = Object.values(Yjs.ydoc.share);
       // Yjs.undoManager.addToScope(allRootTypes);

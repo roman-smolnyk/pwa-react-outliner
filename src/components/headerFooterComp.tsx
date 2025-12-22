@@ -4,7 +4,7 @@ import {
   ArrowRightToLineIcon,
   ArrowUpIcon,
   CalendarDays,
-  RefreshCwIcon,
+  CloudAlertIcon,
   CloudCheckIcon,
   ListChecksIcon,
   MoveIcon,
@@ -13,24 +13,31 @@ import {
   PencilIcon,
   PencilOffIcon,
   RedoIcon,
+  RefreshCwIcon,
   RotateCwIcon,
   SearchIcon,
-  CloudAlertIcon,
   SquarePlusIcon,
   // ZoomInIcon,
   Trash2Icon,
   UndoIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";
+import { useKeyboardOffset } from "../etc/utils";
 import { useStore } from "../stateStore";
 import MainMenuComponent from "./menusComp";
-import { toast } from "react-toastify";
 
-function ButtonComponent({ children, onClick }: { children: React.ReactNode; onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+function ButtonComponent({
+  children,
+  className,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <button className="cursor-pointer active:scale-90 transition" type="button" onClick={onClick}>
+    <button type="button" className={`cursor-pointer active:scale-90 transition text-gray-600 ${className ?? ""}`} {...props}>
       {children}
     </button>
   );
@@ -53,27 +60,27 @@ export function HeaderComponent() {
         <div className="flex items-center gap-2">
           {!explorerIsOpened && (
             <ButtonComponent
-              onClick={(_) => {
+              onClick={() => {
                 TreeRoAPI.useStore.setState({ explorerIsOpened: true });
               }}
             >
-              <PanelLeftIcon className="text-gray-600" />
+              <PanelLeftIcon />
             </ButtonComponent>
           )}
           <div></div>
           <ButtonComponent
-            onClick={(_) => {
+            onClick={() => {
               TreeRoAPI.Yjs.undoManager.undo();
             }}
           >
-            <UndoIcon className="text-gray-600" />
+            <UndoIcon />
           </ButtonComponent>
           <ButtonComponent
-            onClick={(_) => {
+            onClick={() => {
               TreeRoAPI.Yjs.undoManager.redo();
             }}
           >
-            <RedoIcon className="text-gray-600" />
+            <RedoIcon />
           </ButtonComponent>
           <div></div>
           <ButtonComponent
@@ -82,7 +89,7 @@ export function HeaderComponent() {
               window.location.replace(window.location.href);
             }}
           >
-            <RotateCwIcon className="text-gray-600" />
+            <RotateCwIcon />
           </ButtonComponent>
         </div>
 
@@ -92,71 +99,42 @@ export function HeaderComponent() {
         {/* Right icons */}
         <div className="flex ml-auto items-center gap-2">
           <ButtonComponent
-            onClick={(_) => {
+            onClick={() => {
               toast(`WS Server status: ${wsStatus}`, {
                 containerId: "main",
                 className: "min-h-0! h-10! w-60! rounded-xl! top-5! md:top-0! right-5! md:right-0!",
               });
             }}
           >
-            {wsStatus === "connecting" && <CloudAlertIcon className="text-gray-600" />}
-            {wsStatus === "connected" && <CloudCheckIcon className="text-gray-600" />}
-            {wsStatus === "disconnected" && <RefreshCwIcon className="text-gray-600 animate-spin" />}
+            {wsStatus === "connecting" && <CloudAlertIcon />}
+            {wsStatus === "connected" && <CloudCheckIcon />}
+            {wsStatus === "disconnected" && <RefreshCwIcon className="animate-spin" />}
           </ButtonComponent>
 
-          <ListChecksIcon className="text-gray-600" />
+          <ButtonComponent className="text-red-200">
+            <ListChecksIcon />
+          </ButtonComponent>
+
           {readOnly ? (
-            <ButtonComponent
-              onClick={(_) => {
-                setReadOnly(false);
-              }}
-            >
-              <PencilOffIcon className="text-gray-600" />
+            <ButtonComponent onClick={() => setReadOnly(false)}>
+              <PencilOffIcon />
             </ButtonComponent>
           ) : (
-            <ButtonComponent
-              onClick={(_) => {
-                setReadOnly(true);
-              }}
-            >
-              <PencilIcon className="text-gray-600" />{" "}
+            <ButtonComponent onClick={() => setReadOnly(true)}>
+              <PencilIcon />{" "}
             </ButtonComponent>
           )}
 
-          <SearchIcon className="text-gray-600" />
-          {/* <EllipsisVerticalIcon className="text-gray-600" /> */}
+          <ButtonComponent className="text-red-200">
+            <SearchIcon />
+          </ButtonComponent>
+
+          {/* <EllipsisVerticalIcon /> */}
           <MainMenuComponent />
         </div>
       </div>
     </div>
   );
-}
-
-export function useKeyboardOffset() {
-  const [offset, setOffset] = useState(0);
-
-  useEffect(() => {
-    if (!window.visualViewport) return;
-
-    const vv = window.visualViewport;
-
-    const update = () => {
-      const overlap = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
-
-      setOffset(overlap);
-    };
-
-    update();
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
-
-    return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
-    };
-  }, []);
-
-  return offset;
 }
 
 export function FooterComponent() {
@@ -178,19 +156,37 @@ export function FooterComponent() {
     >
       <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center gap-2">
         <div className="flex gap-2 flex-nowrap min-w-max">
-          <div onPointerDown={(e) => e.preventDefault()}>
-            <ButtonComponent>
-              <ArrowLeftToLineIcon className="text-gray-600" />
-            </ButtonComponent>
-          </div>
+          <ButtonComponent className="text-red-200">
+            <ArrowLeftToLineIcon />
+          </ButtonComponent>
 
-          <ArrowRightToLineIcon className="text-gray-600" />
-          <ArrowUpIcon className="text-gray-600" />
-          <ArrowDownIcon className="text-gray-600" />
-          <SquarePlusIcon className="text-gray-600" />
-          <MoveIcon className="text-gray-600" />
-          <CalendarDays className="text-gray-600" />
-          <Trash2Icon className="text-gray-600" />
+          <ButtonComponent className="text-red-200">
+            <ArrowRightToLineIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <ArrowUpIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <ArrowDownIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <SquarePlusIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <MoveIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <CalendarDays />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-red-200">
+            <Trash2Icon />
+          </ButtonComponent>
         </div>
       </div>
     </div>

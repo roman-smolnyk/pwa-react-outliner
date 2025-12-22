@@ -209,7 +209,7 @@ export function NodeOptionsComponent() {
   );
 }
 
-export function GroupOptionsComponent() {
+export function GroupOptionsComponent({ setRenaming }: { setRenaming: (v: boolean) => void }) {
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -248,6 +248,7 @@ export function GroupOptionsComponent() {
               label="Rename"
               onClick={() => {
                 setOpen(false);
+                setRenaming(true);
               }}
             />
             <MenuItem
@@ -278,7 +279,7 @@ export function GroupOptionsComponent() {
   );
 }
 
-export function DocumentOptionsComponent() {
+export function DocumentOptionsComponent({ setRenaming }: { setRenaming: (v: boolean) => void }) {
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -317,6 +318,7 @@ export function DocumentOptionsComponent() {
               label="Rename"
               onClick={() => {
                 setOpen(false);
+                setRenaming(true);
               }}
             />
             <MenuItem
