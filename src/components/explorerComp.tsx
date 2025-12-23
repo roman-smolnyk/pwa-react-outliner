@@ -143,7 +143,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             {...attributes}
             // data-node-id={node.id}
             onPointerUpCapture={() => {
-              console.debug("onPointerUpCapture");
+              // console.debug("onPointerUpCapture");
               TreeRoAPI.toggleGroupCollapse(groupId);
             }}
           >
@@ -162,7 +162,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             className="GroupItem-title flex-1 min-w-0 cursor-pointer select-none
                        flex items-start"
             onPointerUpCapture={() => {
-              console.debug("onPointerUpCapture");
+              // console.debug("onPointerUpCapture");
               if (isEditing) return;
               TreeRoAPI.toggleGroupCollapse(groupId);
             }}
@@ -286,7 +286,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
     TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
     if (active?.id && over?.id && active.id !== over.id) {
       if (!useStore.getState().dndDescendantsIds.includes(documentId)) {
-        console.debug(documentId, useStore.getState().dndDescendantsIds);
+        // console.debug(documentId, useStore.getState().dndDescendantsIds);
         placement = TreeRoAPI.useStore.getState().dndPlacement;
       }
     }
@@ -321,7 +321,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             className="DocumentItem-title flex-1 min-w-0 cursor-pointer select-none
                        flex items-start"
             onPointerUpCapture={() => {
-              console.debug("onPointerUpCapture");
+              // console.debug("onPointerUpCapture");
               if (isEditing) return;
               TreeRoAPI.setCurrentDocumentId(documentId);
             }}
@@ -428,7 +428,7 @@ export default function ExplorerComponent() {
 
   if (!rootGroup) return null;
 
-  console.debug("rootGroup", rootGroup);
+  // console.debug("rootGroup", rootGroup);
 
   return (
     <aside
@@ -443,7 +443,7 @@ export default function ExplorerComponent() {
         <div>
           <DnDWrapperComponent
             onDragStart={(event) => {
-              console.log("onDragStart", event);
+              // console.debug("onDragStart", event);
               setActiveId(event.active.id as string);
             }}
             onDragMoveCallback={(event, dndCoordinates) => {
@@ -462,7 +462,7 @@ export default function ExplorerComponent() {
               }
             }}
             onDragEnd={(event) => {
-              console.log("onDragEnd", event);
+              // console.debug("onDragEnd", event);
               if (!event.over) return;
               const activeId = String(event.active.id);
               const overId = String(event.over.id);
@@ -478,58 +478,58 @@ export default function ExplorerComponent() {
               const overParent = TreeRoAPI.getParentGroup(overId);
               if (!activeParent || !overParent) return;
 
-              console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
+              // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
               if (activeDocument && overDocument) {
                 if (placement === "after") {
-                  console.debug("moveDocumentAfter", placement);
+                  // console.debug("moveDocumentAfter", placement);
                   TreeRoAPI.moveDocumentAfter(activeId, overId);
                 } else if (placement === "before") {
-                  console.debug("moveDocumentBefore", placement);
+                  // console.debug("moveDocumentBefore", placement);
                   TreeRoAPI.moveDocumentBefore(activeId, overId);
                 } else if (placement === "inside") {
-                  console.debug("moveDocumentAfter", placement);
+                  // console.debug("moveDocumentAfter", placement);
                   TreeRoAPI.moveDocumentAfter(activeId, overId);
                 }
               } else if (activeDocument && overGroup) {
                 if (placement === "after") {
-                  console.debug("moveDocumentAfter", placement);
+                  // console.debug("moveDocumentAfter", placement);
                   TreeRoAPI.moveDocumentAfter(activeId, overId);
                 } else if (placement === "before") {
-                  console.debug("moveDocumentBefore", placement);
+                  // console.debug("moveDocumentBefore", placement);
                   TreeRoAPI.moveDocumentBefore(activeId, overId);
                 } else if (placement === "inside") {
                   if (overGroup.collapsed === false && overGroup.children.length !== 0) {
-                    console.debug("moveDocument", placement, 0);
+                    // console.debug("moveDocument", placement, 0);
                     TreeRoAPI.moveDocument(activeId, overId, 0);
                   } else {
-                    console.debug("moveDocument", placement, -1);
+                    // console.debug("moveDocument", placement, -1);
                     TreeRoAPI.moveDocument(activeId, overId, -1);
                   }
                 }
               } else if (activeGroup && overDocument) {
                 if (placement === "after") {
-                  console.debug("moveGroupAfter", placement);
+                  // console.debug("moveGroupAfter", placement);
                   TreeRoAPI.moveGroupAfter(activeId, overId);
                 } else if (placement === "before") {
-                  console.debug("moveGroupBefore", placement);
+                  // console.debug("moveGroupBefore", placement);
                   TreeRoAPI.moveGroupBefore(activeId, overId);
                 } else if (placement === "inside") {
-                  console.debug("moveGroupAfter", placement);
+                  // console.debug("moveGroupAfter", placement);
                   TreeRoAPI.moveGroupAfter(activeId, overId);
                 }
               } else if (activeGroup && overGroup) {
                 if (placement === "after") {
-                  console.debug("moveGroupAfter", placement);
+                  // console.debug("moveGroupAfter", placement);
                   TreeRoAPI.moveGroupAfter(activeId, overId);
                 } else if (placement === "before") {
-                  console.debug("moveGroupBefore", placement);
+                  // console.debug("moveGroupBefore", placement);
                   TreeRoAPI.moveGroupBefore(activeId, overId);
                 } else if (placement === "inside") {
                   if (overGroup.collapsed === false && overGroup.children.length !== 0) {
-                    console.debug("moveGroup", placement, 0);
+                    // console.debug("moveGroup", placement, 0);
                     TreeRoAPI.moveGroup(activeId, overId, 0);
                   } else {
-                    console.debug("moveGroup", placement, -1);
+                    // console.debug("moveGroup", placement, -1);
                     TreeRoAPI.moveGroup(activeId, overId, -1);
                   }
                 }

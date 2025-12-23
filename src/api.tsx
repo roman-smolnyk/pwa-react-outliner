@@ -29,7 +29,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   // Async method to load initial data
   async initialize(callback) {
     Yjs.idbPersistence.whenSynced.then(() => {
-      console.log("persistence.whenSynced.then");
+      // console.debug("persistence.whenSynced.then");
 
       // Yjs.idbPersistence.clearData();
 
@@ -37,10 +37,10 @@ export const TreeRoAPI: TreeRoAPIType = {
 
       Yjs.undoManager.stopCapturing();
 
-      // console.log("ymeta", ymeta.toJSON());
+      // console.debug("ymeta", ymeta.toJSON());
       // if (!Yjs.ymeta.get("root_group_id")) {
       if (!roomToken) {
-        console.log("TreeRoApi.initialize -> New Data");
+        // console.debug("TreeRoApi.initialize -> New Data");
         this.initRootData();
         fillInMockupData();
         roomToken = this.generateRoomToken();
@@ -53,7 +53,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         const wsProvider = new WebsocketProvider(Conf.WS_SERVER, roomToken, Yjs.ydoc);
         TreeRoAPI.Yjs.wsProvider = wsProvider;
         wsProvider.on("status", (e) => {
-          console.log("WebsocketProvider status", e.status);
+          // console.debug("WebsocketProvider status", e.status);
           if (e.status === "connecting") {
             useStore.setState({ wsStatus: "connecting" });
           } else if (e.status === "connected") {
@@ -100,16 +100,16 @@ export const TreeRoAPI: TreeRoAPIType = {
     // ########################### Nodes ##################################
     Yjs.ynodes.observeDeep((events) => {
       // when nested Y.Array or, Y.Text changes, two events are fired, for themself and for parent Y.Map
-      console.log("ynodes.observeDeep", events);
+      // console.debug("ynodes.observeDeep", events);
       for (const event of events) {
-        console.debug("event.changes.added", event.changes.added);
-        console.debug("event.changes.deleted", event.changes.deleted);
-        console.debug("event.changes.delta", event.changes.delta);
-        console.debug("event.changes.keys", event.changes.keys);
+        // console.debug("event.changes.added", event.changes.added);
+        // console.debug("event.changes.deleted", event.changes.deleted);
+        // console.debug("event.changes.delta", event.changes.delta);
+        // console.debug("event.changes.keys", event.changes.keys);
         for (const [key, change] of event.changes.keys) {
           if (change.action === "add") {
             const ynode = TreeRoAPI.Yjs.YNodeWrap.get(key);
-            console.debug("add", key, ynode?.ynode.toJSON(), change.oldValue);
+            // console.debug("add", key, ynode?.ynode.toJSON(), change.oldValue);
             if (ynode) {
               useStore.setState((state) => {
                 const uNodes = new Map(state.nodes);
@@ -118,30 +118,30 @@ export const TreeRoAPI: TreeRoAPIType = {
               });
             }
           } else if (change.action === "delete") {
-            console.debug("delete", key, change.oldValue);
+            // console.debug("delete", key, change.oldValue);
             useStore.setState((state) => {
               const uNodes = new Map(state.nodes);
               uNodes.delete(key);
               return { nodes: uNodes };
             });
           } else if (change.action === "update") {
-            console.debug("update", key, change.oldValue);
+            // console.debug("update", key, change.oldValue);
           }
         }
         if (event.target instanceof Y.Text) {
           // node text changed
           const ynode = event.target.parent as YNodeDataType;
-          console.debug("Y.Text", event.target.toJSON(), ynode.toJSON());
+          // console.debug("Y.Text", event.target.toJSON(), ynode.toJSON());
           useStore.setState((state) => {
             const uNodes = new Map(state.nodes);
             uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
-            console.debug("Update", ynode.get("node_id"));
+            // console.debug("Update", ynode.get("node_id"));
             return { nodes: uNodes };
           });
         } else if (event.target instanceof Y.Array) {
           // node array changed
           const ynode = event.target.parent as YNodeDataType;
-          console.debug("Y.Array", event.target.toJSON(), ynode.toJSON());
+          // console.debug("Y.Array", event.target.toJSON(), ynode.toJSON());
           useStore.setState((state) => {
             const uNodes = new Map(state.nodes);
             uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
@@ -159,9 +159,9 @@ export const TreeRoAPI: TreeRoAPIType = {
             return { nodes: uNodes };
           });
 
-          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ynode?.toJSON());
+          // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ynode?.toJSON());
         } else {
-          console.debug("ELSE", event.target.toJSON());
+          // console.debug("ELSE", event.target.toJSON());
         }
       }
     });
@@ -169,16 +169,16 @@ export const TreeRoAPI: TreeRoAPIType = {
     // ########################### Groups ##################################
 
     Yjs.ygroups.observeDeep((events) => {
-      console.log("ygroups.observeDeep", events);
+      // console.debug("ygroups.observeDeep", events);
       for (const event of events) {
-        console.debug("event.changes.added", event.changes.added);
-        console.debug("event.changes.deleted", event.changes.deleted);
-        console.debug("event.changes.delta", event.changes.delta);
-        console.debug("event.changes.keys", event.changes.keys);
+        // console.debug("event.changes.added", event.changes.added);
+        // console.debug("event.changes.deleted", event.changes.deleted);
+        // console.debug("event.changes.delta", event.changes.delta);
+        // console.debug("event.changes.keys", event.changes.keys);
         for (const [key, change] of event.changes.keys) {
           if (change.action === "add") {
             const ygroup = TreeRoAPI.Yjs.YGroupWrap.get(key);
-            console.debug("add", key, ygroup?.ygroup.toJSON(), change.oldValue);
+            // console.debug("add", key, ygroup?.ygroup.toJSON(), change.oldValue);
             if (ygroup) {
               useStore.setState((state) => {
                 const uGroups = new Map(state.groups);
@@ -187,20 +187,20 @@ export const TreeRoAPI: TreeRoAPIType = {
               });
             }
           } else if (change.action === "delete") {
-            console.debug("delete", key, change.oldValue);
+            // console.debug("delete", key, change.oldValue);
             useStore.setState((state) => {
               const uGroups = new Map(state.groups);
               uGroups.delete(key);
               return { groups: uGroups };
             });
           } else if (change.action === "update") {
-            console.debug("update", key, change.oldValue);
+            // console.debug("update", key, change.oldValue);
           }
         }
         if (event.target instanceof Y.Array) {
           // node array changed
           const ygroup = event.target.parent as YGroupDataType;
-          console.debug("Y.Array", event.target.toJSON(), ygroup.toJSON());
+          // console.debug("Y.Array", event.target.toJSON(), ygroup.toJSON());
           useStore.setState((state) => {
             const uGroups = new Map(state.groups);
             uGroups.set(ygroup.get("group_id"), ygroup.toJSON() as GroupDataType);
@@ -218,9 +218,9 @@ export const TreeRoAPI: TreeRoAPIType = {
             return { groups: uGroups };
           });
 
-          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ygroup?.toJSON());
+          // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ygroup?.toJSON());
         } else {
-          console.debug("ELSE", event.target.toJSON());
+          // console.debug("ELSE", event.target.toJSON());
         }
       }
     });
@@ -228,16 +228,16 @@ export const TreeRoAPI: TreeRoAPIType = {
     // ########################### Documents ##################################
 
     Yjs.ydocuments.observeDeep((events) => {
-      console.log("ydocuments.observeDeep", events);
+      // console.debug("ydocuments.observeDeep", events);
       for (const event of events) {
-        console.debug("event.changes.added", event.changes.added);
-        console.debug("event.changes.deleted", event.changes.deleted);
-        console.debug("event.changes.delta", event.changes.delta);
-        console.debug("event.changes.keys", event.changes.keys);
+        // console.debug("event.changes.added", event.changes.added);
+        // console.debug("event.changes.deleted", event.changes.deleted);
+        // console.debug("event.changes.delta", event.changes.delta);
+        // console.debug("event.changes.keys", event.changes.keys);
         for (const [key, change] of event.changes.keys) {
           if (change.action === "add") {
             const ydocument = TreeRoAPI.Yjs.YDocumentWrap.get(key);
-            console.debug("add", key, ydocument?.ydocument.toJSON(), change.oldValue);
+            // console.debug("add", key, ydocument?.ydocument.toJSON(), change.oldValue);
             if (ydocument) {
               useStore.setState((state) => {
                 const uDocuments = new Map(state.documents);
@@ -246,14 +246,14 @@ export const TreeRoAPI: TreeRoAPIType = {
               });
             }
           } else if (change.action === "delete") {
-            console.debug("delete", key, change.oldValue);
+            // console.debug("delete", key, change.oldValue);
             useStore.setState((state) => {
               const uDocuments = new Map(state.documents);
               uDocuments.delete(key);
               return { documents: uDocuments };
             });
           } else if (change.action === "update") {
-            console.debug("update", key, change.oldValue);
+            // console.debug("update", key, change.oldValue);
           }
         }
         if (event.target instanceof Y.Map) {
@@ -268,9 +268,9 @@ export const TreeRoAPI: TreeRoAPIType = {
             return { documents: uDocuments };
           });
 
-          console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ydocument?.toJSON());
+          // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ydocument?.toJSON());
         } else {
-          console.debug("ELSE", event.target.toJSON());
+          // console.debug("ELSE", event.target.toJSON());
         }
       }
     });
@@ -307,7 +307,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   setIsAuthorized(isAuthorized) {
-    console.log("setIsAuthorized", isAuthorized);
+    // console.debug("setIsAuthorized", isAuthorized);
     localStorage.setItem("isAuthorized", isAuthorized ? "true" : "false");
     useStore.setState((state) => {
       const uLocalConfig = { ...state.localConfig };
@@ -325,7 +325,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   setRoomToken(roomToken) {
-    console.log("setRoomToken", roomToken);
+    // console.debug("setRoomToken", roomToken);
     localStorage.setItem("roomToken", roomToken);
     useStore.setState((state) => {
       const uLocalConfig = { ...state.localConfig };
@@ -339,7 +339,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   setCurrentDocumentId(documentId) {
-    console.log("setCurrentDocumentId", documentId);
+    // console.debug("setCurrentDocumentId", documentId);
     localStorage.setItem("currentDocumentId", documentId);
     useStore.setState((state) => {
       const uLocalConfig = { ...state.localConfig };
@@ -611,7 +611,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   toggleGroupCollapse(groupId) {
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup || ygroup.children.length === 0) return;
-    console.debug(ygroup.collapsed, ">", !ygroup.collapsed);
+    // console.debug(ygroup.collapsed, ">", !ygroup.collapsed);
     this.updateGroup(groupId, { collapsed: !ygroup.collapsed });
   },
 

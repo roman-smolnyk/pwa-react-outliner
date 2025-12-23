@@ -40,7 +40,7 @@ export function DnDWrapperComponent({
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragMove={(event) => {
-        console.debug("onDragMove", event);
+        // console.debug("onDragMove", event);
 
         if (!event.over) return;
 
@@ -87,7 +87,7 @@ export function DnDWrapperComponent({
           scrollY: scrollY,
         };
 
-        console.debug(dndCoordinates);
+        // console.debug(dndCoordinates);
 
         if (onDragMoveCallback) onDragMoveCallback(event, dndCoordinates);
       }}

@@ -47,7 +47,7 @@ export default function DocumentComponent() {
             <div className="RootNodeChildren flex flex-col gap-1">
               <DnDWrapperComponent
                 onDragStart={(event) => {
-                  console.log("onDragStart", event);
+                  // console.debug("onDragStart", event);
                   setActiveId(event.active.id as string);
                 }}
                 onDragMoveCallback={(event, dndCoordinates) => {
@@ -66,7 +66,7 @@ export default function DocumentComponent() {
                   }
                 }}
                 onDragEnd={(event) => {
-                  console.log("onDragEnd", event);
+                  // console.debug("onDragEnd", event);
                   if (!event.over) return;
                   const activeId = String(event.active.id);
                   const overId = String(event.over.id);
@@ -81,24 +81,24 @@ export default function DocumentComponent() {
                   if (!activeParent || !overParent || !activeNode || !overNode) return;
                   if (TreeRoAPI.useStore.getState().dndDescendantsIds.includes(activeId)) return;
 
-                  console.log(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
+                  // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
                   if (placement === "after") {
                     if (overNode.collapsed === false && overNode.children.length !== 0) {
-                      console.debug("placement after moveNode");
+                      // console.debug("placement after moveNode");
                       TreeRoAPI.moveNode(activeId, overId, 0);
                     } else {
-                      console.debug("placement after moveNodeAfter");
+                      // console.debug("placement after moveNodeAfter");
                       TreeRoAPI.moveNodeAfter(activeId, overId);
                     }
                   } else if (placement === "before") {
-                    console.debug("placement before moveNodeBefore");
+                    // console.debug("placement before moveNodeBefore");
                     TreeRoAPI.moveNodeBefore(activeId, overId);
                   } else if (placement === "inside") {
                     if (overNode.collapsed === false && overNode.children.length !== 0) {
-                      console.debug("placement inside moveNode 0");
+                      // console.debug("placement inside moveNode 0");
                       TreeRoAPI.moveNode(activeId, overId, 0);
                     } else {
-                      console.debug("placement inside moveNode -1");
+                      // console.debug("placement inside moveNode -1");
                       TreeRoAPI.moveNode(activeId, overId, -1);
                     }
                   }

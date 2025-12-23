@@ -24,7 +24,7 @@ import {
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";
-import { useKeyboardOffset } from "../etc/utils";
+// import { useKeyboardOffset } from "../etc/utils";
 import { useStore } from "../stateStore";
 import MainMenuComponent from "./menusComp";
 
@@ -138,7 +138,7 @@ export function HeaderComponent() {
 }
 
 export function FooterComponent() {
-  const keyboardOffset = useKeyboardOffset();
+  // const keyboardOffset = useKeyboardOffset();
 
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
@@ -149,7 +149,7 @@ export function FooterComponent() {
                  bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex items-center"
       style={{
-        transform: `translateY(-${keyboardOffset}px)`,
+        // transform: `translateY(-${keyboardOffset}px)`,
         paddingBottom: "env(safe-area-inset-bottom)",
         left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
       }}

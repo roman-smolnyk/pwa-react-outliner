@@ -22,7 +22,7 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
         e.stopPropagation();
       }}
       onPointerUp={async (e) => {
-        console.debug("onPointerUp -> Copy");
+        // console.debug("onPointerUp -> Copy");
         e.preventDefault();
         e.stopPropagation();
         // toast.dismiss();
@@ -45,13 +45,13 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
 
 // biome-ignore lint/suspicious/noExplicitAny: explanation
 function SyntaxHighlighterPreTagComponent(props: any) {
-  console.debug("SyntaxHighlighterPreTagComponent");
+  // console.debug("SyntaxHighlighterPreTagComponent");
   return (
     <div
       className="p-2! rounded-lg text-base! md:text-[0.95rem]! bg-gray-100!"
       {...props}
       onPointerDownCapture={(event) => {
-        console.debug("onPointerDown DIV");
+        // console.debug("onPointerDown DIV");
         const el = event.currentTarget;
         const rect = el.getBoundingClientRect();
 
@@ -69,7 +69,7 @@ function SyntaxHighlighterPreTagComponent(props: any) {
         const canScrollX = hasHorizontalScroll && (overflowX === "auto" || overflowX === "scroll");
 
         if ((canScrollX || canScrollY) && (scrollbarX || scrollbarY)) {
-          console.debug("stopPropagation");
+          // console.debug("stopPropagation");
           // User is interacting with the scrollbar → don't toggle edit mode
           event.stopPropagation();
         }
@@ -125,7 +125,7 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
 
           // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;
 
-          console.debug("MarkdownComponent.code", isInline, match, codeString);
+          // console.debug("MarkdownComponent.code", isInline, match, codeString);
 
           return !isInline ? (
             <div className="relative">

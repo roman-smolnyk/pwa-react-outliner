@@ -122,7 +122,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
               TreeRoAPI.deleteNode(nodeId);
               if (siblingNode) {
-                console.debug("siblingNode", siblingNode);
+                // console.debug("siblingNode", siblingNode);
                 TreeRoAPI.useStore.getState().activateNode(siblingNode.node_id, -1);
                 // useUIStore.setState({ activeEditNodeId: siblingNode.node_id });
                 // setTimeout(() => {
@@ -138,7 +138,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             e.preventDefault(); // block default focus change
             const nodeParent = TreeRoAPI.getNodeParent(nodeId);
             if (!nodeParent) return;
-            console.debug(`onKeyDown [Tab + shiftKey]`, nodeParent.ynode.toJSON());
+            // console.debug(`onKeyDown [Tab + shiftKey]`, nodeParent.ynode.toJSON());
             e.currentTarget.blur();
             TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
             const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
@@ -172,7 +172,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         }}
         // On lost focus update
         onBlur={(e) => {
-          console.debug(`onBlur`);
+          // console.debug(`onBlur`);
           // const newContent = getPlainTextWithNewlines(e.currentTarget);
           const newContent = e.currentTarget.textContent || "";
           if (newContent !== nodeContent) {
@@ -291,7 +291,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             {...attributes}
             // data-node-id={node.id}
             onPointerUpCapture={() => {
-              console.debug("Node-bullet onPointerUpCapture");
+              // console.debug("Node-bullet onPointerUpCapture");
               TreeRoAPI.toggleNodeCollapse(node.node_id);
             }}
           >

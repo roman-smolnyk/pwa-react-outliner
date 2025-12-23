@@ -57,7 +57,7 @@ class YNodeWrap {
     const diff = diffChars(oldText, v);
 
     let index = 0;
-    console.debug(`YNode.content -> diff`, diff);
+    // console.debug(`YNode.content -> diff`, diff);
     Yjs.ydoc.transact(() => {
       for (const part of diff) {
         if (part.removed) {

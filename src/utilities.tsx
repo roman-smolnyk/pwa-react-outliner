@@ -30,20 +30,20 @@ export function arrayRelativeMove<T>(array: T[], item: T, relativeTo: T, offset:
   targetIndex = Math.max(0, Math.min(targetIndex, newArray.length));
 
   newArray.splice(targetIndex, 0, removed);
-  console.debug(
-    "arrayRelativeMove",
-    {
-      array: array,
-      item: item,
-      relativeTo: relativeTo,
-      offset: offset,
-      itemIndex: itemIndex,
-      refIndex: refIndex,
-      currentRefIndex: currentRefIndex,
-      targetIndex: targetIndex,
-    },
-    newArray,
-  );
+  // console.debug(
+  //   "arrayRelativeMove",
+  //   {
+  //     array: array,
+  //     item: item,
+  //     relativeTo: relativeTo,
+  //     offset: offset,
+  //     itemIndex: itemIndex,
+  //     refIndex: refIndex,
+  //     currentRefIndex: currentRefIndex,
+  //     targetIndex: targetIndex,
+  //   },
+  //   newArray,
+  // );
 
   return newArray;
 }
@@ -132,15 +132,14 @@ export function getProjection(items: FlattenedNodeType[], activeId: string, over
 }
 
 export function printDOM(element: HTMLElement, level = 0) {
-  const logPrefix = `printDOM(${level})`;
   element.childNodes.forEach((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      console.log(`${logPrefix} -> Node.TEXT_NODE`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
+      // console.debug(`${logPrefix} -> Node.TEXT_NODE`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-      console.log(`${logPrefix} -> Node.ELEMENT_NODE`, node.nodeName);
+      // console.debug(`${logPrefix} -> Node.ELEMENT_NODE`, node.nodeName);
       printDOM(node as HTMLElement, level + 1);
     } else {
-      console.log(`${logPrefix} -> ELSE`, node.nodeName);
+      // console.debug(`${logPrefix} -> ELSE`, node.nodeName);
     }
   });
 }
@@ -151,7 +150,7 @@ export function getPlainTextWithNewlines(element: HTMLElement): string {
   let currentLine = "";
 
   element.childNodes.forEach((node) => {
-    console.debug(`getPlainTextWithNewlines ->`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
+    // console.debug(`getPlainTextWithNewlines ->`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
     if (node.nodeType === Node.TEXT_NODE) {
       currentLine += node.textContent ?? "";
     } else if (node.nodeType === Node.ELEMENT_NODE) {

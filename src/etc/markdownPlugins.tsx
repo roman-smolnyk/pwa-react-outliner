@@ -76,10 +76,10 @@ export function remarkHighlight() {
 
 export function remarkPreserveNewlines() {
   return (tree: Root) => {
-    visit(tree, "paragraph", (node, index, parent) => {
+    visit(tree, "paragraph", (_node, index, parent) => {
       if (!parent || typeof index !== "number") return;
 
-      console.debug("remarkPreserveNewlines", node);
+      // console.debug("remarkPreserveNewlines", node);
 
       // const parts = node.value.split("\n");
       // if (parts.length > 1) {
