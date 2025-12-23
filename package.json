@@ -12,6 +12,10 @@
     "wss": "npx y-websocket"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capawesome/capacitor-android-edge-to-edge-support": "^8.0.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@floating-ui/react": "^0.27.16",
