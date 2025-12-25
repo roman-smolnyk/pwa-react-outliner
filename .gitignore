@@ -25,3 +25,5 @@ dev-dist
 *.sw?
 
 android
+icons
+public/manifest.webmanifest

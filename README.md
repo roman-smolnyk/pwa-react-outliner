@@ -71,3 +71,9 @@ export default defineConfig([
   },
 ])
 ```
+
+
+
+```
+npx capacitor-assets generate
+```
