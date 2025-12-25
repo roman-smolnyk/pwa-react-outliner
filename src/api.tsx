@@ -608,7 +608,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     });
   },
 
-  toggleGroupCollapse(groupId) {
+  uiToggleGroupCollapse(groupId) {
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup || ygroup.children.length === 0) return;
     // console.debug(ygroup.collapsed, ">", !ygroup.collapsed);
@@ -1011,16 +1011,11 @@ export const TreeRoAPI: TreeRoAPIType = {
     if (movedYnodeParent.node_id === targetYnode.node_id) {
       // same parent
       let targetIndex = index < 0 ? movedYnodeParent.children.length + index : index;
-      targetIndex = Math.max(0, Math.min(targetIndex, movedYnodeParent.children.length));
+      targetIndex = Math.max(0, Math.min(targetIndex, movedYnodeParent.children.length - 1));
       // No sense
       if (movedYnodeIndex === targetIndex) return;
-      // [A, B, C, D, E] (A, E, 4): [B, C, D, E] > [B, C, D, E, A]
-      // [A, B, C, D, E] (E, A, 0): [A, B, C, D] > [E, A, B, C, D]
-      // [A, B, C, D, E] (B, D, 3): [A, C, D, E] > [A, C, D, B, E]
-      // [A, B, C, D, E] (D, B, 1): [A, B, C, E] > [A, D, B, C, E]
-      // [A, B, C, D, E] (B, B, 0): [A, C, D, E] > [B, A, C, D, E]
-      // [A, B, C, D, E] (B, B, 2): [A, C, D, E] > [B, A, C, D, E]
       Yjs.ydoc.transact(() => {
+        // console.debug(`moveNode`, { movedNodeId, targetNodeId, index, targetIndex, movedYnodeIndex });
         movedYnodeParent.children.delete(movedYnodeIndex);
         movedYnodeParent.children.insert(targetIndex, [movedNodeId]);
       });
@@ -1029,7 +1024,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       // +1 as now array will be larger
       let targetIndex = index < 0 ? targetYnode.children.length + index + 1 : index;
       targetIndex = Math.max(0, Math.min(targetIndex, targetYnode.children.length));
-      // [A, B, C, D, E] 5 - 1
+
       Yjs.ydoc.transact(() => {
         // remove node
         movedYnodeParent.children.delete(movedYnodeIndex);
@@ -1089,6 +1084,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   deleteNode(nodeId) {
+    if (!nodeId) return;
     const ynode = Yjs.YNodeWrap.get(nodeId);
     if (!ynode) return;
     const ynodeParent = this.getNodeParent(nodeId);
@@ -1104,13 +1100,67 @@ export const TreeRoAPI: TreeRoAPIType = {
     });
   },
 
-  toggleNodeCollapse(nodeId) {
+  uiIndentNode(nodeId) {
+    if (!nodeId) return;
+    const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
+    if (!siblingNode) return;
+    TreeRoAPI.moveNode(nodeId, siblingNode.node_id, -1);
+    TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
+    const el = document.querySelector(`.NodeContent-contenteditable[data-id="${nodeId}"]`);
+    if (el) {
+      const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(el as HTMLElement);
+      TreeRoAPI.useStore.getState().activateNode(nodeId, index);
+    }
+  },
+
+  uiUnindentNode(nodeId) {
+    if (!nodeId) return;
+    const nodeParent = TreeRoAPI.getNodeParent(nodeId);
+    if (!nodeParent) return;
+    // if (!TreeRoAPI.getNodeParent(nodeParent.parent_id as string)?.parent_id) return;
+    TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
+    const el = document.querySelector(`.NodeContent-contenteditable[data-id="${nodeId}"]`);
+    if (el) {
+      const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(el as HTMLElement);
+      TreeRoAPI.useStore.getState().activateNode(nodeId, index);
+    }
+  },
+
+  uiMoveNodeUp(nodeId) {
+    if (!nodeId) return;
+    const nodeParent = TreeRoAPI.getNodeParent(nodeId);
+    if (!nodeParent) return;
+    const index = TreeRoAPI.getNodeIndex(nodeId);
+    if (index) {
+      TreeRoAPI.moveNode(nodeId, nodeParent.node_id, Math.max(0, index - 1));
+    }
+  },
+
+  uiMoveNodeDown(nodeId) {
+    if (!nodeId) return;
+    const nodeParent = TreeRoAPI.getNodeParent(nodeId);
+    if (!nodeParent) {
+      console.warn(`moveNodeDown: nodeParent for ${nodeId} is missing`);
+      return;
+    }
+    const index = TreeRoAPI.getNodeIndex(nodeId);
+    if (index === null) {
+      console.warn(`moveNodeDown: index for ${nodeId} is null`);
+      return;
+    }
+    if (index != null) {
+      // console.debug("moveNodeDown", index + 1);
+      TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index + 1);
+    }
+  },
+
+  uiToggleNodeCollapse(nodeId) {
     const ynode = Yjs.YNodeWrap.get(nodeId);
     if (!ynode || ynode.children.length === 0) return;
     this.updateNode(nodeId, { collapsed: !ynode.collapsed });
   },
 
-  toggleNodeDescendantsCollapse(nodeId) {
+  uiToggleNodeDescendantsCollapse(nodeId) {
     const ynode = Yjs.YNodeWrap.get(nodeId);
     if (!ynode || ynode.children.length === 0) return;
     Yjs.ydoc.transact(() => {

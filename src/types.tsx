@@ -173,7 +173,7 @@ export interface TreeRoAPIType {
   moveGroupBefore(movedGroupId: string, referenceId: string): void;
   moveGroupAfter(movedGroupId: string, referenceId: string): void;
   deleteGroup(groupId: string): void;
-  toggleGroupCollapse(groupId: string): void;
+  uiToggleGroupCollapse(groupId: string): void;
 
   // ---------------- Document Methods ----------------
   insertNewDocument(targetGroupId: string, rootNodeContent?: string, index?: number): string | null;
@@ -204,6 +204,11 @@ export interface TreeRoAPIType {
   moveNodeBefore(movedNodeId: string, referenceNodeId: string): void;
   moveNodeAfter(movedNodeId: string, referenceNodeId: string): void;
   deleteNode(nodeId: string): void;
-  toggleNodeCollapse(nodeId: string): void;
-  toggleNodeDescendantsCollapse(nodeId: string): void;
+
+  uiIndentNode(nodeId: string): void;
+  uiUnindentNode(nodeId: string): void;
+  uiMoveNodeUp(nodeId: string): void;
+  uiMoveNodeDown(nodeId: string): void
+  uiToggleNodeCollapse(nodeId: string): void;
+  uiToggleNodeDescendantsCollapse(nodeId: string): void;
 }

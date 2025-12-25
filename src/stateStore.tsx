@@ -119,6 +119,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   activateNode: (nodeId, caretPosition = 0) => {
+    console.debug(`activateNode`, {nodeId, caretPosition})
     set({ activeNodeId: nodeId });
     set({ currentCaretPosition: caretPosition });
     get().triggerNodeContentRender(nodeId);

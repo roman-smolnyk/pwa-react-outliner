@@ -144,7 +144,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             // data-node-id={node.id}
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
-              TreeRoAPI.toggleGroupCollapse(groupId);
+              TreeRoAPI.uiToggleGroupCollapse(groupId);
             }}
           >
             {group.children.length > 0 ? (
@@ -164,7 +164,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              TreeRoAPI.toggleGroupCollapse(groupId);
+              TreeRoAPI.uiToggleGroupCollapse(groupId);
             }}
           >
             {!isEditing ? (
@@ -556,8 +556,7 @@ export default function ExplorerComponent() {
             </div>
           </DnDWrapperComponent>
         </div>
-        <div className="Explorer-bottom-spacer h-155" />
-        <div>Zebra</div>
+        <div className="Explorer-bottom-spacer h-20" />
       </div>
     </aside>
   );

@@ -156,23 +156,58 @@ export function FooterComponent() {
     >
       <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center gap-2">
         <div className="flex gap-2 flex-nowrap min-w-max">
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="UnindentNode"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              TreeRoAPI.uiUnindentNode(TreeRoAPI.useStore.getState().activeNodeId);
+            }}
+          >
             <ArrowLeftToLineIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="IndentNode"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              TreeRoAPI.uiIndentNode(TreeRoAPI.useStore.getState().activeNodeId);
+            }}
+          >
             <ArrowRightToLineIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="MoveNodeUp"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              TreeRoAPI.uiMoveNodeUp(TreeRoAPI.useStore.getState().activeNodeId);
+            }}
+          >
             <ArrowUpIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="MoveNodeDown"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              TreeRoAPI.uiMoveNodeDown(TreeRoAPI.useStore.getState().activeNodeId);
+            }}
+          >
             <ArrowDownIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="AddNode"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
+              const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+              // console.debug("onPointerDown", { activeNodeId, newNodeId });
+              if (newNodeId) {
+                TreeRoAPI.useStore.getState().activateNode(newNodeId);
+              }
+            }}
+          >
             <SquarePlusIcon />
           </ButtonComponent>
 
@@ -184,7 +219,14 @@ export function FooterComponent() {
             <CalendarDays />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            // text-red-600
+            className="DeleteNode"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              TreeRoAPI.deleteNode(TreeRoAPI.useStore.getState().activeNodeId);
+            }}
+          >
             <Trash2Icon />
           </ButtonComponent>
         </div>

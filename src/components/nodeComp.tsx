@@ -1,7 +1,7 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useRef, useState } from "react";
+import { memo, useRef, useState, useEffect } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
@@ -21,21 +21,23 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   });
 
   // useEffect(() => {
-  //   console.debug(`${_logPrefix} -> MOUNTED`);
-  //   return () => console.debug(`${_logPrefix} -> MOUNTED`);
+  //   console.debug(`MOUNTED: NodeContentComponent(${nodeId})`);
+  //   return () => console.debug(`MOUNTED2: NodeContentComponent(${nodeId})`);
   // }, []);
 
-  const activeEditNodeId = useStore.getState().activeNodeId;
-  if (nodeId === activeEditNodeId) {
-    console.debug("activeEditNodeId", activeEditNodeId);
-    useStore.setState({ activeNodeId: "" });
-    setIsEditing(true);
-    setTimeout(() => {
-      if (refContenteditable.current) {
-        useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().currentCaretPosition);
-      }
-    }, 0);
-  }
+  const activeNodeId = useStore.getState().activeNodeId;
+  useEffect(() => {
+    if (nodeId === activeNodeId) {
+      console.debug("activeNodeId", activeNodeId);
+      // useStore.setState({ activeNodeId: "" });
+      setIsEditing(true);
+      setTimeout(() => {
+        if (refContenteditable.current) {
+          useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().currentCaretPosition);
+        }
+      }, 0);
+    }
+  }, [nodeId, activeNodeId]);
 
   return (
     <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
@@ -82,17 +84,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
-            // const newNode = TreeRoAPI.createNode("");
-            // TreeRoAPI.insertNodeAfter(newNode, nodeId);
-            const newNodeId = TreeRoAPI.insertNewNodeAfter(nodeId)!;
-            TreeRoAPI.useStore.getState().activateNode(newNodeId);
-            // useUIStore.setState({ activeEditNodeId: newNode.node_id });
-            //
-            // setTimeout(() => {
-            //   const el: HTMLDivElement | null = document.querySelector(`.NodeContent-contenteditable[data-id="${newNode.node_id}"]`);
-            //   console.debug(`${_logPrefix} -> setCaretAtCharIndex`, el);
-            //   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
-            // }, 0);
+            const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
+            const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+            console.debug(`(e.key === "Enter" && e.ctrlKey)`, { activeNodeId, newNodeId });
+            if (newNodeId) {
+              TreeRoAPI.useStore.getState().activateNode(newNodeId);
+            }
             // Override Enter => Insert "\n"
           } else if (e.key === "Enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
@@ -136,38 +133,23 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (e.key === "Tab" && e.shiftKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            const nodeParent = TreeRoAPI.getNodeParent(nodeId);
-            if (!nodeParent) return;
-            // console.debug(`onKeyDown [Tab + shiftKey]`, nodeParent.ynode.toJSON());
             e.currentTarget.blur();
-            TreeRoAPI.moveNodeAfter(nodeId, nodeParent.node_id);
-            const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.useStore.getState().activateNode(nodeId, index);
+            TreeRoAPI.uiUnindentNode(nodeId);
             // Indent node
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            // const currentElement = e.currentTarget;
-            const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
-            if (!siblingNode) return;
             e.currentTarget.blur();
-            TreeRoAPI.moveNode(nodeId, siblingNode.node_id, -1);
-            // const newNodeParent = TreeRoAPI.getNodeParent(node.node_id);
-            TreeRoAPI.updateNode(siblingNode.node_id, { collapsed: false });
-            const index = TreeRoAPI.useStore.getState().getCharIndexFromCaret(refContenteditable.current as HTMLElement);
-            TreeRoAPI.useStore.getState().activateNode(nodeId, index);
+            TreeRoAPI.uiIndentNode(nodeId);
             // Move node up
           } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
-            const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
-            const index = TreeRoAPI.getNodeIndex(nodeId)!;
-            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, Math.max(0, index - 1));
+            TreeRoAPI.uiMoveNodeUp(nodeId);
             // Move node down
           } else if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
+            // console.debug(`(e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey)`);
             e.preventDefault();
-            const nodeParent = TreeRoAPI.getNodeParent(nodeId)!;
-            const index = TreeRoAPI.getNodeIndex(nodeId)!;
-            TreeRoAPI.moveNode(nodeId, nodeParent.node_id, index + 1);
+            TreeRoAPI.uiMoveNodeDown(nodeId);
           }
         }}
         // On lost focus update
@@ -179,7 +161,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             TreeRoAPI.updateNode(nodeId, { content: newContent });
           }
           setIsEditing(false);
-          useStore.setState({ activeNodeId: "" });
+          if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {
+            useStore.setState({ activeNodeId: "" });
+          }
         }}
       >
         {nodeContent}
@@ -292,7 +276,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
             // data-node-id={node.id}
             onPointerUpCapture={() => {
               // console.debug("Node-bullet onPointerUpCapture");
-              TreeRoAPI.toggleNodeCollapse(node.node_id);
+              TreeRoAPI.uiToggleNodeCollapse(node.node_id);
             }}
           >
             {node.children.length > 0 ? (

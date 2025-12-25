@@ -18,6 +18,7 @@ import {
   UploadIcon,
   UserRoundIcon,
   ZoomInIcon,
+  CircleQuestionMarkIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -105,6 +106,14 @@ export default function MainMenuComponent() {
               className="text-yellow-400"
               icon={<HardDriveUploadIcon className="w-full h-full" />}
               label="Import Backup"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<CircleQuestionMarkIcon className="w-full h-full" />}
+              label="Help"
               onClick={() => {
                 setOpen(false);
               }}
