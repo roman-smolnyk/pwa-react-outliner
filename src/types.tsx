@@ -118,6 +118,8 @@ export interface zustandUseStoreType {
 
   wsStatus: "connecting" | "connected" | "disconnected";
 
+  clearData: () => void;
+
   triggerNodeRender: (nodeId: string) => void;
   triggerNodeContentRender: (nodeId: string) => void;
   triggerDnDRender: (id: string) => void;
@@ -208,7 +210,7 @@ export interface TreeRoAPIType {
   uiIndentNode(nodeId: string): void;
   uiUnindentNode(nodeId: string): void;
   uiMoveNodeUp(nodeId: string): void;
-  uiMoveNodeDown(nodeId: string): void
+  uiMoveNodeDown(nodeId: string): void;
   uiToggleNodeCollapse(nodeId: string): void;
   uiToggleNodeDescendantsCollapse(nodeId: string): void;
 }

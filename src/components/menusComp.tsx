@@ -20,25 +20,30 @@ import {
   ZoomInIcon,
   CircleQuestionMarkIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
+import JSZip from "jszip";
+import { download } from "../etc/utils";
 
 function MenuItem({
   icon,
   label,
   className,
+  children,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: React.ReactNode; label: string; danger?: boolean; onClick: () => void }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: React.ReactNode; label: string }) {
   return (
     <button type="button" className={`p-1 text-gray-700 hover:bg-gray-200 flex gap-2 items-center ${className ?? ""}`} {...props}>
       <div className="size-6 md:size-5">{icon}</div>
       <span className="text-base md:text-sm">{label}</span>
+      {children}
     </button>
   );
 }
 
 export default function MainMenuComponent() {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -95,19 +100,93 @@ export default function MainMenuComponent() {
               }}
             />
             <MenuItem
-              className="text-yellow-400"
+              className="DownloadBackup"
               icon={<HardDriveDownloadIcon className="w-full h-full" />}
-              label="Export Backup"
+              label="Download Backup"
               onClick={() => {
                 setOpen(false);
+                if (TreeRoAPI.Yjs.ydoc) {
+                  const zip = new JSZip();
+
+                  const markdown = ["# Offline ZIP", "", "Generated inside a React PWA"].join("\n");
+                  const update = TreeRoAPI.Yjs.Y.encodeStateAsUpdate(TreeRoAPI.Yjs.ydoc);
+                  const blob = new Blob([update], { type: "application/octet-stream" });
+
+                  zip.file("readme.md", markdown);
+                  zip.file("backup/treero-backup.bin", blob);
+
+                  // Generate ZIP (in memory)
+                  zip.generateAsync({ type: "blob" }).then((zipBlob) => {
+                    // Download
+                    const url = URL.createObjectURL(zipBlob);
+                    download(url, "treero-export.zip");
+
+                    URL.revokeObjectURL(url);
+                  });
+                }
               }}
             />
             <MenuItem
-              className="text-yellow-400"
+              className="ImportBackup"
               icon={<HardDriveUploadIcon className="w-full h-full" />}
               label="Import Backup"
               onClick={() => {
-                setOpen(false);
+                console.debug("onClick", inputRef.current);
+                inputRef.current?.click();
+              }}
+            ></MenuItem>
+
+            <input
+              className="hidden"
+              ref={inputRef}
+              type="file"
+              accept=".zip"
+              hidden
+              onChange={(e) => {
+                console.log("onChange fired");
+                const file = e.target.files?.[0];
+                console.log("File:", file);
+                if (!file) return;
+                const reader = new FileReader();
+                console.log("FileReader created");
+                reader.onload = async () => {
+                  console.log("reader.onload fired");
+                  try {
+                    const zip = await JSZip.loadAsync(reader.result as ArrayBuffer);
+                    for (const name of Object.keys(zip.files)) {
+                      console.debug(`Entry: ${name}`);
+                    }
+                    // const update = new Uint8Array(reader.result as ArrayBuffer);
+                    // TreeRoAPI.Yjs.Y.applyUpdate(TreeRoAPI.Yjs.ydoc, update);
+
+                    // // Read markdown
+                    // const mdFile = zip.file("docs/readme.md");
+                    // if (mdFile) {
+                    //   const md = await mdFile.async("string");
+                    //   log("--- Markdown ---");
+                    //   log(md);
+                    // }
+
+                    // Read binary
+                    const binFile = zip.file("backup/treero-backup.bin");
+                    if (binFile) {
+                      console.debug("applyBackup", "backup/treero-backup.bin");
+                      const bytes = await binFile.async("uint8array");
+                      await TreeRoAPI.Yjs.applyBackup(bytes);
+                      TreeRoAPI.Yjs.idbPersistence?.whenSynced.then(() => {
+                        TreeRoAPI.useStore.getState().clearData();
+                        window.location.replace(window.location.href);
+                      });
+                    }
+
+                    setOpen(false);
+                  } catch {}
+                };
+
+                reader.readAsArrayBuffer(file);
+
+                // allow re-selecting the same file
+                e.currentTarget.value = "";
               }}
             />
             <MenuItem
@@ -119,6 +198,7 @@ export default function MainMenuComponent() {
               }}
             />
             <hr className="m-1 border-gray-300" />
+
             <MenuItem
               className="Exit text-red-600"
               icon={<LogInIcon className="w-full h-full" />}

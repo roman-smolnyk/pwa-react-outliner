@@ -24,6 +24,32 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
 
   wsStatus: "disconnected",
 
+  clearData: () => {
+    set({
+      stateIsInitialized: false,
+      localConfig: { currentDocumentId: "", roomToken: "", isAuthorized: false },
+      meta: { root_group_id: "" },
+      groups: new Map(),
+      documents: new Map(),
+      nodes: new Map(),
+
+      nodesToRender: {},
+      nodesContentToRender: {},
+
+      dndRectEl: null,
+      dndPlacement: "",
+      dndDescendantsIds: [],
+      dndToRerender: {},
+
+      activeNodeId: "",
+      currentCaretPosition: 0,
+
+      explorerIsOpened: true,
+
+      wsStatus: "disconnected",
+    });
+  },
+
   triggerNodeRender: (nodeId) => {
     set((state) => {
       return { nodesToRender: { ...state.nodesToRender, [nodeId]: !state.nodesToRender[nodeId] } };
@@ -119,7 +145,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   },
 
   activateNode: (nodeId, caretPosition = 0) => {
-    console.debug(`activateNode`, {nodeId, caretPosition})
+    console.debug(`activateNode`, { nodeId, caretPosition });
     set({ activeNodeId: nodeId });
     set({ currentCaretPosition: caretPosition });
     get().triggerNodeContentRender(nodeId);

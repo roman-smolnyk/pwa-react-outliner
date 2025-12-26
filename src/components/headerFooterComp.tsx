@@ -70,14 +70,14 @@ export function HeaderComponent() {
           <div></div>
           <ButtonComponent
             onClick={() => {
-              TreeRoAPI.Yjs.undoManager.undo();
+              TreeRoAPI.Yjs.undoManager?.undo();
             }}
           >
             <UndoIcon />
           </ButtonComponent>
           <ButtonComponent
             onClick={() => {
-              TreeRoAPI.Yjs.undoManager.redo();
+              TreeRoAPI.Yjs.undoManager?.redo();
             }}
           >
             <RedoIcon />

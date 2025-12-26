@@ -15,6 +15,13 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, delay: numbe
   };
 }
 
+export function download(url: string, name: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+}
+
 export function genRandomToken(bytes = 32) {
   const array = new Uint8Array(bytes);
   crypto.getRandomValues(array);

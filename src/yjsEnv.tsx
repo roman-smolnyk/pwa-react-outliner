@@ -1,23 +1,11 @@
 import { diffChars } from "diff";
 import { IndexeddbPersistence } from "y-indexeddb";
-import type { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import type { YDocumentDataType, YGroupDataType, YMetaDataType, YNodeDataType } from "./types";
+import { Conf } from "./config";
+import { WebsocketProvider } from "y-websocket";
 // import { YSweetProvider } from "@y-sweet/client";
 
-const ROOM_NAME = "TreeRo-db";
-// const WS_URL = "wss://your-server-url";
-
-const ydoc = new Y.Doc();
-const ymeta = ydoc.getMap("ymeta") as YMetaDataType;
-const ygroups = ydoc.getMap("groups") as Y.Map<YGroupDataType>;
-const ydocuments = ydoc.getMap("documents") as Y.Map<YDocumentDataType>;
-const ynodes = ydoc.getMap("nodes") as Y.Map<YNodeDataType>;
-
-// * undoManager supports differensiation by origins: new Y.UndoManager(ydoc, { trackedOrigins: ["user"] }) , ydoc.transact(callback, "user")
-const undoManager = new Y.UndoManager(ydoc);
-
-const idbPersistence = new IndexeddbPersistence(ROOM_NAME, ydoc);
 // * To clear idb: idbPersistence.clearData()
 
 class YMetaWrap {
@@ -58,7 +46,7 @@ class YNodeWrap {
 
     let index = 0;
     // console.debug(`YNode.content -> diff`, diff);
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc?.transact(() => {
       for (const part of diff) {
         if (part.removed) {
           // remove this many chars from current index
@@ -93,7 +81,7 @@ class YNodeWrap {
     return this.ynode.get("children");
   }
   static get(id: string): YNodeWrap | null {
-    const ynode = ynodes.get(id);
+    const ynode = Yjs.ynodes?.get(id);
     return ynode ? new YNodeWrap(ynode) : null;
   }
 }
@@ -114,7 +102,7 @@ class YDocumentWrap {
     this.ydocument.set("root_node_id", v);
   }
   static get(id: string): YDocumentWrap | null {
-    const ydocument = ydocuments.get(id);
+    const ydocument = Yjs.ydocuments?.get(id);
     return ydocument ? new YDocumentWrap(ydocument) : null;
   }
 }
@@ -144,21 +132,61 @@ class YGroupWrap {
     return this.ygroup.get("children");
   }
   static get(id: string): YGroupWrap | null {
-    const ygroup = ygroups.get(id);
+    const ygroup = Yjs.ygroups?.get(id);
     return ygroup ? new YGroupWrap(ygroup) : null;
   }
 }
 
 export const Yjs = {
-  ydoc: ydoc,
-  ymeta: ymeta,
-  ynodes: ynodes,
-  ydocuments: ydocuments,
-  ygroups: ygroups,
+  setup: () => {
+    Yjs.ydoc = new Y.Doc();
 
-  undoManager: undoManager,
+    Yjs.ymeta = Yjs.ydoc.getMap("ymeta") as YMetaDataType;
+    Yjs.ygroups = Yjs.ydoc.getMap("groups") as Y.Map<YGroupDataType>;
+    Yjs.ydocuments = Yjs.ydoc.getMap("documents") as Y.Map<YDocumentDataType>;
+    Yjs.ynodes = Yjs.ydoc.getMap("nodes") as Y.Map<YNodeDataType>;
 
-  idbPersistence: idbPersistence,
+    // * undoManager supports differensiation by origins: new Y.UndoManager(ydoc, { trackedOrigins: ["user"] }) , ydoc.transact(callback, "user")
+    Yjs.undoManager = new Y.UndoManager(Yjs.ydoc);
+
+    Yjs.idbPersistence = new IndexeddbPersistence("TreeRo-db", Yjs.ydoc);
+  },
+
+  applyBackup: async (update: Uint8Array) => {
+    await Yjs.idbPersistence?.clearData();
+
+    Yjs.ydoc = new Y.Doc();
+
+    // * undoManager supports differensiation by origins: new Y.UndoManager(ydoc, { trackedOrigins: ["user"] }) , ydoc.transact(callback, "user")
+    Yjs.undoManager = new Y.UndoManager(Yjs.ydoc);
+
+    Yjs.idbPersistence = new IndexeddbPersistence("TreeRo-db", Yjs.ydoc);
+
+    Yjs.ymeta = Yjs.ydoc.getMap("ymeta") as YMetaDataType;
+    Yjs.ygroups = Yjs.ydoc.getMap("groups") as Y.Map<YGroupDataType>;
+    Yjs.ydocuments = Yjs.ydoc.getMap("documents") as Y.Map<YDocumentDataType>;
+    Yjs.ynodes = Yjs.ydoc.getMap("nodes") as Y.Map<YNodeDataType>;
+
+    Yjs.idbPersistence.whenSynced.then(() => {
+      Y.applyUpdate(Yjs.ydoc!, update);
+    });
+  },
+
+  connectWebSocket: (roomname: string) => {
+    const wsProvider = new WebsocketProvider(Conf.WS_SERVER, roomname, Yjs.ydoc!);
+    Yjs.wsProvider = wsProvider;
+  },
+
+  Y: Y,
+  ydoc: null as Y.Doc | null,
+  ymeta: null as YMetaDataType | null,
+  ynodes: null as Y.Map<YNodeDataType> | null,
+  ydocuments: null as Y.Map<YDocumentDataType> | null,
+  ygroups: null as Y.Map<YGroupDataType> | null,
+
+  undoManager: null as Y.UndoManager | null,
+
+  idbPersistence: null as IndexeddbPersistence | null,
   wsProvider: null as WebsocketProvider | null,
 
   YMetaWrap: YMetaWrap,

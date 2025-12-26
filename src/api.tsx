@@ -13,7 +13,6 @@ import type {
 } from "./types";
 import { Yjs } from "./yjsEnv";
 import { IDBLocal } from "./idbEnv";
-import { WebsocketProvider } from "y-websocket";
 import { nanoid } from "nanoid";
 import { Conf } from "./config";
 
@@ -28,31 +27,31 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   // Async method to load initial data
   async initialize(callback) {
-    Yjs.idbPersistence.whenSynced.then(() => {
+    Yjs.setup();
+    Yjs.idbPersistence?.whenSynced.then(() => {
       // console.debug("persistence.whenSynced.then");
 
       // Yjs.idbPersistence.clearData();
 
       let roomToken = this.getRoomToken();
 
-      Yjs.undoManager.stopCapturing();
+      Yjs.undoManager!.stopCapturing();
 
       // console.debug("ymeta", ymeta.toJSON());
       // if (!Yjs.ymeta.get("root_group_id")) {
       if (!roomToken) {
-        // console.debug("TreeRoApi.initialize -> New Data");
+        console.debug("TreeRoApi.initialize (!roomToken)");
         this.initRootData();
         fillInMockupData();
         roomToken = this.generateRoomToken();
         this.setRoomToken(roomToken);
       }
 
-      Yjs.undoManager.stopCapturing();
+      Yjs.undoManager!.stopCapturing();
 
       if (Conf.WS_IS_ON) {
-        const wsProvider = new WebsocketProvider(Conf.WS_SERVER, roomToken, Yjs.ydoc);
-        TreeRoAPI.Yjs.wsProvider = wsProvider;
-        wsProvider.on("status", (e) => {
+        TreeRoAPI.Yjs.connectWebSocket(roomToken);
+        TreeRoAPI.Yjs.wsProvider!.on("status", (e) => {
           // console.debug("WebsocketProvider status", e.status);
           if (e.status === "connecting") {
             useStore.setState({ wsStatus: "connecting" });
@@ -78,10 +77,10 @@ export const TreeRoAPI: TreeRoAPIType = {
           roomToken: this.getRoomToken() || "",
           isAuthorized: this.isAuthorized(),
         },
-        meta: Yjs.ymeta.toJSON() as MetaDataType,
-        groups: new Map(Object.entries(Yjs.ygroups.toJSON())) as Map<string, GroupDataType>,
-        documents: new Map(Object.entries(Yjs.ydocuments.toJSON())) as Map<string, DocumentDataType>,
-        nodes: new Map(Object.entries(Yjs.ynodes.toJSON())) as Map<string, NodeDataType>,
+        meta: Yjs.ymeta!.toJSON() as MetaDataType,
+        groups: new Map(Object.entries(Yjs.ygroups!.toJSON())) as Map<string, GroupDataType>,
+        documents: new Map(Object.entries(Yjs.ydocuments!.toJSON())) as Map<string, DocumentDataType>,
+        nodes: new Map(Object.entries(Yjs.ynodes!.toJSON())) as Map<string, NodeDataType>,
       });
 
       this._addUpdateStateObserver();
@@ -98,7 +97,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     // Update state
     // TODO: Add documents, meta
     // ########################### Nodes ##################################
-    Yjs.ynodes.observeDeep((events) => {
+    Yjs.ynodes?.observeDeep((events) => {
       // when nested Y.Array or, Y.Text changes, two events are fired, for themself and for parent Y.Map
       // console.debug("ynodes.observeDeep", events);
       for (const event of events) {
@@ -168,7 +167,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
     // ########################### Groups ##################################
 
-    Yjs.ygroups.observeDeep((events) => {
+    Yjs.ygroups?.observeDeep((events) => {
       // console.debug("ygroups.observeDeep", events);
       for (const event of events) {
         // console.debug("event.changes.added", event.changes.added);
@@ -227,7 +226,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
     // ########################### Documents ##################################
 
-    Yjs.ydocuments.observeDeep((events) => {
+    Yjs.ydocuments?.observeDeep((events) => {
       // console.debug("ydocuments.observeDeep", events);
       for (const event of events) {
         // console.debug("event.changes.added", event.changes.added);
@@ -285,16 +284,16 @@ export const TreeRoAPI: TreeRoAPIType = {
     ygroup.set("collapsed", false);
     ygroup.set("children", new Y.Array<string>());
 
-    Yjs.ygroups.set(group_id, ygroup);
+    Yjs.ygroups!.set(group_id, ygroup);
 
     const document_id = this.insertNewDocument(group_id, "# Root Node/Doc Title")!;
 
     TreeRoAPI.setCurrentDocumentId(document_id);
-    Yjs.ymeta.set("root_group_id", group_id);
+    Yjs.ymeta!.set("root_group_id", group_id);
   },
 
   clearData(reload) {
-    TreeRoAPI.Yjs.idbPersistence.clearData();
+    TreeRoAPI.Yjs.idbPersistence?.clearData();
     localStorage.clear();
     // TreeRoAPI.setRoomToken( "bc214e79-e18e-4e63-a1f5-10aa8ebafc3f")
     if (reload) {
@@ -349,7 +348,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   getRootGroupId() {
-    return Yjs.ymeta.get("root_group_id");
+    return Yjs.ymeta!.get("root_group_id");
   },
 
   // ---------------- Group Methods ----------------
@@ -362,14 +361,14 @@ export const TreeRoAPI: TreeRoAPIType = {
       console.error(`insertGroup: targetGroupId=${targetGroupId} is missing`);
       return null;
     }
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       const ygroup = new Y.Map() as YGroupDataType;
       ygroup.set("group_id", group_id);
       ygroup.set("name", name);
       ygroup.set("collapsed", false);
       ygroup.set("children", new Y.Array<string>());
 
-      Yjs.ygroups.set(group_id, ygroup);
+      Yjs.ygroups!.set(group_id, ygroup);
       const targetYgroupChildren = targetYgroup.children;
 
       let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
@@ -418,7 +417,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         if (item) groups.push(item);
       }
     } else {
-      for (const ygroup of Yjs.ygroups.values()) {
+      for (const ygroup of Yjs.ygroups!.values()) {
         groups.push(new Yjs.YGroupWrap(ygroup));
       }
     }
@@ -472,12 +471,12 @@ export const TreeRoAPI: TreeRoAPIType = {
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup) return;
     if (name) {
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         ygroup.name = name;
       });
     }
     if (collapsed !== undefined) {
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         ygroup.collapsed = collapsed;
       });
     }
@@ -524,7 +523,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       targetIndex = Math.max(0, Math.min(targetIndex, movedYgroupParent.children.length));
       // No sense
       if (movedYgroupIndex === targetIndex) return;
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         movedYgroupParent.children.delete(movedYgroupIndex);
         movedYgroupParent.children.insert(targetIndex, [movedGroupId]);
       });
@@ -533,7 +532,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       // +1 as now array will be larger
       let targetIndex = index < 0 ? targetYgroup.children.length + index + 1 : index;
       targetIndex = Math.max(0, Math.min(targetIndex, targetYgroup.children.length));
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         // remove node
         movedYgroupParent.children.delete(movedYgroupIndex);
         // insert node
@@ -599,11 +598,11 @@ export const TreeRoAPI: TreeRoAPIType = {
     if (groupIndex === -1) return;
 
     const descendants = this.getGroupDescendantsIds(groupId);
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       parentYgroup.children.delete(groupIndex);
       for (const id of [groupId, ...descendants]) {
-        Yjs.ygroups.delete(id);
-        Yjs.ydocuments.delete(id);
+        Yjs.ygroups!.delete(id);
+        Yjs.ydocuments!.delete(id);
       }
     });
   },
@@ -627,7 +626,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       return null;
     }
 
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       const rootYnode = new Y.Map() as YNodeDataType;
       // const node_id = nanoid();
       const node_id = crypto.randomUUID();
@@ -643,8 +642,8 @@ export const TreeRoAPI: TreeRoAPIType = {
       ydocument.set("document_id", document_id);
       ydocument.set("root_node_id", node_id);
 
-      Yjs.ynodes.set(node_id, rootYnode);
-      Yjs.ydocuments.set(document_id, ydocument);
+      Yjs.ynodes!.set(node_id, rootYnode);
+      Yjs.ydocuments!.set(document_id, ydocument);
 
       const targetYgroupChildren = targetYgroup.children;
       let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
@@ -693,7 +692,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         if (item) documents.push(item);
       }
     } else {
-      for (const ydocument of Yjs.ydocuments.values()) {
+      for (const ydocument of Yjs.ydocuments!.values()) {
         documents.push(new Yjs.YDocumentWrap(ydocument));
       }
     }
@@ -715,7 +714,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     if (!ydocument) return;
     const ynode = Yjs.YNodeWrap.get(ydocument.root_node_id);
     if (!ynode) return;
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       ynode.content = rootNodeContent;
     });
   },
@@ -740,7 +739,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       targetIndex = Math.max(0, Math.min(targetIndex, movedYdocumentParent.children.length));
       // No sense
       if (movedYdocuemntIndex === targetIndex) return;
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         movedYdocumentParent.children.delete(movedYdocuemntIndex);
         movedYdocumentParent.children.insert(targetIndex, [movedDocumentId]);
       });
@@ -749,7 +748,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       // +1 as now array will be larger
       let targetIndex = index < 0 ? targetYgroup.children.length + index + 1 : index;
       targetIndex = Math.max(0, Math.min(targetIndex, targetYgroup.children.length));
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         // remove node
         movedYdocumentParent.children.delete(movedYdocuemntIndex);
         // insert node
@@ -814,9 +813,9 @@ export const TreeRoAPI: TreeRoAPIType = {
     const ydocumentIndex = parentYgroup.children.toArray().indexOf(documentId);
     if (ydocumentIndex === -1) return;
 
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       parentYgroup.children.delete(ydocumentIndex);
-      Yjs.ydocuments.delete(documentId);
+      Yjs.ydocuments!.delete(documentId);
     });
   },
 
@@ -832,7 +831,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       return null;
     }
 
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       const ynode = new Y.Map() as YNodeDataType;
       ynode.set("node_id", node_id);
       ynode.set("parent_id", args?.parent_id || targetYnode.node_id);
@@ -844,7 +843,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       arr.push(args?.children || []);
       ynode.set("children", arr);
 
-      Yjs.ynodes.set(node_id, ynode);
+      Yjs.ynodes!.set(node_id, ynode);
 
       const targetYgroupChildren = targetYnode.children;
       let targetIndex = index < 0 ? targetYgroupChildren.length + index + 1 : index;
@@ -881,7 +880,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   updateNode(nodeId, { content, collapsed } = {}) {
     const ynode = Yjs.YNodeWrap.get(nodeId);
     if (!ynode) return;
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       if (content !== undefined) {
         ynode.content = content;
       }
@@ -905,7 +904,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         if (yn) nodes.push(yn);
       }
     } else {
-      for (const ynode of Yjs.ynodes.values()) {
+      for (const ynode of Yjs.ynodes!.values()) {
         nodes.push(new Yjs.YNodeWrap(ynode));
       }
     }
@@ -938,7 +937,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
   getNodeSibling(nodeId, offset) {
     if (offset === 0) return null;
-    if (!Yjs.ynodes.has(nodeId)) return null;
+    if (!Yjs.ynodes!.has(nodeId)) return null;
     const nodeParent = this.getNodeParent(nodeId);
     if (!nodeParent) return null;
     const nodeIndex = nodeParent.children.toArray().indexOf(nodeId);
@@ -949,7 +948,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   getNodeIndex(nodeId) {
-    if (!Yjs.ynodes.has(nodeId)) return null;
+    if (!Yjs.ynodes!.has(nodeId)) return null;
     const nodeParent = this.getNodeParent(nodeId);
     if (!nodeParent) return null;
     const nodeIndex = nodeParent.children.toArray().indexOf(nodeId);
@@ -1014,7 +1013,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       targetIndex = Math.max(0, Math.min(targetIndex, movedYnodeParent.children.length - 1));
       // No sense
       if (movedYnodeIndex === targetIndex) return;
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         // console.debug(`moveNode`, { movedNodeId, targetNodeId, index, targetIndex, movedYnodeIndex });
         movedYnodeParent.children.delete(movedYnodeIndex);
         movedYnodeParent.children.insert(targetIndex, [movedNodeId]);
@@ -1025,7 +1024,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       let targetIndex = index < 0 ? targetYnode.children.length + index + 1 : index;
       targetIndex = Math.max(0, Math.min(targetIndex, targetYnode.children.length));
 
-      Yjs.ydoc.transact(() => {
+      Yjs.ydoc!.transact(() => {
         // remove node
         movedYnodeParent.children.delete(movedYnodeIndex);
         // insert node
@@ -1092,10 +1091,10 @@ export const TreeRoAPI: TreeRoAPIType = {
     const ynodeIndex = ynodeParent.children.toArray().indexOf(nodeId);
 
     const descendants = this.getNodeDescendantsIds(nodeId);
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       ynodeParent.children.delete(ynodeIndex);
       for (const id of [nodeId, ...descendants]) {
-        Yjs.ynodes.delete(id);
+        Yjs.ynodes!.delete(id);
       }
     });
   },
@@ -1163,7 +1162,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   uiToggleNodeDescendantsCollapse(nodeId) {
     const ynode = Yjs.YNodeWrap.get(nodeId);
     if (!ynode || ynode.children.length === 0) return;
-    Yjs.ydoc.transact(() => {
+    Yjs.ydoc!.transact(() => {
       ynode.collapsed = !ynode.collapsed;
       for (const id of this.getNodeDescendantsIds(nodeId)) {
         const yn = Yjs.YNodeWrap.get(id);

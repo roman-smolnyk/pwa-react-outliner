@@ -34,7 +34,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   const activeNodeId = useStore.getState().activeNodeId;
   useEffect(() => {
     if (nodeId === activeNodeId) {
-      console.debug("activeNodeId", activeNodeId);
+      // console.debug("activeNodeId", activeNodeId);
       // useStore.setState({ activeNodeId: "" });
       setIsEditing(true);
       setTimeout(() => {
