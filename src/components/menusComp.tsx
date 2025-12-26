@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import JSZip from "jszip";
 import { download } from "../etc/utils";
+import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
 
 function MenuItem({
   icon,
@@ -103,24 +104,26 @@ export default function MainMenuComponent() {
               className="DownloadBackup"
               icon={<HardDriveDownloadIcon className="w-full h-full" />}
               label="Download Backup"
-              onClick={() => {
+              onClick={async () => {
                 setOpen(false);
                 if (TreeRoAPI.Yjs.ydoc) {
                   const zip = new JSZip();
 
-                  const markdown = ["# Offline ZIP", "", "Generated inside a React PWA"].join("\n");
+                  // BACKUP
                   const update = TreeRoAPI.Yjs.Y.encodeStateAsUpdate(TreeRoAPI.Yjs.ydoc);
                   const blob = new Blob([update], { type: "application/octet-stream" });
+                  zip.file("treero-backup.bin", blob);
 
-                  zip.file("readme.md", markdown);
-                  zip.file("backup/treero-backup.bin", blob);
+                  // MARKDOWN (TODO: OMPML, JSON)
+                  const result = await exportAllDocumentsAsMarkdownMap();
+                  for (const [key, value] of Object.entries(result)) {
+                    zip.file(key, value as string);
+                  }
 
                   // Generate ZIP (in memory)
                   zip.generateAsync({ type: "blob" }).then((zipBlob) => {
-                    // Download
                     const url = URL.createObjectURL(zipBlob);
                     download(url, "treero-export.zip");
-
                     URL.revokeObjectURL(url);
                   });
                 }
@@ -155,29 +158,21 @@ export default function MainMenuComponent() {
                     const zip = await JSZip.loadAsync(reader.result as ArrayBuffer);
                     for (const name of Object.keys(zip.files)) {
                       console.debug(`Entry: ${name}`);
+                      if (name.endsWith(".bin")) {
+                        const binFile = zip.file(name);
+                        if (binFile) {
+                          console.debug("applyBackup", name);
+                          const bytes = await binFile.async("uint8array");
+                          await TreeRoAPI.Yjs.applyBackup(bytes);
+                          TreeRoAPI.Yjs.idbPersistence?.whenSynced.then(() => {
+                            TreeRoAPI.useStore.getState().clearData();
+                            window.location.replace(window.location.href);
+                          });
+                        }
+                      }
                     }
                     // const update = new Uint8Array(reader.result as ArrayBuffer);
                     // TreeRoAPI.Yjs.Y.applyUpdate(TreeRoAPI.Yjs.ydoc, update);
-
-                    // // Read markdown
-                    // const mdFile = zip.file("docs/readme.md");
-                    // if (mdFile) {
-                    //   const md = await mdFile.async("string");
-                    //   log("--- Markdown ---");
-                    //   log(md);
-                    // }
-
-                    // Read binary
-                    const binFile = zip.file("backup/treero-backup.bin");
-                    if (binFile) {
-                      console.debug("applyBackup", "backup/treero-backup.bin");
-                      const bytes = await binFile.async("uint8array");
-                      await TreeRoAPI.Yjs.applyBackup(bytes);
-                      TreeRoAPI.Yjs.idbPersistence?.whenSynced.then(() => {
-                        TreeRoAPI.useStore.getState().clearData();
-                        window.location.replace(window.location.href);
-                      });
-                    }
 
                     setOpen(false);
                   } catch {}
