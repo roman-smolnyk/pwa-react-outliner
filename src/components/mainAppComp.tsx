@@ -21,11 +21,11 @@ export default function MainAppComponent() {
 
   useHotkeys("ctrl+z, meta+z", () => {
     console.warn("ctrl+z, meta+z");
-    TreeRoAPI.Yjs.undoManager.undo();
+    TreeRoAPI.Yjs.undoManager?.undo();
   });
   useHotkeys("ctrl+shift+z, meta+shift+z", () => {
     console.warn("ctrl+shift+z, meta+shift+z");
-    TreeRoAPI.Yjs.undoManager.redo();
+    TreeRoAPI.Yjs.undoManager?.redo();
   });
 
   useEffect(() => {

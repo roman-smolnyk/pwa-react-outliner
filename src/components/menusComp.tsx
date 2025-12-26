@@ -75,7 +75,7 @@ export default function MainMenuComponent() {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-50 md:w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <MenuItem
@@ -111,7 +111,7 @@ export default function MainMenuComponent() {
 
                   // BACKUP
                   const update = TreeRoAPI.Yjs.Y.encodeStateAsUpdate(TreeRoAPI.Yjs.ydoc);
-                  const blob = new Blob([update], { type: "application/octet-stream" });
+                  const blob = new Blob([update as BlobPart], { type: "application/octet-stream" });
                   zip.file("treero-backup.bin", blob);
 
                   // MARKDOWN (TODO: OMPML, JSON)
