@@ -7,6 +7,12 @@ import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { useStore } from "../stateStore";
 import { NodeOptionsComponent } from "./menusComp";
+import { debounce } from "../etc/utils";
+
+const updateContentDebounced = debounce((nodeId, newContent) => {
+  // console.debug(`updateContent`, { nodeId, newContent });
+  TreeRoAPI.updateNode(nodeId, { content: newContent });
+}, 1_000);
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   // console.debug(logPrefix);
@@ -68,13 +74,13 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           selection.collapseToEnd();
         }}
         onInput={(e) => {
-          // console.debug(`${logPrefix} -> onInput`);
-          // const el = ref.current?.querySelector(".NodeContent-contenteditable");
-          // console.debug(`${logPrefix} -> NodeContent-contenteditable`, el);
-          // if (el) printDOM(el as HTMLElement);
-          // printDOM(e.currentTarget);
+          const newContent = e.currentTarget.textContent || "";
 
-          // Remove <br> that browser insearts in the empty contenteditable
+          if (newContent !== nodeContent) {
+            updateContentDebounced(nodeId, newContent);
+          }
+
+          // Remove <br> that browser inserts in the empty contenteditable
           if (e.currentTarget.innerHTML === "<br>") {
             e.currentTarget.innerHTML = "";
           }
