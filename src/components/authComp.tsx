@@ -9,27 +9,29 @@ export function LoginFormComponent() {
       <div className="w-80 p-8 rounded-xl bg-white shadow-md ">
         <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
         <input
+          className="w-full p-2 mb-4 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600"
           type="text"
           placeholder="Token"
           value={token}
           onChange={(e) => setToken(e.target.value)}
-          className="w-full p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex flex-col gap-2">
           <button
             type="button"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            className="w-full bg-black text-white p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
               // console.debug("Login", token);
-              TreeRoAPI.setRoomToken(token);
-              TreeRoAPI.setIsAuthorized(true);
+              if (token) {
+                TreeRoAPI.setRoomToken(token);
+                TreeRoAPI.setIsAuthorized(true);
+              }
             }}
           >
             Login
           </button>
           <button
             type="button"
-            className="w-full bg-gray-300 text-gray-800 p-2 rounded hover:bg-gray-400"
+            className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
               // console.debug("New Account");
               TreeRoAPI.setIsAuthorized(true);
