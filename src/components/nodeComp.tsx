@@ -1,7 +1,7 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect, useLayoutEffect } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
@@ -15,7 +15,7 @@ const updateContentDebounced = debounce((nodeId, newContent) => {
 }, 1_000);
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
-  // console.debug(logPrefix);
+  // console.debug(`NodeContentComponent`, { nodeId });
   const refContenteditable = useRef<HTMLDivElement>(null);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +33,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
 
   const activeNodeId = useStore.getState().activeNodeId;
   useEffect(() => {
+    // console.debug(`useEffect`, { nodeId });
     if (nodeId === activeNodeId) {
+      // console.debug(`useEffect (nodeId === activeNodeId)`, { nodeId, activeNodeId });
       // console.debug("activeNodeId", activeNodeId);
       // useStore.setState({ activeNodeId: "" });
       setIsEditing(true);
@@ -44,6 +46,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
       }, 0);
     }
   }, [nodeId, activeNodeId]);
+
+  useLayoutEffect(() => {
+    if (!isEditing && refContenteditable.current) {
+      refContenteditable.current.textContent = nodeContent;
+    }
+  }, [isEditing, nodeContent]);
 
   return (
     <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
@@ -73,16 +81,32 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // Move caret to end of inserted text
           selection.collapseToEnd();
         }}
+        onFocus={(e) => {
+          console.debug("onFocus", JSON.stringify(e.currentTarget.textContent));
+          // e.currentTarget.textContent = e.currentTarget.textContent + "\n\t";
+        }}
         onInput={(e) => {
-          const newContent = e.currentTarget.textContent || "";
+          let text = e.currentTarget.textContent ?? "";
+          console.debug("onInput", JSON.stringify(text));
 
-          if (newContent !== nodeContent) {
-            updateContentDebounced(nodeId, newContent);
-          }
+          // for (const child of e.currentTarget.children) {
+          //   console.debug("child", child.innerHTML);
+          //   if (child.innerHTML === "<br>") {
+          //     const newline = document.createTextNode("\n");
+          //     e.currentTarget.replaceChild(newline, child);
+          //   }
+          // }
+
+          text = text.slice(0, text.length - 1);
+          // console.debug("onInput2", JSON.stringify(text));
 
           // Remove <br> that browser inserts in the empty contenteditable
           if (e.currentTarget.innerHTML === "<br>") {
             e.currentTarget.innerHTML = "";
+          }
+
+          if (text !== nodeContent) {
+            updateContentDebounced(nodeId, text);
           }
         }}
         onKeyDown={(e) => {
@@ -99,6 +123,8 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // Override Enter => Insert "\n"
           } else if (e.key === "Enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
+            // return;
+            console.debug("onKeyDown", JSON.stringify(e.currentTarget.textContent));
             e.preventDefault();
             const selection = window.getSelection();
             if (!selection?.rangeCount) return;
@@ -162,9 +188,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         onBlur={(e) => {
           // console.debug(`onBlur`);
           // const newContent = getPlainTextWithNewlines(e.currentTarget);
-          const newContent = e.currentTarget.textContent || "";
-          if (newContent !== nodeContent) {
-            TreeRoAPI.updateNode(nodeId, { content: newContent });
+          let text = e.currentTarget.textContent || "";
+          console.debug("onBlur", JSON.stringify(text));
+          // text = text.slice(0, text.length - 1);
+
+          if (text !== nodeContent) {
+            TreeRoAPI.updateNode(nodeId, { content: text });
           }
           setIsEditing(false);
           if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {
@@ -172,24 +201,27 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           }
         }}
       >
-        {nodeContent}
+        {/* {nodeContent} */}
       </div>
       {
         <div
           className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "cursor-default" : "cursor-text"}`}
           data-id={nodeId}
           onPointerDown={(e) => {
+            console.debug("onPointerDown", e.currentTarget.innerHTML);
             if (readOnly) return;
             if (e.pointerType === "touch") {
               // isTouch = true;
               // pointerStart = { x: e.clientX, y: e.clientY };
             } else {
               const charIndex = useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
-              setIsEditing(true);
-              useStore.setState({ activeNodeId: nodeId });
-              setTimeout(() => {
-                useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
-              }, 100);
+              // setIsEditing(true);
+              // useStore.setState({ activeNodeId: nodeId });
+              useStore.getState().activateNode(nodeId, charIndex);
+              // useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
+              // setTimeout(() => {
+
+              // }, 100);
             }
           }}
           onPointerUp={(e) => {
