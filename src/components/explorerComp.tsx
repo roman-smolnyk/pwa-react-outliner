@@ -55,7 +55,7 @@ function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: stri
 
   return (
     <input
-      className="w-full min-w-0 max-w-full border-none outline-none rounded focus:ring-2 focus:ring-gray-400"
+      className="w-full min-w-0 max-w-full rounded border-none outline-none focus:ring-2 focus:ring-gray-400"
       ref={ref}
       type="text"
       value={value}
