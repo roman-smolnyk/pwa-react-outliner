@@ -7,12 +7,58 @@ import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { useStore } from "../stateStore";
 import { NodeOptionsComponent } from "./menusComp";
-import { debounce } from "../etc/utils";
+import { debounce, ENGINE } from "../etc/utilities";
 
-const updateContentDebounced = debounce((nodeId, newContent) => {
+const updateContentDebounced = debounce((nodeId, el: HTMLElement) => {
   // console.debug(`updateContent`, { nodeId, newContent });
-  TreeRoAPI.updateNode(nodeId, { content: newContent });
+  TreeRoAPI.updateNode(nodeId, { content: el.textContent ?? "" });
 }, 1_000);
+
+// TODO: Remove sentinel that is in the middle of tghe text, because of cursor that placed afgter sentinel
+function ensureSentinel(el: HTMLElement) {
+  const last = el.lastChild;
+
+  if (last && last.nodeType === Node.ELEMENT_NODE && (last as HTMLElement).dataset.sentinel !== undefined) {
+    return;
+  }
+
+  const span = document.createElement("span");
+  span.contentEditable = "false";
+  span.dataset.sentinel = "";
+  span.style.display = "inline-block";
+  span.style.width = "0px";
+  span.style.height = "0px";
+
+  el.appendChild(span);
+}
+
+function clampCaretBeforeSentinel(el: HTMLElement) {
+  const sentinel = el.querySelector("[data-sentinel]");
+  if (!sentinel) return;
+
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+
+  const range = sel.getRangeAt(0);
+
+  // If caret is after sentinel → move it before
+  if (range.startContainer === el && range.startOffset > Array.from(el.childNodes).indexOf(sentinel)) {
+    const prev = sentinel.previousSibling;
+    if (!prev) return;
+
+    const newRange = document.createRange();
+
+    if (prev.nodeType === Node.TEXT_NODE) {
+      newRange.setStart(prev, (prev as Text).length);
+    } else {
+      newRange.setStartAfter(prev);
+    }
+
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  }
+}
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   // console.debug(`NodeContentComponent`, { nodeId });
@@ -48,8 +94,22 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   }, [nodeId, activeNodeId]);
 
   useLayoutEffect(() => {
-    if (!isEditing && refContenteditable.current) {
-      refContenteditable.current.textContent = nodeContent;
+    if (isEditing) return;
+
+    const el = refContenteditable.current;
+    if (!el) return;
+
+    console.debug(`useLayoutEffect`, JSON.stringify(nodeContent));
+
+    // ! IMPORTANT: Prevent React replays
+    el.innerHTML = "";
+
+    const textNode = document.createTextNode(nodeContent);
+    el.appendChild(textNode);
+
+    if (!ENGINE.GECKO) {
+      ensureSentinel(el);
+      // clampCaretBeforeSentinel(el);
     }
   }, [isEditing, nodeContent]);
 
@@ -73,7 +133,6 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // console.debug(`${logPrefix} -> onPaste`, e);
           e.preventDefault();
           const text = e.clipboardData.getData("text/plain");
-          // document.execCommand("insertText", false, text);
           const selection = window.getSelection();
           if (!selection?.rangeCount) return;
           selection.deleteFromDocument();
@@ -82,34 +141,31 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           selection.collapseToEnd();
         }}
         onFocus={(e) => {
-          console.debug("onFocus", JSON.stringify(e.currentTarget.textContent));
-          // e.currentTarget.textContent = e.currentTarget.textContent + "\n\t";
+          const el = e.currentTarget;
+          console.debug("onFocus", JSON.stringify(el.textContent));
         }}
         onInput={(e) => {
-          let text = e.currentTarget.textContent ?? "";
-          console.debug("onInput", JSON.stringify(text));
+          const el = e.currentTarget;
+          // console.debug("onInput", JSON.stringify(el.textContent));
 
-          // for (const child of e.currentTarget.children) {
-          //   console.debug("child", child.innerHTML);
-          //   if (child.innerHTML === "<br>") {
-          //     const newline = document.createTextNode("\n");
-          //     e.currentTarget.replaceChild(newline, child);
-          //   }
+          // text = text.slice(0, text.length - 1);
+
+          // Remove <br> that browser inserts in the empty contenteditable [Currently it is not empty due to sentinel]
+          // if (e.currentTarget.innerHTML === "<br>") {
+          //   e.currentTarget.innerHTML = "";
           // }
 
-          text = text.slice(0, text.length - 1);
-          // console.debug("onInput2", JSON.stringify(text));
-
-          // Remove <br> that browser inserts in the empty contenteditable
-          if (e.currentTarget.innerHTML === "<br>") {
-            e.currentTarget.innerHTML = "";
+          if (el.textContent ?? "" !== nodeContent) {
+            updateContentDebounced(nodeId, el);
           }
-
-          if (text !== nodeContent) {
-            updateContentDebounced(nodeId, text);
+          if (!ENGINE.GECKO) {
+            ensureSentinel(refContenteditable.current!);
+            // clampCaretBeforeSentinel(refContenteditable.current!);
           }
         }}
         onKeyDown={(e) => {
+          console.debug("onKeyDown");
+          const el = e.currentTarget;
           // Create new node
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
@@ -124,7 +180,8 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (e.key === "Enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
             // return;
-            console.debug("onKeyDown", JSON.stringify(e.currentTarget.textContent));
+            console.debug("onKeyDown", JSON.stringify(el.textContent));
+
             e.preventDefault();
             const selection = window.getSelection();
             if (!selection?.rangeCount) return;
@@ -142,10 +199,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // Collapse selection to caret
             selection.removeAllRanges();
             selection.addRange(range);
+
+            console.debug("onKeyDown 2", JSON.stringify(el.textContent));
             // Remove node if empty
           } else if (e.key === "Backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
-            const text = e.currentTarget.textContent ?? "";
+            const text = el.textContent ?? "";
             if (text.length === 0) {
               e.preventDefault(); // stop browser default
               const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
@@ -165,13 +224,13 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (e.key === "Tab" && e.shiftKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            e.currentTarget.blur();
+            el.blur();
             TreeRoAPI.uiUnindentNode(nodeId);
             // Indent node
           } else if (e.key === "Tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
-            e.currentTarget.blur();
+            el.blur();
             TreeRoAPI.uiIndentNode(nodeId);
             // Move node up
           } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
@@ -183,26 +242,30 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             e.preventDefault();
             TreeRoAPI.uiMoveNodeDown(nodeId);
           }
+
+          if (el.textContent ?? "" !== nodeContent) {
+            updateContentDebounced(nodeId, el);
+          }
+          if (!ENGINE.GECKO) {
+            ensureSentinel(refContenteditable.current!);
+            // clampCaretBeforeSentinel(refContenteditable.current!);
+          }
         }}
         // On lost focus update
         onBlur={(e) => {
           // console.debug(`onBlur`);
-          // const newContent = getPlainTextWithNewlines(e.currentTarget);
-          let text = e.currentTarget.textContent || "";
-          console.debug("onBlur", JSON.stringify(text));
-          // text = text.slice(0, text.length - 1);
+          const el = e.currentTarget;
+          console.debug("onBlur", JSON.stringify(el.textContent));
 
-          if (text !== nodeContent) {
-            TreeRoAPI.updateNode(nodeId, { content: text });
+          if (el.textContent !== nodeContent) {
+            TreeRoAPI.updateNode(nodeId, { content: el.textContent ?? "" });
           }
           setIsEditing(false);
           if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {
             useStore.setState({ activeNodeId: "" });
           }
         }}
-      >
-        {/* {nodeContent} */}
-      </div>
+      ></div>
       {
         <div
           className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "cursor-default" : "cursor-text"}`}
@@ -215,13 +278,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               // pointerStart = { x: e.clientX, y: e.clientY };
             } else {
               const charIndex = useStore.getState().getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY);
-              // setIsEditing(true);
-              // useStore.setState({ activeNodeId: nodeId });
               useStore.getState().activateNode(nodeId, charIndex);
-              // useStore.getState().setCaretAtCharIndex(refContenteditable.current as HTMLElement, charIndex);
-              // setTimeout(() => {
-
-              // }, 100);
             }
           }}
           onPointerUp={(e) => {

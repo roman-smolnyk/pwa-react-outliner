@@ -24,7 +24,6 @@ import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import JSZip from "jszip";
-import { download } from "../etc/utils";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
 
 function MenuItem({
@@ -123,7 +122,10 @@ export default function MainMenuComponent() {
                   // Generate ZIP (in memory)
                   zip.generateAsync({ type: "blob" }).then((zipBlob) => {
                     const url = URL.createObjectURL(zipBlob);
-                    download(url, "treero-export.zip");
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "treero-export.zip";
+                    a.click();
                     URL.revokeObjectURL(url);
                   });
                 }

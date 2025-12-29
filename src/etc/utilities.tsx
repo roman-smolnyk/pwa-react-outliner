@@ -1,4 +1,60 @@
-import type { FlattenedNodeType, NodeDataType } from "./types";
+import { useEffect, useState } from "react";
+import type { FlattenedNodeType, NodeDataType } from "../types";
+
+export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let timerId: ReturnType<typeof setTimeout> | undefined;
+
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+    }
+
+    timerId = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
+}
+
+export const ENGINE = {
+  GECKO: typeof (window as any).InstallTrigger !== "undefined",
+  BLINK: (window as any).chrome !== undefined,
+};
+
+export function genRandomToken(bytes = 32) {
+  const array = new Uint8Array(bytes);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+export function useKeyboardOffset() {
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const vv = window.visualViewport;
+
+    const update = () => {
+      const overlap = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+
+      setOffset(overlap);
+    };
+
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
+  return offset;
+}
 
 export function arrayMove<T>(array: T[], from: number, to: number): T[] {
   const newArray = array.slice(); // shallow copy
@@ -186,9 +242,7 @@ export function getPlainTextWithNewlines(element: HTMLElement): string {
   return lines.join("\n");
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: explanation
 const cache = new Map<string, { value: any; expiration: number }>();
-// biome-ignore lint/suspicious/noExplicitAny: explanation
 export function memoizeWithTimeout<F extends (...args: any[]) => any>(fn: F, args: Parameters<F>, timeout = 30_000): ReturnType<F> {
   const key = JSON.stringify([fn.toString(), args]);
 
