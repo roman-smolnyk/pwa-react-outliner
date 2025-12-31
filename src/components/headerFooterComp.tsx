@@ -67,7 +67,9 @@ export function HeaderComponent() {
               <PanelLeftIcon />
             </ButtonComponent>
           )}
-          <div></div>
+
+          <div className="min-w-3"></div>
+
           <ButtonComponent
             onClick={() => {
               TreeRoAPI.Yjs.undoManager?.undo();
@@ -94,10 +96,10 @@ export function HeaderComponent() {
         </div>
 
         {/* Spacer */}
-        <div className="flex-1 min-w-3" />
+        <div className="flex-1 min-w-4" />
 
         {/* Right icons */}
-        <div className="flex ml-auto items-center gap-2">
+        <div className="flex ml-auto items-center gap-3 md:gap-2">
           <ButtonComponent
             onClick={() => {
               toast(`WS Server status: ${wsStatus}`, {
@@ -154,8 +156,8 @@ export function FooterComponent() {
         left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
       }}
     >
-      <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center gap-2">
-        <div className="flex gap-2 flex-nowrap min-w-max">
+      <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center">
+        <div className="flex-nowrap min-w-max flex gap-4 md:gap-2">
           <ButtonComponent
             className="UnindentNode"
             onPointerDown={(e) => {
