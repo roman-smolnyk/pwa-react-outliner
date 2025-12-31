@@ -1,64 +1,68 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useRef, useState, useEffect, useLayoutEffect } from "react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
+import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import { NodeOptionsComponent } from "./menusComp";
-import { debounce, ENGINE } from "../etc/utilities";
 
 const updateContentDebounced = debounce((nodeId, el: HTMLElement) => {
   // console.debug(`updateContent`, { nodeId, newContent });
   TreeRoAPI.updateNode(nodeId, { content: el.textContent ?? "" });
 }, 1_000);
 
-// TODO: Remove sentinel that is in the middle of tghe text, because of cursor that placed afgter sentinel
-function ensureSentinel(el: HTMLElement) {
-  const last = el.lastChild;
+// function ensureSentinel(el: HTMLElement) {
+//   removeNonTextNodesFromDOM(el);
 
-  if (last && last.nodeType === Node.ELEMENT_NODE && (last as HTMLElement).dataset.sentinel !== undefined) {
-    return;
-  }
+//   const last = el.lastChild;
 
-  const span = document.createElement("span");
-  span.contentEditable = "false";
-  span.dataset.sentinel = "";
-  span.style.display = "inline-block";
-  span.style.width = "0px";
-  span.style.height = "0px";
+//   if (last && last.nodeType === Node.ELEMENT_NODE && (last as HTMLElement).dataset.sentinel !== undefined) {
+//     return;
+//   }
 
-  el.appendChild(span);
-}
+//   const span = document.createElement("span");
+//   span.contentEditable = "false";
+//   span.dataset.sentinel = "";
+//   span.style.display = "inline-block";
+//   span.style.width = "0px";
+//   span.style.height = "0px";
 
-function clampCaretBeforeSentinel(el: HTMLElement) {
-  const sentinel = el.querySelector("[data-sentinel]");
-  if (!sentinel) return;
+//   el.appendChild(span);
+// }
 
-  const sel = window.getSelection();
-  if (!sel || !sel.rangeCount) return;
+// function selectionInsertNewline() {
+//   const selection = window.getSelection();
+//   if (!selection?.rangeCount) return;
+//   const range = selection.getRangeAt(0);
+//   // Delete any selected text
+//   range.deleteContents();
+//   // create new text node
+//   const newlineNode = document.createTextNode("\n");
+//   // Insert the newline at the caret
+//   range.insertNode(newlineNode);
+//   // Move caret to end of inserted text
+//   // Move caret after the newline
+//   range.setStartAfter(newlineNode);
+//   range.setEndAfter(newlineNode);
+//   // Collapse selection to caret
+//   selection.removeAllRanges();
+//   selection.addRange(range);
+// }
 
-  const range = sel.getRangeAt(0);
 
-  // If caret is after sentinel → move it before
-  if (range.startContainer === el && range.startOffset > Array.from(el.childNodes).indexOf(sentinel)) {
-    const prev = sentinel.previousSibling;
-    if (!prev) return;
+/*
+Contenteditable div on Enter press "inserts" <br>. As I want \n instead of <br> I alter default behaviour but using \n causes several issues:
+1) Trailing single \n in any browser does not visually repesented as newline, caret stays at the same place or even visually goes at the beggining of the current line.
+2) Browser sanitizes DOM on each click, so Chrome browser removes single trailing "\n" text node. On next Enter click it creates it anyway but it means that double click is required. 
 
-    const newRange = document.createRange();
+First issue can be fixed by adding newline glyph as :after, so trailing \n will be visually represented as newline. or by always keeping additional \n at the end as Dynalist does.
+Second issue can be fixed in the same way as Dynalist does, it always keeps trailing \n in the same #text node. Another way that I have tried is adding <span> sentinel as a last div child. It works but in Firefox it caused caret go under element boundaries.
 
-    if (prev.nodeType === Node.TEXT_NODE) {
-      newRange.setStart(prev, (prev as Text).length);
-    } else {
-      newRange.setStartAfter(prev);
-    }
-
-    newRange.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
-  }
-}
+So as a final solution I took Dynalist hack, to keep trailing \n and ensure it's presence.
+*/
 
 export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: string; nodeContent: string }) => {
   // console.debug(`NodeContentComponent`, { nodeId });
@@ -78,20 +82,6 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   // }, []);
 
   const activeNodeId = useStore.getState().activeNodeId;
-  useEffect(() => {
-    // console.debug(`useEffect`, { nodeId });
-    if (nodeId === activeNodeId) {
-      // console.debug(`useEffect (nodeId === activeNodeId)`, { nodeId, activeNodeId });
-      // console.debug("activeNodeId", activeNodeId);
-      // useStore.setState({ activeNodeId: "" });
-      setIsEditing(true);
-      setTimeout(() => {
-        if (refContenteditable.current) {
-          useStore.getState().setCaretAtCharIndex(refContenteditable.current, useStore.getState().currentCaretPosition);
-        }
-      }, 0);
-    }
-  }, [nodeId, activeNodeId]);
 
   useLayoutEffect(() => {
     if (isEditing) return;
@@ -99,19 +89,33 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
     const el = refContenteditable.current;
     if (!el) return;
 
-    console.debug(`useLayoutEffect`, JSON.stringify(nodeContent));
+    // console.debug(`useLayoutEffect`, JSON.stringify(nodeContent));
 
     // ! IMPORTANT: Prevent React replays
     el.innerHTML = "";
 
-    const textNode = document.createTextNode(nodeContent);
+    const textNode = document.createTextNode(nodeContent + "\n");
     el.appendChild(textNode);
 
-    if (!ENGINE.GECKO) {
-      ensureSentinel(el);
-      // clampCaretBeforeSentinel(el);
-    }
+    // if (!ENGINE.GECKO) {
+    // ensureSentinel(el);
+    // clampCaretBeforeSentinel(el);
+    // }
   }, [isEditing, nodeContent]);
+
+  useLayoutEffect(() => {
+    if (!refContenteditable.current) return;
+    // console.debug(`useEffect`, { nodeId });
+    if (nodeId === activeNodeId) {
+      // console.debug(`useEffect (nodeId === activeNodeId)`, { nodeId, activeNodeId });
+      // console.debug("activeNodeId", activeNodeId);
+      // useStore.setState({ activeNodeId: "" });
+      setIsEditing(true);
+      setTimeout(() => {
+        useStore.getState().setCaretAtCharIndex(refContenteditable.current!, useStore.getState().currentCaretPosition);
+      }, 0);
+    }
+  }, [nodeId, activeNodeId]);
 
   return (
     <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
@@ -120,7 +124,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         ref={refContenteditable}
         // className={`NodeContent-contenteditable ${node.content ? "trailing-nl" : ""}`}
         className={`NodeContent-contenteditable min-h-5 px-1 cursor-text select-text outline-none 
-          whitespace-pre-wrap wrap-break-word leading-tight trailing-nl 
+          whitespace-pre-wrap wrap-break-word leading-tight
           ${isEditing ? "" : "hidden"}`}
         data-id={nodeId}
         contentEditable
@@ -129,6 +133,14 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         spellCheck={true}
         autoCorrect="off"
         // Override paste behaviour
+        onPointerUp={() => {
+          // const el = e.currentTarget;
+          // console.debug("onPointerUp", inspectDOM(inspectCaret(el)));
+          // console.debug("onPointerUp", JSON.stringify(el.innerHTML));
+          // console.debug("isCursorAtEnd", isCursorAtEnd(el));
+          // console.debug("innerHTMLWithCaret", JSON.stringify(innerHTMLWithCaret(el)));
+          // console.debug(`onPointerUp`, getCaretRelativeToSpan(e.currentTarget.querySelector("span")!));
+        }}
         onPaste={(e) => {
           // console.debug(`${logPrefix} -> onPaste`, e);
           e.preventDefault();
@@ -140,39 +152,27 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // Move caret to end of inserted text
           selection.collapseToEnd();
         }}
-        onFocus={(e) => {
-          const el = e.currentTarget;
-          console.debug("onFocus", JSON.stringify(el.textContent));
-        }}
-        onInput={(e) => {
-          const el = e.currentTarget;
-          // console.debug("onInput", JSON.stringify(el.textContent));
-
-          // text = text.slice(0, text.length - 1);
-
-          // Remove <br> that browser inserts in the empty contenteditable [Currently it is not empty due to sentinel]
-          // if (e.currentTarget.innerHTML === "<br>") {
-          //   e.currentTarget.innerHTML = "";
-          // }
-
-          if (el.textContent ?? "" !== nodeContent) {
-            updateContentDebounced(nodeId, el);
-          }
-          if (!ENGINE.GECKO) {
-            ensureSentinel(refContenteditable.current!);
-            // clampCaretBeforeSentinel(refContenteditable.current!);
-          }
+        onFocus={() => {
+          // const el = e.currentTarget;
+          // console.debug("onFocus", JSON.stringify(el.innerHTML));
         }}
         onKeyDown={(e) => {
-          console.debug("onKeyDown");
+          // console.debug(`onKeyDown`, e);
           const el = e.currentTarget;
+          const textContent = el.textContent ?? "";
+
+          const selection = window.getSelection();
+          if (!selection?.rangeCount) return;
+          const range = selection.getRangeAt(0);
+          const offset = range.startOffset;
+
           // Create new node
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
             const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
             const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
-            console.debug(`(e.key === "Enter" && e.ctrlKey)`, { activeNodeId, newNodeId });
+            // console.debug(`(e.key === "Enter" && e.ctrlKey)`, { activeNodeId, newNodeId });
             if (newNodeId) {
               TreeRoAPI.useStore.getState().activateNode(newNodeId);
             }
@@ -180,32 +180,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (e.key === "Enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
             // return;
-            console.debug("onKeyDown", JSON.stringify(el.textContent));
-
-            e.preventDefault();
-            const selection = window.getSelection();
-            if (!selection?.rangeCount) return;
-            const range = selection.getRangeAt(0);
-            // Delete any selected text
-            range.deleteContents();
-            // create new text node
-            const newlineNode = document.createTextNode("\n");
-            // Insert the newline at the caret
-            range.insertNode(newlineNode);
-            // Move caret to end of inserted text
-            // Move caret after the newline
-            range.setStartAfter(newlineNode);
-            range.setEndAfter(newlineNode);
-            // Collapse selection to caret
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            console.debug("onKeyDown 2", JSON.stringify(el.textContent));
+            // e.preventDefault();
             // Remove node if empty
           } else if (e.key === "Backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
-            const text = el.textContent ?? "";
-            if (text.length === 0) {
+
+            if (textContent.length === 0) {
               e.preventDefault(); // stop browser default
               const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
               TreeRoAPI.deleteNode(nodeId);
@@ -219,6 +199,11 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
                 //   if (el) TreeRoAPI.setCaretAtCharIndex(el as HTMLElement, 0);
                 // }, 0);
               }
+            }
+
+            if (!e.currentTarget?.textContent?.endsWith("\n")) {
+              e.currentTarget.textContent = e.currentTarget.textContent + "\n";
+              TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset);
             }
             // Unindent node
           } else if (e.key === "Tab" && e.shiftKey) {
@@ -243,22 +228,73 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             TreeRoAPI.uiMoveNodeDown(nodeId);
           }
 
-          if (el.textContent ?? "" !== nodeContent) {
-            updateContentDebounced(nodeId, el);
+          // if (el.textContent ?? "" !== nodeContent) {
+          updateContentDebounced(nodeId, el);
+          // }
+        }}
+        onBeforeInput={(e) => {
+          // console.debug(`onBeforeInput`, e);
+          const el = e.currentTarget;
+          const selection = window.getSelection();
+          if (!selection?.rangeCount) return;
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          // const container = range.startContainer;
+          const offset = range.startOffset;
+          let textContent = el.textContent ?? "";
+          if (!textContent.endsWith("\n")) {
+            textContent = textContent + "\n";
           }
-          if (!ENGINE.GECKO) {
-            ensureSentinel(refContenteditable.current!);
-            // clampCaretBeforeSentinel(refContenteditable.current!);
+          const left = textContent.slice(0, offset);
+          const right = textContent.slice(offset);
+          // console.debug("el.firstChild", el.firstChild);
+          if (el.firstChild?.textContent) {
+            e.preventDefault();
+            el.firstChild.textContent = `${left}${e.data}${right}`;
+            TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset + 1);
+          } else {
+            e.preventDefault();
+            range.insertNode(document.createTextNode(`${e.data}\n`));
+            range.collapse(false);
+            // Collapse selection to caret
+            selection.removeAllRanges();
+            selection.addRange(range);
           }
+
+          // if (e.data === "\n") {
+          //   // console.debug(`onBeforeInput`);
+          //   e.preventDefault();
+          //   selectionInsertNewline();
+          //   // insertTextAtCharIndex(el, TreeRoAPI.useStore.getState().getCharIndexFromCaret(el), "\n");
+          // }
+          console.debug("onBeforeInput(end)", inspectDOM(el));
+        }}
+        onInput={(e) => {
+          console.debug(`onInput`, e);
+          const el = e.currentTarget;
+          // if ((e.nativeEvent as InputEvent).inputType === "insertParagraph") {
+          //   e.preventDefault();
+          // }
+          // Remove <br> that browser inserts in the empty contenteditable [Currently it is not empty due to sentinel]
+          // if (e.currentTarget.innerHTML === "<br>") {
+          //   e.currentTarget.innerHTML = "";
+          // }
+          if (e.currentTarget.innerHTML === "<br>") {
+            e.currentTarget.innerHTML = "";
+          }
+          console.debug("onInput(end)", inspectDOM(el));
         }}
         // On lost focus update
         onBlur={(e) => {
           // console.debug(`onBlur`);
           const el = e.currentTarget;
-          console.debug("onBlur", JSON.stringify(el.textContent));
+          let text = el.textContent ?? "";
+          text = text.slice(0, -1);
+          // console.debug("onBlur", JSON.stringify(el.textContent));
+          // console.debug("onBlur", JSON.stringify(el.innerHTML));
 
-          if (el.textContent !== nodeContent) {
-            TreeRoAPI.updateNode(nodeId, { content: el.textContent ?? "" });
+          if (text !== nodeContent) {
+            TreeRoAPI.updateNode(nodeId, { content: text });
           }
           setIsEditing(false);
           if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {

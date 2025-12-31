@@ -20,7 +20,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   activeNodeId: "",
   currentCaretPosition: 0,
 
-  explorerIsOpened: true,
+  explorerIsOpened: false,
 
   wsStatus: "disconnected",
 

@@ -18,9 +18,9 @@ export default defineConfig({
       },
 
       manifest: {
-        name: "pwa-react-treero",
-        short_name: "pwa-react-treero",
-        description: "pwa-react-treero",
+        name: "TreeRo",
+        short_name: "TreeRo",
+        description: "Offline first PWA outliner app",
         theme_color: "#ffffff",
         display: "fullscreen",
         start_url: "/",

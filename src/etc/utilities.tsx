@@ -190,12 +190,82 @@ export function getProjection(items: FlattenedNodeType[], activeId: string, over
 export function printDOM(element: HTMLElement, level = 0) {
   element.childNodes.forEach((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      // console.debug(`${logPrefix} -> Node.TEXT_NODE`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
+      console.debug(`printDOM:Node.TEXT_NODE`, node.nodeName, JSON.stringify(node.textContent));
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-      // console.debug(`${logPrefix} -> Node.ELEMENT_NODE`, node.nodeName);
+      console.debug(`printDOM:Node.ELEMENT_NODE`, node.nodeName);
       printDOM(node as HTMLElement, level + 1);
     } else {
-      // console.debug(`${logPrefix} -> ELSE`, node.nodeName);
+      console.debug(`printDOM:ELSE`, node.nodeName);
+    }
+  });
+}
+
+export function inspectCaret(editable: HTMLElement): HTMLElement {
+  // Clone DOM
+  const clone = editable.cloneNode(true) as HTMLElement;
+
+  const selection = window.getSelection();
+  if (!selection?.rangeCount) {
+    return clone;
+  }
+
+  const range = selection.getRangeAt(0);
+  if (!editable.contains(range.startContainer)) {
+    return clone;
+  }
+
+  // Build path to caret
+  const path: number[] = [];
+  let node: Node | null = range.startContainer;
+
+  while (node && node !== editable) {
+    const parent = node.parentNode as ParentNode;
+    if (!parent) break;
+    path.unshift(Array.prototype.indexOf.call(parent.childNodes, node));
+    node = parent;
+  }
+
+  // Resolve caret container in clone
+  let target: Node = clone;
+  for (const index of path) {
+    target = target.childNodes[index];
+  }
+
+  // Insert marker
+  const caret = document.createTextNode("|");
+
+  if (target.nodeType === Node.TEXT_NODE) {
+    const text = target as Text;
+    text.splitText(range.startOffset);
+    text.parentNode!.insertBefore(caret, text.nextSibling);
+  } else {
+    target.insertBefore(caret, target.childNodes[range.startOffset] || null);
+  }
+
+  return clone;
+}
+
+export function inspectDOM(element: HTMLElement): string {
+  const clone = element.cloneNode(true) as HTMLElement;
+
+  function walk(node: Node) {
+    node.childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        child.textContent = `<${child.textContent ?? ""}/>`;
+      } else {
+        walk(child);
+      }
+    });
+  }
+
+  walk(clone);
+  return clone.innerHTML.replace(/\n/g, "\\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+}
+
+export function removeNonTextNodesFromDOM(element: HTMLElement) {
+  Array.from(element.childNodes).forEach((node) => {
+    if (node.nodeType !== Node.TEXT_NODE) {
+      element.removeChild(node);
     }
   });
 }

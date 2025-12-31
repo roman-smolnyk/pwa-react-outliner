@@ -41,8 +41,10 @@ class YNodeWrap {
   }
   set content(v: string) {
     const ytext = this.ynode.get("content");
-    const oldText = ytext.toString();
-    const diff = diffChars(oldText, v);
+    const prevText = ytext.toString();
+    if (v === prevText) return;
+
+    const diff = diffChars(prevText, v);
 
     let index = 0;
     // console.debug(`YNode.content -> diff`, diff);

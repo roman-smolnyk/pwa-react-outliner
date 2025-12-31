@@ -21,17 +21,18 @@
 				"noBlankTarget": "off"
 			},
 			"correctness": {
-				"useUniqueElementIds": "off",
-				"noUnusedImports": "off",
-				"noUnusedVariables": "off",
-				"noUnusedFunctionParameters": "off"
+				"useUniqueElementIds": "on",
+				"noUnusedImports": "on",
+				"noUnusedVariables": "on",
+				"noUnusedFunctionParameters": "on"
 			},
 			"a11y": {
 				"noStaticElementInteractions": "off",
 				"useKeyWithClickEvents": "off"
 			},
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "off",
+				"useTemplate": "off"
 			},
 			"suspicious": {
 				"noTsIgnore": "off",
