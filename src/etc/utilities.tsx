@@ -56,6 +56,13 @@ export function useKeyboardOffset() {
   return offset;
 }
 
+export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
+  if (element && container) {
+    const top = element.offsetTop - container.offsetTop;
+    container.scrollTo({ top });
+  }
+}
+
 export function arrayMove<T>(array: T[], from: number, to: number): T[] {
   const newArray = array.slice(); // shallow copy
   newArray.splice(

@@ -35,8 +35,8 @@ function MenuItem({
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: React.ReactNode; label: string }) {
   return (
     <button type="button" className={`p-1 text-gray-700 hover:bg-gray-200 flex gap-2 items-center ${className ?? ""}`} {...props}>
-      <div className="size-6 md:size-5">{icon}</div>
-      <span className="text-base md:text-sm">{label}</span>
+      <div className="size-6 sm:size-5">{icon}</div>
+      <span className="text-base sm:text-sm">{label}</span>
       {children}
     </button>
   );
@@ -74,7 +74,7 @@ export default function MainMenuComponent() {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-50 md:w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-50 sm:w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <MenuItem
@@ -86,7 +86,7 @@ export default function MainMenuComponent() {
                 navigator.clipboard
                   .writeText(TreeRoAPI.getRoomToken() as string)
                   .then(() => {
-                    toast("Copied", { containerId: "main", className: "min-h-0! h-10! w-30! rounded-xl! top-5! md:top-0! right-5! md:right-0!" });
+                    toast("Copied", { containerId: "main", className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!" });
                   })
                   .catch(() => toast.error("Failed to copy"));
               }}

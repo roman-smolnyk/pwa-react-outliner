@@ -55,7 +55,7 @@ export function HeaderComponent() {
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]"
       style={{ left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
-      <div className="px-2 py-3 md:py-1 flex items-center">
+      <div className="px-2 py-3 sm:py-1 flex items-center">
         {/* Left icons */}
         <div className="flex items-center gap-2">
           {!explorerIsOpened && (
@@ -99,12 +99,12 @@ export function HeaderComponent() {
         <div className="flex-1 min-w-4" />
 
         {/* Right icons */}
-        <div className="flex ml-auto items-center gap-3 md:gap-2">
+        <div className="flex ml-auto items-center gap-3 sm:gap-2">
           <ButtonComponent
             onClick={() => {
               toast(`WS Server status: ${wsStatus}`, {
                 containerId: "main",
-                className: "min-h-0! h-10! w-60! rounded-xl! top-5! md:top-0! right-5! md:right-0!",
+                className: "min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
               });
             }}
           >
@@ -156,8 +156,8 @@ export function FooterComponent() {
         left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
       }}
     >
-      <div className="w-full px-2 m-3 md:m-1 flex items-center justify-center">
-        <div className="flex-nowrap min-w-max flex gap-4 md:gap-2">
+      <div className="w-full px-2 m-3 sm:m-1 flex items-center justify-center">
+        <div className="flex-nowrap min-w-max flex gap-4 sm:gap-2">
           <ButtonComponent
             className="UnindentNode"
             onPointerDown={(e) => {

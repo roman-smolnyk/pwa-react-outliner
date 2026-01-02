@@ -97,6 +97,12 @@ class YDocumentWrap {
   get document_id(): string {
     return this.ydocument.get("document_id");
   }
+  get parent_id(): string {
+    return this.ydocument.get("parent_id");
+  }
+  set parent_id(v: string) {
+    this.ydocument.set("parent_id", v);
+  }
   get root_node_id(): string {
     return this.ydocument.get("root_node_id");
   }
@@ -117,6 +123,12 @@ class YGroupWrap {
   }
   get group_id(): string {
     return this.ygroup.get("group_id");
+  }
+  get parent_id(): string | null {
+    return this.ygroup.get("parent_id");
+  }
+  set parent_id(v: string) {
+    this.ygroup.set("parent_id", v);
   }
   get name(): string {
     return this.ygroup.get("name");

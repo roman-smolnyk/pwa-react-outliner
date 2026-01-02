@@ -25,17 +25,20 @@ export interface YNodeDataType extends Y.Map<string | null | boolean | number | 
 
 export interface DocumentDataType {
   document_id: string;
+  parent_id: string;
   root_node_id: string;
   // As title used root node content
 }
 export interface YDocumentDataType extends Y.Map<string> {
   get(key: "document_id"): string;
+  get(key: "parent_id"): string;
   get(key: "root_node_id"): string;
 }
 
 // This one is for atomic updates, atom = document
 export interface DocumentWithNodesDataType {
   document_id: string;
+  parent_id: string;
   root_node_id: string;
   nodes: NodeDataType[];
   // As title used root node content
@@ -43,12 +46,14 @@ export interface DocumentWithNodesDataType {
 
 export interface GroupDataType {
   group_id: string;
+  parent_id: string | null;
   name: string;
   collapsed: boolean;
   children: string[]; // can be document_id or group_id
 }
 export interface YGroupDataType extends Y.Map<string | boolean | Y.Array<string>> {
   get(key: "group_id"): string;
+  get(key: "parent_id"): string | null;
   get(key: "name"): string;
   get(key: "collapsed"): boolean;
   get(key: "children"): Y.Array<string>;
@@ -115,6 +120,7 @@ export interface zustandUseStoreType {
   currentCaretPosition: number;
 
   explorerIsOpened: boolean;
+  globalSearchIsOpened: boolean;
 
   wsStatus: "connecting" | "connected" | "disconnected";
 
@@ -184,6 +190,7 @@ export interface TreeRoAPIType {
   getDocuments(groupId?: string): InstanceType<typeof Yjs.YDocumentWrap>[];
   getDocument(documentId: string): InstanceType<typeof Yjs.YDocumentWrap> | null;
   getDocumentRootNodeId(documentId: string): string | null;
+  traverseDocumentPath(documentId: string): string[];
   updateDocument(documentId: string, rootNodeContent: string): void;
   moveDocument(movedDocumentId: string, targetGroupId: string, index: number): void;
   moveDocumentBefore(movedDocumentId: string, referenceId: string): void;
@@ -200,7 +207,9 @@ export interface TreeRoAPIType {
   getNodeParent(nodeId: string): InstanceType<typeof Yjs.YNodeWrap> | null;
   getNodeSibling(nodeId: string, offset: number): InstanceType<typeof Yjs.YNodeWrap> | null;
   getNodeIndex(nodeId: string): number | null;
-  getNodeDescendantsIds: (nodeId: string) => string[];
+  getNodeDocumentId(nodeId: string): string | null;
+  getNodeDescendantsIds(nodeId: string): string[];
+  traverseNodePath(nodeId: string): string[];
   updateNode(nodeId: string, { content, collapsed }: { content?: string | undefined; collapsed?: boolean | undefined }): void;
   moveNode(movedNodeId: string, targetNodeId: string, index: number): void;
   moveNodeBefore(movedNodeId: string, referenceNodeId: string): void;

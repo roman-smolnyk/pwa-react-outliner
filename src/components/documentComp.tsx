@@ -33,15 +33,15 @@ export default function DocumentComponent() {
 
   return (
     <div className="Document relative min-w-xs h-full w-full z-1" ref={ref} data-id={currentDocumentId}>
-      <div className="Document-header-space h-10 md:h-6" />
+      <div className="Document-header-space h-10 sm:h-6" />
       <div
-        className="Document-scroll h-[calc(100vh-5rem)] md:h-[calc(100vh-3rem)] overflow-y-auto overscroll-y-contain
-                  px-5 md:px-16 lg:px-32 xl:px-56 2xl:px-70"
+        className="Document-scroll h-[calc(100vh-5rem)] sm:h-[calc(100vh-3rem)] overflow-y-auto overscroll-y-contain
+                  px-5 sm:px-16 lg:px-32 xl:px-56 2xl:px-70"
         // style={{
         //   height: `calc(100vh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
-        <div className="Document-top-spacer h-10 md:h-15" />
+        <div className="Document-top-spacer h-10 sm:h-15" />
         <div className="RootNode-outer">
           <div className="RootNode-inner">
             <div className="RootNode-self flex items-start mb-3">

@@ -30,7 +30,7 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
           await navigator.clipboard.writeText(textToCopy);
           toast("Copied", {
             containerId: "main",
-            className: "min-h-0! h-10! w-30! rounded-xl! top-5! md:top-0! right-5! md:right-0!",
+            className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
           });
         } catch (err) {
           toast.error("Failed to copy");
@@ -43,12 +43,11 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
   );
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: explanation
 function SyntaxHighlighterPreTagComponent(props: any) {
   // console.debug("SyntaxHighlighterPreTagComponent");
   return (
     <div
-      className="p-2! rounded-lg text-base! md:text-[0.95rem]! bg-gray-100!"
+      className="p-2! rounded-lg text-base! sm:text-[0.95rem]! bg-gray-100!"
       {...props}
       onPointerDownCapture={(event) => {
         // console.debug("onPointerDown DIV");
@@ -136,7 +135,7 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className={`px-1 rounded-md text-red-600 bg-gray-100 text-[1rem] md:text-[0.9rem]`}>{children}</code>
+            <code className={`px-1 rounded-md text-red-600 bg-gray-100 text-[1rem] sm:text-[0.9rem]`}>{children}</code>
           );
         },
       }}

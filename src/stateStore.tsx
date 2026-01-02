@@ -21,6 +21,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   currentCaretPosition: 0,
 
   explorerIsOpened: false,
+  globalSearchIsOpened: false,
 
   wsStatus: "disconnected",
 

@@ -364,6 +364,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     Yjs.ydoc!.transact(() => {
       const ygroup = new Y.Map() as YGroupDataType;
       ygroup.set("group_id", group_id);
+      ygroup.set("parent_id", targetGroupId);
       ygroup.set("name", name);
       ygroup.set("collapsed", false);
       ygroup.set("children", new Y.Array<string>());
@@ -537,6 +538,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         movedYgroupParent.children.delete(movedYgroupIndex);
         // insert node
         targetYgroup.children.insert(targetIndex, [movedGroupId]);
+        movedYgroup.parent_id = targetGroupId;
       });
     }
   },
@@ -640,6 +642,7 @@ export const TreeRoAPI: TreeRoAPIType = {
 
       const ydocument = new Y.Map() as YDocumentDataType;
       ydocument.set("document_id", document_id);
+      ydocument.set("parent_id", targetGroupId);
       ydocument.set("root_node_id", node_id);
 
       Yjs.ynodes!.set(node_id, rootYnode);
@@ -709,6 +712,19 @@ export const TreeRoAPI: TreeRoAPIType = {
     return ydocument.root_node_id;
   },
 
+  traverseDocumentPath(documentId) {
+    const path: string[] = [];
+    const ydocument = Yjs.YDocumentWrap.get(documentId);
+    if (!ydocument) return path;
+    let ygroup = Yjs.YGroupWrap.get(ydocument.parent_id);
+    while (ygroup?.parent_id) {
+      path.push(ygroup.name);
+      ygroup = Yjs.YGroupWrap.get(ygroup.parent_id);
+    }
+
+    return path.reverse();
+  },
+
   updateDocument(documentId, rootNodeContent) {
     const ydocument = Yjs.YDocumentWrap.get(documentId);
     if (!ydocument) return;
@@ -753,6 +769,7 @@ export const TreeRoAPI: TreeRoAPIType = {
         movedYdocumentParent.children.delete(movedYdocuemntIndex);
         // insert node
         targetYgroup.children.insert(targetIndex, [movedDocumentId]);
+        movedYdocument.parent_id = targetGroupId;
       });
     }
   },
@@ -955,6 +972,37 @@ export const TreeRoAPI: TreeRoAPIType = {
     return nodeIndex;
   },
 
+  // getNodeRootNode(nodeId) {
+  //   if (!Yjs.ynodes!.has(nodeId)) return null;
+  //   // Traverce to root ynode
+  //   let ynode = Yjs.YNodeWrap.get(nodeId);
+  //   while (ynode?.parent_id) {
+  //     ynode = Yjs.YNodeWrap.get(ynode?.parent_id);
+  //   }
+  //   if (!ynode) return null;
+  //   return ynode.node_id;
+  // },
+
+  getNodeDocumentId(nodeId) {
+    if (!Yjs.ynodes!.has(nodeId)) return null;
+    // Traverce to root ynode
+    let ynode = Yjs.YNodeWrap.get(nodeId);
+    while (ynode?.parent_id) {
+      ynode = Yjs.YNodeWrap.get(ynode?.parent_id);
+    }
+    if (!ynode) return null;
+    for (const key of Yjs.ydocuments?.keys() || []) {
+      const ydocument = Yjs.YDocumentWrap.get(key);
+      if (!ydocument) continue;
+      if (ydocument.root_node_id === ynode.node_id) return ydocument.document_id;
+      // const nodeIds = this.getNodeDescendantsIds(ydocument.root_node_id);
+      // if ([ydocument.root_node_id, ...nodeIds].includes(nodeId)) {
+      //   return ydocument.document_id;
+      // }
+    }
+    return null;
+  },
+
   getNodeDescendantsIds(nodeId) {
     const descendants: string[] = [];
     const ynode = Yjs.YNodeWrap.get(nodeId);
@@ -970,6 +1018,19 @@ export const TreeRoAPI: TreeRoAPIType = {
 
     _getDescendants(nodeId);
     return descendants;
+  },
+
+  traverseNodePath(nodeId) {
+    const path: string[] = [];
+    let ynode = Yjs.YNodeWrap.get(nodeId);
+    while (ynode?.parent_id) {
+      ynode = Yjs.YNodeWrap.get(ynode?.parent_id);
+      if (ynode) {
+        path.push(ynode.content.toString());
+      }
+    }
+
+    return path.reverse();
   },
 
   moveNode(movedNodeId, targetNodeId, index) {

@@ -44,7 +44,7 @@ export default function MainAppComponent() {
       <HeaderComponent />
       <div
         className="flex h-screen overflow-hidden
-      text-lg md:text-base"
+      text-lg sm:text-base"
       >
         <ExplorerComponent />
         <OutlineDocument />
