@@ -273,7 +273,7 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
               label="Zoom In"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.LocalConfig.set({ currentNodeId: nodeId });
+                TreeRoAPI.uiOpenNode(nodeId);
               }}
             />
             <MenuItem

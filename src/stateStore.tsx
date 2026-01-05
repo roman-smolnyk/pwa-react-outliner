@@ -3,7 +3,7 @@ import type { zustandUseStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
-  localConfig: { currentDocumentId: "", roomToken: "", isAuthorized: false },
+  localConfig: { roomToken: "", authorized: false, currentDocumentId: "", currentNodeId: "" },
   meta: { root_group_id: "" },
   groups: new Map(),
   documents: new Map(),
@@ -28,7 +28,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   clearData: () => {
     set({
       stateIsInitialized: false,
-      localConfig: { currentDocumentId: "", roomToken: "", isAuthorized: false },
+      localConfig: { roomToken: "", authorized: false, currentDocumentId: "", currentNodeId: "" },
       meta: { root_group_id: "" },
       groups: new Map(),
       documents: new Map(),

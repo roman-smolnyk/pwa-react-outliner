@@ -47,7 +47,7 @@ function NodePathPartComponent({ nodeId, part }: { nodeId: string; part: string 
       <span
         className="hover:underline cursor-pointer max-w-30 truncate"
         onClick={() => {
-          TreeRoAPI.LocalConfig.set({ currentNodeId: nodeId });
+          TreeRoAPI.uiOpenNode(nodeId)
         }}
       >
         <PlainMarkdownComponent>{part}</PlainMarkdownComponent>

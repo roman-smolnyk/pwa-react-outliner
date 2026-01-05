@@ -88,6 +88,7 @@ export interface LocalConfigStateType {
 export interface LocalConfigType {
   get: () => LocalConfigStateType;
   set: (localConfig: Partial<LocalConfigStateType>) => void;
+  clearData: () => void;
 }
 
 // export interface LocalIndexedDbDataType {
@@ -219,4 +220,5 @@ export interface TreeRoAPIType {
   uiMoveNodeDown(nodeId: string): void;
   uiToggleNodeCollapse(nodeId: string): void;
   uiToggleNodeDescendantsCollapse(nodeId: string): void;
+  uiOpenNode(nodeId: string, documentId?: string): void;
 }

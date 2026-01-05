@@ -27,4 +27,8 @@ export const LocalConfig: LocalConfigType = {
     localStorage.setItem("LocalConfig", JSON.stringify(localConfig));
     useStore.setState({ localConfig: localConfig });
   },
+
+  clearData() {
+    localStorage.clear();
+  },
 };

@@ -27,8 +27,8 @@ function ButtonComponent({
 
 function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeContent: string; query: string }) {
   const documentId = TreeRoAPI.getNodeDocumentId(nodeId);
-  const documentX = TreeRoAPI.useStore.getState().documents.get(documentId as string);
-  if (!documentId || !documentX) return;
+  const document_ = TreeRoAPI.useStore.getState().documents.get(documentId as string);
+  if (!documentId || !document_) return;
   const documentPath = TreeRoAPI.traverseDocumentPath(documentId);
   const nodePathMap = TreeRoAPI.traverseNodePath(nodeId);
 
@@ -43,12 +43,11 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
     <div
       className="cursor-pointer border-b border-gray-100 px-1 py-1 text-sm hover:bg-gray-100"
       onClick={() => {
-        TreeRoAPI.LocalConfig.set({ currentDocumentId: documentId });
+        TreeRoAPI.uiOpenNode(nodeId, documentId);
         useStore.setState({ globalSearchIsOpened: false });
         setTimeout(() => {
           //   document.getElementById(nodeId)?.scrollIntoView({ behavior: "smooth" });
-
-          scrollIntoView(document.getElementById(nodeId) as HTMLElement, document.querySelector(".Document-scroll") as HTMLElement);
+          // scrollIntoView(document.getElementById(nodeId) as HTMLElement, document.querySelector(".Document-scroll") as HTMLElement);
         }, 1_000);
       }}
     >

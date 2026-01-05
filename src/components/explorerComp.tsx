@@ -324,8 +324,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              TreeRoAPI.LocalConfig.set({ currentDocumentId: documentId });
-              TreeRoAPI.LocalConfig.set({ currentNodeId: rootNode.node_id });
+              TreeRoAPI.uiOpenNode(rootNode.node_id, documentId);
             }}
           >
             {!isEditing ? (

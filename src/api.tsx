@@ -15,8 +15,8 @@ export const TreeRoAPI: TreeRoAPIType = {
   useStore: useStore,
 
   clearData(reload) {
-    TreeRoAPI.Yjs.idbPersistence?.clearData();
-    localStorage.clear();
+    Yjs.idbPersistence?.clearData();
+    LocalConfig.clearData();
     if (reload) {
       window.location.replace(window.location.href);
     }
@@ -915,6 +915,13 @@ export const TreeRoAPI: TreeRoAPIType = {
         if (yn) yn.collapsed = !ynode.collapsed;
       }
     });
+  },
+
+  uiOpenNode(nodeId, documentId) {
+    this.LocalConfig.set({ currentNodeId: nodeId });
+    if (documentId) {
+      this.LocalConfig.set({ currentDocumentId: documentId });
+    }
   },
 };
 
