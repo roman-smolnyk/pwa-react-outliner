@@ -324,7 +324,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              TreeRoAPI.setCurrentDocumentId(documentId);
+              TreeRoAPI.LocalConfig.set({ currentDocumentId: documentId });
             }}
           >
             {!isEditing ? (
@@ -429,7 +429,7 @@ export default function ExplorerComponent() {
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
   const rootGroup = useStore((state) => {
-    if (!TreeRoAPI.isIntialized()) return null;
+    if (!TreeRoAPI.useStore.getState().stateIsInitialized) return null;
     const rootGroupId = TreeRoAPI.getRootGroupId();
     // console.debug("rootGroupId", rootGroupId)
     if (!rootGroupId) return null;

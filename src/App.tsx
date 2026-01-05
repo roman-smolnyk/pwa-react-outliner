@@ -9,9 +9,9 @@ import { Capacitor } from "@capacitor/core";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
-  TreeRoAPI.useStore((state) => state.localConfig.isAuthorized);
+  TreeRoAPI.useStore((state) => state.localConfig.authorized);
 
-  if (!TreeRoAPI.isAuthorized()) {
+  if (!TreeRoAPI.LocalConfig.get().authorized) {
     return <LoginFormComponent />;
   }
 

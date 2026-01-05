@@ -15,7 +15,7 @@ export default function DocumentComponent() {
   const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
 
   const rootNode = useStore((state) => {
-    if (!TreeRoAPI.isIntialized()) return null;
+    if (!TreeRoAPI.useStore.getState().stateIsInitialized) return null;
     const rootNodeId = TreeRoAPI.getDocumentRootNodeId(state.localConfig.currentDocumentId);
     // console.debug("rootNodeId", rootNodeId)
     if (!rootNodeId) return null;

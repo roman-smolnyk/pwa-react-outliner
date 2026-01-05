@@ -7,6 +7,7 @@ import OutlineDocument from "../components/documentComp.tsx";
 import { FooterComponent, HeaderComponent } from "../components/headerFooterComp.tsx";
 import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
 import ExplorerComponent from "./explorerComp.tsx";
+import onStartUp from "../onStartUp.tsx";
 
 function SpinnerComponent() {
   return (
@@ -29,7 +30,7 @@ export default function MainAppComponent() {
   });
 
   useEffect(() => {
-    TreeRoAPI.initialize(() => {
+    onStartUp().then(() => {
       setLoading(false);
       // document.querySelector("#root > .spinner")?.remove();
     });

@@ -22,8 +22,8 @@ export function LoginFormComponent() {
             onClick={(_) => {
               // console.debug("Login", token);
               if (token) {
-                TreeRoAPI.setRoomToken(token);
-                TreeRoAPI.setIsAuthorized(true);
+                TreeRoAPI.LocalConfig.set({ roomToken: token });
+                TreeRoAPI.LocalConfig.set({ authorized: true });
               }
             }}
           >
@@ -34,7 +34,7 @@ export function LoginFormComponent() {
             className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
               // console.debug("New Account");
-              TreeRoAPI.setIsAuthorized(true);
+              TreeRoAPI.LocalConfig.set({ authorized: true });
             }}
           >
             New Account

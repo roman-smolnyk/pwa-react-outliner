@@ -15,16 +15,22 @@ import {
   Share2Icon,
   SquarePenIcon,
   Trash2Icon,
+  RefreshCwIcon,
+  CloudAlertIcon,
+  CloudCheckIcon,
+  CloudCogIcon,
   UploadIcon,
   UserRoundIcon,
   ZoomInIcon,
   CircleQuestionMarkIcon,
 } from "lucide-react";
+import React from "react";
 import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import JSZip from "jszip";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
+import { useStore } from "../stateStore";
 
 function MenuItem({
   icon,
@@ -41,6 +47,19 @@ function MenuItem({
     </button>
   );
 }
+
+// const ButtonComponent = React.forwardRef<
+//   HTMLButtonElement,
+//   React.ButtonHTMLAttributes<HTMLButtonElement> & {
+//     className?: string;
+//   }
+// >(function ButtonComponent({ children, className, ...props }, ref) {
+//   return (
+//     <button ref={ref} type="button" className={`cursor-pointer active:scale-90 transition text-gray-600 ${className ?? ""}`} {...props}>
+//       {children}
+//     </button>
+//   );
+// });
 
 export default function MainMenuComponent() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +103,7 @@ export default function MainMenuComponent() {
               onClick={() => {
                 setOpen(false);
                 navigator.clipboard
-                  .writeText(TreeRoAPI.getRoomToken() as string)
+                  .writeText(TreeRoAPI.LocalConfig.get().roomToken)
                   .then(() => {
                     toast("Copied", { containerId: "main", className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!" });
                   })
@@ -473,3 +492,102 @@ export function DocumentOptionsComponent({ documentId, setRenaming }: { document
     </>
   );
 }
+
+// export function CloudSyncOptionsComponent() {
+//   const [open, setOpen] = useState(false);
+//   const [hovered, setHovered] = useState(false);
+//   const wsStatus = useStore((state) => state.wsStatus);
+
+//   const { refs, floatingStyles, context } = useFloating({
+//     open,
+//     onOpenChange: setOpen,
+//     placement: "bottom-end",
+//     middleware: [flip()],
+//     whileElementsMounted: autoUpdate,
+//   });
+
+//   const click = useClick(context, {
+//     event: "mousedown",
+//   });
+
+//   const dismiss = useDismiss(context);
+//   const role = useRole(context, { role: "menu" });
+
+//   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+//   return (
+//     <>
+//       <ButtonComponent
+//         ref={refs.setReference}
+//         {...getReferenceProps()}
+//         onClick={() => {}}
+//         onMouseEnter={() => setHovered(true)}
+//         onMouseLeave={() => setHovered(false)}
+//       >
+//         {wsStatus === "connecting" && <CloudAlertIcon />}
+//         {wsStatus === "connected" && <CloudCheckIcon />}
+//         {wsStatus === "disconnected" && <RefreshCwIcon className="animate-spin" />}
+//         {wsStatus === "turned off" && <CloudCogIcon />}
+//       </ButtonComponent>
+
+//       {hovered && (
+//         <div
+//           className="
+//       pointer-events-none
+//       absolute left-0 top-full mt-1
+//       hidden group-hover:block
+//       rounded bg-neutral-900 px-2 py-1
+//       text-xs text-white whitespace-nowrap
+//       shadow-lg
+//     "
+//         >
+//           Extra info
+//         </div>
+//       )}
+
+//       {open && (
+//         <FloatingPortal>
+//           <div
+//             ref={refs.setFloating}
+//             style={floatingStyles}
+//             className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+//             {...getFloatingProps()}
+//           >
+//             <MenuItem
+//               className="RenameGroup"
+//               icon={<SquarePenIcon className="w-full h-full" />}
+//               label="Rename"
+//               onClick={() => {
+//                 setOpen(false);
+//               }}
+//             />
+//             <MenuItem
+//               className="CreateNewDocument"
+//               icon={<FilePlusIcon className="w-full h-full" />}
+//               label="New Document"
+//               onClick={() => {
+//                 setOpen(false);
+//               }}
+//             />
+//             <MenuItem
+//               className="CreateNewGroup"
+//               icon={<FolderPlusIcon className="w-full h-full" />}
+//               label="New Folder"
+//               onClick={() => {
+//                 setOpen(false);
+//               }}
+//             />
+//             <MenuItem
+//               className="DeleteGroup text-red-600"
+//               icon={<Trash2Icon className="w-full h-full" />}
+//               label="Delete"
+//               onClick={() => {
+//                 setOpen(false);
+//               }}
+//             />
+//           </div>
+//         </FloatingPortal>
+//       )}
+//     </>
+//   );
+// }

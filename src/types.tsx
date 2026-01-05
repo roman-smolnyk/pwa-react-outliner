@@ -1,4 +1,3 @@
-import type { IDBPDatabase } from "idb";
 import type * as Y from "yjs";
 import type { StoreApi, UseBoundStore } from "zustand";
 import type { Yjs } from "./yjsEnv";
@@ -79,22 +78,28 @@ export interface FlattenedNodeType {
   children: string[];
 }
 
-export interface LocalConfigType {
-  currentDocumentId: string;
+export interface LocalConfigStateType {
   roomToken: string;
-  isAuthorized: boolean;
+  authorized: boolean;
+  currentDocumentId: string;
+  currentNodeid: string;
 }
 
-export interface LocalIndexedDbDataType {
-  localConfig: LocalConfigType;
+export interface LocalConfigType {
+  get: () => LocalConfigStateType;
+  set: (localConfig: Partial<LocalConfigStateType>) => void;
 }
 
-export interface IDBLocalType {
-  db: IDBPDatabase<LocalIndexedDbDataType> | null;
-  clearData(): Promise<void>;
-  getLocalConfig(): Promise<LocalConfigType | undefined>;
-  setLocalConfig(localConfig: LocalConfigType): Promise<void>;
-}
+// export interface LocalIndexedDbDataType {
+//   localConfig: LocalConfigType;
+// }
+
+// export interface IDBLocalType {
+//   db: IDBPDatabase<LocalIndexedDbDataType> | null;
+//   clearData(): Promise<void>;
+//   getLocalConfig(): Promise<LocalConfigType | undefined>;
+//   setLocalConfig(localConfig: LocalConfigType): Promise<void>;
+// }
 
 // -----------------------
 // Zustand store
@@ -102,7 +107,7 @@ export interface IDBLocalType {
 export interface zustandUseStoreType {
   // ---------------- Data State ----------------
   stateIsInitialized: boolean;
-  localConfig: LocalConfigType;
+  localConfig: LocalConfigStateType;
   meta: MetaDataType;
   groups: Map<string, GroupDataType>;
   documents: Map<string, DocumentDataType>;
@@ -122,7 +127,7 @@ export interface zustandUseStoreType {
   explorerIsOpened: boolean;
   globalSearchIsOpened: boolean;
 
-  wsStatus: "connecting" | "connected" | "disconnected";
+  wsStatus: "connecting" | "connected" | "disconnected" | "turned off";
 
   clearData: () => void;
 
@@ -146,26 +151,18 @@ export interface TreeRoAPIType {
   version: string;
   // Yjs
   Yjs: typeof Yjs;
-  // idb local
-  IDBLocal: IDBLocalType;
+  // Local Config (localstorage)
+  LocalConfig: LocalConfigType;
   // Zustand store
   useStore: UseBoundStore<StoreApi<zustandUseStoreType>>;
 
-  initialize(callback?: () => void): Promise<void>;
-  isIntialized(): boolean;
-  _addUpdateStateObserver(): void;
-  initRootData(): void;
+  // ---------------- Misc Methods ----------------
   clearData(reload?: boolean): void;
+  generateRoomToken(): string;
 
   // ---------------- Meta Methods ----------------
-  isAuthorized(): boolean;
-  setIsAuthorized(isAuthorized: boolean): void;
-  generateRoomToken(): string;
-  getRoomToken(): string | null;
-  setRoomToken(roomToken: string): void;
-  getCurrentDocumentId(): string | null;
-  setCurrentDocumentId(documentId: string): void;
   getRootGroupId(): string;
+  setRootGroupId(rootGroupId: string): void;
 
   // ---------------- Group Methods ----------------
   insertNewGroup(targetGroupId: string, name?: string, index?: number): string | null;

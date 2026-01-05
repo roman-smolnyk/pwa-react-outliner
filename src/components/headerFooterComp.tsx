@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CloudAlertIcon,
   CloudCheckIcon,
+  CloudCogIcon,
   ListChecksIcon,
   MoveIcon,
   PanelLeftIcon,
@@ -102,7 +103,7 @@ export function HeaderComponent() {
         <div className="flex ml-auto items-center gap-3 sm:gap-2">
           <ButtonComponent
             onClick={() => {
-              toast(`WS Server status: ${wsStatus}`, {
+              toast(`WebSocket status: '${wsStatus}'`, {
                 containerId: "main",
                 className: "min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
               });
@@ -111,6 +112,7 @@ export function HeaderComponent() {
             {wsStatus === "connecting" && <CloudAlertIcon />}
             {wsStatus === "connected" && <CloudCheckIcon />}
             {wsStatus === "disconnected" && <RefreshCwIcon className="animate-spin" />}
+            {wsStatus === "turned off" && <CloudCogIcon />}
           </ButtonComponent>
 
           <ButtonComponent className="text-yellow-400">

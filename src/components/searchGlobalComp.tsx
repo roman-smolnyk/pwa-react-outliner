@@ -1,5 +1,5 @@
 //
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useStore } from "../stateStore";
 import { TreeRoAPI } from "../api";
@@ -40,7 +40,7 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
     <div
       className="cursor-pointer border-b border-gray-100 px-1 py-1 text-sm hover:bg-gray-100"
       onClick={() => {
-        TreeRoAPI.setCurrentDocumentId(documentId);
+        TreeRoAPI.LocalConfig.set({ currentDocumentId: documentId });
         useStore.setState({ globalSearchIsOpened: false });
         setTimeout(() => {
           //   document.getElementById(nodeId)?.scrollIntoView({ behavior: "smooth" });
@@ -57,6 +57,7 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
 }
 
 export function GlobalSearchPortalComponent() {
+  const refInput = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState("");
 
   const globalSearchIsOpened = useStore((state) => state.globalSearchIsOpened);
@@ -67,6 +68,10 @@ export function GlobalSearchPortalComponent() {
   if (query) {
     filteredNodes = [...nodes.values()].filter((a) => a.content.toLowerCase().includes(query.toLowerCase()));
   }
+
+  useEffect(() => {
+    refInput.current?.focus();
+  }, []);
 
   return createPortal(
     <div
@@ -86,7 +91,7 @@ export function GlobalSearchPortalComponent() {
       >
         <div className="flex items-center gap-2">
           <input
-            autoFocus
+            ref={refInput}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."

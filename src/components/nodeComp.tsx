@@ -307,7 +307,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           className={`NodeContent-render wrap-break-word min-h-5 px-1 ${isEditing ? "hidden" : ""} ${readOnly ? "cursor-default" : "cursor-text"}`}
           data-id={nodeId}
           onPointerDown={(e) => {
-            console.debug("onPointerDown", e.currentTarget.innerHTML);
+            // console.debug("onPointerDown", e.currentTarget.innerHTML);
             if (readOnly) return;
             if (e.pointerType === "touch") {
               // isTouch = true;
