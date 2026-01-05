@@ -8,28 +8,20 @@ import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
 import { NodeOptionsComponent } from "./menusComp";
 
+import { PlainMarkdownComponent } from "./markdownComp";
+
 export default function DocumentComponent() {
   const ref = useRef<HTMLDivElement>(null);
-  const [activeId, setActiveId] = useState("");
-
   const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
 
-  const rootNode = useStore((state) => {
-    if (!TreeRoAPI.useStore.getState().stateIsInitialized) return null;
-    const rootNodeId = TreeRoAPI.getDocumentRootNodeId(state.localConfig.currentDocumentId);
-    // console.debug("rootNodeId", rootNodeId)
-    if (!rootNodeId) return null;
-    return state.nodes.get(rootNodeId);
-  });
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
+  // Scroll to top
   useEffect(() => {
     if (ref.current?.parentElement) {
       ref.current.parentElement.scrollTop = 0;
     }
   }, [currentDocumentId]);
 
-  if (!rootNode) return null;
+  if (!TreeRoAPI.useStore.getState().stateIsInitialized) return;
 
   return (
     <div className="Document relative min-w-xs h-full w-full z-1" ref={ref} data-id={currentDocumentId}>
@@ -42,85 +34,132 @@ export default function DocumentComponent() {
         // }}
       >
         <div className="Document-top-spacer h-10 sm:h-15" />
-        <div className="RootNode-outer">
-          <div className="RootNode-inner">
-            <div className="RootNode-self flex items-start mb-3">
-              <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
-              <NodeOptionsComponent nodeId={rootNode.node_id} />
-            </div>
-            <div className="RootNodeChildren flex flex-col gap-1">
-              <DnDWrapperComponent
-                onDragStart={(event) => {
-                  // console.debug("onDragStart", event);
-                  setActiveId(event.active.id as string);
-                }}
-                onDragMoveCallback={(event, dndCoordinates) => {
-                  if (!event.over) return;
-                  const rect = TreeRoAPI.useStore.getState().dndRectEl?.getBoundingClientRect();
-                  if (rect) {
-                    const rectPageTop = rect.top + dndCoordinates.scrollY;
-                    const middleX = 200;
-                    const middleY = rectPageTop + rect.height / 2;
-                    const offsetFromLeft = dndCoordinates.pointerX - (rect.left + scrollX);
-                    const shouldIndent = offsetFromLeft > middleX;
-                    const position = dndCoordinates.pointerY > middleY ? "after" : "before";
-                    const placement = shouldIndent && position === "after" ? "inside" : position;
-                    TreeRoAPI.useStore.setState({ dndPlacement: placement });
-                    TreeRoAPI.useStore.getState().triggerDnDRender(event.over.id as string);
-                  }
-                }}
-                onDragEnd={(event) => {
-                  // console.debug("onDragEnd", event);
-                  if (!event.over) return;
-                  const activeId = String(event.active.id);
-                  const overId = String(event.over.id);
-
-                  if (activeId === overId) return;
-                  const placement = useStore.getState().dndPlacement;
-                  if (!placement) return;
-                  const activeNode = TreeRoAPI.getNode(activeId);
-                  const overNode = TreeRoAPI.getNode(overId);
-                  const activeParent = TreeRoAPI.getNodeParent(activeId);
-                  const overParent = TreeRoAPI.getNodeParent(overId);
-                  if (!activeParent || !overParent || !activeNode || !overNode) return;
-                  if (TreeRoAPI.useStore.getState().dndDescendantsIds.includes(activeId)) return;
-
-                  // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
-                  if (placement === "after") {
-                    if (overNode.collapsed === false && overNode.children.length !== 0) {
-                      // console.debug("placement after moveNode");
-                      TreeRoAPI.moveNode(activeId, overId, 0);
-                    } else {
-                      // console.debug("placement after moveNodeAfter");
-                      TreeRoAPI.moveNodeAfter(activeId, overId);
-                    }
-                  } else if (placement === "before") {
-                    // console.debug("placement before moveNodeBefore");
-                    TreeRoAPI.moveNodeBefore(activeId, overId);
-                  } else if (placement === "inside") {
-                    if (overNode.collapsed === false && overNode.children.length !== 0) {
-                      // console.debug("placement inside moveNode 0");
-                      TreeRoAPI.moveNode(activeId, overId, 0);
-                    } else {
-                      // console.debug("placement inside moveNode -1");
-                      TreeRoAPI.moveNode(activeId, overId, -1);
-                    }
-                  }
-                }}
-              >
-                {rootNode.children.map((childId) => (
-                  <NodeComponent key={childId} nodeId={childId} />
-                ))}
-                {/* Remember that it is located in the document container so it inherits styles and behaviour */}
-                <DragOverlay>
-                  {activeId ? <div className="inline-block border border-black bg-white px-1 cursor-grabbing">Move node</div> : null}
-                </DragOverlay>
-              </DnDWrapperComponent>
-            </div>
-          </div>
-        </div>
+        <RootNodeComponent />
         <div className="Document-bottom-spacer h-100" />
       </div>
     </div>
+  );
+}
+
+function NodePathPartComponent({ nodeId, part }: { nodeId: string; part: string }) {
+  return (
+    <span className="text-sm text-gray-500 inline-flex items-center">
+      <span
+        className="hover:underline cursor-pointer max-w-30 truncate"
+        onClick={() => {
+          TreeRoAPI.LocalConfig.set({ currentNodeId: nodeId });
+        }}
+      >
+        <PlainMarkdownComponent>{part}</PlainMarkdownComponent>
+      </span>
+      <span className="mx-1">/</span>
+    </span>
+  );
+}
+
+function NodePathComponent({ nodeId }: { nodeId: string }) {
+  const pathMap = TreeRoAPI.traverseNodePath(nodeId);
+
+  // const pathValues = Array.from(pathMap.values());
+
+  return (
+    <div className="mb-5">
+      {[...pathMap].map(([k, v]) => {
+        return <NodePathPartComponent nodeId={k} part={v} />;
+      })}
+    </div>
+  );
+}
+
+export function RootNodeComponent() {
+  const [activeId, setActiveId] = useState(""); // DnD
+
+  const rootNode = useStore((state) => {
+    return state.nodes.get(state.localConfig.currentNodeId);
+  });
+
+  if (!rootNode) return null;
+
+  return (
+    <>
+      {rootNode.parent_id && <NodePathComponent nodeId={rootNode.node_id} />}
+      <div className="RootNode-outer">
+        <div className="RootNode-inner">
+          <div className="RootNode-self flex items-start mb-3">
+            <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
+            <NodeOptionsComponent nodeId={rootNode.node_id} />
+          </div>
+          <div className="RootNodeChildren flex flex-col gap-1">
+            <DnDWrapperComponent
+              onDragStart={(event) => {
+                // console.debug("onDragStart", event);
+                setActiveId(event.active.id as string);
+              }}
+              onDragMoveCallback={(event, dndCoordinates) => {
+                if (!event.over) return;
+                const rect = TreeRoAPI.useStore.getState().dndRectEl?.getBoundingClientRect();
+                if (rect) {
+                  const rectPageTop = rect.top + dndCoordinates.scrollY;
+                  const middleX = 200;
+                  const middleY = rectPageTop + rect.height / 2;
+                  const offsetFromLeft = dndCoordinates.pointerX - (rect.left + scrollX);
+                  const shouldIndent = offsetFromLeft > middleX;
+                  const position = dndCoordinates.pointerY > middleY ? "after" : "before";
+                  const placement = shouldIndent && position === "after" ? "inside" : position;
+                  TreeRoAPI.useStore.setState({ dndPlacement: placement });
+                  TreeRoAPI.useStore.getState().triggerDnDRender(event.over.id as string);
+                }
+              }}
+              onDragEnd={(event) => {
+                // console.debug("onDragEnd", event);
+                if (!event.over) return;
+                const activeId = String(event.active.id);
+                const overId = String(event.over.id);
+
+                if (activeId === overId) return;
+                const placement = useStore.getState().dndPlacement;
+                if (!placement) return;
+                const activeNode = TreeRoAPI.getNode(activeId);
+                const overNode = TreeRoAPI.getNode(overId);
+                const activeParent = TreeRoAPI.getNodeParent(activeId);
+                const overParent = TreeRoAPI.getNodeParent(overId);
+                if (!activeParent || !overParent || !activeNode || !overNode) return;
+                if (TreeRoAPI.useStore.getState().dndDescendantsIds.includes(activeId)) return;
+
+                // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
+                if (placement === "after") {
+                  if (overNode.collapsed === false && overNode.children.length !== 0) {
+                    // console.debug("placement after moveNode");
+                    TreeRoAPI.moveNode(activeId, overId, 0);
+                  } else {
+                    // console.debug("placement after moveNodeAfter");
+                    TreeRoAPI.moveNodeAfter(activeId, overId);
+                  }
+                } else if (placement === "before") {
+                  // console.debug("placement before moveNodeBefore");
+                  TreeRoAPI.moveNodeBefore(activeId, overId);
+                } else if (placement === "inside") {
+                  if (overNode.collapsed === false && overNode.children.length !== 0) {
+                    // console.debug("placement inside moveNode 0");
+                    TreeRoAPI.moveNode(activeId, overId, 0);
+                  } else {
+                    // console.debug("placement inside moveNode -1");
+                    TreeRoAPI.moveNode(activeId, overId, -1);
+                  }
+                }
+              }}
+            >
+              {rootNode.children.map((childId) => (
+                <NodeComponent key={childId} nodeId={childId} />
+              ))}
+              {/* Remember that it is located in the document container so it inherits styles and behaviour */}
+              <DragOverlay>
+                {activeId ? <div className="inline-block border border-black bg-white px-1 cursor-grabbing">Move node</div> : null}
+              </DragOverlay>
+            </DnDWrapperComponent>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

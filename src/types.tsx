@@ -82,7 +82,7 @@ export interface LocalConfigStateType {
   roomToken: string;
   authorized: boolean;
   currentDocumentId: string;
-  currentNodeid: string;
+  currentNodeId: string;
 }
 
 export interface LocalConfigType {
@@ -192,7 +192,7 @@ export interface TreeRoAPIType {
   moveDocument(movedDocumentId: string, targetGroupId: string, index: number): void;
   moveDocumentBefore(movedDocumentId: string, referenceId: string): void;
   moveDocumentAfter(movedDocumentId: string, referenceId: string): void;
-  deleteDocument(documentId: string): void; // TODO
+  deleteDocument(documentId: string): void;
 
   // ---------------- Node Methods ----------------
   insertNewNode(targetNodeId: string, content?: string, index?: number, args?: Partial<NodeDataType>): string | null;
@@ -206,7 +206,7 @@ export interface TreeRoAPIType {
   getNodeIndex(nodeId: string): number | null;
   getNodeDocumentId(nodeId: string): string | null;
   getNodeDescendantsIds(nodeId: string): string[];
-  traverseNodePath(nodeId: string): string[];
+  traverseNodePath(nodeId: string): Map<string, string>;
   updateNode(nodeId: string, { content, collapsed }: { content?: string | undefined; collapsed?: boolean | undefined }): void;
   moveNode(movedNodeId: string, targetNodeId: string, index: number): void;
   moveNodeBefore(movedNodeId: string, referenceNodeId: string): void;

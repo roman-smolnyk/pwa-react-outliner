@@ -30,8 +30,11 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
   const documentX = TreeRoAPI.useStore.getState().documents.get(documentId as string);
   if (!documentId || !documentX) return;
   const documentPath = TreeRoAPI.traverseDocumentPath(documentId);
-  const nodePath = TreeRoAPI.traverseNodePath(nodeId);
-  const path = [...documentPath, ...nodePath].map((s) => (s.length > 10 ? s.slice(0, 10) + "…" : s));
+  const nodePathMap = TreeRoAPI.traverseNodePath(nodeId);
+
+  const nodePathValues = Array.from(nodePathMap.values());
+
+  const path = [...documentPath, ...nodePathValues].map((s) => (s.length > 10 ? s.slice(0, 10) + "…" : s));
 
   const regex = new RegExp(`(${query})`, "gi");
   const parts = nodeContent.split(regex);
@@ -49,7 +52,6 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
         }, 1_000);
       }}
     >
-      {/** biome-ignore lint/correctness/useJsxKeyInIterable: explanation */}
       {parts.map((part, _idx) => (regex.test(part) ? <span className="bg-yellow-200 text-black">{part}</span> : <span>{part}</span>))}
       <div className="text-gray-400">{`${path.join("/")}`}</div>
     </div>

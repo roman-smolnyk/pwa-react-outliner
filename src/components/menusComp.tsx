@@ -268,11 +268,12 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
             {...getFloatingProps()}
           >
             <MenuItem
-              className="text-yellow-400"
+              className="ZoomIntoNode"
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
               onClick={() => {
                 setOpen(false);
+                TreeRoAPI.LocalConfig.set({ currentNodeId: nodeId });
               }}
             />
             <MenuItem

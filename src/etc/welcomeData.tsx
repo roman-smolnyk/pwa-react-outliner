@@ -6,6 +6,7 @@ export function createWelcomeDocument() {
   TreeRoAPI.LocalConfig.set({ currentDocumentId: documentId });
 
   const ydocument = TreeRoAPI.Yjs.YDocumentWrap.get(documentId)!;
+  TreeRoAPI.LocalConfig.set({ currentNodeId: ydocument.root_node_id });
 
   for (const arr of data) {
     TreeRoAPI.insertNewNode(ydocument.root_node_id, arr[arr.length - 1] as string);

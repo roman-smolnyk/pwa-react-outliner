@@ -1,11 +1,6 @@
 import { useStore } from "./stateStore";
 import * as Y from "yjs";
-import type {
-  TreeRoAPIType,
-  YDocumentDataType,
-  YGroupDataType,
-  YNodeDataType,
-} from "./types";
+import type { TreeRoAPIType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
 import { Yjs } from "./yjsEnv";
 import { nanoid } from "nanoid";
 import { LocalConfig } from "./localConfig";
@@ -280,6 +275,7 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   deleteGroup(groupId) {
+    // TODO: Needs fix, as currently it does not remove descendants
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup) return;
     const parentYgroup = this.getParentGroup(groupId);
@@ -519,6 +515,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     if (ydocumentIndex === -1) return;
 
     Yjs.ydoc!.transact(() => {
+      this.deleteNode(ydocument.root_node_id);
       parentYgroup.children.delete(ydocumentIndex);
       Yjs.ydocuments!.delete(documentId);
     });
@@ -709,16 +706,16 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   traverseNodePath(nodeId) {
-    const path: string[] = [];
+    const pathMap: Map<string, string> = new Map();
     let ynode = Yjs.YNodeWrap.get(nodeId);
     while (ynode?.parent_id) {
       ynode = Yjs.YNodeWrap.get(ynode?.parent_id);
       if (ynode) {
-        path.push(ynode.content.toString());
+        pathMap.set(ynode.node_id, ynode.content.toString());
       }
     }
 
-    return path.reverse();
+    return new Map([...pathMap].reverse());
   },
 
   moveNode(movedNodeId, targetNodeId, index) {

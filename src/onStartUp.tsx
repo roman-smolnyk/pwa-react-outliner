@@ -74,9 +74,8 @@ export default async function onStartUp() {
 }
 
 function startStateUpdaterViaYjsObserver() {
-  // Update state
-  // TODO: Add meta
   // ########################### Nodes ##################################
+
   Yjs.ynodes?.observeDeep((events) => {
     // when nested Y.Array or, Y.Text changes, two events are fired, for themself and for parent Y.Map
     // console.debug("ynodes.observeDeep", events);
@@ -252,5 +251,15 @@ function startStateUpdaterViaYjsObserver() {
         // console.debug("ELSE", event.target.toJSON());
       }
     }
+  });
+
+  // ########################### META ##################################
+
+  Yjs.ymeta?.observeDeep((_events) => {
+    // console.debug("ymeta.observeDeep", events);
+    useStore.setState((_state) => {
+      const root_group_id = TreeRoAPI.Yjs.ymeta!.get("root_group_id");
+      return { meta: { root_group_id: root_group_id } };
+    });
   });
 }

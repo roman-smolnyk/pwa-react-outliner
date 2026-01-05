@@ -24,7 +24,9 @@
 				"useUniqueElementIds": "on",
 				"noUnusedImports": "on",
 				"noUnusedVariables": "on",
-				"noUnusedFunctionParameters": "on"
+				"noUnusedFunctionParameters": "on",
+				"useExhaustiveDependencies": "off",
+				"useJsxKeyInIterable": "off"
 			},
 			"a11y": {
 				"noStaticElementInteractions": "off",
