@@ -47,7 +47,7 @@ function NodePathPartComponent({ nodeId, part }: { nodeId: string; part: string 
       <span
         className="hover:underline cursor-pointer max-w-30 truncate"
         onClick={() => {
-          TreeRoAPI.uiOpenNode(nodeId)
+          TreeRoAPI.uiOpenNode(nodeId);
         }}
       >
         <PlainMarkdownComponent>{part}</PlainMarkdownComponent>
@@ -65,7 +65,7 @@ function NodePathComponent({ nodeId }: { nodeId: string }) {
   return (
     <div className="mb-5">
       {[...pathMap].map(([k, v]) => {
-        return <NodePathPartComponent nodeId={k} part={v} />;
+        return <NodePathPartComponent key={crypto.randomUUID()} nodeId={k} part={v} />;
       })}
     </div>
   );

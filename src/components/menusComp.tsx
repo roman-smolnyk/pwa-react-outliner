@@ -1,7 +1,9 @@
 import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import JSZip from "jszip";
 import {
   ArrowDownNarrowWideIcon,
   BoltIcon,
+  CircleQuestionMarkIcon,
   EllipsisVerticalIcon,
   FilePlusIcon,
   FolderPlusIcon,
@@ -15,22 +17,14 @@ import {
   Share2Icon,
   SquarePenIcon,
   Trash2Icon,
-  RefreshCwIcon,
-  CloudAlertIcon,
-  CloudCheckIcon,
-  CloudCogIcon,
   UploadIcon,
   UserRoundIcon,
   ZoomInIcon,
-  CircleQuestionMarkIcon,
 } from "lucide-react";
-import React from "react";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
-import JSZip from "jszip";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
-import { useStore } from "../stateStore";
 
 function MenuItem({
   icon,
@@ -74,7 +68,7 @@ export default function MainMenuComponent() {
   });
 
   const click = useClick(context, {
-    event: "mousedown",
+    event: "click", // if "mousedown" it prevents onblur to happen
   });
 
   const dismiss = useDismiss(context);
@@ -245,7 +239,7 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
   });
 
   const click = useClick(context, {
-    event: "mousedown",
+    event: "click",
   });
 
   const dismiss = useDismiss(context);
@@ -317,11 +311,22 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
               }}
             />
             <MenuItem
-              className="text-yellow-400"
+              className="CopyNodeLink"
               icon={<LinkIcon className="w-full h-full" />}
               label="Copy link"
-              onClick={() => {
+              onClick={async () => {
                 setOpen(false);
+                const nodeUrl = `${window.location.origin}/${nodeId}`;
+                try {
+                  await navigator.clipboard.writeText(nodeUrl);
+                  toast("Copied", {
+                    containerId: "main",
+                    className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
+                  });
+                } catch (err) {
+                  toast.error("Failed to copy");
+                  console.error("Failed to copy:", err);
+                }
               }}
             />
             <MenuItem
@@ -352,7 +357,7 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
   });
 
   const click = useClick(context, {
-    event: "mousedown",
+    event: "click",
   });
 
   const dismiss = useDismiss(context);
@@ -362,7 +367,12 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+      <button
+        ref={refs.setReference}
+        type="button"
+        className="cursor-pointer active:scale-90 transition flex items-center justify-center"
+        {...getReferenceProps()}
+      >
         <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
       </button>
 
@@ -431,7 +441,7 @@ export function DocumentOptionsComponent({ documentId, setRenaming }: { document
   });
 
   const click = useClick(context, {
-    event: "mousedown",
+    event: "click",
   });
 
   const dismiss = useDismiss(context);
@@ -441,7 +451,12 @@ export function DocumentOptionsComponent({ documentId, setRenaming }: { document
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+      <button
+        ref={refs.setReference}
+        type="button"
+        className="cursor-pointer active:scale-90 transition flex items-center justify-center"
+        {...getReferenceProps()}
+      >
         <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
       </button>
 

@@ -3,6 +3,7 @@ import { Yjs } from "./yjsEnv";
 import * as Y from "yjs";
 import { Conf } from "./config";
 import { createWelcomeDocument } from "./etc/welcomeData";
+import { fillInMockupData } from "./etc/mockupData";
 import type { DocumentDataType, GroupDataType, MetaDataType, NodeDataType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
 import { useStore } from "./stateStore";
 // import { fillInMockupData } from "./etc/mockupData";
@@ -30,7 +31,7 @@ export default async function onStartUp() {
       Yjs.ymeta!.set("root_group_id", group_id);
 
       createWelcomeDocument();
-      // fillInMockupData();
+      fillInMockupData();
       roomToken = TreeRoAPI.generateRoomToken();
       TreeRoAPI.LocalConfig.set({ roomToken: roomToken });
     }
@@ -259,7 +260,8 @@ function startStateUpdaterViaYjsObserver() {
     // console.debug("ymeta.observeDeep", events);
     useStore.setState((_state) => {
       const root_group_id = TreeRoAPI.Yjs.ymeta!.get("root_group_id");
-      return { meta: { root_group_id: root_group_id } };
+      const inbox_node_id = TreeRoAPI.Yjs.ymeta!.get("inbox_node_id");
+      return { meta: { root_group_id: root_group_id, inbox_node_id } };
     });
   });
 }

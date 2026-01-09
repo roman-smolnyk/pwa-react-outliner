@@ -108,7 +108,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
 
   if (isDragging) {
     // console.debug("isDragging", attributes, listeners);
-    const descendantsIds = TreeRoAPI.getGroupDescendantsIds(groupId);
+    const descendantsIds = TreeRoAPI.getGroupDescendantsGroupsIds(groupId);
     useStore.setState({ dndDescendantsIds: descendantsIds });
   }
 
@@ -131,7 +131,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
         <div
           className="GroupItem-self py-1 sm:py-0
                    hover:bg-gray-100
-                     flex items-start gap-1"
+                     flex items-center justify-center gap-1"
           ref={refNodeSelf}
           data-id={groupId}
         >
@@ -304,7 +304,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
         <div
           className={`DocumentItem-self py-1 sm:py-0
                      ${currentDocumentId === documentId ? "hover:bg-gray-200" : "hover:bg-gray-100"}
-                     flex items-start gap-1`}
+                     flex items-center justify-center gap-1`}
           ref={refNodeSelf}
           data-id={documentId}
         >

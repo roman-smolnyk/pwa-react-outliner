@@ -1,12 +1,11 @@
 //
+import { XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useStore } from "../stateStore";
 import { TreeRoAPI } from "../api";
-import { scrollIntoView } from "../etc/utilities";
+import { useStore } from "../stateStore";
 import type { NodeDataType } from "../types";
-
-import { XIcon } from "lucide-react";
+// import { scrollIntoView } from "../etc/utilities";
 
 const rootEl = document.getElementById("root")!;
 
@@ -51,7 +50,15 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
         }, 1_000);
       }}
     >
-      {parts.map((part, _idx) => (regex.test(part) ? <span className="bg-yellow-200 text-black">{part}</span> : <span>{part}</span>))}
+      {parts.map((part, _idx) =>
+        regex.test(part) ? (
+          <span key={crypto.randomUUID()} className="bg-yellow-200 text-black">
+            {part}
+          </span>
+        ) : (
+          <span key={crypto.randomUUID()}>{part}</span>
+        ),
+      )}
       <div className="text-gray-400">{`${path.join("/")}`}</div>
     </div>
   );

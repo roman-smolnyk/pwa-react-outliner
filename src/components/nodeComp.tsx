@@ -52,7 +52,6 @@ const updateContentDebounced = debounce((nodeId, el: HTMLElement) => {
 //   selection.addRange(range);
 // }
 
-
 /*
 Contenteditable div on Enter press "inserts" <br>. As I want \n instead of <br> I alter default behaviour but using \n causes several issues:
 1) Trailing single \n in any browser does not visually repesented as newline, caret stays at the same place or even visually goes at the beggining of the current line.
@@ -117,6 +116,8 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
     }
   }, [nodeId, activeNodeId]);
 
+  const isRootNode = Boolean(TreeRoAPI.getNode(nodeId)?.parent_id === null);
+
   return (
     <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
       {/* // * Add small padding to allow mobile users place cursor at the beggining */}
@@ -170,8 +171,14 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           if (e.key === "Enter" && e.ctrlKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
-            const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
-            const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+            let newNodeId = null;
+            if (isRootNode) {
+              newNodeId = TreeRoAPI.insertNewNode(nodeId, "", 0);
+            } else {
+              const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
+              newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+            }
+
             // console.debug(`(e.key === "Enter" && e.ctrlKey)`, { activeNodeId, newNodeId });
             if (newNodeId) {
               TreeRoAPI.useStore.getState().activateNode(newNodeId);
@@ -185,7 +192,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (e.key === "Backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
 
-            if (textContent.length === 0) {
+            if (!isRootNode && (textContent.length === 0 || textContent === "\n")) {
               e.preventDefault(); // stop browser default
               const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
               TreeRoAPI.deleteNode(nodeId);

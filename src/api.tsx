@@ -15,11 +15,12 @@ export const TreeRoAPI: TreeRoAPIType = {
   useStore: useStore,
 
   clearData(reload) {
-    Yjs.idbPersistence?.clearData();
     LocalConfig.clearData();
-    if (reload) {
-      window.location.replace(window.location.href);
-    }
+    Yjs.idbPersistence?.clearData().then(() => {
+      if (reload) {
+        window.location.replace(window.location.href);
+      }
+    });
   },
 
   generateRoomToken() {
@@ -91,7 +92,6 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   getGroups(groupId) {
-    // TODO: Descendants
     const groups = [];
     if (groupId) {
       const ygroup = Yjs.YGroupWrap.get(groupId);
@@ -132,7 +132,7 @@ export const TreeRoAPI: TreeRoAPIType = {
     return null;
   },
 
-  getGroupDescendantsIds(groupId) {
+  getGroupDescendantsGroupsIds(groupId) {
     const descendants: string[] = [];
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup) return descendants;
@@ -144,6 +144,27 @@ export const TreeRoAPI: TreeRoAPIType = {
           descendants.push(childId);
           _getDescendants(childId);
         }
+      }
+    }
+
+    _getDescendants(groupId);
+    return descendants;
+  },
+
+  getGroupDescendantsDocumentsIds(groupId) {
+    const descendants: string[] = [];
+    const ygroup = Yjs.YGroupWrap.get(groupId);
+    if (!ygroup) return descendants;
+
+    function _getDescendants(id: string) {
+      const childYgroup = Yjs.YGroupWrap.get(id);
+      const childYdocument = Yjs.YDocumentWrap.get(id);
+      if (childYgroup) {
+        for (const childId of childYgroup.children) {
+          _getDescendants(childId);
+        }
+      } else if (childYdocument) {
+        descendants.push(id);
       }
     }
 
@@ -195,7 +216,7 @@ export const TreeRoAPI: TreeRoAPIType = {
       return;
     }
     // Can't move it in the own children
-    const descendants = this.getGroupDescendantsIds(movedGroupId);
+    const descendants = this.getGroupDescendantsGroupsIds(movedGroupId);
     if (descendants.includes(targetGroupId)) {
       console.error(`Can't move group as own descendant`, movedGroupId, descendants);
       return;
@@ -275,7 +296,6 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   deleteGroup(groupId) {
-    // TODO: Needs fix, as currently it does not remove descendants
     const ygroup = Yjs.YGroupWrap.get(groupId);
     if (!ygroup) return;
     const parentYgroup = this.getParentGroup(groupId);
@@ -283,13 +303,16 @@ export const TreeRoAPI: TreeRoAPIType = {
     const groupIndex = parentYgroup.children.toArray().indexOf(groupId);
     if (groupIndex === -1) return;
 
-    const descendants = this.getGroupDescendantsIds(groupId);
+    const descendantsGroupsIds = this.getGroupDescendantsGroupsIds(groupId);
+    const descendantsDocumentsIds = this.getGroupDescendantsDocumentsIds(groupId);
     Yjs.ydoc!.transact(() => {
-      parentYgroup.children.delete(groupIndex);
-      for (const id of [groupId, ...descendants]) {
-        Yjs.ygroups!.delete(id);
-        Yjs.ydocuments!.delete(id);
+      for (const id of descendantsDocumentsIds) {
+        this.deleteDocument(id);
       }
+      for (const id of [groupId, ...descendantsGroupsIds]) {
+        Yjs.ygroups!.delete(id);
+      }
+      parentYgroup.children.delete(groupIndex);
     });
   },
 
@@ -369,7 +392,6 @@ export const TreeRoAPI: TreeRoAPIType = {
   },
 
   getDocuments(groupId) {
-    // TODO: Descendants
     const documents = [];
     if (groupId) {
       const ygroup = Yjs.YGroupWrap.get(groupId);

@@ -60,9 +60,11 @@ export interface YGroupDataType extends Y.Map<string | boolean | Y.Array<string>
 
 export interface MetaDataType {
   root_group_id: string;
+  inbox_node_id: string; // TODO
 }
 export interface YMetaDataType extends Y.Map<string> {
   get(key: "root_group_id"): string;
+  get(key: "inbox_node_id"): string;
 }
 
 // export interface SettingsDataType {
@@ -173,7 +175,8 @@ export interface TreeRoAPIType {
   getGroup(groupId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
   getGroupChildren(groupId: string): (InstanceType<typeof Yjs.YGroupWrap> | InstanceType<typeof Yjs.YDocumentWrap>)[];
   getParentGroup(childId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
-  getGroupDescendantsIds(groupId: string): string[];
+  getGroupDescendantsGroupsIds(groupId: string): string[];
+  getGroupDescendantsDocumentsIds(groupId: string): string[];
   updateGroup(groupId: string, { name, collapsed }: { name?: string | undefined; collapsed?: boolean | undefined }): void;
   moveGroup(movedGroupId: string, targetGroupId: string, index: number): void;
   moveGroupBefore(movedGroupId: string, referenceId: string): void;

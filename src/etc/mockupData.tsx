@@ -1,27 +1,20 @@
 import { TreeRoAPI } from "../api";
 
 export function fillInMockupData() {
-  const currentDocumentId = TreeRoAPI.LocalConfig.get().currentDocumentId;
-  if (!currentDocumentId){
-    throw new Error(`fillInMockupData: Missing currentDocId`)
-  }
-  const ydocument = TreeRoAPI.getDocument(currentDocumentId)!;
-  for (const content of data) {
-    TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
-  }
+  const groupId = TreeRoAPI.insertNewGroup(TreeRoAPI.getRootGroupId(), "Mockup Data Group")!;
 
-  const documentId2 = TreeRoAPI.insertNewDocument(TreeRoAPI.getRootGroupId(), "2")!;
-  const ydocument2 = TreeRoAPI.getDocument(documentId2)!;
-  for (const content of data) {
-    TreeRoAPI.insertNewNode(ydocument2.root_node_id, content);
-  }
-
-  const groupId = TreeRoAPI.insertNewGroup(TreeRoAPI.getRootGroupId(), "Test")!;
-
-  const documentId3 = TreeRoAPI.insertNewDocument(groupId, "3")!;
-  const ydocument3 = TreeRoAPI.getDocument(documentId3)!;
-  for (const content of data) {
-    TreeRoAPI.insertNewNode(ydocument3.root_node_id, content);
+  for (let i = 0; i < 5; i++) {
+    const documentId = TreeRoAPI.insertNewDocument(groupId, `# Mockup Data Document ${i}`)!;
+    const ydocument = TreeRoAPI.getDocument(documentId)!;
+    for (let k = 0; k < 10; k++) {
+      for (const content of data) {
+        TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
+      }
+      let nodeId = TreeRoAPI.insertNewNode(ydocument.root_node_id, "Indent")!;
+      for (let j = 1; j < 6; j++) {
+        nodeId = TreeRoAPI.insertNewNode(nodeId, `Level ${j}`)!;
+      }
+    }
   }
 }
 

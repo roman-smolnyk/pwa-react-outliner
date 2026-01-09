@@ -3,7 +3,7 @@ import {
   ArrowLeftToLineIcon,
   ArrowRightToLineIcon,
   ArrowUpIcon,
-  CalendarDays,
+  // CalendarDays,
   CloudAlertIcon,
   CloudCheckIcon,
   CloudCogIcon,
@@ -219,9 +219,9 @@ export function FooterComponent() {
             <MoveIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          {/* <ButtonComponent className="text-yellow-400">
             <CalendarDays />
-          </ButtonComponent>
+          </ButtonComponent> */}
 
           <ButtonComponent
             // text-red-600
