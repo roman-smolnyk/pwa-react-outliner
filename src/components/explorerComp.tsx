@@ -17,6 +17,7 @@ import { DnDWrapperComponent } from "./dndComp";
 import { PlainMarkdownComponent } from "./markdownComp";
 import { DocumentOptionsComponent, GroupOptionsComponent } from "./menusComp";
 import { GlobalSearchPortalComponent } from "./searchGlobalComp";
+import { useNavigate } from "react-router-dom";
 
 function ButtonComponent({
   children,
@@ -74,10 +75,9 @@ function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: stri
 }
 
 const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
-  const refX = useRef<HTMLDivElement>(null);
-
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
+  const refDiv = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   useStore((state) => {
@@ -99,9 +99,9 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
   };
 
   useLayoutEffect(() => {
-    if (!refX.current) return;
+    if (!refDiv.current) return;
 
-    refX.current.innerText = refX.current.textContent?.replace("\n", " ") || "";
+    refDiv.current.innerText = refDiv.current.textContent?.replace("\n", " ") || "";
   }, []);
 
   if (!group) return;
@@ -169,7 +169,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             }}
           >
             {!isEditing ? (
-              <div ref={refX} className="flex-1 truncate">
+              <div ref={refDiv} className="flex-1 truncate min-h-5">
                 {group.name}
               </div>
             ) : (
@@ -241,10 +241,12 @@ function DocumentItemTitleComponent({
 }
 
 const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
-  const refX = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
+  const refDiv = useRef<HTMLDivElement>(null);
+
   const [isEditing, setIsEditing] = useState(false);
 
   useStore((state) => {
@@ -324,11 +326,12 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              TreeRoAPI.uiOpenNode(rootNode.node_id, documentId);
+              navigate(`/${documentId}`);
+              // TreeRoAPI.uiOpenNode(rootNode.node_id, documentId);
             }}
           >
             {!isEditing ? (
-              <div ref={refX} className="flex-1 truncate">
+              <div ref={refDiv} className="flex-1 truncate min-h-5">
                 <PlainMarkdownComponent>{rootNode.content}</PlainMarkdownComponent>
               </div>
             ) : (

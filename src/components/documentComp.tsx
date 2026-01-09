@@ -2,17 +2,29 @@
 // import { PlusCircle } from "@phosphor-icons/react";
 import { DragOverlay } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { TreeRoAPI } from "../api";
 import { NodeComponent, NodeContentComponent } from "../components/nodeComp";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
+import { PlainMarkdownComponent } from "./markdownComp";
 import { NodeOptionsComponent } from "./menusComp";
 
-import { PlainMarkdownComponent } from "./markdownComp";
-
 export default function DocumentComponent() {
+  const { document_id } = useParams();
+
   const ref = useRef<HTMLDivElement>(null);
   const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
+
+  console.debug(`DocumentComponent:document_id`, document_id);
+  console.debug(`DocumentComponent:currentDocumentId`, currentDocumentId);
+
+  useEffect(() => {
+    console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
+    if (document_id && TreeRoAPI.getDocument(document_id)) {
+      TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
+    }
+  }, [document_id]);
 
   // Scroll to top
   useEffect(() => {
