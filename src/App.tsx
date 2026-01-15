@@ -19,7 +19,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/:document_id" element={<MainAppComponent />} />
+        <Route path="/:node_id?" element={<MainAppComponent />} />
       </Routes>
     </BrowserRouter>
   );

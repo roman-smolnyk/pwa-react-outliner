@@ -9,10 +9,19 @@ import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import { NodeOptionsComponent } from "./menusComp";
 
-const updateContentDebounced = debounce((nodeId, el: HTMLElement) => {
+function updateContent(nodeId: string, nodeContent: string, el: HTMLElement) {
   // console.debug(`updateContent`, { nodeId, newContent });
-  TreeRoAPI.updateNode(nodeId, { content: el.textContent ?? "" });
-}, 1_000);
+  let text = el.textContent ?? "";
+  if (text.endsWith("\n")) {
+    text = text.slice(0, -1);
+  }
+  if (text !== nodeContent) {
+    console.debug(`updateContent`, { nodeId, nodeContent: JSON.stringify(text) });
+    TreeRoAPI.updateNode(nodeId, { content: text });
+  }
+}
+
+const updateContentDebounced = debounce(updateContent, 1_000);
 
 // function ensureSentinel(el: HTMLElement) {
 //   removeNonTextNodesFromDOM(el);
@@ -157,15 +166,21 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // const el = e.currentTarget;
           // console.debug("onFocus", JSON.stringify(el.innerHTML));
         }}
+        onPointerDown={(e) => {
+          const el = e.currentTarget;
+          console.debug("onPointerDown", inspectDOM(el));
+        }}
         onKeyDown={(e) => {
           // console.debug(`onKeyDown`, e);
           const el = e.currentTarget;
           const textContent = el.textContent ?? "";
 
-          const selection = window.getSelection();
-          if (!selection?.rangeCount) return;
-          const range = selection.getRangeAt(0);
-          const offset = range.startOffset;
+          // const selection = window.getSelection();
+          // if (!selection?.rangeCount) return;
+          // const range = selection.getRangeAt(0);
+          // const offset = range.startOffset;
+
+          console.debug("onKeyDown(s)", inspectDOM(el));
 
           // Create new node
           if (e.key === "Enter" && e.ctrlKey) {
@@ -208,10 +223,13 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               }
             }
 
-            if (!e.currentTarget?.textContent?.endsWith("\n")) {
-              e.currentTarget.textContent = e.currentTarget.textContent + "\n";
-              TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset);
-            }
+            // if (!e.currentTarget?.textContent?.endsWith("\n")) {
+            //   console.debug("ZZZZZZ");
+            //   if (el.firstChild) {
+            //     el.firstChild.textContent = e.currentTarget.textContent + "\n";
+            //     TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset);
+            //   }
+            // }
             // Unindent node
           } else if (e.key === "Tab" && e.shiftKey) {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
@@ -235,9 +253,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             TreeRoAPI.uiMoveNodeDown(nodeId);
           }
 
-          // if (el.textContent ?? "" !== nodeContent) {
-          updateContentDebounced(nodeId, el);
-          // }
+          updateContentDebounced(nodeId, nodeContent, el);
         }}
         onBeforeInput={(e) => {
           // console.debug(`onBeforeInput`, e);
@@ -282,27 +298,38 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // if ((e.nativeEvent as InputEvent).inputType === "insertParagraph") {
           //   e.preventDefault();
           // }
-          // Remove <br> that browser inserts in the empty contenteditable [Currently it is not empty due to sentinel]
-          // if (e.currentTarget.innerHTML === "<br>") {
-          //   e.currentTarget.innerHTML = "";
-          // }
+          // Remove <br> that browser inserts in the empty contenteditable
           if (e.currentTarget.innerHTML === "<br>") {
+            console.debug(`e.currentTarget.innerHTML === "<br>"`);
             e.currentTarget.innerHTML = "";
           }
           console.debug("onInput(end)", inspectDOM(el));
+        }}
+        onKeyUp={(e) => {
+          const el = e.currentTarget;
+          // const textContent = el.textContent ?? "";
+
+          const selection = window.getSelection();
+          if (!selection?.rangeCount) return;
+          const range = selection.getRangeAt(0);
+          const offset = range.startOffset;
+
+          if (!e.currentTarget?.textContent?.endsWith("\n")) {
+            if (el.firstChild) {
+              console.debug("ZZZZZZ");
+              el.firstChild.textContent = e.currentTarget.textContent + "\n";
+              TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset);
+            }
+          }
+
+          console.debug("onKeyUp", inspectDOM(el));
         }}
         // On lost focus update
         onBlur={(e) => {
           // console.debug(`onBlur`);
           const el = e.currentTarget;
-          let text = el.textContent ?? "";
-          text = text.slice(0, -1);
-          // console.debug("onBlur", JSON.stringify(el.textContent));
-          // console.debug("onBlur", JSON.stringify(el.innerHTML));
 
-          if (text !== nodeContent) {
-            TreeRoAPI.updateNode(nodeId, { content: text });
-          }
+          updateContent(nodeId, nodeContent, el);
           setIsEditing(false);
           if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {
             useStore.setState({ activeNodeId: "" });

@@ -10,7 +10,7 @@ export function createWelcomeDocument() {
     TreeRoAPI.insertNewNode(ydocument.root_node_id, arr[arr.length - 1] as string);
   }
 
-  TreeRoAPI.uiOpenNode(ydocument.root_node_id, documentId);
+  TreeRoAPI.uiOpenNode(ydocument.root_node_id);
 }
 
 const data = [["**TreeRo** is markdown based outliner"], [true, "Reliable"]];

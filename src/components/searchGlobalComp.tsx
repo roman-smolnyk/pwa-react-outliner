@@ -42,7 +42,7 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
     <div
       className="cursor-pointer border-b border-gray-100 px-1 py-1 text-sm hover:bg-gray-100"
       onClick={() => {
-        TreeRoAPI.uiOpenNode(nodeId, documentId);
+        TreeRoAPI.uiOpenNode(nodeId);
         useStore.setState({ globalSearchIsOpened: false });
         setTimeout(() => {
           //   document.getElementById(nodeId)?.scrollIntoView({ behavior: "smooth" });

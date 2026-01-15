@@ -223,5 +223,5 @@ export interface TreeRoAPIType {
   uiMoveNodeDown(nodeId: string): void;
   uiToggleNodeCollapse(nodeId: string): void;
   uiToggleNodeDescendantsCollapse(nodeId: string): void;
-  uiOpenNode(nodeId: string, documentId?: string): void;
+  uiOpenNode(nodeId: string): void;
 }

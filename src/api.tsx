@@ -939,8 +939,9 @@ export const TreeRoAPI: TreeRoAPIType = {
     });
   },
 
-  uiOpenNode(nodeId, documentId) {
+  uiOpenNode(nodeId) {
     this.LocalConfig.set({ currentNodeId: nodeId });
+    const documentId = TreeRoAPI.getNodeDocumentId(nodeId);
     if (documentId) {
       this.LocalConfig.set({ currentDocumentId: documentId });
     }

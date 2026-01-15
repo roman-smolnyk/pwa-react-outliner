@@ -11,20 +11,24 @@ import { PlainMarkdownComponent } from "./markdownComp";
 import { NodeOptionsComponent } from "./menusComp";
 
 export default function DocumentComponent() {
-  const { document_id } = useParams();
+  const { node_id } = useParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
 
-  console.debug(`DocumentComponent:document_id`, document_id);
+  console.debug(`DocumentComponent:node_id`, node_id);
   console.debug(`DocumentComponent:currentDocumentId`, currentDocumentId);
 
   useEffect(() => {
-    console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
-    if (document_id && TreeRoAPI.getDocument(document_id)) {
-      TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
+    // console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
+    // if (document_id && TreeRoAPI.getDocument(document_id)) {
+    //   TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
+    // }
+    console.debug(`useEffect`, node_id ? TreeRoAPI.getNode(node_id) : null);
+    if (node_id && TreeRoAPI.getNode(node_id)) {
+      TreeRoAPI.uiOpenNode(node_id);
     }
-  }, [document_id]);
+  }, [node_id]);
 
   // Scroll to top
   useEffect(() => {
