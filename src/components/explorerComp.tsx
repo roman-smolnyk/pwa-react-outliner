@@ -430,7 +430,7 @@ function BottomNavBarComponent() {
       className="fixed left-0 bottom-0 min-h-12 sm:min-h-8
                  bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex items-center"
-      style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
+      style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`, paddingBottom: "env(safe-area-inset-bottom)" }}
     ></div>
   );
 }

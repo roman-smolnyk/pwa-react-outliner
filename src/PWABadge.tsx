@@ -29,7 +29,12 @@ function PWABadge() {
   }
 
   return (
-    <div className="PWABadge mb-30" role="alert" aria-labelledby="toast-message">
+    <div
+      className="PWABadge fixed right-0 bottom-0 mb-100 mr-50 z-100 
+                    border-0"
+      role="alert"
+      aria-labelledby="toast-message"
+    >
       {(offlineReady || needRefresh) && (
         <div className="PWABadge-toast">
           <div className="PWABadge-message">
@@ -41,11 +46,19 @@ function PWABadge() {
           </div>
           <div className="PWABadge-buttons">
             {needRefresh && (
-              <button type="button" className="PWABadge-toast-button" onClick={() => updateServiceWorker(true)}>
+              <button
+                type="button"
+                className="PWABadge-toast-button bg-indigo-500 text-white font-semibold p-2 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
+                onClick={() => updateServiceWorker(true)}
+              >
                 Reload
               </button>
             )}
-            <button type="button" className="PWABadge-toast-button" onClick={() => close()}>
+            <button
+              type="button"
+              className="PWABadge-toast-button bg-indigo-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
+              onClick={() => close()}
+            >
               Close
             </button>
           </div>
