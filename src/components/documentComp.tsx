@@ -166,7 +166,7 @@ export function RootNodeComponent() {
               }}
             >
               {rootNode.children.map((childId) => (
-                <NodeComponent key={childId} nodeId={childId} />
+                <NodeComponent key={childId} nodeId={childId} checkedParent={false} />
               ))}
               {/* Remember that it is located in the document container so it inherits styles and behaviour */}
               <DragOverlay>

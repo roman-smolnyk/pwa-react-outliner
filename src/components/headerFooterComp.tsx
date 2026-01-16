@@ -115,7 +115,9 @@ export function HeaderComponent() {
             {wsStatus === "turned off" && <CloudCogIcon />}
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !TreeRoAPI.useStore.getState().checkboxSelectionIsActive })}
+          >
             <ListChecksIcon />
           </ButtonComponent>
 

@@ -129,6 +129,7 @@ export interface zustandUseStoreType {
 
   explorerIsOpened: boolean;
   globalSearchIsOpened: boolean;
+  checkboxSelectionIsActive: boolean;
 
   wsStatus: "connecting" | "connected" | "disconnected" | "turned off";
 

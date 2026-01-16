@@ -1,6 +1,7 @@
 // import Markdown from "react-markdown";
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
+// import { MarkdownHooks } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { toast } from "react-toastify";
 import rehypeKatex from "rehype-katex";
@@ -78,6 +79,7 @@ function SyntaxHighlighterPreTagComponent(props: any) {
 }
 
 export const MarkdownComponent = memo(({ children }: { children: string }) => {
+  console.debug("MarkdownComponent")
   // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
   const markdownText = String(children);
   let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
@@ -98,6 +100,7 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkBreaks, remarkMath, remarkHighlight]}
       rehypePlugins={[rehypeRaw, rehypeKatex]}
+      // fallback={<div>Rendering markdown…</div>}
       components={{
         span({ node, className, ...props }) {
           // console.debug("md-highlight", node, props);

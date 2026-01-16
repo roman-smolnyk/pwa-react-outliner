@@ -1,7 +1,7 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useLayoutEffect, useRef, useState } from "react";
+import { memo, useLayoutEffect, useRef, useState, useEffect } from "react";
 import { TreeRoAPI } from "../api";
 import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
@@ -375,14 +375,31 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   );
 });
 
-export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
+export const NodeComponent = memo(({ nodeId, checkedParent }: { nodeId: string; checkedParent: boolean }) => {
+  // console.debug("NodeComponent");
   // console.debug(`NodeComponent: ${nodeId}`);
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
 
+  const [checked, setChecked] = useState(checkedParent);
+
+  useEffect(() => {
+    setChecked(checkedParent);
+  }, [checkedParent]);
+
+  // if (checkedParent) {
+  //   setChecked(true);
+  // } else {
+  //   setChecked(false);
+  // }
+
   // zustand subscribe
   const node = useStore((state) => {
     return state.nodes.get(nodeId);
+  });
+
+  const checkboxSelectionIsActive = useStore((state) => {
+    return state.checkboxSelectionIsActive;
   });
 
   // zustand subscribe to rerender trigger
@@ -428,10 +445,21 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
 
   return (
     // data-id={node.node_id}
-    <div id={node.node_id} className={`Node-outer ${isDragging ? "bg-gray-200" : ""}`} ref={combinedRef}>
+    <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
       <div className="Node-inner">
         {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
         <div className="Node-self flex items-start" ref={refNodeSelf} data-id={node.node_id}>
+          {checkboxSelectionIsActive && (
+            <button
+              className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
+              type="button"
+              onPointerUpCapture={() => {
+                setChecked(!checked);
+              }}
+            >
+              {checked ? <i className="ph ph-check-square text-[1.2rem]" /> : <i className="ph ph-square text-[1.2rem]" />}
+            </button>
+          )}
           <button
             className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
             type="button"
@@ -482,7 +510,7 @@ export const NodeComponent = memo(({ nodeId }: { nodeId: string }) => {
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
         <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
           {node.children.map((childId) => (
-            <NodeComponent key={childId} nodeId={childId} />
+            <NodeComponent key={childId} nodeId={childId} checkedParent={checked} />
           ))}
         </div>
       </div>

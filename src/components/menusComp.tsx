@@ -26,6 +26,8 @@ import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
 
+declare const __APP_VERSION__: string;
+
 function MenuItem({
   icon,
   label,
@@ -205,6 +207,10 @@ export default function MainMenuComponent() {
               label="Help"
               onClick={() => {
                 setOpen(false);
+                toast(`${__APP_VERSION__}`, {
+                  containerId: "main",
+                  className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
+                });
               }}
             />
             <hr className="m-1 border-gray-300" />

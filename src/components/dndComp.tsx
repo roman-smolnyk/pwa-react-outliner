@@ -1,5 +1,6 @@
 import type { DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { TraversalOrder } from "@dnd-kit/core";
 
 export function DnDWrapperComponent({
   children,
@@ -37,6 +38,7 @@ export function DnDWrapperComponent({
     <DndContext
       sensors={sensors}
       // collisionDetection={closestCenter}
+      autoScroll={{ order: TraversalOrder.ReversedTreeOrder }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragMove={(event) => {
