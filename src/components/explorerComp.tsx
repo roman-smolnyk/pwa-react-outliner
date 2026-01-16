@@ -422,6 +422,19 @@ function NavBarComponent() {
   );
 }
 
+function BottomNavBarComponent() {
+  const explorerIsOpened = useStore((state) => state.explorerIsOpened);
+
+  return (
+    <div
+      className="fixed left-0 bottom-0 min-h-12 sm:min-h-8
+                 bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
+                 flex items-center"
+      style={{ width: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}` }}
+    ></div>
+  );
+}
+
 export default function ExplorerComponent() {
   const [activeId, setActiveId] = useState("");
 
@@ -457,9 +470,9 @@ export default function ExplorerComponent() {
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >
         <NavBarComponent />
-        <div className="Explorer-navbar-space h-10 min-h-10 sm:h-10 sm:min-h-5"></div>
-        <div className="Explorer-scroll h-full overflow-y-auto overscroll-y-contain">
-          <div className="Explorer-top-spacer h-5 min-h-5 sm:h-0 sm:min-h-0"></div>
+        <div className="Explorer-navbar-space h-12 sm:h-8"></div>
+        <div className="Explorer-scroll h-[calc(100vh-6.1rem)] sm:h-[calc(100vh-4rem)] overflow-y-auto overscroll-y-contain">
+          {/* <div className="Explorer-top-spacer h-5 min-h-5 sm:h-5 sm:min-h-5"></div> */}
           <div>
             <DnDWrapperComponent
               onDragStart={(event) => {
@@ -576,8 +589,9 @@ export default function ExplorerComponent() {
               </div>
             </DnDWrapperComponent>
           </div>
-          <div className="Explorer-bottom-spacer h-20" />
+          <div className="Explorer-bottom-spacer h-100" />
         </div>
+        <BottomNavBarComponent />
       </aside>
     </>
   );

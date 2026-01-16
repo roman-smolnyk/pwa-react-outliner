@@ -41,15 +41,15 @@ export default function DocumentComponent() {
 
   return (
     <div className="Document relative min-w-xs h-full w-full z-1" ref={ref} data-id={currentDocumentId}>
-      <div className="Document-header-space h-10 sm:h-6" />
+      <div className="Document-header-space h-12 sm:h-8" />
       <div
-        className="Document-scroll h-[calc(100vh-5rem)] sm:h-[calc(100vh-3rem)] overflow-y-auto overscroll-y-contain
+        className="Document-scroll h-[calc(100vh-6.1rem)] sm:h-[calc(100vh-4rem)] overflow-y-auto overscroll-y-contain
                   px-5 sm:px-16 lg:px-32 xl:px-56 2xl:px-70"
         // style={{
         //   height: `calc(100vh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
-        <div className="Document-top-spacer h-10 sm:h-15" />
+        <div className="Document-top-spacer h-6 sm:h-11" />
         <RootNodeComponent />
         <div className="Document-bottom-spacer h-100" />
       </div>
@@ -166,7 +166,7 @@ export function RootNodeComponent() {
               }}
             >
               {rootNode.children.map((childId) => (
-                <NodeComponent key={childId} nodeId={childId} checkedParent={false} />
+                <NodeComponent key={childId} nodeId={childId} parentChecked={false} parentCollapsed={rootNode.collapsed} />
               ))}
               {/* Remember that it is located in the document container so it inherits styles and behaviour */}
               <DragOverlay>

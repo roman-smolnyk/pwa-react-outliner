@@ -3,10 +3,10 @@ import { TreeRoAPI } from "../api";
 export function fillInMockupData() {
   const groupId = TreeRoAPI.insertNewGroup(TreeRoAPI.getRootGroupId(), "Mockup Data Group")!;
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 50; i++) {
     const documentId = TreeRoAPI.insertNewDocument(groupId, `# Mockup Data Document ${i}`)!;
     const ydocument = TreeRoAPI.getDocument(documentId)!;
-    for (let k = 0; k < 10; k++) {
+    for (let k = 0; k < 20; k++) {
       for (const content of data) {
         TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
       }
