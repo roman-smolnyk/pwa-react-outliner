@@ -369,166 +369,167 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // }}
         >
           <MarkdownComponent>{nodeContent}</MarkdownComponent>
+          {/* <MarkdownComponent2>{nodeContent}</MarkdownComponent2> */}
         </div>
       }
     </div>
   );
 });
+NodeContentComponent.displayName = "NodeContentComponent";
 
-export const NodeComponent = memo(
-  ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
-    // console.debug("NodeComponent");
-    // console.debug(`NodeComponent: ${nodeId}`);
-    const ref = useRef<HTMLDivElement>(null);
-    const refNodeSelf = useRef<HTMLDivElement>(null);
+export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
+  // console.debug("NodeComponent");
+  // console.debug(`NodeComponent: ${nodeId}`);
+  const ref = useRef<HTMLDivElement>(null);
+  const refNodeSelf = useRef<HTMLDivElement>(null);
 
-    const [checked, setChecked] = useState(false);
-    useEffect(() => {
-      setChecked(parentChecked);
-    }, [parentChecked]);
+  const [checked, setChecked] = useState(false);
+  useEffect(() => {
+    setChecked(parentChecked);
+  }, [parentChecked]);
 
-    const [visiable, setVisiable] = useState(false);
-    useEffect(() => {
-      if (parentCollapsed === false) {
-        setVisiable(true);
+  const [visiable, setVisiable] = useState(false);
+  useEffect(() => {
+    if (parentCollapsed === false) {
+      setVisiable(true);
+    }
+  }, [parentCollapsed]);
+
+  // if (parentChecked) {
+  //   setChecked(true);
+  // } else {
+  //   setChecked(false);
+  // }
+
+  // zustand subscribe
+  const node = useStore((state) => {
+    return state.nodes.get(nodeId);
+  });
+
+  const checkboxSelectionIsActive = useStore((state) => {
+    return state.checkboxSelectionIsActive;
+  });
+
+  // zustand subscribe to rerender trigger
+  useStore((state) => {
+    return state.nodesToRender[nodeId];
+  });
+
+  useStore((state) => {
+    return state.dndToRerender[nodeId];
+  });
+
+  const { readOnly } = useReadOnly();
+
+  // useSortable merges useDraggable and useDroppable functionality, so you can do
+  const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
+    id: nodeId,
+    disabled: readOnly,
+  });
+
+  const combinedRef = (element: HTMLDivElement | null) => {
+    setNodeRef(element); // dnd-kit needs this
+    ref.current = element; // your own ref
+  };
+
+  if (isDragging) {
+    // console.debug("isDragging", attributes, listeners);
+    const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
+    useStore.setState({ dndDescendantsIds: descendantsIds });
+  }
+
+  let placement = null;
+  if (isOver) {
+    // console.debug("isOver", attributes, listeners);
+    TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+    if (active?.id && over?.id && active.id !== over.id) {
+      if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
+        placement = TreeRoAPI.useStore.getState().dndPlacement;
       }
-    }, [parentCollapsed]);
-
-    // if (parentChecked) {
-    //   setChecked(true);
-    // } else {
-    //   setChecked(false);
-    // }
-
-    // zustand subscribe
-    const node = useStore((state) => {
-      return state.nodes.get(nodeId);
-    });
-
-    const checkboxSelectionIsActive = useStore((state) => {
-      return state.checkboxSelectionIsActive;
-    });
-
-    // zustand subscribe to rerender trigger
-    useStore((state) => {
-      return state.nodesToRender[nodeId];
-    });
-
-    useStore((state) => {
-      return state.dndToRerender[nodeId];
-    });
-
-    const { readOnly } = useReadOnly();
-
-    // useSortable merges useDraggable and useDroppable functionality, so you can do
-    const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
-      id: nodeId,
-      disabled: readOnly,
-    });
-
-    const combinedRef = (element: HTMLDivElement | null) => {
-      setNodeRef(element); // dnd-kit needs this
-      ref.current = element; // your own ref
-    };
-
-    if (isDragging) {
-      // console.debug("isDragging", attributes, listeners);
-      const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
-      useStore.setState({ dndDescendantsIds: descendantsIds });
     }
+  }
 
-    let placement = null;
-    if (isOver) {
-      // console.debug("isOver", attributes, listeners);
-      TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
-      if (active?.id && over?.id && active.id !== over.id) {
-        if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
-          placement = TreeRoAPI.useStore.getState().dndPlacement;
-        }
-      }
-    }
+  if (!node) return null;
 
-    if (!node) return null;
+  if (!visiable) {
+    return <div className="Node-placeholder">Item is loading...</div>;
+  }
 
-    if (!visiable) {
-      return <div className="Node-placeholder">Item is loading...</div>;
-    }
-
-    return (
-      // data-id={node.node_id}
-      <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
-        <div className="Node-inner">
-          {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
-          <div className="Node-self flex items-start" ref={refNodeSelf} data-id={node.node_id}>
-            {checkboxSelectionIsActive && (
-              <button
-                className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
-                type="button"
-                onPointerUpCapture={() => {
-                  setChecked(!checked);
-                }}
-              >
-                {checked ? <i className="ph ph-check-square text-[1.2rem]" /> : <i className="ph ph-square text-[1.2rem]" />}
-              </button>
-            )}
+  return (
+    // data-id={node.node_id}
+    <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
+      <div className="Node-inner">
+        {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
+        <div className="Node-self flex items-start" ref={refNodeSelf} data-id={node.node_id}>
+          {checkboxSelectionIsActive && (
             <button
-              className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
+              className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
               type="button"
-              // ref={setBulletDropRef}
-              {...listeners}
-              {...attributes}
-              // data-node-id={node.id}
               onPointerUpCapture={() => {
-                // console.debug("Node-bullet onPointerUpCapture");
-                TreeRoAPI.uiToggleNodeCollapse(node.node_id);
+                setChecked(!checked);
               }}
             >
-              {node.children.length > 0 ? (
-                node.collapsed ? (
-                  // <PlusIcon className="size-4 text-500" />
-                  // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
-                  // <PlusCircle className="size-4" />
-                  <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
-                  // <i className="ph-bold ph-plus-circle"></i>
-                  // <div>
-                  //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
-                  //     <span className="w-1 h-1 bg-black rounded-full"></span>
-                  //   </span>
-                  // </div>
-                ) : (
-                  // <Minus className="size-4" />
-                  <i className="ph ph-minus text-[0.9rem]"></i>
-                  // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
-                )
-              ) : (
-                // <span>●</span>
-                <i className="ph-fill ph-circle text-[0.5rem]"></i>
-                // <div>
-
-                //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
-                //   {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
-                //     <span className="w-2 h-2 bg-black rounded-full"></span>
-                //   </span> */}
-                // </div>
-              )}
+              {checked ? <i className="ph ph-check-square text-[1.2rem]" /> : <i className="ph ph-square text-[1.2rem]" />}
             </button>
-            <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-            <NodeOptionsComponent nodeId={nodeId} />
-            {/* // ! ID */}
-            {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
-          </div>
-          {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
-          {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
-          <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
-            {node.children.map((childId) => (
-              <NodeComponent key={childId} nodeId={childId} parentChecked={checked} parentCollapsed={node.collapsed} />
-            ))}
-          </div>
+          )}
+          <button
+            className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
+            type="button"
+            // ref={setBulletDropRef}
+            {...listeners}
+            {...attributes}
+            // data-node-id={node.id}
+            onPointerUpCapture={() => {
+              // console.debug("Node-bullet onPointerUpCapture");
+              TreeRoAPI.uiToggleNodeCollapse(node.node_id);
+            }}
+          >
+            {node.children.length > 0 ? (
+              node.collapsed ? (
+                // <PlusIcon className="size-4 text-500" />
+                // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
+                // <PlusCircle className="size-4" />
+                <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
+                // <i className="ph-bold ph-plus-circle"></i>
+                // <div>
+                //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
+                //     <span className="w-1 h-1 bg-black rounded-full"></span>
+                //   </span>
+                // </div>
+              ) : (
+                // <Minus className="size-4" />
+                <i className="ph ph-minus text-[0.9rem]"></i>
+                // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
+              )
+            ) : (
+              // <span>●</span>
+              <i className="ph-fill ph-circle text-[0.5rem]"></i>
+              // <div>
+
+              //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
+              //   {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
+              //     <span className="w-2 h-2 bg-black rounded-full"></span>
+              //   </span> */}
+              // </div>
+            )}
+          </button>
+          <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
+          <NodeOptionsComponent nodeId={nodeId} />
+          {/* // ! ID */}
+          {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
+        </div>
+        {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
+        {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+        <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
+          {node.children.map((childId) => (
+            <NodeComponent key={childId} nodeId={childId} parentChecked={checked} parentCollapsed={node.collapsed} />
+          ))}
         </div>
       </div>
-    );
-  },
-);
+    </div>
+  );
+}
+// NodeComponent.displayName = "NodeComponent";
 
 function DropIndicatorComponent({ shrink = false }) {
   // console.debug(placement);

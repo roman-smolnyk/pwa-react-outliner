@@ -6,7 +6,7 @@ import { TreeRoAPI } from "./api";
 import { LoginFormComponent } from "./components/authComp";
 import MainAppComponent from "./components/mainAppComp";
 import { Capacitor } from "@capacitor/core";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
@@ -16,13 +16,15 @@ function App() {
     return <LoginFormComponent />;
   }
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/:node_id?" element={<MainAppComponent />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return <MainAppComponent />;
+
+  // return (
+  //   <BrowserRouter>
+  //     <Routes>
+  //       <Route path="/:node_id?" element={<MainAppComponent />} />
+  //     </Routes>
+  //   </BrowserRouter>
+  // );
 }
 
 export default App;

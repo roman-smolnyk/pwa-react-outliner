@@ -10,6 +10,7 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkHighlight } from "../etc/markdownPlugins";
+// import { getMarkdownWorker } from "../webworkerClient";
 
 function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
   return (
@@ -79,7 +80,7 @@ function SyntaxHighlighterPreTagComponent(props: any) {
 }
 
 export const MarkdownComponent = memo(({ children }: { children: string }) => {
-  console.debug("MarkdownComponent")
+  // console.debug("MarkdownComponent");
   // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
   const markdownText = String(children);
   let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
@@ -148,6 +149,7 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
     </ReactMarkdown>
   );
 });
+MarkdownComponent.displayName = "MarkdownComponent";
 
 export const PlainMarkdownComponent = memo(({ children }: { children: string }) => {
   return (
@@ -188,3 +190,25 @@ export const PlainMarkdownComponent = memo(({ children }: { children: string }) 
     </ReactMarkdown>
   );
 });
+PlainMarkdownComponent.displayName = "PlainMarkdownComponent";
+
+// export const MarkdownComponent2 = ({ children }) => {
+//   console.debug("MarkdownComponent2", Date.now());
+//   const [html, setHtml] = useState("");
+
+//   // useEffect(() => {
+//   //   let cancelled = false;
+
+//   //   (async () => {
+//   //     const result = await getMarkdownWorker().renderMarkdown(children);
+//   //     if (!cancelled) setHtml(result);
+//   //   })();
+
+//   //   return () => {
+//   //     cancelled = true;
+//   //   };
+//   // }, [children]);
+
+//   // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+//   return <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />;
+// };

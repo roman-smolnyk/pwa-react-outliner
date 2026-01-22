@@ -17,7 +17,7 @@ import { DnDWrapperComponent } from "./dndComp";
 import { PlainMarkdownComponent } from "./markdownComp";
 import { DocumentOptionsComponent, GroupOptionsComponent } from "./menusComp";
 import { GlobalSearchPortalComponent } from "./searchGlobalComp";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 function ButtonComponent({
   children,
@@ -199,6 +199,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
     </div>
   );
 });
+GroupItemComponent.displayName = "GroupItemComponent";
 
 function DocumentItemTitleComponent({
   rootNodeId,
@@ -241,7 +242,7 @@ function DocumentItemTitleComponent({
 }
 
 const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
@@ -326,8 +327,8 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              navigate(`/${TreeRoAPI.getDocumentRootNodeId(documentId)}`);
-              // TreeRoAPI.uiOpenNode(rootNode.node_id);
+              // navigate(`/${TreeRoAPI.getDocumentRootNodeId(documentId)}`);
+              TreeRoAPI.uiOpenNode(rootNode.node_id);
             }}
           >
             {!isEditing ? (
@@ -351,6 +352,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
     </div>
   );
 });
+DocumentItemComponent.displayName = "DocumentItemComponent";
 
 export function ExplorerItemComponent({ itemId }: { itemId: string }) {
   const state = TreeRoAPI.useStore.getState();
