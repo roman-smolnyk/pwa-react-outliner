@@ -10,7 +10,7 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkHighlight } from "../etc/markdownPlugins";
-// import { getMarkdownWorker } from "../webworkerClient";
+import { getMarkdownWorker } from "../webworkerClient";
 
 function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
   return (
@@ -79,11 +79,11 @@ function SyntaxHighlighterPreTagComponent(props: any) {
   );
 }
 
-export const MarkdownComponent = memo(({ children }: { children: string }) => {
+export const MarkdownComponent2 = memo(({ children }: { children: string }) => {
   return <div>{children}</div>;
 });
 
-export const MarkdownComponent2 = memo(({ children }: { children: string }) => {
+export const MarkdownComponent = memo(({ children }: { children: string }) => {
   // console.debug("MarkdownComponent");
 
   // const [text, setText] = useState("");
@@ -91,27 +91,25 @@ export const MarkdownComponent2 = memo(({ children }: { children: string }) => {
   // useEffect(() => {
   //   (async () => {
 
+  // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
+  const markdownText = String(children);
+  let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
+  // ```code``` forgiving, but maybe teach user to add newlines
+  // preProcessedMD = preProcessedMD.replace(/```([^\n`]+)```/g, "```\n$1\n```");
 
-      // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
-      const markdownText = String(children);
-      let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
-      // ```code``` forgiving, but maybe teach user to add newlines
-      // preProcessedMD = preProcessedMD.replace(/```([^\n`]+)```/g, "```\n$1\n```");
+  // Convert \n\n 2+ into "&nbsp;\n " except if next is list *-
+  preProcessedMD = preProcessedMD.replace(/(?<=\n)(?![*-])\n/g, "&nbsp;\n ");
+  // Preserve trailing
+  if (preProcessedMD.endsWith("\n") || preProcessedMD.endsWith("\n ")) {
+    preProcessedMD = `${preProcessedMD}<br>`;
+  }
 
-      // Convert \n\n 2+ into "&nbsp;\n " except if next is list *-
-      preProcessedMD = preProcessedMD.replace(/(?<=\n)(?![*-])\n/g, "&nbsp;\n ");
-      // Preserve trailing
-      if (preProcessedMD.endsWith("\n") || preProcessedMD.endsWith("\n ")) {
-        preProcessedMD = `${preProcessedMD}<br>`;
-      }
+  // For exactly 2 newlines
+  // preprocessedContent = preprocessedContent.replace(/(?<!\n)\n\n(?!\n)(?![*-])/g, "&nbsp;\n ");
+  // For 3+ newlines
+  // preprocessedContent = preprocessedContent.replace(/(\n\n)\n+(?![*-])/g, "$1&nbsp;\n ");
 
-
-      // For exactly 2 newlines
-      // preprocessedContent = preprocessedContent.replace(/(?<!\n)\n\n(?!\n)(?![*-])/g, "&nbsp;\n ");
-      // For 3+ newlines
-      // preprocessedContent = preprocessedContent.replace(/(\n\n)\n+(?![*-])/g, "$1&nbsp;\n ");
-
-      // setText(preProcessedMD);
+  // setText(preProcessedMD);
   //   })();
   // }, [children]);
 
@@ -211,23 +209,24 @@ export const PlainMarkdownComponent = memo(({ children }: { children: string }) 
 });
 PlainMarkdownComponent.displayName = "PlainMarkdownComponent";
 
-// export const MarkdownComponent2 = ({ children }) => {
-//   console.debug("MarkdownComponent2", Date.now());
-//   const [html, setHtml] = useState("");
+export const MarkdownWebWorkerComponent = memo(({ children }: { children: string }) => {
+  // console.debug("MarkdownWebWorkerComponent");
+  const [html, setHtml] = useState("");
 
-//   // useEffect(() => {
-//   //   let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-//   //   (async () => {
-//   //     const result = await getMarkdownWorker().renderMarkdown(children);
-//   //     if (!cancelled) setHtml(result);
-//   //   })();
+    (async () => {
+      const result = await getMarkdownWorker().renderMarkdown(children);
+      if (!cancelled) setHtml(result);
+    })();
 
-//   //   return () => {
-//   //     cancelled = true;
-//   //   };
-//   // }, [children]);
+    return () => {
+      cancelled = true;
+    };
+  }, [children]);
 
-//   // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-//   return <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />;
-// };
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: explanation
+  return <div className="MarkdownWebWorkerComponent" dangerouslySetInnerHTML={{ __html: html }} />;
+});
+MarkdownWebWorkerComponent.displayName = "MarkdownWebWorkerComponent";

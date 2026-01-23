@@ -21,7 +21,7 @@ import {
   UserRoundIcon,
   ZoomInIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
@@ -593,7 +593,8 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
   );
 }
 
-export function DocumentOptionsComponent({ documentId, setRenaming }: { documentId: string; setRenaming: (v: boolean) => void }) {
+// export function DocumentOptionsComponent({ documentId, setRenaming }: { documentId: string; setRenaming: (v: boolean) => void }) {
+export const DocumentOptionsComponent = memo(({ documentId, setRenaming }: { documentId: string; setRenaming: (v: boolean) => void }) => {
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -671,7 +672,8 @@ export function DocumentOptionsComponent({ documentId, setRenaming }: { document
       )}
     </>
   );
-}
+});
+DocumentOptionsComponent.displayName = "DocumentOptionsComponent";
 
 // export function CloudSyncOptionsComponent() {
 //   const [open, setOpen] = useState(false);

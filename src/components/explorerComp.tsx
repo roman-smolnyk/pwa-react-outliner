@@ -10,7 +10,7 @@ import {
   PanelLeftCloseIcon,
   SearchIcon,
 } from "lucide-react";
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
@@ -250,6 +250,10 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
 
   const [isEditing, setIsEditing] = useState(false);
 
+  const setRenaming = useCallback((v: boolean) => {
+    setIsEditing(v);
+  }, []);
+
   useStore((state) => {
     return state.dndToRerender[documentId];
   });
@@ -339,7 +343,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
               <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} setRenaming={setIsEditing} />
             )}
           </div>
-          <DocumentOptionsComponent documentId={documentId} setRenaming={setIsEditing} />
+          <DocumentOptionsComponent documentId={documentId} setRenaming={setRenaming} />
           {/* <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}

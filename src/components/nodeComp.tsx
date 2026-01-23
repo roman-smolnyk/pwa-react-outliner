@@ -7,7 +7,7 @@ import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
-import { NodeOptionsButtonComponent, NodeOptionsComponent } from "./menusComp";
+import { NodeOptionsButtonComponent } from "./menusComp";
 
 function scrollCaretIntoView() {
   console.debug(`scrollCaretIntoView`);
@@ -406,7 +406,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           // }}
         >
           <MarkdownComponent>{nodeContent}</MarkdownComponent>
-          {/* <MarkdownComponent2>{nodeContent}</MarkdownComponent2> */}
+          {/* <MarkdownWebWorkerComponent>{nodeContent}</MarkdownWebWorkerComponent> */}
         </div>
       }
     </div>
