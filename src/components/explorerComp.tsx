@@ -13,10 +13,10 @@ import {
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
-import { DnDWrapperComponent } from "./dndComp";
-import { PlainMarkdownComponent } from "./markdownComp";
-import { DocumentOptionsComponent, GroupOptionsComponent } from "./menusComp";
-import { GlobalSearchPortalComponent } from "./searchGlobalComp";
+import { DnDWrapperComponent } from "./DndComp";
+import { PlainMarkdownComponent } from "./MarkdownComp";
+import { DocumentOptionsComponent, GroupOptionsComponent } from "./MenusComp";
+import { GlobalSearchPortalComponent } from "./SearchGlobalComp";
 // import { useNavigate } from "react-router-dom";
 
 function ButtonComponent({

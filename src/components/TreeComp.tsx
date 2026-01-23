@@ -4,11 +4,11 @@ import { DragOverlay } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
 // import { useParams } from "react-router-dom";
 import { TreeRoAPI } from "../api";
-import { NodeComponent, NodeContentComponent } from "./nodeComp";
+import { NodeComponent, NodeContentComponent } from "./NodeComp";
 import { useStore } from "../stateStore";
-import { DnDWrapperComponent } from "./dndComp";
-import { PlainMarkdownComponent } from "./markdownComp";
-import { NodeOptionsButtonComponent } from "./menusComp";
+import { DnDWrapperComponent } from "./DndComp";
+import { PlainMarkdownComponent } from "./MarkdownComp";
+import { NodeOptionsButtonComponent } from "./MenusComp";
 import { nanoid } from "nanoid";
 
 export default function TreeComponent() {

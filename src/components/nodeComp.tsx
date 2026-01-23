@@ -3,11 +3,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { memo, useLayoutEffect, useRef, useState, useEffect } from "react";
 import { TreeRoAPI } from "../api";
-import { MarkdownComponent } from "../components/markdownComp";
+import { MarkdownComponent } from "./MarkdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
-import { NodeOptionsButtonComponent } from "./menusComp";
+import { NodeOptionsButtonComponent } from "./MenusComp";
 
 function scrollCaretIntoView() {
   console.debug(`scrollCaretIntoView`);

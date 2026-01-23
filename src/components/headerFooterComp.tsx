@@ -27,7 +27,7 @@ import { TreeRoAPI } from "../api";
 import { useReadOnly } from "../etc/readonlyContext";
 // import { useKeyboardOffset } from "../etc/utilities";
 import { useStore } from "../stateStore";
-import MainMenuComponent from "./menusComp";
+import MainMenuComponent from "./MenusComp";
 
 function ButtonComponent({
   children,

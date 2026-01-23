@@ -3,8 +3,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 import { TreeRoAPI } from "./api";
-import { LoginFormComponent } from "./components/authComp";
-import MainAppComponent from "./components/mainAppComp";
+import { LoginFormComponent } from "./components/AuthComp";
+import MainAppComponent from "./components/MainAppComp";
 import { Capacitor } from "@capacitor/core";
 // import { BrowserRouter, Routes, Route } from "react-router-dom";
 
