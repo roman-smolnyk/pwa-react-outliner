@@ -1,5 +1,5 @@
 // import Markdown from "react-markdown";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 // import { MarkdownHooks } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -80,23 +80,41 @@ function SyntaxHighlighterPreTagComponent(props: any) {
 }
 
 export const MarkdownComponent = memo(({ children }: { children: string }) => {
-  // console.debug("MarkdownComponent");
-  // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
-  const markdownText = String(children);
-  let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
-  // ```code``` forgiving, but maybe teach user to add newlines
-  // preProcessedMD = preProcessedMD.replace(/```([^\n`]+)```/g, "```\n$1\n```");
+  return <div>{children}</div>;
+});
 
-  // Convert \n\n 2+ into "&nbsp;\n " except if next is list *-
-  preProcessedMD = preProcessedMD.replace(/(?<=\n)(?![*-])\n/g, "&nbsp;\n ");
-  // Preserve trailing
-  if (preProcessedMD.endsWith("\n") || preProcessedMD.endsWith("\n ")) {
-    preProcessedMD = `${preProcessedMD}<br>`;
-  }
-  // For exactly 2 newlines
-  // preprocessedContent = preprocessedContent.replace(/(?<!\n)\n\n(?!\n)(?![*-])/g, "&nbsp;\n ");
-  // For 3+ newlines
-  // preprocessedContent = preprocessedContent.replace(/(\n\n)\n+(?![*-])/g, "$1&nbsp;\n ");
+export const MarkdownComponent2 = memo(({ children }: { children: string }) => {
+  // console.debug("MarkdownComponent");
+
+  // const [text, setText] = useState("");
+
+  // useEffect(() => {
+  //   (async () => {
+
+
+      // Replaces all \n in code blocks with \n{whitespace} so in next block it won't be affected
+      const markdownText = String(children);
+      let preProcessedMD = markdownText.replace(/```[\s\S]*?```/g, (m) => m.replace(/\n/g, "\n ")).replace(/\$\$[\s\S]*?\$\$/g, (m) => m);
+      // ```code``` forgiving, but maybe teach user to add newlines
+      // preProcessedMD = preProcessedMD.replace(/```([^\n`]+)```/g, "```\n$1\n```");
+
+      // Convert \n\n 2+ into "&nbsp;\n " except if next is list *-
+      preProcessedMD = preProcessedMD.replace(/(?<=\n)(?![*-])\n/g, "&nbsp;\n ");
+      // Preserve trailing
+      if (preProcessedMD.endsWith("\n") || preProcessedMD.endsWith("\n ")) {
+        preProcessedMD = `${preProcessedMD}<br>`;
+      }
+
+
+      // For exactly 2 newlines
+      // preprocessedContent = preprocessedContent.replace(/(?<!\n)\n\n(?!\n)(?![*-])/g, "&nbsp;\n ");
+      // For 3+ newlines
+      // preprocessedContent = preprocessedContent.replace(/(\n\n)\n+(?![*-])/g, "$1&nbsp;\n ");
+
+      // setText(preProcessedMD);
+  //   })();
+  // }, [children]);
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkBreaks, remarkMath, remarkHighlight]}
@@ -146,6 +164,7 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
     >
       {/* {nodeContent.replace(/\n/gi, '\n &nbsp;')} */}
       {preProcessedMD}
+      {/* {text} */}
     </ReactMarkdown>
   );
 });

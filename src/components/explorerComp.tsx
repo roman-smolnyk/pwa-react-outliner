@@ -473,7 +473,7 @@ export default function ExplorerComponent() {
       >
         <NavBarComponent />
         <div className="Explorer-navbar-space h-12 sm:h-8"></div>
-        <div className="Explorer-scroll h-[calc(100vh-6.1rem)] sm:h-[calc(100vh-4rem)] overflow-y-auto overscroll-y-contain">
+        <div className="Explorer-scroll h-[calc(100dvh-6.1rem)] sm:h-[calc(100dvh-4rem)] overflow-y-auto overscroll-y-contain">
           {/* <div className="Explorer-top-spacer h-5 min-h-5 sm:h-5 sm:min-h-5"></div> */}
           <div>
             <DnDWrapperComponent

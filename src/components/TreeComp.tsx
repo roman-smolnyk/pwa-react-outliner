@@ -4,13 +4,14 @@ import { DragOverlay } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
 // import { useParams } from "react-router-dom";
 import { TreeRoAPI } from "../api";
-import { NodeComponent, NodeContentComponent } from "../components/nodeComp";
+import { NodeComponent, NodeContentComponent } from "./nodeComp";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./dndComp";
 import { PlainMarkdownComponent } from "./markdownComp";
-import { NodeOptionsComponent } from "./menusComp";
+import { NodeOptionsButtonComponent } from "./menusComp";
+import { nanoid } from "nanoid";
 
-export default function DocumentComponent() {
+export default function TreeComponent() {
   // const { node_id } = useParams();
 
   const ref = useRef<HTMLDivElement>(null);
@@ -43,10 +44,10 @@ export default function DocumentComponent() {
     <div className="Document relative min-w-xs h-full w-full z-1" ref={ref} data-id={currentDocumentId}>
       <div className="Document-header-space h-12 sm:h-8" />
       <div
-        className="Document-scroll h-[calc(100vh-6.1rem)] sm:h-[calc(100vh-4rem)] overflow-y-auto overscroll-y-contain
+        className="Document-scroll h-[calc(100dvh-6.1rem)] sm:h-[calc(100dvh-4rem)] overflow-y-auto overscroll-y-contain
                   px-5 sm:px-16 lg:px-32 xl:px-56 2xl:px-70"
         // style={{
-        //   height: `calc(100vh - 2.5rem)`, // example if header/footer 2.5rem each
+        //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
         <div className="Document-top-spacer h-6 sm:h-11" />
@@ -81,7 +82,7 @@ function NodePathComponent({ nodeId }: { nodeId: string }) {
   return (
     <div className="mb-5">
       {[...pathMap].map(([k, v]) => {
-        return <NodePathPartComponent key={crypto.randomUUID()} nodeId={k} part={v} />;
+        return <NodePathPartComponent key={nanoid()} nodeId={k} part={v} />;
       })}
     </div>
   );
@@ -103,7 +104,7 @@ export function RootNodeComponent() {
         <div className="RootNode-inner">
           <div className="RootNode-self flex items-start mb-3">
             <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
-            <NodeOptionsComponent nodeId={rootNode.node_id} />
+            <NodeOptionsButtonComponent nodeId={rootNode.node_id} />
           </div>
           <div className="RootNodeChildren flex flex-col gap-1">
             <DnDWrapperComponent

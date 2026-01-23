@@ -144,9 +144,9 @@ export function HeaderComponent() {
 }
 
 export function FooterComponent() {
-  const keyboardOffset = useKeyboardOffset();
+  // const keyboardOffset = useKeyboardOffset();
 
-  const explorerIsOpened = useStore((state) => state.explorerIsOpened);
+  // const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
   return (
     <div
@@ -155,9 +155,9 @@ export function FooterComponent() {
                  bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex items-center"
       style={{
-        transform: `translateY(-${keyboardOffset}px)`,
-        paddingBottom: "env(safe-area-inset-bottom)",
-        left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
+        // transform: `translateY(-${keyboardOffset}px)`,
+        // paddingBottom: "env(safe-area-inset-bottom)",
+        // left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
       }}
     >
       <div className="w-full px-2 m-3 sm:m-1 flex items-center justify-center">

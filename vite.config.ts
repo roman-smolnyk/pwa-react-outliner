@@ -23,7 +23,7 @@ export default defineConfig({
         short_name: "TreeRo",
         description: "Offline first PWA outliner app",
         theme_color: "#ffffff",
-        display: "fullscreen",
+        display: "standalone",
         start_url: "/",
         scope: "/",
       },

@@ -2,7 +2,7 @@ import { diffChars } from "diff";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import type { YDocumentDataType, YGroupDataType, YMetaDataType, YNodeDataType } from "./types";
-import { Conf } from "./config";
+import { Conf } from "./appConfig";
 import { WebsocketProvider } from "y-websocket";
 // import { YSweetProvider } from "@y-sweet/client";
 

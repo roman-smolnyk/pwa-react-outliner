@@ -15,6 +15,10 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, delay: numbe
   };
 }
 
+export function isMobile(): boolean {
+  return window.matchMedia("(max-width: 639px)").matches;
+}
+
 export const ENGINE = {
   GECKO: typeof (window as any).InstallTrigger !== "undefined",
   BLINK: (window as any).chrome !== undefined,

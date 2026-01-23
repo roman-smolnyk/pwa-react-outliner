@@ -1,7 +1,6 @@
-import "./PWABadge.css";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
-function PWABadge() {
+export default function PWABadge() {
   // check for updates every hour
   const period = 60 * 60 * 1000;
 
@@ -38,11 +37,7 @@ function PWABadge() {
       {(offlineReady || needRefresh) && (
         <div className="PWABadge-toast">
           <div className="PWABadge-message">
-            {offlineReady ? (
-              <span id="toast-message">App ready to work offline</span>
-            ) : (
-              <span id="toast-message">New content available, click on reload button to update.</span>
-            )}
+            {offlineReady ? <span>App ready to work offline</span> : <span>New content available, click on reload button to update.</span>}
           </div>
           <div className="PWABadge-buttons">
             {needRefresh && (
@@ -67,8 +62,6 @@ function PWABadge() {
     </div>
   );
 }
-
-export default PWABadge;
 
 /**
  * This function will register a periodic sync check every hour, you can modify the interval as needed.

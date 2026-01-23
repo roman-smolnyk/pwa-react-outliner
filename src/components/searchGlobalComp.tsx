@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import type { NodeDataType } from "../types";
+import { nanoid } from "nanoid";
+import { isMobile } from "../etc/utilities";
 // import { scrollIntoView } from "../etc/utilities";
 
 const rootEl = document.getElementById("root")!;
@@ -44,6 +46,9 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
       onClick={() => {
         TreeRoAPI.uiOpenNode(nodeId);
         useStore.setState({ globalSearchIsOpened: false });
+        if (isMobile()) {
+          useStore.setState({ explorerIsOpened: false });
+        }
         setTimeout(() => {
           //   document.getElementById(nodeId)?.scrollIntoView({ behavior: "smooth" });
           // scrollIntoView(document.getElementById(nodeId) as HTMLElement, document.querySelector(".Document-scroll") as HTMLElement);
@@ -52,11 +57,11 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
     >
       {parts.map((part, _idx) =>
         regex.test(part) ? (
-          <span key={crypto.randomUUID()} className="bg-yellow-200 text-black">
+          <span key={nanoid()} className="bg-yellow-200 text-black">
             {part}
           </span>
         ) : (
-          <span key={crypto.randomUUID()}>{part}</span>
+          <span key={nanoid()}>{part}</span>
         ),
       )}
       <div className="text-gray-400">{`${path.join("/")}`}</div>

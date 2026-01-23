@@ -3,7 +3,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ToastContainer } from "react-toastify";
 import PWABadge from "../PWABadge.tsx";
 import { TreeRoAPI } from "../api";
-import OutlineDocument from "../components/documentComp.tsx";
+import OutlineDocument from "./TreeComp.tsx";
 import { FooterComponent, HeaderComponent } from "../components/headerFooterComp.tsx";
 import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
 import ExplorerComponent from "./explorerComp.tsx";

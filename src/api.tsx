@@ -38,8 +38,8 @@ export const TreeRoAPI: TreeRoAPIType = {
   // ---------------- Group Methods ----------------
 
   insertNewGroup(targetGroupId, name = "New Group", index = -1) {
-    // const group_id = nanoid();
-    const group_id = crypto.randomUUID();
+    const group_id = nanoid();
+    // const group_id = crypto.randomUUID();
     const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
     if (!targetYgroup) {
       console.error(`insertGroup: targetGroupId=${targetGroupId} is missing`);
@@ -326,8 +326,8 @@ export const TreeRoAPI: TreeRoAPIType = {
   // ---------------- Document Methods ----------------
 
   insertNewDocument(targetGroupId, rootNodeContent = "New Document", index = -1) {
-    // const document_id = nanoid();
-    const document_id = crypto.randomUUID();
+    const document_id = nanoid();
+    // const document_id = crypto.randomUUID();
 
     const targetYgroup = Yjs.YGroupWrap.get(targetGroupId);
     if (!targetYgroup) {
@@ -337,8 +337,8 @@ export const TreeRoAPI: TreeRoAPIType = {
 
     Yjs.ydoc!.transact(() => {
       const rootYnode = new Y.Map() as YNodeDataType;
-      // const node_id = nanoid();
-      const node_id = crypto.randomUUID();
+      const node_id = nanoid();
+      // const node_id = crypto.randomUUID();
       rootYnode.set("node_id", node_id);
       rootYnode.set("parent_id", null);
       rootYnode.set("content", new Y.Text(rootNodeContent));
@@ -546,8 +546,8 @@ export const TreeRoAPI: TreeRoAPIType = {
   // ---------------- Node Methods ----------------
 
   insertNewNode(targetNodeId, content = "", index = -1, args = {}) {
-    // const node_id = nanoid();
-    const node_id = crypto.randomUUID();
+    const node_id = nanoid();
+    // const node_id = crypto.randomUUID();
 
     const targetYnode = Yjs.YNodeWrap.get(targetNodeId);
     if (!targetYnode) {

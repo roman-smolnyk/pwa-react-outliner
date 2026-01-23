@@ -1,11 +1,12 @@
 import { TreeRoAPI } from "./api";
 import { Yjs } from "./yjsEnv";
 import * as Y from "yjs";
-import { Conf } from "./config";
+import { Conf } from "./appConfig";
 import { createWelcomeDocument } from "./etc/welcomeData";
 import { fillInMockupData } from "./etc/mockupData";
 import type { DocumentDataType, GroupDataType, MetaDataType, NodeDataType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
 import { useStore } from "./stateStore";
+import { nanoid } from "nanoid";
 // import { fillInMockupData } from "./etc/mockupData";
 
 export default async function onStartUp() {
@@ -14,15 +15,14 @@ export default async function onStartUp() {
     // console.debug("persistence.whenSynced.then");
     let roomToken = TreeRoAPI.LocalConfig.get().roomToken;
 
-    Yjs.undoManager!.stopCapturing();
     // console.debug("ymeta", ymeta.toJSON());
-    // if (!Yjs.ymeta.get("root_group_id")) {
     // New Account
     if (!roomToken) {
       console.debug("onStartUp (!roomToken)");
       // Create ROOT data
       const ygroup = new Y.Map() as YGroupDataType;
-      const group_id = crypto.randomUUID(); // nanoid();
+      // const group_id = crypto.randomUUID();
+      const group_id = nanoid();
       ygroup.set("group_id", group_id);
       ygroup.set("name", "root");
       ygroup.set("collapsed", false);
@@ -36,9 +36,14 @@ export default async function onStartUp() {
       TreeRoAPI.LocalConfig.set({ roomToken: roomToken });
     }
 
-    Yjs.undoManager!.stopCapturing();
+    Yjs.undoManager!.clear();
 
-    if (Conf.WS_IS_ON) {
+    let isWsOn = true;
+    if (import.meta.env.DEV && !Conf.WS_IS_ON) {
+      isWsOn = false;
+    }
+
+    if (isWsOn) {
       TreeRoAPI.Yjs.connectWebSocket(roomToken);
       TreeRoAPI.Yjs.wsProvider!.on("status", (e) => {
         // console.debug("WebsocketProvider status", e.status);

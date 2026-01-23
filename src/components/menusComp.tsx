@@ -21,7 +21,7 @@ import {
   UserRoundIcon,
   ZoomInIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
 import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
@@ -224,6 +224,164 @@ export default function MainMenuComponent() {
                 if (confirm("All data on this device will be wiped. Are you sure?")) {
                   TreeRoAPI.clearData(true);
                 }
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
+  );
+}
+
+export function NodeOptionsButtonComponent({ nodeId }: { nodeId: string }) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const callback = useCallback(() => setOpen(false), []);
+
+  return (
+    <>
+      <button ref={buttonRef} type="button" className="cursor-pointer active:scale-90 transition" onClick={() => setOpen((v) => !v)}>
+        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]" />
+      </button>
+
+      {open && <NodeOptionsMenuComponent nodeId={nodeId} reference={buttonRef} onClose={callback} />}
+    </>
+  );
+}
+
+export function NodeOptionsMenuComponent({
+  nodeId,
+  reference,
+  onClose,
+}: {
+  nodeId: string;
+  reference: React.RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+}) {
+  // * Doing so because calling hooks are expensive
+  const open = true;
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: (v) => {
+      if (!v) onClose();
+    },
+    placement: "bottom-end",
+    middleware: [flip()],
+    whileElementsMounted: autoUpdate,
+  });
+
+  // **Correct way to set reference** from parent ref
+  useEffect(() => {
+    if (reference.current) {
+      refs.setReference(reference.current);
+    }
+  }, [reference.current]);
+
+  const click = useClick(context, { event: "click" });
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  return (
+    <>
+      {/* <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+      </button> */}
+
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <MenuItem
+              className="ZoomIntoNode"
+              icon={<ZoomInIcon className="w-full h-full" />}
+              label="Zoom In"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+                TreeRoAPI.uiOpenNode(nodeId);
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<PlusIcon className="w-full h-full" />}
+              label="Expand All"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<MinusIcon className="w-full h-full" />}
+              label="Collapse All"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<ArrowDownNarrowWideIcon className="w-full h-full" />}
+              label="Sort"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<InboxIcon className="w-full h-full" />}
+              label="Set as Inbox"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<UploadIcon className="w-full h-full" />}
+              label="Export"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="CopyNodeLink"
+              icon={<LinkIcon className="w-full h-full" />}
+              label="Copy link"
+              onClick={async () => {
+                // setOpen(false);
+                onClose();
+                const nodeUrl = `${window.location.origin}/${nodeId}`;
+                try {
+                  await navigator.clipboard.writeText(nodeUrl);
+                  toast("Copied", {
+                    containerId: "main",
+                    className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
+                  });
+                } catch (err) {
+                  toast.error("Failed to copy");
+                  console.error("Failed to copy:", err);
+                }
+              }}
+            />
+            <MenuItem
+              className="DeleteNode text-red-600"
+              icon={<Trash2Icon className="w-full h-full" />}
+              label="Delete"
+              onClick={() => {
+                // setOpen(false);
+                onClose();
+                TreeRoAPI.deleteNode(nodeId);
               }}
             />
           </div>

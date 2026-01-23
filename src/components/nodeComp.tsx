@@ -7,7 +7,39 @@ import { MarkdownComponent } from "../components/markdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
-import { NodeOptionsComponent } from "./menusComp";
+import { NodeOptionsButtonComponent, NodeOptionsComponent } from "./menusComp";
+
+function scrollCaretIntoView() {
+  console.debug(`scrollCaretIntoView`);
+  const container = document.querySelector(".Document-scroll");
+  if (!container) return;
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return;
+
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  const visibleBottom = vv.height; // bottom of visible area
+
+  // If caret is below visible area → scroll it up
+  if (rect.bottom > visibleBottom) {
+    container.scrollBy({
+      top: rect.bottom - visibleBottom + 16,
+      behavior: "smooth",
+    });
+  }
+
+  // If caret is above visible area → scroll it down
+  if (rect.top < 0) {
+    container.scrollBy({
+      top: rect.top - 16,
+      behavior: "smooth",
+    });
+  }
+}
 
 function updateContent(nodeId: string, nodeContent: string, el: HTMLElement) {
   // console.debug(`updateContent`, { nodeId, newContent });
@@ -119,9 +151,14 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
       // console.debug("activeNodeId", activeNodeId);
       // useStore.setState({ activeNodeId: "" });
       setIsEditing(true);
-      setTimeout(() => {
+      // setTimeout(() => {
+      //   useStore.getState().setCaretAtCharIndex(refContenteditable.current!, useStore.getState().currentCaretPosition);
+      // }, 0);
+      requestAnimationFrame(() => {
         useStore.getState().setCaretAtCharIndex(refContenteditable.current!, useStore.getState().currentCaretPosition);
-      }, 0);
+        // safeScroll();
+        scrollCaretIntoView();
+      });
     }
   }, [nodeId, activeNodeId]);
 
@@ -377,23 +414,25 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
 });
 NodeContentComponent.displayName = "NodeContentComponent";
 
+// export const NodeComponent = memo(
+//   ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
 export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
   // console.debug("NodeComponent");
-  // console.debug(`NodeComponent: ${nodeId}`);
+  console.debug(`NodeComponent: ${nodeId}`);
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
 
-  const [checked, setChecked] = useState(false);
-  useEffect(() => {
-    setChecked(parentChecked);
-  }, [parentChecked]);
+  const [checked, setChecked] = useState(parentChecked);
+  // useEffect(() => {
+  //   setChecked(parentChecked);
+  // }, [parentChecked]);
 
-  const [visiable, setVisiable] = useState(false);
+  const [visiable, setVisiable] = useState(!parentCollapsed);
   useEffect(() => {
-    if (parentCollapsed === false) {
+    if (visiable === false && parentCollapsed === false) {
       setVisiable(true);
     }
-  }, [parentCollapsed]);
+  }, [visiable, parentCollapsed]);
 
   // if (parentChecked) {
   //   setChecked(true);
@@ -451,9 +490,9 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
 
   if (!node) return null;
 
-  if (!visiable) {
-    return <div className="Node-placeholder">Item is loading...</div>;
-  }
+  // if (!visiable) {
+  //   return <div className="Node-placeholder">Item is loading...</div>;
+  // }
 
   return (
     // data-id={node.node_id}
@@ -514,7 +553,9 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
             )}
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <NodeOptionsComponent nodeId={nodeId} />
+          <NodeOptionsButtonComponent nodeId={nodeId} />
+          {/* <NodeOptionsComponent nodeId={nodeId} /> */}
+
           {/* // ! ID */}
           {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
         </div>
@@ -529,6 +570,7 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
     </div>
   );
 }
+// );
 // NodeComponent.displayName = "NodeComponent";
 
 function DropIndicatorComponent({ shrink = false }) {
