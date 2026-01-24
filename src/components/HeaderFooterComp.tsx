@@ -3,34 +3,33 @@ import {
   ArrowLeftToLineIcon,
   ArrowRightToLineIcon,
   ArrowUpIcon,
+  BoldIcon,
+  BracketsIcon,
   // CalendarDays,
   CloudAlertIcon,
   CloudCheckIcon,
   CloudCogIcon,
+  Code2Icon,
+  DiamondPlusIcon,
+  HeadingIcon,
+  HighlighterIcon,
+  ItalicIcon,
   ListChecksIcon,
-  MoveIcon,
   PanelLeftIcon,
   // EllipsisVerticalIcon,
   PencilIcon,
   PencilOffIcon,
+  QuoteIcon,
   RedoIcon,
   RefreshCwIcon,
   RotateCwIcon,
   SearchIcon,
-  SquarePlusIcon,
+  SigmaIcon,
+  StrikethroughIcon,
+  TableIcon,
   // ZoomInIcon,
   Trash2Icon,
-  UndoIcon,
-  BoldIcon,
-  ItalicIcon,
-  Code2Icon,
-  BracketsIcon,
-  HighlighterIcon,
-  TableIcon,
-  QuoteIcon,
-  HeadingIcon,
-  StrikethroughIcon,
-  SigmaIcon,
+  UndoIcon
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
@@ -229,12 +228,13 @@ export function FooterComponent() {
               }
             }}
           >
-            <SquarePlusIcon />
+            {/* <SquarePlusIcon /> */}
+            <DiamondPlusIcon />
           </ButtonComponent>
 
-          <ButtonComponent className="text-yellow-400">
+          {/* <ButtonComponent className="text-yellow-400">
             <MoveIcon />
-          </ButtonComponent>
+          </ButtonComponent> */}
 
           {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
           <ButtonComponent className="text-yellow-400">

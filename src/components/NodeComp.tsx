@@ -1,12 +1,12 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { memo, useLayoutEffect, useRef, useState, useEffect } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
-import { MarkdownComponent } from "./MarkdownComp";
 import { useReadOnly } from "../etc/readonlyContext";
 import { debounce, inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
+import { MarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
 
 function scrollCaretIntoView() {
@@ -471,16 +471,19 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
     ref.current = element; // your own ref
   };
 
-  if (isDragging) {
-    // console.debug("isDragging", attributes, listeners);
-    const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
-    useStore.setState({ dndDescendantsIds: descendantsIds });
-  }
+  useEffect(() => {
+    if (isDragging) {
+      // console.debug("isDragging", attributes, listeners);
+      const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
+      useStore.setState({ dndDescendantsIds: descendantsIds });
+    }
+  }, [active, isDragging]);
 
   let placement = null;
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
     TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+
     if (active?.id && over?.id && active.id !== over.id) {
       if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
         placement = TreeRoAPI.useStore.getState().dndPlacement;
@@ -564,7 +567,7 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
           {/* <NodeOptionsComponent nodeId={nodeId} /> */}
 
           {/* // ! ID */}
-          {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(30)}</div> */}
+          {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(-5)}</div> */}
         </div>
         {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
         {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}

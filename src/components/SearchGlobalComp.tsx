@@ -3,8 +3,8 @@ import { XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TreeRoAPI } from "../api";
-import { useStore } from "../stateStore";
 import { isMobile } from "../etc/utilities";
+import { useStore } from "../stateStore";
 // import { scrollIntoView } from "../etc/utilities";
 
 const rootEl = document.getElementById("root")!;

@@ -1,9 +1,9 @@
-import { useStore } from "./stateStore";
+import { nanoid } from "nanoid";
 import * as Y from "yjs";
+import { LocalConfig } from "./localConfig";
+import { useStore } from "./stateStore";
 import type { TreeRoAPIType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
 import { Yjs } from "./yjsEnv";
-import { nanoid } from "nanoid";
-import { LocalConfig } from "./localConfig";
 
 export class DataNotLoadedError extends Error {}
 

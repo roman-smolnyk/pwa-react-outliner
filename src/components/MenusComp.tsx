@@ -13,6 +13,7 @@ import {
   LinkIcon,
   LogInIcon,
   MinusIcon,
+  MoveIcon,
   PlusIcon,
   Share2Icon,
   SquarePenIcon,
@@ -315,6 +316,14 @@ export function NodeOptionsMenuComponent({
             />
             <MenuItem
               className="text-yellow-400"
+              icon={<MoveIcon className="w-full h-full" />}
+              label="Move To"
+              onClick={() => {
+                onClose();
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
               icon={<PlusIcon className="w-full h-full" />}
               label="Expand All"
               onClick={() => {
@@ -438,6 +447,14 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
               onClick={() => {
                 setOpen(false);
                 TreeRoAPI.uiOpenNode(nodeId);
+              }}
+            />
+            <MenuItem
+              className="text-yellow-400"
+              icon={<MoveIcon className="w-full h-full" />}
+              label="Move to"
+              onClick={() => {
+                setOpen(false);
               }}
             />
             <MenuItem

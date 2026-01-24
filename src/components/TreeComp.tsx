@@ -1,14 +1,14 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
+// import { useParams } from "react-router-dom";
 import { DragOverlay } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
-// import { useParams } from "react-router-dom";
 import { TreeRoAPI } from "../api";
-import { NodeComponent, NodeContentComponent } from "./NodeComp";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
+import { NodeComponent, NodeContentComponent } from "./NodeComp";
 
 export default function TreeComponent() {
   // const { node_id } = useParams();

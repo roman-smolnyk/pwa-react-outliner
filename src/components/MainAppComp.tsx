@@ -3,11 +3,11 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ToastContainer } from "react-toastify";
 import PWABadge from "../PWABadge.tsx";
 import { TreeRoAPI } from "../api.tsx";
-import OutlineDocument from "./TreeComp.tsx";
-import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
 import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
-import ExplorerComponent from "./ExplorerComp.tsx";
 import onStartUp from "../onStartUp.tsx";
+import ExplorerComponent from "./ExplorerComp.tsx";
+import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
+import OutlineDocument from "./TreeComp.tsx";
 
 function SpinnerComponent() {
   return (

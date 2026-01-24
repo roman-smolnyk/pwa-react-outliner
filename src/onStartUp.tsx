@@ -1,12 +1,12 @@
-import { TreeRoAPI } from "./api";
-import { Yjs } from "./yjsEnv";
-import * as Y from "yjs";
-import { Conf } from "./appConfig";
-import { createWelcomeDocument } from "./etc/welcomeData";
-import { fillInMockupData } from "./etc/mockupData";
-import type { DocumentDataType, GroupDataType, MetaDataType, NodeDataType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
-import { useStore } from "./stateStore";
 import { nanoid } from "nanoid";
+import * as Y from "yjs";
+import { TreeRoAPI } from "./api";
+import { Conf } from "./appConfig";
+import { fillInMockupData } from "./etc/mockupData";
+import { createWelcomeDocument } from "./etc/welcomeData";
+import { useStore } from "./stateStore";
+import type { DocumentDataType, GroupDataType, MetaDataType, NodeDataType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
+import { Yjs } from "./yjsEnv";
 // import { fillInMockupData } from "./etc/mockupData";
 
 export default async function onStartUp() {
