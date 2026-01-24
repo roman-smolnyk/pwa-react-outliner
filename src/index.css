@@ -1,15 +1,17 @@
 /** biome-ignore-all lint/suspicious/noUnknownAtRules: explanation */
 @import "tailwindcss";
-@import "@phosphor-icons/web/regular";
+/* @import "@phosphor-icons/web/regular"; */
 /* @import "@phosphor-icons/web/thin"; */
 /* @import "@phosphor-icons/web/light"; */
-@import "@phosphor-icons/web/bold";
-@import "@phosphor-icons/web/fill";
+/* @import "@phosphor-icons/web/bold"; */
+/* @import "@phosphor-icons/web/fill"; */
 /* @import "@phosphor-icons/web/duotone"; */
+
+
 
 @font-face {
   font-family: 'Roboto';
-  src: url('fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+  src: url('assets/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-stretch: 75% 100%;
   font-style: normal;
@@ -17,7 +19,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  src: url('fonts/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  src: url('assets/fonts/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-stretch: 75% 100%;
   font-style: italic;
@@ -25,7 +27,7 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('fonts/InterVariable.woff2') format('woff2-variations');
+  src: url('assets/InterVariable.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -33,7 +35,7 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('fonts/InterVariable-Italic.woff2') format('woff2-variations');
+  src: url('assets/fonts/InterVariable-Italic.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;

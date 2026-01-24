@@ -1,11 +1,9 @@
 //
 import { XIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
-import type { NodeDataType } from "../types";
-import { nanoid } from "nanoid";
 import { isMobile } from "../etc/utilities";
 // import { scrollIntoView } from "../etc/utilities";
 
@@ -55,13 +53,15 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
         }, 1_000);
       }}
     >
-      {parts.map((part, _idx) =>
+      {parts.map((part, idx) =>
         regex.test(part) ? (
-          <span key={nanoid()} className="bg-yellow-200 text-black">
+          // biome-ignore lint/suspicious/noArrayIndexKey: explanation
+          <span key={idx} className="bg-yellow-200 text-black">
             {part}
           </span>
         ) : (
-          <span key={nanoid()}>{part}</span>
+          // biome-ignore lint/suspicious/noArrayIndexKey: explanation
+          <span key={idx}>{part}</span>
         ),
       )}
       <div className="text-gray-400">{`${path.join("/")}`}</div>
@@ -72,15 +72,28 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
 export function GlobalSearchPortalComponent() {
   const refInput = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const globalSearchIsOpened = useStore((state) => state.globalSearchIsOpened);
 
   const nodes = useStore((state) => state.nodes);
 
-  let filteredNodes: NodeDataType[] = [];
-  if (query) {
-    filteredNodes = [...nodes.values()].filter((a) => a.content.toLowerCase().includes(query.toLowerCase()));
-  }
+  useEffect(() => {
+    const tid = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 200);
+
+    return () => clearTimeout(tid);
+  }, [query]);
+
+  const filteredNodes = useMemo(() => {
+    if (!debouncedQuery.trim()) return [];
+
+    const lowerQuery = debouncedQuery.toLowerCase();
+    const nodeList = Array.from(nodes.values());
+
+    return nodeList.filter((node) => node.content.toLowerCase().includes(lowerQuery)).slice(0, 100); // Optimization: Limit results to top 100
+  }, [nodes, debouncedQuery]);
 
   useEffect(() => {
     refInput.current?.focus();

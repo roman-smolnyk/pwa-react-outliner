@@ -9,7 +9,6 @@ import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
-import { nanoid } from "nanoid";
 
 export default function TreeComponent() {
   // const { node_id } = useParams();
@@ -33,8 +32,10 @@ export default function TreeComponent() {
 
   // Scroll to top
   useEffect(() => {
-    if (ref.current?.parentElement) {
-      ref.current.parentElement.scrollTop = 0;
+    const container = ref.current?.firstElementChild;
+
+    if (container instanceof HTMLElement) {
+      container.scrollTop = 0;
     }
   }, [currentDocumentId]);
 
@@ -42,17 +43,18 @@ export default function TreeComponent() {
 
   return (
     <div className="Document relative min-w-xs h-full w-full z-1" ref={ref} data-id={currentDocumentId}>
-      <div className="Document-header-space h-12 sm:h-8" />
       <div
         className="Document-scroll h-[calc(100dvh-6.1rem)] sm:h-[calc(100dvh-4rem)] overflow-y-auto overscroll-y-contain
-                  px-5 sm:px-16 lg:px-32 xl:px-56 2xl:px-70"
+                  mt-12 sm:mt-8          
+                  px-5 sm:px-16 lg:px-32 xl:px-56 2xl:px-70
+                  pt-12 pb-100
+                  "
         // style={{
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
-        <div className="Document-top-spacer h-6 sm:h-11" />
         <RootNodeComponent />
-        <div className="Document-bottom-spacer h-100" />
+        {/* <div className="Document-bottom-spacer h-100" /> */}
       </div>
     </div>
   );
@@ -81,8 +83,9 @@ function NodePathComponent({ nodeId }: { nodeId: string }) {
 
   return (
     <div className="mb-5">
-      {[...pathMap].map(([k, v]) => {
-        return <NodePathPartComponent key={nanoid()} nodeId={k} part={v} />;
+      {[...pathMap].map(([k, v], idx) => {
+        // biome-ignore lint/suspicious/noArrayIndexKey: explanation
+        return <NodePathPartComponent key={idx} nodeId={k} part={v} />;
       })}
     </div>
   );
@@ -104,7 +107,7 @@ export function RootNodeComponent() {
         <div className="RootNode-inner">
           <div className="RootNode-self flex items-start mb-3">
             <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
-            <NodeOptionsButtonComponent nodeId={rootNode.node_id} />
+            <NodeOptionsButtonComponent nodeId={rootNode.node_id} isRootNode={true} />
           </div>
           <div className="RootNodeChildren flex flex-col gap-1">
             <DnDWrapperComponent

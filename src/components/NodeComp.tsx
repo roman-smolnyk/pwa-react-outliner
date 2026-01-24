@@ -499,7 +499,8 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
     <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
       <div className="Node-inner">
         {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
-        <div className="Node-self flex items-start" ref={refNodeSelf} data-id={node.node_id}>
+        {/* shadow-[0_-2px_0_0_rgba(59,130,246,1)] */}
+        <div className={`Node-self flex items-start`} ref={refNodeSelf} data-id={node.node_id}>
           {checkboxSelectionIsActive && (
             <button
               className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
@@ -528,7 +529,11 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
                 // <PlusIcon className="size-4 text-500" />
                 // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
                 // <PlusCircle className="size-4" />
-                <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
+                // <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
+                // <i className="tro tro-bullet-plus text-[0.7rem] [-webkit-text-stroke:0.2px_black]"></i>
+                <i className="tro tro-bullet-plus-bold text-[0.75rem]"></i>
+                // <i className="tro tro-bullet-plus text-[0.7rem]"></i>
+                // <i className="tro tro-donut text-[0.7rem]"></i>
                 // <i className="ph-bold ph-plus-circle"></i>
                 // <div>
                 //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
@@ -537,12 +542,14 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
                 // </div>
               ) : (
                 // <Minus className="size-4" />
-                <i className="ph ph-minus text-[0.9rem]"></i>
+                // <i className="ph ph-minus text-[0.9rem]"></i>
+                <i className="tro tro-minus text-[0.7rem]"></i>
                 // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
               )
             ) : (
               // <span>●</span>
-              <i className="ph-fill ph-circle text-[0.5rem]"></i>
+              // <i className="ph-fill ph-circle text-[0.5rem]"></i>
+              <i className="tro tro-bullet text-[0.4rem]"></i>
               // <div>
 
               //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
@@ -553,7 +560,7 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
             )}
           </button>
           <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <NodeOptionsButtonComponent nodeId={nodeId} />
+          <NodeOptionsButtonComponent nodeId={nodeId} isRootNode={false} />
           {/* <NodeOptionsComponent nodeId={nodeId} /> */}
 
           {/* // ! ID */}
@@ -573,11 +580,22 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
 // );
 // NodeComponent.displayName = "NodeComponent";
 
+// function DropIndicatorComponent({ shrink = false }) {
+//   return (
+//     <div className="flex items-start justify-end">
+//       <div className={`h-1 rounded bg-blue-500 ${shrink ? "w-3/4" : "w-full"}`} />
+//     </div>
+//   );
+// }
+
 function DropIndicatorComponent({ shrink = false }) {
-  // console.debug(placement);
-  return (
-    <div className="flex items-start justify-end">
-      <div className={`h-1 rounded bg-blue-500 ${shrink ? "w-3/4" : "w-full"}`} />
-    </div>
-  );
+  if (shrink) {
+    return (
+      <div className="relative before:absolute before:content-[''] before:top-0 before:end-0 before:h-1 before:w-3/4 before:bg-blue-400 before:-translate-y-1/2" />
+    );
+  } else {
+    return (
+      <div className="relative before:absolute before:content-[''] before:top-0 before:start-0 before:end-0 before:h-1 before:bg-blue-400 before:-translate-y-1/2" />
+    );
+  }
 }

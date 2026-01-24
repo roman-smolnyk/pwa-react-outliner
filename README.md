@@ -77,3 +77,6 @@ export default defineConfig([
 ```
 npx capacitor-assets generate
 ```
+```
+npx svgtofont --sources ./treero-icons --output ./src/assets/fonts/ --fontName tro
+```

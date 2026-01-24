@@ -233,7 +233,7 @@ export default function MainMenuComponent() {
   );
 }
 
-export function NodeOptionsButtonComponent({ nodeId }: { nodeId: string }) {
+export function NodeOptionsButtonComponent({ nodeId, isRootNode }: { nodeId: string; isRootNode?: boolean }) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -241,11 +241,12 @@ export function NodeOptionsButtonComponent({ nodeId }: { nodeId: string }) {
 
   return (
     <>
-      <button ref={buttonRef} type="button" className="cursor-pointer active:scale-90 transition" onClick={() => setOpen((v) => !v)}>
-        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]" />
+      <button ref={buttonRef} type="button" className="cursor-pointer min-h-5 min-w-5 active:scale-90 transition" onClick={() => setOpen((v) => !v)}>
+        {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]" /> */}
+        <i className="tro tro-three-dots text-[0.75rem]"></i>
       </button>
 
-      {open && <NodeOptionsMenuComponent nodeId={nodeId} reference={buttonRef} onClose={callback} />}
+      {open && <NodeOptionsMenuComponent nodeId={nodeId} reference={buttonRef} onClose={callback} isRootNode={isRootNode} />}
     </>
   );
 }
@@ -254,11 +255,14 @@ export function NodeOptionsMenuComponent({
   nodeId,
   reference,
   onClose,
+  isRootNode,
 }: {
   nodeId: string;
   reference: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
+  isRootNode?: boolean;
 }) {
+  console.debug("NodeOptionsButtonComponent", isRootNode);
   // * Doing so because calling hooks are expensive
   const open = true;
 
@@ -374,16 +378,18 @@ export function NodeOptionsMenuComponent({
                 }
               }}
             />
-            <MenuItem
-              className="DeleteNode text-red-600"
-              icon={<Trash2Icon className="w-full h-full" />}
-              label="Delete"
-              onClick={() => {
-                // setOpen(false);
-                onClose();
-                TreeRoAPI.deleteNode(nodeId);
-              }}
-            />
+            {!isRootNode && (
+              <MenuItem
+                className="DeleteNode text-red-600"
+                icon={<Trash2Icon className="w-full h-full" />}
+                label="Delete"
+                onClick={() => {
+                  // setOpen(false);
+                  onClose();
+                  TreeRoAPI.deleteNode(nodeId);
+                }}
+              />
+            )}
           </div>
         </FloatingPortal>
       )}
@@ -537,7 +543,8 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
         className="cursor-pointer active:scale-90 transition flex items-center justify-center"
         {...getReferenceProps()}
       >
-        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+        {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
+        <i className="tro tro-three-dots text-[0.75rem]"></i>
       </button>
 
       {open && (
@@ -622,7 +629,8 @@ export const DocumentOptionsComponent = memo(({ documentId, setRenaming }: { doc
         className="cursor-pointer active:scale-90 transition flex items-center justify-center"
         {...getReferenceProps()}
       >
-        <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
+        {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
+        <i className="tro tro-three-dots text-[0.75rem]"></i>
       </button>
 
       {open && (

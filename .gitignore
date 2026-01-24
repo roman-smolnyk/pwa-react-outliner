@@ -24,7 +24,7 @@ dev-dist
 *.sln
 *.sw?
 
-android
-icons
-public/manifest.webmanifest
-pwa-react-treero-cdn
+/android
+/icons
+/public/manifest.webmanifest
+/pwa-react-treero-cdn

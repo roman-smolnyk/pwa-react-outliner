@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import type { FlattenedNodeType, NodeDataType } from "../types";
 
+export function forceReload() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const reg of registrations) {
+        reg.update(); // fetch new SW and assets
+      }
+    });
+  }
+  window.location.replace(window.location.pathname + "?t=" + Date.now());
+}
+
 export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
   let timerId: ReturnType<typeof setTimeout> | undefined;
 
@@ -340,4 +351,52 @@ export function memoizeWithTimeout<F extends (...args: any[]) => any>(fn: F, arg
   setTimeout(() => cache.delete(key), timeout);
 
   return result;
+}
+
+export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let lastCall = 0;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+  let lastThis: any;
+
+  return function throttled(this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    const remaining = delay - (now - lastCall);
+
+    lastArgs = args;
+    lastThis = this;
+
+    if (remaining <= 0) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      lastCall = now;
+      fn.apply(lastThis, lastArgs);
+    } else if (!timeoutId) {
+      timeoutId = setTimeout(() => {
+        lastCall = Date.now();
+        timeoutId = null;
+        fn.apply(lastThis, lastArgs!);
+      }, remaining);
+    }
+  };
+}
+
+export function throttleWithRaf<T extends (...args: any[]) => void>(fn: T): (...args: Parameters<T>) => void {
+  let rafId: number | null = null;
+  let lastArgs: Parameters<T> | null = null;
+  let lastThis: any;
+
+  return function throttled(this: any, ...args: Parameters<T>) {
+    lastArgs = args;
+    lastThis = this;
+
+    if (rafId !== null) return;
+
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      fn.apply(lastThis, lastArgs as Parameters<T>);
+    });
+  };
 }

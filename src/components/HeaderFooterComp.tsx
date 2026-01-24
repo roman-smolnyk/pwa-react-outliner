@@ -21,6 +21,16 @@ import {
   // ZoomInIcon,
   Trash2Icon,
   UndoIcon,
+  BoldIcon,
+  ItalicIcon,
+  Code2Icon,
+  BracketsIcon,
+  HighlighterIcon,
+  TableIcon,
+  QuoteIcon,
+  HeadingIcon,
+  StrikethroughIcon,
+  SigmaIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
@@ -28,6 +38,7 @@ import { useReadOnly } from "../etc/readonlyContext";
 // import { useKeyboardOffset } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import MainMenuComponent from "./MenusComp";
+// import { forceReload } from "../etc/utilities";
 
 function ButtonComponent({
   children,
@@ -87,9 +98,11 @@ export function HeaderComponent() {
           </ButtonComponent>
           <div></div>
           <ButtonComponent
+            className="ForceReload"
             onClick={(event) => {
               event.currentTarget.classList.add("animate-spin");
               window.location.replace(window.location.href);
+              // forceReload();
             }}
           >
             <RotateCwIcon />
@@ -154,11 +167,13 @@ export function FooterComponent() {
                  overflow-x-auto
                  bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex items-center"
-      style={{
-        // transform: `translateY(-${keyboardOffset}px)`,
-        // paddingBottom: "env(safe-area-inset-bottom)",
-        // left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
-      }}
+      style={
+        {
+          // transform: `translateY(-${keyboardOffset}px)`,
+          // paddingBottom: "env(safe-area-inset-bottom)",
+          // left: `${explorerIsOpened ? "var(--sidebar-width)" : "0px"}`,
+        }
+      }
     >
       <div className="w-full px-2 m-3 sm:m-1 flex items-center justify-center">
         <div className="flex-nowrap min-w-max flex gap-4 sm:gap-2">
@@ -219,6 +234,47 @@ export function FooterComponent() {
 
           <ButtonComponent className="text-yellow-400">
             <MoveIcon />
+          </ButtonComponent>
+
+          {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
+          <ButtonComponent className="text-yellow-400">
+            <HeadingIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <BoldIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <ItalicIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <StrikethroughIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <Code2Icon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <BracketsIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <HighlighterIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <TableIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <QuoteIcon />
+          </ButtonComponent>
+
+          <ButtonComponent className="text-yellow-400">
+            <SigmaIcon />
           </ButtonComponent>
 
           {/* <ButtonComponent className="text-yellow-400">

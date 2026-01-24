@@ -1,6 +1,7 @@
 import type { DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { TraversalOrder } from "@dnd-kit/core";
+// import { throttle } from "../etc/utilities";
 
 export function DnDWrapperComponent({
   children,

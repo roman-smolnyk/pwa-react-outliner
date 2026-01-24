@@ -1,5 +1,6 @@
 import "katex/dist/katex.min.css";
 import "react-toastify/dist/ReactToastify.css";
+import "./assets/fonts/tro.css";
 import "./App.css";
 
 import { TreeRoAPI } from "./api";

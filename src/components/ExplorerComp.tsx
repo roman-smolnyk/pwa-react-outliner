@@ -35,12 +35,15 @@ function ButtonComponent({
 }
 
 function DropIndicatorComponent({ shrink = false }) {
-  // console.debug(placement);
-  return (
-    <div className="flex items-start justify-end">
-      <div className={`h-1 rounded bg-blue-500 ${shrink ? "w-3/4" : "w-full"}`} />
-    </div>
-  );
+  if (shrink) {
+    return (
+      <div className="relative before:absolute before:content-[''] before:top-0 before:end-0 before:h-1 before:w-3/4 before:bg-blue-400 before:-translate-y-1/2" />
+    );
+  } else {
+    return (
+      <div className="relative before:absolute before:content-[''] before:top-0 before:start-0 before:end-0 before:h-1 before:bg-blue-400 before:-translate-y-1/2" />
+    );
+  }
 }
 
 function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: string; name: string; setRenaming: (v: boolean) => void }) {
@@ -470,15 +473,18 @@ export default function ExplorerComponent() {
 
       <aside
         className={`Explorer relative z-75
-               bg-white shadow-[1px_0px_5px_rgba(0,0,0,0.15)]
-                 ${explorerIsOpened ? "" : "hidden"}`}
+                 bg-white shadow-[1px_0px_5px_rgba(0,0,0,0.15)]
+                   ${explorerIsOpened ? "" : "hidden"}`}
         style={{ width: "var(--sidebar-width)", minWidth: "var(--sidebar-width)" }}
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >
         <NavBarComponent />
-        <div className="Explorer-navbar-space h-12 sm:h-8"></div>
-        <div className="Explorer-scroll h-[calc(100dvh-6.1rem)] sm:h-[calc(100dvh-4rem)] overflow-y-auto overscroll-y-contain">
-          {/* <div className="Explorer-top-spacer h-5 min-h-5 sm:h-5 sm:min-h-5"></div> */}
+        <div
+          className="Explorer-scroll h-[calc(100dvh-6.1rem)] sm:h-[calc(100dvh-4rem)]
+                        mt-12 sm:mt-8
+                        pb-10
+                        overflow-y-auto overscroll-y-contain"
+        >
           <div>
             <DnDWrapperComponent
               onDragStart={(event) => {
@@ -589,13 +595,11 @@ export default function ExplorerComponent() {
                     <DragOverlay>
                       {activeId ? <div className="inline-block border border-black bg-white px-1 cursor-grabbing">Move</div> : null}
                     </DragOverlay>
-                    <div className="Explorer-bottom-spacer h-5" />
                   </div>
                 </div>
               </div>
             </DnDWrapperComponent>
           </div>
-          <div className="Explorer-bottom-spacer h-100" />
         </div>
         <BottomNavBarComponent />
       </aside>
