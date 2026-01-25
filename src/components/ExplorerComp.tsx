@@ -17,7 +17,7 @@ import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
 import { DocumentOptionsComponent, GroupOptionsComponent } from "./MenusComp";
 import { GlobalSearchPortalComponent } from "./SearchGlobalComp";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function ButtonComponent({
   children,
@@ -245,7 +245,7 @@ function DocumentItemTitleComponent({
 }
 
 const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
@@ -262,13 +262,13 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
   });
 
   // zustand subscribe
-  const document_ = useStore((state) => {
+  const leaf = useStore((state) => {
     return state.documents.get(documentId);
   });
 
   const rootNode = useStore((state) => {
-    if (!document_) return;
-    return state.nodes.get(document_.root_node_id);
+    if (!leaf) return;
+    return state.nodes.get(leaf.root_node_id);
   });
 
   const currentDocumentId = useStore((state) => {
@@ -284,7 +284,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
     ref.current = element; // your own ref
   };
 
-  if (!document_ || !rootNode) return;
+  if (!leaf || !rootNode) return;
 
   if (isDragging) {
     // console.debug("isDragging", attributes, listeners);
@@ -334,8 +334,8 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              // navigate(`/${TreeRoAPI.getDocumentRootNodeId(documentId)}`);
-              TreeRoAPI.uiOpenNode(rootNode.node_id);
+              navigate(`/node/${rootNode.node_id}`);
+              // TreeRoAPI.uiOpenNode(rootNode.node_id);
             }}
           >
             {!isEditing ? (

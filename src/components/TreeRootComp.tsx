@@ -1,6 +1,6 @@
 // import { EllipsisVertical, Minus, PlusCircle } from "lucide-react";
 // import { PlusCircle } from "@phosphor-icons/react";
-// import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DragOverlay } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
@@ -10,8 +10,8 @@ import { PlainMarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
 import { NodeComponent, NodeContentComponent } from "./NodeComp";
 
-export default function TreeComponent() {
-  // const { node_id } = useParams();
+export default function TreeRootComponent() {
+  const { node_id } = useParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
@@ -19,16 +19,16 @@ export default function TreeComponent() {
   // console.debug(`DocumentComponent:node_id`, node_id);
   console.debug(`DocumentComponent:currentDocumentId`, currentDocumentId);
 
-  // useEffect(() => {
-  //   // console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
-  //   // if (document_id && TreeRoAPI.getDocument(document_id)) {
-  //   //   TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
-  //   // }
-  //   console.debug(`useEffect`, node_id ? TreeRoAPI.getNode(node_id) : null);
-  //   if (node_id && TreeRoAPI.getNode(node_id)) {
-  //     TreeRoAPI.uiOpenNode(node_id);
-  //   }
-  // }, [node_id]);
+  useEffect(() => {
+    // console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
+    // if (document_id && TreeRoAPI.getDocument(document_id)) {
+    //   TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
+    // }
+    console.debug(`useEffect`, node_id ? TreeRoAPI.getNode(node_id) : null);
+    if (node_id && TreeRoAPI.getNode(node_id)) {
+      TreeRoAPI.uiOpenNode(node_id);
+    }
+  }, [node_id]);
 
   // Scroll to top
   useEffect(() => {

@@ -6,10 +6,12 @@ import "./assets/fonts/tro.css";
 import { Capacitor } from "@capacitor/core";
 import { TreeRoAPI } from "./api";
 import { LoginFormComponent } from "./components/AuthComp";
-import MainAppComponent from "./components/MainAppComp";
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
+import TreeRoMainComponent from "./components/TreeRoMainComp";
+import { API } from "esm-treero-api";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 function App() {
+  console.log(API.method());
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
   TreeRoAPI.useStore((state) => state.localConfig.authorized);
 
@@ -17,15 +19,16 @@ function App() {
     return <LoginFormComponent />;
   }
 
-  return <MainAppComponent />;
+  // return <MainAppComponent />;
 
-  // return (
-  //   <BrowserRouter>
-  //     <Routes>
-  //       <Route path="/:node_id?" element={<MainAppComponent />} />
-  //     </Routes>
-  //   </BrowserRouter>
-  // );
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<TreeRoMainComponent />} />
+        <Route path="/node/:node_id?" element={<TreeRoMainComponent />} />
+      </Routes>
+    </HashRouter>
+  );
 }
 
 export default App;

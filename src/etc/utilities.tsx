@@ -12,19 +12,19 @@ export function forceReload() {
   window.location.replace(window.location.pathname + "?t=" + Date.now());
 }
 
-export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
-  let timerId: ReturnType<typeof setTimeout> | undefined;
+// export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
+//   let timerId: ReturnType<typeof setTimeout> | undefined;
 
-  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-    if (timerId !== undefined) {
-      clearTimeout(timerId);
-    }
+//   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+//     if (timerId !== undefined) {
+//       clearTimeout(timerId);
+//     }
 
-    timerId = setTimeout(() => {
-      fn.apply(this, args);
-    }, delay);
-  };
-}
+//     timerId = setTimeout(() => {
+//       fn.apply(this, args);
+//     }, delay);
+//   };
+// }
 
 export function isMobile(): boolean {
   return window.matchMedia("(max-width: 639px)").matches;

@@ -7,7 +7,7 @@ import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
 import onStartUp from "../onStartUp.tsx";
 import ExplorerComponent from "./ExplorerComp.tsx";
 import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
-import OutlineDocument from "./TreeComp.tsx";
+import TreeRootComponent from "./TreeRootComp.tsx";
 
 function SpinnerComponent() {
   return (
@@ -17,7 +17,7 @@ function SpinnerComponent() {
   );
 }
 
-export default function MainAppComponent() {
+export default function TreeRoMainComponent() {
   const [loading, setLoading] = useState(true);
 
   useHotkeys("ctrl+z, meta+z", () => {
@@ -48,7 +48,7 @@ export default function MainAppComponent() {
       text-lg sm:text-base"
       >
         <ExplorerComponent />
-        <OutlineDocument />
+        <TreeRootComponent />
       </div>
       <FooterComponent />
       <ToastContainer
