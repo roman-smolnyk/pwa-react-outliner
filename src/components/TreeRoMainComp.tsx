@@ -3,7 +3,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ToastContainer } from "react-toastify";
 import PWABadge from "../PWABadge.tsx";
 import { TreeRoAPI } from "../api.tsx";
-import { ReadOnlyContextProvider } from "../etc/readonlyContext.tsx";
+import { ReadOnlyContextProvider, PlainTextViewContextProvider } from "../etc/customContexts.tsx";
 import onStartUp from "../onStartUp.tsx";
 import ExplorerComponent from "./ExplorerComp.tsx";
 import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
@@ -42,27 +42,29 @@ export default function TreeRoMainComponent() {
 
   return (
     <ReadOnlyContextProvider>
-      <HeaderComponent />
-      <div
-        className="flex h-screen overflow-hidden
-      text-lg sm:text-base"
-      >
-        <ExplorerComponent />
-        <TreeRootComponent />
-      </div>
-      <FooterComponent />
-      <ToastContainer
-        containerId="main"
-        position="top-right"
-        autoClose={3_000}
-        hideProgressBar={true}
-        closeButton={false}
-        closeOnClick={true}
-        draggable={true}
-        limit={3}
-        style={{ top: 50 }}
-      />
-      <PWABadge />
+      <PlainTextViewContextProvider>
+        <HeaderComponent />
+        <div
+          className="flex h-screen overflow-hidden
+                     text-lg sm:text-base"
+        >
+          <ExplorerComponent />
+          <TreeRootComponent />
+        </div>
+        <FooterComponent />
+        <ToastContainer
+          containerId="main"
+          position="top-right"
+          autoClose={3_000}
+          hideProgressBar={true}
+          closeButton={false}
+          closeOnClick={true}
+          draggable={true}
+          limit={3}
+          style={{ top: 50 }}
+        />
+        <PWABadge />
+      </PlainTextViewContextProvider>
     </ReadOnlyContextProvider>
   );
 }

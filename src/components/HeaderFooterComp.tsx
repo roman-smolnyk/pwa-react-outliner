@@ -4,6 +4,8 @@ import {
   ArrowRightToLineIcon,
   ArrowUpIcon,
   BoldIcon,
+  BookImageIcon,
+  BookTypeIcon,
   BracketsIcon,
   // CalendarDays,
   CloudAlertIcon,
@@ -15,6 +17,7 @@ import {
   HighlighterIcon,
   ItalicIcon,
   ListChecksIcon,
+  ListIcon,
   PanelLeftIcon,
   // EllipsisVerticalIcon,
   PencilIcon,
@@ -33,7 +36,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { TreeRoAPI } from "../api";
-import { useReadOnly } from "../etc/readonlyContext";
+import { usePlainTextView, useReadOnly } from "../etc/customContexts";
 // import { useKeyboardOffset } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import MainMenuComponent from "./MenusComp";
@@ -56,9 +59,12 @@ function ButtonComponent({
 
 export function HeaderComponent() {
   const { readOnly, setReadOnly } = useReadOnly();
+  const { plainTextView, setPlainTextView } = usePlainTextView();
 
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
   const wsStatus = useStore((state) => state.wsStatus);
+  const checkboxSelectionIsActive = useStore((state) => state.checkboxSelectionIsActive);
+  const documentSearchIsOpened = useStore((state) => state.documentSearchIsOpened);
 
   return (
     <div
@@ -127,11 +133,25 @@ export function HeaderComponent() {
             {wsStatus === "turned off" && <CloudCogIcon />}
           </ButtonComponent>
 
-          <ButtonComponent
-            onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !TreeRoAPI.useStore.getState().checkboxSelectionIsActive })}
-          >
-            <ListChecksIcon />
-          </ButtonComponent>
+          {checkboxSelectionIsActive ? (
+            <ButtonComponent onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
+              <ListIcon />
+            </ButtonComponent>
+          ) : (
+            <ButtonComponent onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
+              <ListChecksIcon />
+            </ButtonComponent>
+          )}
+
+          {plainTextView ? (
+            <ButtonComponent onClick={() => setPlainTextView(false)}>
+              <BookTypeIcon />
+            </ButtonComponent>
+          ) : (
+            <ButtonComponent onClick={() => setPlainTextView(true)}>
+              <BookImageIcon />{" "}
+            </ButtonComponent>
+          )}
 
           {readOnly ? (
             <ButtonComponent onClick={() => setReadOnly(false)}>
@@ -143,7 +163,12 @@ export function HeaderComponent() {
             </ButtonComponent>
           )}
 
-          <ButtonComponent className="text-yellow-400">
+          <ButtonComponent
+            className="DocumentSearchButton"
+            onClick={() => {
+              useStore.setState({ documentSearchIsOpened: !documentSearchIsOpened });
+            }}
+          >
             <SearchIcon />
           </ButtonComponent>
 
@@ -169,6 +194,22 @@ export function FooterComponent() {
       }}
     >
       <div className="min-w-max px-2 m-3 sm:m-1 gap-4 sm:gap-2 flex flex-nowrap items-center justify-center">
+        <ButtonComponent
+          className="AddNode"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
+            const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+            // console.debug("onPointerDown", { activeNodeId, newNodeId });
+            if (newNodeId) {
+              TreeRoAPI.useStore.getState().activateNode(newNodeId);
+            }
+          }}
+        >
+          {/* <SquarePlusIcon /> */}
+          <DiamondPlusIcon />
+        </ButtonComponent>
+
         <ButtonComponent
           className="UnindentNode"
           onPointerDown={(e) => {
@@ -207,22 +248,6 @@ export function FooterComponent() {
           }}
         >
           <ArrowDownIcon />
-        </ButtonComponent>
-
-        <ButtonComponent
-          className="AddNode"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
-            const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
-            // console.debug("onPointerDown", { activeNodeId, newNodeId });
-            if (newNodeId) {
-              TreeRoAPI.useStore.getState().activateNode(newNodeId);
-            }
-          }}
-        >
-          {/* <SquarePlusIcon /> */}
-          <DiamondPlusIcon />
         </ButtonComponent>
 
         {/* <ButtonComponent className="text-yellow-400">

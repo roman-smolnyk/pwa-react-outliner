@@ -1,6 +1,6 @@
 @font-face {
   font-family: "tro";
-  src: url('tro.woff2?t=1769252426407') format('woff2');
+  src: url('tro.woff2?t=1769792951984') format('woff2');
 }
 
 [class^="tro-"], [class*=" tro-"] {
@@ -14,8 +14,10 @@
 .tro-bullet-plus-bold::before { content: "\ea01"; }
 .tro-bullet-plus::before { content: "\ea02"; }
 .tro-bullet::before { content: "\ea03"; }
-.tro-donut::before { content: "\ea04"; }
-.tro-minus::before { content: "\ea05"; }
-.tro-three-dots::before { content: "\ea06"; }
+.tro-checkbox-checked::before { content: "\ea04"; }
+.tro-checkbox::before { content: "\ea05"; }
+.tro-donut::before { content: "\ea06"; }
+.tro-minus::before { content: "\ea07"; }
+.tro-three-dots::before { content: "\ea08"; }
 
 

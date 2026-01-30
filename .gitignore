@@ -28,3 +28,17 @@ dev-dist
 /icons
 /public/manifest.webmanifest
 /pwa-react-treero-cdn
+
+/src/assets/fonts/react
+/src/assets/fonts/vue
+/src/assets/fonts/tro.eot
+/src/assets/fonts/tro.json
+/src/assets/fonts/tro.less
+/src/assets/fonts/tro.module.less
+/src/assets/fonts/tro.scss
+/src/assets/fonts/tro.styl
+/src/assets/fonts/tro.svg
+/src/assets/fonts/tro.symbol.svg
+/src/assets/fonts/tro.ttf
+/src/assets/fonts/tro.woff
+

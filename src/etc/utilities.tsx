@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import debounce from "lodash/debounce";
+import { useEffect, useRef, useState } from "react";
 import type { FlattenedNodeType, NodeDataType } from "../types";
 
 export function forceReload() {
@@ -76,6 +77,31 @@ export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
     const top = element.offsetTop - container.offsetTop;
     container.scrollTo({ top });
   }
+}
+
+export function scrollIntoView2(element: HTMLElement, container: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  const visibleBottom = vv.height; // bottom of visible area
+
+  // If caret is below visible area → scroll it up
+  // if (rect.bottom > visibleBottom) {
+  container.scrollBy({
+    top: rect.bottom - visibleBottom + vv.height / 2,
+    behavior: "smooth",
+  });
+  // }
+
+  // If caret is above visible area → scroll it down
+  // if (rect.top < 0) {
+  // container.scrollBy({
+  //   top: rect.top - vv.height / 2,
+  //   behavior: "smooth",
+  // });
+  // }
 }
 
 export function arrayMove<T>(array: T[], from: number, to: number): T[] {
@@ -399,4 +425,36 @@ export function throttleWithRaf<T extends (...args: any[]) => void>(fn: T): (...
       fn.apply(lastThis, lastArgs as Parameters<T>);
     });
   };
+}
+
+export function useDebouncedCallback<T extends (...args: any[]) => any>(fn: T, delay: number) {
+  const fnRef = useRef(fn);
+
+  const debouncedRef = useRef<
+    | (((...args: Parameters<T>) => void) & {
+        cancel: () => void;
+        flush: () => void;
+      })
+    | null
+  >(null);
+
+  // Keep latest fn (avoid stale closures)
+  useEffect(() => {
+    fnRef.current = fn;
+  }, [fn]);
+
+  if (!debouncedRef.current) {
+    debouncedRef.current = debounce((...args: Parameters<T>) => {
+      fnRef.current(...args);
+    }, delay);
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      debouncedRef.current?.cancel();
+    };
+  }, []);
+
+  return debouncedRef.current;
 }

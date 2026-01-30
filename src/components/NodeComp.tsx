@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TreeRoAPI } from "../api";
-import { useReadOnly } from "../etc/readonlyContext";
+import { useReadOnly, usePlainTextView } from "../etc/customContexts";
 import { inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import { MarkdownComponent } from "./MarkdownComp";
@@ -111,6 +111,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
 
   const [isEditing, setIsEditing] = useState(false);
   const { readOnly } = useReadOnly();
+  const { plainTextView } = usePlainTextView();
 
   // subscribe
   useStore((state) => {
@@ -175,6 +176,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           whitespace-pre-wrap wrap-break-word leading-tight
           ${isEditing ? "" : "hidden"}`}
         data-id={nodeId}
+        data-no-mark
         contentEditable
         suppressContentEditableWarning
         tabIndex={-1}
@@ -406,7 +408,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           //   console.log(`onClick -> charIndex`, charIndex);
           // }}
         >
-          <MarkdownComponent>{nodeContent}</MarkdownComponent>
+          {plainTextView ? <PlainTextComponent>{nodeContent}</PlainTextComponent> : <MarkdownComponent>{nodeContent}</MarkdownComponent>}
           {/* <MarkdownWebWorkerComponent>{nodeContent}</MarkdownWebWorkerComponent> */}
         </div>
       }
@@ -414,6 +416,14 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   );
 });
 NodeContentComponent.displayName = "NodeContentComponent";
+
+function PlainTextComponent({ children }: { children: string }) {
+  if (children.endsWith("\n")) {
+    children += "\n";
+  }
+
+  return <div className="whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
+}
 
 // export const NodeComponent = memo(
 //   ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
@@ -513,7 +523,7 @@ export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { node
                 setChecked(!checked);
               }}
             >
-              {checked ? <i className="ph ph-check-square text-[1.2rem]" /> : <i className="ph ph-square text-[1.2rem]" />}
+              {checked ? <i className="tro tro-checkbox-checked text-[1.2rem]" /> : <i className="tro tro-checkbox text-[1.2rem]" />}
             </button>
           )}
           <button

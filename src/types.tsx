@@ -131,6 +131,8 @@ export interface zustandUseStoreType {
   globalSearchIsOpened: boolean;
   checkboxSelectionIsActive: boolean;
 
+  documentSearchIsOpened: boolean;
+
   wsStatus: "connecting" | "connected" | "disconnected" | "turned off";
 
   clearData: () => void;

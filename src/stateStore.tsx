@@ -24,6 +24,8 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   globalSearchIsOpened: false,
   checkboxSelectionIsActive: false,
 
+  documentSearchIsOpened: false,
+
   wsStatus: "disconnected",
 
   clearData: () => {
