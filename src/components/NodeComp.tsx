@@ -212,6 +212,10 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
         }}
         onKeyDown={(e) => {
           // console.debug(`onKeyDown`, e);
+
+          const key = e.key.toLowerCase();
+          const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
           const el = e.currentTarget;
           const textContent = el.textContent ?? "";
 
@@ -223,7 +227,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           console.debug("onKeyDown(s)", inspectDOM(el));
 
           // Create new node
-          if (e.key === "Enter" && e.ctrlKey) {
+          if (isCtrlOrCmd && key === "enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
             let newNodeId = null;
@@ -239,12 +243,12 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
               TreeRoAPI.useStore.getState().activateNode(newNodeId);
             }
             // Override Enter => Insert "\n"
-          } else if (e.key === "Enter") {
+          } else if (key === "enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter]`);
             // return;
             // e.preventDefault();
             // Remove node if empty
-          } else if (e.key === "Backspace") {
+          } else if (key === "backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
 
             if (!isRootNode && (textContent.length === 0 || textContent === "\n")) {
@@ -271,26 +275,46 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             //   }
             // }
             // Unindent node
-          } else if (e.key === "Tab" && e.shiftKey) {
+          } else if (e.shiftKey && key === "tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
             el.blur();
             TreeRoAPI.uiUnindentNode(nodeId);
             // Indent node
-          } else if (e.key === "Tab") {
+          } else if (key === "tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
             el.blur();
             TreeRoAPI.uiIndentNode(nodeId);
             // Move node up
-          } else if (e.key === "ArrowUp" && e.ctrlKey && !e.shiftKey) {
+          } else if (isCtrlOrCmd && key === "arrowup" && !e.shiftKey) {
             e.preventDefault();
             TreeRoAPI.uiMoveNodeUp(nodeId);
             // Move node down
-          } else if (e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey) {
+          } else if (isCtrlOrCmd && key === "arrowdown" && !e.shiftKey) {
             // console.debug(`(e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey)`);
             e.preventDefault();
             TreeRoAPI.uiMoveNodeDown(nodeId);
+          } else if (isCtrlOrCmd && key === "z" && !e.shiftKey) {
+            // TODO:
+            e.preventDefault();
+            const undo = TreeRoAPI.Yjs.undoManager?.undo();
+            console.debug("Ctrl+Z", undo);
+            setTimeout(() => {
+              el.innerHTML = "";
+              const textNode = document.createTextNode(TreeRoAPI.getNode(nodeId)?.content + "\n");
+              el.appendChild(textNode);
+            }, 100);
+          } else if (isCtrlOrCmd && key === "z" && e.shiftKey) {
+            // TODO:
+            e.preventDefault();
+            const redo = TreeRoAPI.Yjs.undoManager?.redo();
+            console.debug("Ctrl+Shift+Z", redo);
+            setTimeout(() => {
+              el.innerHTML = "";
+              const textNode = document.createTextNode(TreeRoAPI.getNode(nodeId)?.content + "\n");
+              el.appendChild(textNode);
+            }, 100);
           }
 
           updateContentDebounced(nodeId, nodeContent, el);
@@ -425,174 +449,174 @@ function PlainTextComponent({ children }: { children: string }) {
   return <div className="whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
 }
 
-// export const NodeComponent = memo(
-//   ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
-export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
-  // console.debug("NodeComponent");
-  console.debug(`NodeComponent: ${nodeId}`);
-  const ref = useRef<HTMLDivElement>(null);
-  const refNodeSelf = useRef<HTMLDivElement>(null);
+export const NodeComponent = memo(
+  ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
+    // export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
+    // console.debug("NodeComponent");
+    console.debug(`NodeComponent: ${nodeId}`);
+    const ref = useRef<HTMLDivElement>(null);
+    const refNodeSelf = useRef<HTMLDivElement>(null);
 
-  const [checked, setChecked] = useState(parentChecked);
-  // useEffect(() => {
-  //   setChecked(parentChecked);
-  // }, [parentChecked]);
+    const [checked, setChecked] = useState(parentChecked);
+    // useEffect(() => {
+    //   setChecked(parentChecked);
+    // }, [parentChecked]);
 
-  const [visiable, setVisiable] = useState(!parentCollapsed);
-  useEffect(() => {
-    if (visiable === false && parentCollapsed === false) {
-      setVisiable(true);
-    }
-  }, [visiable, parentCollapsed]);
+    const [visiable, setVisiable] = useState(!parentCollapsed);
+    useEffect(() => {
+      if (visiable === false && parentCollapsed === false) {
+        setVisiable(true);
+      }
+    }, [visiable, parentCollapsed]);
 
-  // if (parentChecked) {
-  //   setChecked(true);
-  // } else {
-  //   setChecked(false);
-  // }
+    // if (parentChecked) {
+    //   setChecked(true);
+    // } else {
+    //   setChecked(false);
+    // }
 
-  // zustand subscribe
-  const node = useStore((state) => {
-    return state.nodes.get(nodeId);
-  });
+    // zustand subscribe
+    const node = useStore((state) => {
+      return state.nodes.get(nodeId);
+    });
 
-  const checkboxSelectionIsActive = useStore((state) => {
-    return state.checkboxSelectionIsActive;
-  });
+    const checkboxSelectionIsActive = useStore((state) => {
+      return state.checkboxSelectionIsActive;
+    });
 
-  // zustand subscribe to rerender trigger
-  useStore((state) => {
-    return state.nodesToRender[nodeId];
-  });
+    // zustand subscribe to rerender trigger
+    useStore((state) => {
+      return state.nodesToRender[nodeId];
+    });
 
-  useStore((state) => {
-    return state.dndToRerender[nodeId];
-  });
+    useStore((state) => {
+      return state.dndToRerender[nodeId];
+    });
 
-  const { readOnly } = useReadOnly();
+    const { readOnly } = useReadOnly();
 
-  // useSortable merges useDraggable and useDroppable functionality, so you can do
-  const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
-    id: nodeId,
-    disabled: readOnly,
-  });
+    // useSortable merges useDraggable and useDroppable functionality, so you can do
+    const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
+      id: nodeId,
+      disabled: readOnly,
+    });
 
-  const combinedRef = (element: HTMLDivElement | null) => {
-    setNodeRef(element); // dnd-kit needs this
-    ref.current = element; // your own ref
-  };
+    const combinedRef = (element: HTMLDivElement | null) => {
+      setNodeRef(element); // dnd-kit needs this
+      ref.current = element; // your own ref
+    };
 
-  useEffect(() => {
-    if (isDragging) {
-      // console.debug("isDragging", attributes, listeners);
-      const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
-      useStore.setState({ dndDescendantsIds: descendantsIds });
-    }
-  }, [active, isDragging]);
+    useEffect(() => {
+      if (isDragging) {
+        // console.debug("isDragging", attributes, listeners);
+        const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
+        useStore.setState({ dndDescendantsIds: descendantsIds });
+      }
+    }, [active, isDragging]);
 
-  let placement = null;
-  if (isOver) {
-    // console.debug("isOver", attributes, listeners);
-    TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+    let placement = null;
+    if (isOver) {
+      // console.debug("isOver", attributes, listeners);
+      TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
 
-    if (active?.id && over?.id && active.id !== over.id) {
-      if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
-        placement = TreeRoAPI.useStore.getState().dndPlacement;
+      if (active?.id && over?.id && active.id !== over.id) {
+        if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
+          placement = TreeRoAPI.useStore.getState().dndPlacement;
+        }
       }
     }
-  }
 
-  if (!node) return null;
+    if (!node) return null;
 
-  // if (!visiable) {
-  //   return <div className="Node-placeholder">Item is loading...</div>;
-  // }
+    // if (!visiable) {
+    //   return <div className="Node-placeholder">Item is loading...</div>;
+    // }
 
-  return (
-    // data-id={node.node_id}
-    <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
-      <div className="Node-inner">
-        {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
-        {/* shadow-[0_-2px_0_0_rgba(59,130,246,1)] */}
-        <div className={`Node-self flex items-start`} ref={refNodeSelf} data-id={node.node_id}>
-          {checkboxSelectionIsActive && (
+    return (
+      // data-id={node.node_id}
+      <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
+        <div className="Node-inner">
+          {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
+          {/* shadow-[0_-2px_0_0_rgba(59,130,246,1)] */}
+          <div className={`Node-self flex items-start`} ref={refNodeSelf} data-id={node.node_id}>
+            {checkboxSelectionIsActive && (
+              <button
+                className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
+                type="button"
+                onPointerUpCapture={() => {
+                  setChecked(!checked);
+                }}
+              >
+                {checked ? <i className="tro tro-checkbox-checked text-[1.2rem]" /> : <i className="tro tro-checkbox text-[1.2rem]" />}
+              </button>
+            )}
             <button
-              className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
+              className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
               type="button"
+              // ref={setBulletDropRef}
+              {...listeners}
+              {...attributes}
+              // data-node-id={node.id}
               onPointerUpCapture={() => {
-                setChecked(!checked);
+                // console.debug("Node-bullet onPointerUpCapture");
+                TreeRoAPI.uiToggleNodeCollapse(node.node_id);
               }}
             >
-              {checked ? <i className="tro tro-checkbox-checked text-[1.2rem]" /> : <i className="tro tro-checkbox text-[1.2rem]" />}
-            </button>
-          )}
-          <button
-            className="Node-bullet flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
-            type="button"
-            // ref={setBulletDropRef}
-            {...listeners}
-            {...attributes}
-            // data-node-id={node.id}
-            onPointerUpCapture={() => {
-              // console.debug("Node-bullet onPointerUpCapture");
-              TreeRoAPI.uiToggleNodeCollapse(node.node_id);
-            }}
-          >
-            {node.children.length > 0 ? (
-              node.collapsed ? (
-                // <PlusIcon className="size-4 text-500" />
-                // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
-                // <PlusCircle className="size-4" />
-                // <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
-                // <i className="tro tro-bullet-plus text-[0.7rem] [-webkit-text-stroke:0.2px_black]"></i>
-                <i className="tro tro-bullet-plus-bold text-[0.75rem]"></i>
-                // <i className="tro tro-bullet-plus text-[0.7rem]"></i>
-                // <i className="tro tro-donut text-[0.7rem]"></i>
-                // <i className="ph-bold ph-plus-circle"></i>
-                // <div>
-                //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
-                //     <span className="w-1 h-1 bg-black rounded-full"></span>
-                //   </span>
-                // </div>
+              {node.children.length > 0 ? (
+                node.collapsed ? (
+                  // <PlusIcon className="size-4 text-500" />
+                  // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
+                  // <PlusCircle className="size-4" />
+                  // <i className="ph-bold ph-plus-circle text-[0.85rem]"></i>
+                  // <i className="tro tro-bullet-plus text-[0.7rem] [-webkit-text-stroke:0.2px_black]"></i>
+                  <i className="tro tro-bullet-plus-bold text-[0.75rem]"></i>
+                  // <i className="tro tro-bullet-plus text-[0.7rem]"></i>
+                  // <i className="tro tro-donut text-[0.7rem]"></i>
+                  // <i className="ph-bold ph-plus-circle"></i>
+                  // <div>
+                  //   <span className="ml-1 w-2 h-2 rounded-full border border-black flex items-center justify-center">
+                  //     <span className="w-1 h-1 bg-black rounded-full"></span>
+                  //   </span>
+                  // </div>
+                ) : (
+                  // <Minus className="size-4" />
+                  // <i className="ph ph-minus text-[0.9rem]"></i>
+                  <i className="tro tro-minus text-[0.7rem]"></i>
+                  // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
+                )
               ) : (
-                // <Minus className="size-4" />
-                // <i className="ph ph-minus text-[0.9rem]"></i>
-                <i className="tro tro-minus text-[0.7rem]"></i>
-                // <i className="ph-bold ph-minus-circle text-[0.85rem]"></i>
-              )
-            ) : (
-              // <span>●</span>
-              // <i className="ph-fill ph-circle text-[0.5rem]"></i>
-              <i className="tro tro-bullet text-[0.4rem]"></i>
-              // <div>
+                // <span>●</span>
+                // <i className="ph-fill ph-circle text-[0.5rem]"></i>
+                <i className="tro tro-bullet text-[0.4rem]"></i>
+                // <div>
 
-              //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
-              //   {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
-              //     <span className="w-2 h-2 bg-black rounded-full"></span>
-              //   </span> */}
-              // </div>
-            )}
-          </button>
-          <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-          <NodeOptionsButtonComponent nodeId={nodeId} isRootNode={false} />
-          {/* <NodeOptionsComponent nodeId={nodeId} /> */}
+                //   {/* <span className="ml-1 w-2 h-2 bg-black rounded-full block"></span> */}
+                //   {/* <span className="ml-1 w-3 h-3 rounded-full border border-black flex items-center justify-center">
+                //     <span className="w-2 h-2 bg-black rounded-full"></span>
+                //   </span> */}
+                // </div>
+              )}
+            </button>
+            <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
+            <NodeOptionsButtonComponent nodeId={nodeId} isRootNode={false} />
+            {/* <NodeOptionsComponent nodeId={nodeId} /> */}
 
-          {/* // ! ID */}
-          {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(-5)}</div> */}
-        </div>
-        {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
-        {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
-        <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
-          {node.children.map((childId) => (
-            <NodeComponent key={childId} nodeId={childId} parentChecked={checked} parentCollapsed={node.collapsed} />
-          ))}
+            {/* // ! ID */}
+            {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(-5)}</div> */}
+          </div>
+          {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
+          {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+          <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
+            {node.children.map((childId) => (
+              <NodeComponent key={childId} nodeId={childId} parentChecked={checked} parentCollapsed={node.collapsed} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-// );
-// NodeComponent.displayName = "NodeComponent";
+    );
+  },
+);
+NodeComponent.displayName = "NodeComponent";
 
 // function DropIndicatorComponent({ shrink = false }) {
 //   return (

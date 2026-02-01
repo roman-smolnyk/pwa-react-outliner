@@ -36,6 +36,7 @@ class YNodeWrap {
   set parent_id(v: string) {
     this.ynode.set("parent_id", v);
   }
+  // Return this.ynode.get("content").toString()
   get content(): Y.Text {
     return this.ynode.get("content");
   }

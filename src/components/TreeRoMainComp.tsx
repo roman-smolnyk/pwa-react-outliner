@@ -20,14 +20,50 @@ function SpinnerComponent() {
 export default function TreeRoMainComponent() {
   const [loading, setLoading] = useState(true);
 
-  useHotkeys("ctrl+z, meta+z", () => {
-    console.warn("ctrl+z, meta+z");
-    TreeRoAPI.Yjs.undoManager?.undo();
-  });
-  useHotkeys("ctrl+shift+z, meta+shift+z", () => {
-    console.warn("ctrl+shift+z, meta+shift+z");
-    TreeRoAPI.Yjs.undoManager?.redo();
-  });
+  useHotkeys(
+    "ctrl+z, meta+z",
+    () => {
+      console.warn("ctrl+z, meta+z");
+      TreeRoAPI.Yjs.undoManager?.undo();
+    },
+    // { enableOnContentEditable: true },
+  );
+  useHotkeys(
+    "ctrl+shift+z, meta+shift+z",
+    () => {
+      console.warn("ctrl+shift+z, meta+shift+z");
+      TreeRoAPI.Yjs.undoManager?.redo();
+    },
+    { enableOnContentEditable: true },
+  );
+  useHotkeys(
+    "ctrl+f",
+    (e) => {
+      console.warn("ctrl+f");
+      e.preventDefault();
+      e.stopPropagation();
+      TreeRoAPI.useStore.setState((state) => {
+        return { documentSearchIsOpened: !state.documentSearchIsOpened };
+      });
+    },
+    {
+      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+    },
+  );
+  useHotkeys(
+    "ctrl+shift+f",
+    (e) => {
+      console.warn("ctrl+f");
+      e.preventDefault();
+      e.stopPropagation();
+      TreeRoAPI.useStore.setState((state) => {
+        return { globalSearchIsOpened: !state.globalSearchIsOpened };
+      });
+    },
+    {
+      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+    },
+  );
 
   useEffect(() => {
     onStartUp().then(() => {
