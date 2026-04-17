@@ -1,15 +1,15 @@
 import { useStore } from "./stateStore";
-import type { LocalConfigStateType, LocalConfigType } from "./types";
+import type { LocalConfigState, LocalConfigType } from "./types";
 
 export const LocalConfig: LocalConfigType = {
   get() {
-    const defaultLocalConfig: LocalConfigStateType = { roomToken: "", authorized: false, currentDocumentId: "", currentNodeId: "" };
+    const defaultLocalConfig: LocalConfigState = { roomToken: "", authorized: false, workspaceId: "", currentPageId: "", currentBlockId: "" };
     return JSON.parse(localStorage.getItem("LocalConfig") ?? JSON.stringify(defaultLocalConfig));
   },
 
   set(localConfigPart) {
     const localConfig = LocalConfig.get();
-    const { roomToken, authorized, currentDocumentId, currentNodeId: currentNodeid } = localConfigPart;
+    const { roomToken, authorized, workspaceId, currentPageId, currentBlockId } = localConfigPart;
 
     if (roomToken !== undefined) {
       localConfig.roomToken = roomToken;
@@ -17,11 +17,14 @@ export const LocalConfig: LocalConfigType = {
     if (authorized !== undefined) {
       localConfig.authorized = authorized;
     }
-    if (currentDocumentId !== undefined) {
-      localConfig.currentDocumentId = currentDocumentId;
+    if (workspaceId !== undefined) {
+      localConfig.workspaceId = workspaceId;
     }
-    if (currentNodeid !== undefined) {
-      localConfig.currentNodeId = currentNodeid;
+    if (currentPageId !== undefined) {
+      localConfig.currentPageId = currentPageId;
+    }
+    if (currentBlockId !== undefined) {
+      localConfig.currentBlockId = currentBlockId;
     }
 
     localStorage.setItem("LocalConfig", JSON.stringify(localConfig));

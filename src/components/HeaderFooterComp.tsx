@@ -35,12 +35,13 @@ import {
   UndoIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { TreeRoAPI } from "../api";
+// import { TreeRoAPI } from "../api";
 import { usePlainTextView, useReadOnly } from "../etc/customContexts";
 // import { useKeyboardOffset } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import MainMenuComponent from "./MenusComp";
 // import { forceReload } from "../etc/utilities";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 
 function ButtonComponent({
   children,
@@ -78,7 +79,7 @@ export function HeaderComponent() {
           {!explorerIsOpened && (
             <ButtonComponent
               onClick={() => {
-                TreeRoAPI.useStore.setState({ explorerIsOpened: true });
+                useStore.setState({ explorerIsOpened: true });
               }}
             >
               <PanelLeftIcon />
@@ -89,14 +90,14 @@ export function HeaderComponent() {
 
           <ButtonComponent
             onClick={() => {
-              TreeRoAPI.Yjs.undoManager?.undo();
+              //  getYjs().undoManager?.undo();
             }}
           >
             <UndoIcon />
           </ButtonComponent>
           <ButtonComponent
             onClick={() => {
-              TreeRoAPI.Yjs.undoManager?.redo();
+              // getYjs().undoManager?.redo();
             }}
           >
             <RedoIcon />
@@ -134,11 +135,11 @@ export function HeaderComponent() {
           </ButtonComponent>
 
           {checkboxSelectionIsActive ? (
-            <ButtonComponent onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
+            <ButtonComponent onClick={() => useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
               <ListIcon />
             </ButtonComponent>
           ) : (
-            <ButtonComponent onClick={() => TreeRoAPI.useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
+            <ButtonComponent onClick={() => useStore.setState({ checkboxSelectionIsActive: !checkboxSelectionIsActive })}>
               <ListChecksIcon />
             </ButtonComponent>
           )}
@@ -198,12 +199,12 @@ export function FooterComponent() {
           className="AddNode"
           onPointerDown={(e) => {
             e.preventDefault();
-            const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
-            const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
-            // console.debug("onPointerDown", { activeNodeId, newNodeId });
-            if (newNodeId) {
-              TreeRoAPI.useStore.getState().activateNode(newNodeId);
-            }
+            // const activeNodeId = useStore.getState().activeNodeId;
+            // const newNodeId = insertNewNodeAfter(activeNodeId);
+            // // console.debug("onPointerDown", { activeNodeId, newNodeId });
+            // if (newNodeId) {
+            //   useStore.getState().activateNode(newNodeId);
+            // }
           }}
         >
           {/* <SquarePlusIcon /> */}
@@ -214,7 +215,7 @@ export function FooterComponent() {
           className="UnindentNode"
           onPointerDown={(e) => {
             e.preventDefault();
-            TreeRoAPI.uiUnindentNode(TreeRoAPI.useStore.getState().activeNodeId);
+            // TreeRoAPI.uiUnindentNode(TreeRoAPI.useStore.getState().activeNodeId);
           }}
         >
           <ArrowLeftToLineIcon />
@@ -224,7 +225,7 @@ export function FooterComponent() {
           className="IndentNode"
           onPointerDown={(e) => {
             e.preventDefault();
-            TreeRoAPI.uiIndentNode(TreeRoAPI.useStore.getState().activeNodeId);
+            // TreeRoAPI.uiIndentNode(TreeRoAPI.useStore.getState().activeNodeId);
           }}
         >
           <ArrowRightToLineIcon />
@@ -234,7 +235,7 @@ export function FooterComponent() {
           className="MoveNodeUp"
           onPointerDown={(e) => {
             e.preventDefault();
-            TreeRoAPI.uiMoveNodeUp(TreeRoAPI.useStore.getState().activeNodeId);
+            // TreeRoAPI.uiMoveNodeUp(TreeRoAPI.useStore.getState().activeNodeId);
           }}
         >
           <ArrowUpIcon />
@@ -244,7 +245,7 @@ export function FooterComponent() {
           className="MoveNodeDown"
           onPointerDown={(e) => {
             e.preventDefault();
-            TreeRoAPI.uiMoveNodeDown(TreeRoAPI.useStore.getState().activeNodeId);
+            // TreeRoAPI.uiMoveNodeDown(TreeRoAPI.useStore.getState().activeNodeId);
           }}
         >
           <ArrowDownIcon />
@@ -304,7 +305,7 @@ export function FooterComponent() {
           className="DeleteNode"
           onPointerDown={(e) => {
             e.preventDefault();
-            TreeRoAPI.deleteNode(TreeRoAPI.useStore.getState().activeNodeId);
+            // TreeRoAPI.deleteNode(TreeRoAPI.useStore.getState().activeNodeId);
           }}
         >
           <Trash2Icon />

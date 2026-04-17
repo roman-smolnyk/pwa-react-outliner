@@ -3,11 +3,11 @@ import type { zustandUseStoreType } from "./types";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
-  localConfig: { roomToken: "", authorized: false, currentDocumentId: "", currentNodeId: "" },
-  meta: { root_group_id: "", inbox_node_id: "" },
-  groups: new Map(),
-  documents: new Map(),
-  nodes: new Map(),
+  localConfig: { roomToken: "", authorized: false, workspaceId: "", currentPageId: "", currentBlockId: "" },
+  workspace: { workspace_id: "", root_collection_id: "", inbox_block_id: "", version: 1 },
+  blocks: new Map(),
+  pages: new Map(),
+  collections: new Map(),
 
   nodesToRender: {},
   nodesContentToRender: {},
@@ -29,31 +29,7 @@ export const useStore = create<zustandUseStoreType>((set, get) => ({
   wsStatus: "disconnected",
 
   clearData: () => {
-    set({
-      stateIsInitialized: false,
-      localConfig: { roomToken: "", authorized: false, currentDocumentId: "", currentNodeId: "" },
-      meta: { root_group_id: "", inbox_node_id: "" },
-      groups: new Map(),
-      documents: new Map(),
-      nodes: new Map(),
-
-      nodesToRender: {},
-      nodesContentToRender: {},
-
-      dndRectEl: null,
-      dndPlacement: "",
-      dndDescendantsIds: [],
-      dndToRerender: {},
-
-      activeNodeId: "",
-      currentCaretPosition: 0,
-
-      explorerIsOpened: false,
-      globalSearchIsOpened: false,
-      checkboxSelectionIsActive: false,
-
-      wsStatus: "disconnected",
-    });
+    set(useStore.getInitialState());
   },
 
   triggerNodeRender: (nodeId) => {

@@ -3,34 +3,35 @@
 import { DragOverlay } from "@dnd-kit/core";
 import { memo, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
-import { NodeComponent, NodeContentComponent } from "./NodeComp";
+import { BlockComponent, NodeContentComponent } from "./NodeComp";
 import { DocumentSearchComponent } from "./SearchDocumentComp";
+import { TreeRoAPI } from "../apis/treeroApi";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 
 export default function TreeRootComponent() {
-  const { node_id } = useParams();
+  const { block_id } = useParams();
 
   const ref = useRef<HTMLDivElement>(null);
-  const currentDocumentId = useStore((state) => state.localConfig.currentDocumentId);
+  const currentPageId = useStore((state) => state.localConfig.currentPageId);
   const documentSearchIsOpened = useStore((state) => state.documentSearchIsOpened);
 
   // console.debug(`DocumentComponent:node_id`, node_id);
-  console.debug(`DocumentComponent:currentDocumentId`, currentDocumentId);
+  console.debug(`DocumentComponent:currentPageId`, currentPageId);
 
   useEffect(() => {
     // console.debug(`useEffect`, document_id ? TreeRoAPI.getDocument(document_id) : null);
     // if (document_id && TreeRoAPI.getDocument(document_id)) {
     //   TreeRoAPI.uiOpenNode(TreeRoAPI.getDocumentRootNodeId(document_id)!, document_id);
     // }
-    console.debug(`useEffect`, node_id ? TreeRoAPI.getNode(node_id) : null);
-    if (node_id && TreeRoAPI.getNode(node_id)) {
-      TreeRoAPI.uiOpenNode(node_id);
+    // console.debug(`useEffect`, node_id ? TreeRoAPI.getNode(node_id) : null);
+    if (block_id) {
+      TreeRoAPI.openBlock(block_id);
     }
-  }, [node_id]);
+  }, [block_id]);
 
   // Scroll to top
   useEffect(() => {
@@ -39,12 +40,12 @@ export default function TreeRootComponent() {
     if (container instanceof HTMLElement) {
       container.scrollTop = 0;
     }
-  }, [currentDocumentId]);
+  }, [currentPageId]);
 
   if (!TreeRoAPI.useStore.getState().stateIsInitialized) return;
 
   return (
-    <div className="Document relative z-1 flex min-w-xs min-h-0 flex-col" ref={ref} data-id={currentDocumentId}>
+    <div className="Document relative z-1 flex min-w-xs min-h-0 flex-col" ref={ref} data-id={currentPageId}>
       {documentSearchIsOpened ? <DocumentSearchComponent /> : <div className="Document-placeholder-top mt-12 sm:mt-8" />}
       <div
         className="Document-scroll flex-1 overflow-y-auto overscroll-y-contain
@@ -55,7 +56,7 @@ export default function TreeRootComponent() {
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
-        <RootNodeComponent />
+        <RootBlockComponent />
       </div>
       <div className="Document-placeholder-bottom mb-12 sm:mb-8" />
     </div>
@@ -68,7 +69,7 @@ function NodePathPartComponent({ nodeId, part }: { nodeId: string; part: string 
       <span
         className="hover:underline cursor-pointer max-w-30 truncate"
         onClick={() => {
-          TreeRoAPI.uiOpenNode(nodeId);
+          TreeRoAPI.openBlock(nodeId);
         }}
       >
         <PlainMarkdownComponent>{part}</PlainMarkdownComponent>
@@ -79,7 +80,9 @@ function NodePathPartComponent({ nodeId, part }: { nodeId: string; part: string 
 }
 
 function NodePathComponent({ nodeId }: { nodeId: string }) {
-  const pathMap = TreeRoAPI.traverseNodePath(nodeId);
+  const block = Block.get(nodeId);
+  if (!block) return;
+  const pathMap = block.traversePath().map((a) => a.content);
 
   // const pathValues = Array.from(pathMap.values());
 
@@ -93,23 +96,23 @@ function NodePathComponent({ nodeId }: { nodeId: string }) {
   );
 }
 
-const RootNodeComponent = memo(() => {
+const RootBlockComponent = memo(() => {
   const [activeId, setActiveId] = useState(""); // DnD
 
-  const rootNode = useStore((state) => {
-    return state.nodes.get(state.localConfig.currentNodeId);
+  const rootBlock = useStore((state) => {
+    return state.blocks.get(state.localConfig.currentBlockId);
   });
 
-  if (!rootNode) return null;
+  if (!rootBlock) return null;
 
   return (
     <>
-      {rootNode.parent_id && <NodePathComponent nodeId={rootNode.node_id} />}
+      {rootBlock.parent_id && <NodePathComponent nodeId={rootBlock.block_id} />}
       <div className="RootNode-outer">
         <div className="RootNode-inner">
           <div className="RootNode-self flex items-start mb-3">
-            <NodeContentComponent nodeId={rootNode.node_id} nodeContent={rootNode.content} />
-            <NodeOptionsButtonComponent nodeId={rootNode.node_id} isRootNode={true} />
+            <NodeContentComponent nodeId={rootBlock.block_id} nodeContent={rootBlock.content} />
+            <NodeOptionsButtonComponent nodeId={rootBlock.block_id} isRootNode={true} />
           </div>
           <div className="RootNodeChildren flex flex-col gap-1">
             <DnDWrapperComponent
@@ -141,38 +144,43 @@ const RootNodeComponent = memo(() => {
                 if (activeId === overId) return;
                 const placement = useStore.getState().dndPlacement;
                 if (!placement) return;
-                const activeNode = TreeRoAPI.getNode(activeId);
-                const overNode = TreeRoAPI.getNode(overId);
-                const activeParent = TreeRoAPI.getNodeParent(activeId);
-                const overParent = TreeRoAPI.getNodeParent(overId);
-                if (!activeParent || !overParent || !activeNode || !overNode) return;
+                const activeBlock = Block.get(activeId);
+                const overBlock = Block.get(overId);
+                const activeParent = activeBlock?.parent();
+                const overParent = overBlock?.parent();
+                if (!activeParent || !overParent || !activeBlock || !overBlock) return;
                 if (TreeRoAPI.useStore.getState().dndDescendantsIds.includes(activeId)) return;
 
                 // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
                 if (placement === "after") {
-                  if (overNode.collapsed === false && overNode.children.length !== 0) {
+                  if (overBlock.collapsed === false && overBlock.children.length !== 0) {
                     // console.debug("placement after moveNode");
-                    TreeRoAPI.moveNode(activeId, overId, 0);
+                    // TreeRoAPI.moveNode(activeId, overId, 0);
+                    activeBlock.move(overId, 0);
                   } else {
                     // console.debug("placement after moveNodeAfter");
-                    TreeRoAPI.moveNodeAfter(activeId, overId);
+                    // TreeRoAPI.moveNodeAfter(activeId, overId);
+                    activeBlock.moveAfter(overId);
                   }
                 } else if (placement === "before") {
                   // console.debug("placement before moveNodeBefore");
-                  TreeRoAPI.moveNodeBefore(activeId, overId);
+                  activeBlock.moveBefore(overId);
+                  // TreeRoAPI.moveNodeBefore(activeId, overId);
                 } else if (placement === "inside") {
-                  if (overNode.collapsed === false && overNode.children.length !== 0) {
+                  if (overBlock.collapsed === false && overBlock.children.length !== 0) {
                     // console.debug("placement inside moveNode 0");
-                    TreeRoAPI.moveNode(activeId, overId, 0);
+                    // TreeRoAPI.moveNode(activeId, overId, 0);
+                    activeBlock.move(overId, 0);
                   } else {
                     // console.debug("placement inside moveNode -1");
-                    TreeRoAPI.moveNode(activeId, overId, -1);
+                    activeBlock.move(overId, -1);
+                    // TreeRoAPI.moveNode(activeId, overId, -1);
                   }
                 }
               }}
             >
-              {rootNode.children.map((childId) => (
-                <NodeComponent key={childId} nodeId={childId} parentChecked={false} parentCollapsed={rootNode.collapsed} />
+              {rootBlock.children.map((childId) => (
+                <BlockComponent key={childId} blockId={childId} parentChecked={false} parentCollapsed={rootBlock.collapsed} />
               ))}
               {/* Remember that it is located in the document container so it inherits styles and behaviour */}
               <DragOverlay>
@@ -185,4 +193,4 @@ const RootNodeComponent = memo(() => {
     </>
   );
 });
-RootNodeComponent.displayName = "RootNodeComponent";
+RootBlockComponent.displayName = "RootNodeComponent";

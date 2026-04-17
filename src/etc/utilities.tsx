@@ -1,6 +1,6 @@
 import debounce from "lodash/debounce";
 import { useEffect, useRef, useState } from "react";
-import type { FlattenedNodeType, NodeDataType } from "../types";
+import type {  } from "../types";
 
 export function forceReload() {
   if ("serviceWorker" in navigator) {

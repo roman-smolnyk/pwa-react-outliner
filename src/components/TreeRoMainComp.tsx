@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ToastContainer } from "react-toastify";
 import PWABadge from "../PWABadge.tsx";
-import { TreeRoAPI } from "../api.tsx";
 import { ReadOnlyContextProvider, PlainTextViewContextProvider } from "../etc/customContexts.tsx";
 import onStartUp from "../onStartUp.tsx";
 import ExplorerComponent from "./ExplorerComp.tsx";
 import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
 import TreeRootComponent from "./TreeRootComp.tsx";
+import { TreeRoAPI } from "../apis/treeroApi.tsx";
+import { useStore } from "../stateStore.tsx";
+import { YjsManager } from "esm-treero-api";
 
 function SpinnerComponent() {
   return (
@@ -24,7 +26,7 @@ export default function TreeRoMainComponent() {
     "ctrl+z, meta+z",
     () => {
       console.warn("ctrl+z, meta+z");
-      TreeRoAPI.Yjs.undoManager?.undo();
+      TreeRoAPI.undo();
     },
     // { enableOnContentEditable: true },
   );
@@ -32,7 +34,7 @@ export default function TreeRoMainComponent() {
     "ctrl+shift+z, meta+shift+z",
     () => {
       console.warn("ctrl+shift+z, meta+shift+z");
-      TreeRoAPI.Yjs.undoManager?.redo();
+      TreeRoAPI.redo();
     },
     { enableOnContentEditable: true },
   );
@@ -42,7 +44,7 @@ export default function TreeRoMainComponent() {
       console.warn("ctrl+f");
       e.preventDefault();
       e.stopPropagation();
-      TreeRoAPI.useStore.setState((state) => {
+      useStore.setState((state) => {
         return { documentSearchIsOpened: !state.documentSearchIsOpened };
       });
     },
@@ -56,7 +58,7 @@ export default function TreeRoMainComponent() {
       console.warn("ctrl+f");
       e.preventDefault();
       e.stopPropagation();
-      TreeRoAPI.useStore.setState((state) => {
+      useStore.setState((state) => {
         return { globalSearchIsOpened: !state.globalSearchIsOpened };
       });
     },

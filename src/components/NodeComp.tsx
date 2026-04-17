@@ -2,13 +2,14 @@
 // import { PlusCircle } from "@phosphor-icons/react";
 import { useSortable } from "@dnd-kit/sortable";
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { TreeRoAPI } from "../api";
 import { useReadOnly, usePlainTextView } from "../etc/customContexts";
 import { inspectDOM } from "../etc/utilities";
 import { useStore } from "../stateStore";
 import { MarkdownComponent } from "./MarkdownComp";
 import { NodeOptionsButtonComponent } from "./MenusComp";
 import { debounce } from "lodash";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
+import { TreeRoAPI } from "../apis/treeroApi";
 
 function scrollCaretIntoView() {
   console.debug(`scrollCaretIntoView`);
@@ -50,7 +51,9 @@ function updateContent(nodeId: string, nodeContent: string, el: HTMLElement) {
   }
   if (text !== nodeContent) {
     console.debug(`updateContent`, { nodeId, nodeContent: JSON.stringify(text) });
-    TreeRoAPI.updateNode(nodeId, { content: text });
+    const block = Block.get(nodeId);
+    if (!block) return;
+    block.content = text;
   }
 }
 
@@ -113,6 +116,8 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
   const { readOnly } = useReadOnly();
   const { plainTextView } = usePlainTextView();
 
+  const block = Block.get(nodeId);
+
   // subscribe
   useStore((state) => {
     return state.nodesContentToRender[nodeId];
@@ -164,7 +169,9 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
     }
   }, [nodeId, activeNodeId]);
 
-  const isRootNode = Boolean(TreeRoAPI.getNode(nodeId)?.parent_id === null);
+  if (!block) {
+    return;
+  }
 
   return (
     <div className={`NodeContent-container flex-auto min-w-0 ${isEditing ? "bg-gray-100 shadow-[0_0_10px_5px_#f3f4f6]" : ""}`} data-id={nodeId}>
@@ -230,17 +237,17 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           if (isCtrlOrCmd && key === "enter") {
             // console.debug(`${logPrefix} -> onKeyDown [Enter + ctrlKey]`);
             e.preventDefault();
-            let newNodeId = null;
-            if (isRootNode) {
-              newNodeId = TreeRoAPI.insertNewNode(nodeId, "", 0);
+            let newBlock = null;
+            if (block.isRoot()) {
+              newBlock = Block.insertNew(nodeId, "", 0);
             } else {
-              const activeNodeId = TreeRoAPI.useStore.getState().activeNodeId;
-              newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
+              const activeNodeId = useStore.getState().activeNodeId;
+              newBlock = Block.insertNewAfter(activeNodeId);
             }
 
             // console.debug(`(e.key === "Enter" && e.ctrlKey)`, { activeNodeId, newNodeId });
-            if (newNodeId) {
-              TreeRoAPI.useStore.getState().activateNode(newNodeId);
+            if (newBlock) {
+              useStore.getState().activateNode(newBlock.id);
             }
             // Override Enter => Insert "\n"
           } else if (key === "enter") {
@@ -251,13 +258,15 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           } else if (key === "backspace") {
             // console.debug(`${logPrefix} -> onKeyDown [Backspace]`);
 
-            if (!isRootNode && (textContent.length === 0 || textContent === "\n")) {
+            if (!block.isRoot() && (textContent.length === 0 || textContent === "\n")) {
               e.preventDefault(); // stop browser default
-              const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
-              TreeRoAPI.deleteNode(nodeId);
-              if (siblingNode) {
+              const blockSibling = block.getSibling(-1);
+              block.delete();
+              // const siblingNode = TreeRoAPI.getNodeSibling(nodeId, -1);
+              // TreeRoAPI.deleteNode(nodeId);
+              if (blockSibling) {
                 // console.debug("siblingNode", siblingNode);
-                TreeRoAPI.useStore.getState().activateNode(siblingNode.node_id, -1);
+                useStore.getState().activateNode(block.id, -1);
                 // useUIStore.setState({ activeEditNodeId: siblingNode.node_id });
                 // setTimeout(() => {
                 //   const el = document.querySelector(`.NodeContent-contenteditable[data-id="${siblingNode.node_id}"]`);
@@ -279,40 +288,40 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             // console.debug(`${logPrefix} -> onKeyDown [Tab + shiftKey]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
             el.blur();
-            TreeRoAPI.uiUnindentNode(nodeId);
+            TreeRoAPI.unindentBlock(nodeId);
             // Indent node
           } else if (key === "tab") {
             // console.debug(`${logPrefix} -> onKeyDown [Tab]`, e.key, e.shiftKey);
             e.preventDefault(); // block default focus change
             el.blur();
-            TreeRoAPI.uiIndentNode(nodeId);
+            TreeRoAPI.indentBlock(nodeId);
             // Move node up
           } else if (isCtrlOrCmd && key === "arrowup" && !e.shiftKey) {
             e.preventDefault();
-            TreeRoAPI.uiMoveNodeUp(nodeId);
+            TreeRoAPI.moveBlockUp(nodeId);
             // Move node down
           } else if (isCtrlOrCmd && key === "arrowdown" && !e.shiftKey) {
             // console.debug(`(e.key === "ArrowDown" && e.ctrlKey && !e.shiftKey)`);
             e.preventDefault();
-            TreeRoAPI.uiMoveNodeDown(nodeId);
+            TreeRoAPI.moveBlockDown(nodeId);
           } else if (isCtrlOrCmd && key === "z" && !e.shiftKey) {
             // TODO:
             e.preventDefault();
-            const undo = TreeRoAPI.Yjs.undoManager?.undo();
+            const undo = TreeRoAPI.undo();
             console.debug("Ctrl+Z", undo);
             setTimeout(() => {
               el.innerHTML = "";
-              const textNode = document.createTextNode(TreeRoAPI.getNode(nodeId)?.content + "\n");
+              const textNode = document.createTextNode(block.content + "\n");
               el.appendChild(textNode);
             }, 100);
           } else if (isCtrlOrCmd && key === "z" && e.shiftKey) {
             // TODO:
             e.preventDefault();
-            const redo = TreeRoAPI.Yjs.undoManager?.redo();
+            const redo = TreeRoAPI.redo();
             console.debug("Ctrl+Shift+Z", redo);
             setTimeout(() => {
               el.innerHTML = "";
-              const textNode = document.createTextNode(TreeRoAPI.getNode(nodeId)?.content + "\n");
+              const textNode = document.createTextNode(block.content + "\n");
               el.appendChild(textNode);
             }, 100);
           }
@@ -338,7 +347,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
           if (el.firstChild?.textContent) {
             e.preventDefault();
             el.firstChild.textContent = `${left}${e.data}${right}`;
-            TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset + 1);
+            useStore.getState().setCaretAtCharIndex(el, offset + 1);
           } else {
             e.preventDefault();
             range.insertNode(document.createTextNode(`${e.data}\n`));
@@ -382,7 +391,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
             if (el.firstChild) {
               console.debug("ZZZZZZ");
               el.firstChild.textContent = e.currentTarget.textContent + "\n";
-              TreeRoAPI.useStore.getState().setCaretAtCharIndex(el, offset);
+              useStore.getState().setCaretAtCharIndex(el, offset);
             }
           }
 
@@ -395,7 +404,7 @@ export const NodeContentComponent = memo(({ nodeId, nodeContent }: { nodeId: str
 
           updateContent(nodeId, nodeContent, el);
           setIsEditing(false);
-          if (TreeRoAPI.useStore.getState().activeNodeId === nodeId) {
+          if (useStore.getState().activeNodeId === nodeId) {
             useStore.setState({ activeNodeId: "" });
           }
         }}
@@ -449,11 +458,11 @@ function PlainTextComponent({ children }: { children: string }) {
   return <div className="whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
 }
 
-export const NodeComponent = memo(
-  ({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
+export const BlockComponent = memo(
+  ({ blockId, parentChecked, parentCollapsed }: { blockId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
     // export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
     // console.debug("NodeComponent");
-    console.debug(`NodeComponent: ${nodeId}`);
+    console.debug(`BlockComponent: ${blockId}`);
     const ref = useRef<HTMLDivElement>(null);
     const refNodeSelf = useRef<HTMLDivElement>(null);
 
@@ -476,9 +485,11 @@ export const NodeComponent = memo(
     // }
 
     // zustand subscribe
-    const node = useStore((state) => {
-      return state.nodes.get(nodeId);
+    const blockState = useStore((state) => {
+      return state.blocks.get(blockId);
     });
+
+    const block = Block.get(blockId);
 
     const checkboxSelectionIsActive = useStore((state) => {
       return state.checkboxSelectionIsActive;
@@ -486,18 +497,18 @@ export const NodeComponent = memo(
 
     // zustand subscribe to rerender trigger
     useStore((state) => {
-      return state.nodesToRender[nodeId];
+      return state.nodesToRender[blockId];
     });
 
     useStore((state) => {
-      return state.dndToRerender[nodeId];
+      return state.dndToRerender[blockId];
     });
 
     const { readOnly } = useReadOnly();
 
     // useSortable merges useDraggable and useDroppable functionality, so you can do
     const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
-      id: nodeId,
+      id: blockId,
       disabled: readOnly,
     });
 
@@ -509,24 +520,27 @@ export const NodeComponent = memo(
     useEffect(() => {
       if (isDragging) {
         // console.debug("isDragging", attributes, listeners);
-        const descendantsIds = TreeRoAPI.getNodeDescendantsIds(nodeId);
-        useStore.setState({ dndDescendantsIds: descendantsIds });
+        if (block) {
+          const descendantsIds = block.getDescendants().map((a) => a.id);
+          useStore.setState({ dndDescendantsIds: descendantsIds });
+        }
       }
     }, [active, isDragging]);
 
     let placement = null;
     if (isOver) {
       // console.debug("isOver", attributes, listeners);
-      TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+      useStore.setState({ dndRectEl: refNodeSelf.current });
 
       if (active?.id && over?.id && active.id !== over.id) {
-        if (!useStore.getState().dndDescendantsIds.includes(nodeId)) {
-          placement = TreeRoAPI.useStore.getState().dndPlacement;
+        if (!useStore.getState().dndDescendantsIds.includes(blockId)) {
+          placement = useStore.getState().dndPlacement;
         }
       }
     }
 
-    if (!node) return null;
+    if (!blockState) return;
+    if (!block) return;
 
     // if (!visiable) {
     //   return <div className="Node-placeholder">Item is loading...</div>;
@@ -534,11 +548,11 @@ export const NodeComponent = memo(
 
     return (
       // data-id={node.node_id}
-      <div id={node.node_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
+      <div id={blockState.block_id} className={`Node-outer ${isDragging || checked ? "bg-gray-200" : ""}`} ref={combinedRef}>
         <div className="Node-inner">
-          {over?.id === node.node_id && placement === "before" && <DropIndicatorComponent />}
+          {over?.id === blockState.block_id && placement === "before" && <DropIndicatorComponent />}
           {/* shadow-[0_-2px_0_0_rgba(59,130,246,1)] */}
-          <div className={`Node-self flex items-start`} ref={refNodeSelf} data-id={node.node_id}>
+          <div className={`Node-self flex items-start`} ref={refNodeSelf} data-id={blockState.block_id}>
             {checkboxSelectionIsActive && (
               <button
                 className="Node-checkbox flex flex-none items-center justify-center cursor-pointer size-5"
@@ -559,11 +573,11 @@ export const NodeComponent = memo(
               // data-node-id={node.id}
               onPointerUpCapture={() => {
                 // console.debug("Node-bullet onPointerUpCapture");
-                TreeRoAPI.uiToggleNodeCollapse(node.node_id);
+                TreeRoAPI.collapseBlock(block.id);
               }}
             >
-              {node.children.length > 0 ? (
-                node.collapsed ? (
+              {blockState.children.length > 0 ? (
+                blockState.collapsed ? (
                   // <PlusIcon className="size-4 text-500" />
                   // <PlusCircleIcon className="size-4 text-500 stroke-black" fill="none" />
                   // <PlusCircle className="size-4" />
@@ -597,18 +611,18 @@ export const NodeComponent = memo(
                 // </div>
               )}
             </button>
-            <NodeContentComponent nodeId={node.node_id} nodeContent={node.content} />
-            <NodeOptionsButtonComponent nodeId={nodeId} isRootNode={false} />
+            <NodeContentComponent nodeId={blockState.block_id} nodeContent={blockState.content} />
+            <NodeOptionsButtonComponent nodeId={blockId} isRootNode={false} />
             {/* <NodeOptionsComponent nodeId={nodeId} /> */}
 
             {/* // ! ID */}
             {/* <div className="NodeDebugId text-xs min-w-10">{nodeId.slice(-5)}</div> */}
           </div>
-          {over?.id === node.node_id && placement === "after" && <DropIndicatorComponent />}
-          {over?.id === node.node_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
-          <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${node.collapsed ? "hidden!" : ""}`}>
-            {node.children.map((childId) => (
-              <NodeComponent key={childId} nodeId={childId} parentChecked={checked} parentCollapsed={node.collapsed} />
+          {over?.id === blockState.block_id && placement === "after" && <DropIndicatorComponent />}
+          {over?.id === blockState.block_id && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+          <div className={`NodeChildren flex flex-col gap-2 border-l border-gray-200 ml-2 pl-5 ${blockState.collapsed ? "hidden!" : ""}`}>
+            {blockState.children.map((childId) => (
+              <BlockComponent key={childId} blockId={childId} parentChecked={checked} parentCollapsed={blockState.collapsed} />
             ))}
           </div>
         </div>
@@ -616,7 +630,7 @@ export const NodeComponent = memo(
     );
   },
 );
-NodeComponent.displayName = "NodeComponent";
+BlockComponent.displayName = "NodeComponent";
 
 // function DropIndicatorComponent({ shrink = false }) {
 //   return (

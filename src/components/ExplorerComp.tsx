@@ -11,13 +11,14 @@ import {
   SearchIcon,
 } from "lucide-react";
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { TreeRoAPI } from "../api";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
 import { DocumentOptionsComponent, GroupOptionsComponent } from "./MenusComp";
 import { GlobalSearchPortalComponent } from "./SearchGlobalComp";
 import { useNavigate } from "react-router-dom";
+import { Block, Page, Collection, Workspace } from "esm-treero-api";
+import { TreeRoAPI } from "../apis/treeroApi";
 
 function ButtonComponent({
   children,
@@ -58,6 +59,11 @@ function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: stri
     input.setSelectionRange(0, 0);
   }, []);
 
+  const collection = Collection.get(groupId);
+  if (!collection) {
+    throw new Error(`Collection is missing`);
+  }
+
   return (
     <input
       className="w-full min-w-0 max-w-full rounded border-none outline-none focus:ring-2 focus:ring-gray-400"
@@ -68,7 +74,7 @@ function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: stri
       onBlur={(e) => {
         const value = e.target.value;
         if (value !== name) {
-          TreeRoAPI.updateGroup(groupId, { name: value });
+          collection.name = value;
         }
         setRenaming(false);
       }}
@@ -77,23 +83,23 @@ function GroupItemTitleComponent({ groupId, name, setRenaming }: { groupId: stri
   );
 }
 
-const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
+const CollectionItemComponent = memo(({ collectionId }: { collectionId: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const refNodeSelf = useRef<HTMLDivElement>(null);
   const refDiv = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   useStore((state) => {
-    return state.dndToRerender[groupId];
+    return state.dndToRerender[collectionId];
   });
 
   // zustand subscribe
-  const group = useStore((state) => {
-    return state.groups.get(groupId);
+  const collection = useStore((state) => {
+    return state.collections.get(collectionId);
   });
 
   const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
-    id: groupId,
+    id: collectionId,
   });
 
   const combinedRef = (element: HTMLDivElement | null) => {
@@ -107,36 +113,39 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
     refDiv.current.innerText = refDiv.current.textContent?.replace("\n", " ") || "";
   }, []);
 
-  if (!group) return;
+  if (!collection) return;
 
   if (isDragging) {
     // console.debug("isDragging", attributes, listeners);
-    const descendantsIds = TreeRoAPI.getGroupDescendantsGroupsIds(groupId);
-    useStore.setState({ dndDescendantsIds: descendantsIds });
+    const collection = Collection.get(collectionId);
+    if (collection) {
+      const descendantsIds = collection.getDescendants().map((a) => a.id);
+      useStore.setState({ dndDescendantsIds: descendantsIds });
+    }
   }
 
   let placement = null;
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
-    TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+    useStore.setState({ dndRectEl: refNodeSelf.current });
     if (active?.id && over?.id && active.id !== over.id) {
-      if (!useStore.getState().dndDescendantsIds.includes(groupId)) {
-        placement = TreeRoAPI.useStore.getState().dndPlacement;
+      if (!useStore.getState().dndDescendantsIds.includes(collectionId)) {
+        placement = useStore.getState().dndPlacement;
       }
     }
   }
 
   return (
     // data-id={node.node_id}
-    <div id={groupId} className={`GroupItem-outer ${isDragging ? "bg-gray-200" : ""}`} ref={combinedRef}>
+    <div id={collectionId} className={`GroupItem-outer ${isDragging ? "bg-gray-200" : ""}`} ref={combinedRef}>
       <div className="GroupItem-inner">
-        {over?.id === groupId && placement === "before" && <DropIndicatorComponent />}
+        {over?.id === collectionId && placement === "before" && <DropIndicatorComponent />}
         <div
           className="GroupItem-self py-1 sm:py-0
                    hover:bg-gray-100
                      flex items-center justify-center gap-1"
           ref={refNodeSelf}
-          data-id={groupId}
+          data-id={collectionId}
         >
           <button
             className="GroupItem-bullet flex-none size-6 sm:size-5
@@ -148,11 +157,11 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             // data-node-id={node.id}
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
-              TreeRoAPI.uiToggleGroupCollapse(groupId);
+              TreeRoAPI.collapseCollection(collectionId);
             }}
           >
-            {group.children.length > 0 ? (
-              group.collapsed ? (
+            {collection.children.length > 0 ? (
+              collection.collapsed ? (
                 <FolderInputIcon className="w-full h-full text-gray-600" />
               ) : (
                 <FolderDownIcon className="w-full h-full text-gray-600" />
@@ -168,18 +177,18 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              TreeRoAPI.uiToggleGroupCollapse(groupId);
+              TreeRoAPI.collapseCollection(collectionId);
             }}
           >
             {!isEditing ? (
               <div ref={refDiv} className="flex-1 truncate min-h-5">
-                {group.name}
+                {collection.name}
               </div>
             ) : (
-              <GroupItemTitleComponent groupId={groupId} name={group.name} setRenaming={setIsEditing} />
+              <GroupItemTitleComponent groupId={collectionId} name={collection.name} setRenaming={setIsEditing} />
             )}
           </div>
-          <GroupOptionsComponent groupId={groupId} setRenaming={setIsEditing} />
+          <GroupOptionsComponent groupId={collectionId} setRenaming={setIsEditing} />
           {/* <button className="GroupItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -187,14 +196,14 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
           {/* // ! ID */}
           {/* <div className="DocumentDebugId text-xs min-w-10">{groupId.slice(30)}</div> */}
         </div>
-        {over?.id === groupId && placement === "after" && <DropIndicatorComponent />}
-        {over?.id === groupId && placement === "inside" && <DropIndicatorComponent shrink={true} />}
+        {over?.id === collectionId && placement === "after" && <DropIndicatorComponent />}
+        {over?.id === collectionId && placement === "inside" && <DropIndicatorComponent shrink={true} />}
         <div
           className={`GroupItemChildren flex-col ml-2 pl-4
                      border-l border-gray-200 
-                     flex gap-1 ${group.collapsed ? "hidden!" : ""}`}
+                     flex gap-1 ${collection.collapsed ? "hidden!" : ""}`}
         >
-          {group.children.map((childId) => (
+          {collection.children.map((childId) => (
             <ExplorerItemComponent key={childId} itemId={childId} />
           ))}
         </div>
@@ -202,7 +211,7 @@ const GroupItemComponent = memo(({ groupId }: { groupId: string }) => {
     </div>
   );
 });
-GroupItemComponent.displayName = "GroupItemComponent";
+CollectionItemComponent.displayName = "GroupItemComponent";
 
 function DocumentItemTitleComponent({
   rootNodeId,
@@ -235,7 +244,10 @@ function DocumentItemTitleComponent({
       onBlur={(e) => {
         const value = e.target.value;
         if (value !== nodeContent) {
-          TreeRoAPI.updateNode(rootNodeId, { content: value });
+          const block = Block.get(rootNodeId);
+          if (block) {
+            block.content = value;
+          }
         }
         setRenaming(false);
       }}
@@ -244,7 +256,7 @@ function DocumentItemTitleComponent({
   );
 }
 
-const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
+const PageItemComponent = memo(({ pageId }: { pageId: string }) => {
   const navigate = useNavigate();
 
   const ref = useRef<HTMLDivElement>(null);
@@ -258,25 +270,25 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
   }, []);
 
   useStore((state) => {
-    return state.dndToRerender[documentId];
+    return state.dndToRerender[pageId];
   });
 
   // zustand subscribe
-  const leaf = useStore((state) => {
-    return state.documents.get(documentId);
+  const page = useStore((state) => {
+    return state.pages.get(pageId);
   });
 
-  const rootNode = useStore((state) => {
-    if (!leaf) return;
-    return state.nodes.get(leaf.root_node_id);
+  const rootBlock = useStore((state) => {
+    if (!page) return;
+    return state.blocks.get(page.root_block_id);
   });
 
-  const currentDocumentId = useStore((state) => {
-    return state.localConfig.currentDocumentId;
+  const currentPageId = useStore((state) => {
+    return state.localConfig.currentPageId;
   });
 
   const { setNodeRef, attributes, listeners, active, over, isDragging, isOver } = useSortable({
-    id: documentId,
+    id: pageId,
   });
 
   const combinedRef = (element: HTMLDivElement | null) => {
@@ -284,7 +296,7 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
     ref.current = element; // your own ref
   };
 
-  if (!leaf || !rootNode) return;
+  if (!page || !rootBlock) return;
 
   if (isDragging) {
     // console.debug("isDragging", attributes, listeners);
@@ -294,29 +306,29 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
   let placement = null;
   if (isOver) {
     // console.debug("isOver", attributes, listeners);
-    TreeRoAPI.useStore.setState({ dndRectEl: refNodeSelf.current });
+    useStore.setState({ dndRectEl: refNodeSelf.current });
     if (active?.id && over?.id && active.id !== over.id) {
-      if (!useStore.getState().dndDescendantsIds.includes(documentId)) {
+      if (!useStore.getState().dndDescendantsIds.includes(pageId)) {
         // console.debug(documentId, useStore.getState().dndDescendantsIds);
-        placement = TreeRoAPI.useStore.getState().dndPlacement;
+        placement = useStore.getState().dndPlacement;
       }
     }
   }
 
   return (
     <div
-      id={documentId}
-      className={`DocumentItem-outer ${isDragging ? "bg-gray-200" : ""} ${currentDocumentId === documentId ? "bg-gray-200" : ""}`}
+      id={pageId}
+      className={`DocumentItem-outer ${isDragging ? "bg-gray-200" : ""} ${currentPageId === pageId ? "bg-gray-200" : ""}`}
       ref={combinedRef}
     >
       <div className="DocumentItem-inner">
-        {over?.id === documentId && placement === "before" && <DropIndicatorComponent />}
+        {over?.id === pageId && placement === "before" && <DropIndicatorComponent />}
         <div
           className={`DocumentItem-self py-1 sm:py-0
-                     ${currentDocumentId === documentId ? "hover:bg-gray-200" : "hover:bg-gray-100"}
+                     ${currentPageId === pageId ? "hover:bg-gray-200" : "hover:bg-gray-100"}
                      flex items-center justify-center gap-1`}
           ref={refNodeSelf}
-          data-id={documentId}
+          data-id={pageId}
         >
           <button
             className="GroupItem-bullet flex-none size-6 sm:size-5 cursor-pointer
@@ -334,19 +346,19 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
             onPointerUpCapture={() => {
               // console.debug("onPointerUpCapture");
               if (isEditing) return;
-              navigate(`/node/${rootNode.node_id}`);
+              navigate(`/block/${rootBlock.block_id}`);
               // TreeRoAPI.uiOpenNode(rootNode.node_id);
             }}
           >
             {!isEditing ? (
               <div ref={refDiv} className="flex-1 truncate min-h-5">
-                <PlainMarkdownComponent>{rootNode.content}</PlainMarkdownComponent>
+                <PlainMarkdownComponent>{rootBlock.content}</PlainMarkdownComponent>
               </div>
             ) : (
-              <DocumentItemTitleComponent rootNodeId={rootNode.node_id} nodeContent={rootNode.content} setRenaming={setIsEditing} />
+              <DocumentItemTitleComponent rootNodeId={rootBlock.block_id} nodeContent={rootBlock.content} setRenaming={setIsEditing} />
             )}
           </div>
-          <DocumentOptionsComponent documentId={documentId} setRenaming={setRenaming} />
+          <DocumentOptionsComponent documentId={pageId} setRenaming={setRenaming} />
           {/* <button className="DocumentItem-options flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5" type="button">
             <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i>
           </button> */}
@@ -354,22 +366,22 @@ const DocumentItemComponent = memo(({ documentId }: { documentId: string }) => {
           {/* // ! ID */}
           {/* <div className="DocumentDebugId text-xs min-w-10">{documentId.slice(30)}</div> */}
         </div>
-        {over?.id === documentId && (placement === "after" || placement === "inside") && <DropIndicatorComponent />}
+        {over?.id === pageId && (placement === "after" || placement === "inside") && <DropIndicatorComponent />}
       </div>
     </div>
   );
 });
-DocumentItemComponent.displayName = "DocumentItemComponent";
+PageItemComponent.displayName = "DocumentItemComponent";
 
 export function ExplorerItemComponent({ itemId }: { itemId: string }) {
-  const state = TreeRoAPI.useStore.getState();
-  const documentItem = state.documents.get(itemId);
-  const groupItem = state.groups.get(itemId);
-  if (documentItem) {
-    return <DocumentItemComponent documentId={itemId} />;
-  } else if (groupItem) {
-    GroupItemComponent;
-    return <GroupItemComponent groupId={itemId} />;
+  const state = useStore.getState();
+  const pageItem = state.pages.get(itemId);
+  const collectionItem = state.collections.get(itemId);
+  if (pageItem) {
+    return <PageItemComponent pageId={itemId} />;
+  } else if (collectionItem) {
+    CollectionItemComponent;
+    return <CollectionItemComponent collectionId={itemId} />;
   } else {
     return <div>{"ERRORRRR"}</div>;
   }
@@ -379,7 +391,7 @@ function NavBarComponent() {
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
   const globalSearchIsOpened = useStore((state) => state.globalSearchIsOpened);
 
-  const rootGroupId = useStore((state) => state.meta.root_group_id);
+  const rootCollectionId = useStore((state) => state.workspace.root_collection_id);
 
   return (
     <div
@@ -402,7 +414,7 @@ function NavBarComponent() {
           <ButtonComponent
             className="CreateNewDocument"
             onClick={() => {
-              TreeRoAPI.insertNewDocument(rootGroupId, "New Document", 0);
+              Page.insertNew(rootCollectionId, "New Page", 0);
             }}
           >
             <FilePlusIcon />
@@ -410,7 +422,7 @@ function NavBarComponent() {
           <ButtonComponent
             className="CreateNewGroup"
             onClick={() => {
-              TreeRoAPI.insertNewGroup(rootGroupId, "New Folder", 0);
+              Collection.insertNew(rootCollectionId, "New Folder", 0);
             }}
           >
             <FolderPlusIcon />
@@ -453,15 +465,18 @@ export default function ExplorerComponent() {
 
   const explorerIsOpened = useStore((state) => state.explorerIsOpened);
 
-  const rootGroup = useStore((state) => {
-    if (!TreeRoAPI.useStore.getState().stateIsInitialized) return null;
-    const rootGroupId = TreeRoAPI.getRootGroupId();
+  const rootCollection = useStore((state) => {
+    if (!useStore.getState().stateIsInitialized) return null;
+    if (!state.localConfig.workspaceId) return null;
+    const rootCollectionId = Workspace.get(state.localConfig.workspaceId).rootCollectionId;
     // console.debug("rootGroupId", rootGroupId)
-    if (!rootGroupId) return null;
-    return state.groups.get(rootGroupId);
+    if (!rootCollectionId) return null;
+    return state.collections.get(rootCollectionId);
   });
 
-  if (!rootGroup) return null;
+  if (!rootCollection) return;
+  const collectionRoot = Collection.get(rootCollection.collection_id);
+  if (!collectionRoot) return;
 
   // console.debug("rootGroup", rootGroup);
 
@@ -493,7 +508,7 @@ export default function ExplorerComponent() {
               }}
               onDragMoveCallback={(event, dndCoordinates) => {
                 if (!event.over) return;
-                const rect = TreeRoAPI.useStore.getState().dndRectEl?.getBoundingClientRect();
+                const rect = useStore.getState().dndRectEl?.getBoundingClientRect();
                 if (rect) {
                   const rectPageTop = rect.top + dndCoordinates.scrollY;
                   const middleX = 80;
@@ -502,8 +517,8 @@ export default function ExplorerComponent() {
                   const shouldIndent = offsetFromLeft > middleX;
                   const position = dndCoordinates.pointerY > middleY ? "after" : "before";
                   const placement = shouldIndent && position === "after" ? "inside" : position;
-                  TreeRoAPI.useStore.setState({ dndPlacement: placement });
-                  TreeRoAPI.useStore.getState().triggerDnDRender(event.over.id as string);
+                  useStore.setState({ dndPlacement: placement });
+                  useStore.getState().triggerDnDRender(event.over.id as string);
                 }
               }}
               onDragEnd={(event) => {
@@ -515,67 +530,68 @@ export default function ExplorerComponent() {
                 if (activeId === overId) return;
                 const placement = useStore.getState().dndPlacement;
                 if (!placement) return;
-                const activeDocument = TreeRoAPI.getDocument(activeId);
-                const activeGroup = TreeRoAPI.getGroup(activeId);
-                const overDocument = TreeRoAPI.getDocument(overId);
-                const overGroup = TreeRoAPI.getGroup(overId);
-                const activeParent = TreeRoAPI.getParentGroup(activeId);
-                const overParent = TreeRoAPI.getParentGroup(overId);
+
+                const activePage = Page.get(activeId);
+                const activeCollection = Collection.get(activeId);
+                const overPage = Page.get(overId);
+                const overCollection = Collection.get(overId);
+                const activeParent = activePage?.parent() || activeCollection?.parent();
+                const overParent = overPage?.parent() || overCollection?.parent();
                 if (!activeParent || !overParent) return;
 
                 // console.debug(`Move %c${activeId}%c over %c${overId}%c`, "color: red;", "", "color: red;", "");
-                if (activeDocument && overDocument) {
+                if (activePage && overPage) {
                   if (placement === "after") {
                     // console.debug("moveDocumentAfter", placement);
-                    TreeRoAPI.moveDocumentAfter(activeId, overId);
+                    activePage.moveAfter(overId);
                   } else if (placement === "before") {
                     // console.debug("moveDocumentBefore", placement);
-                    TreeRoAPI.moveDocumentBefore(activeId, overId);
+                    activePage.moveBefore(overId);
                   } else if (placement === "inside") {
                     // console.debug("moveDocumentAfter", placement);
-                    TreeRoAPI.moveDocumentAfter(activeId, overId);
+                    activePage.moveAfter(overId);
                   }
-                } else if (activeDocument && overGroup) {
+                } else if (activePage && overCollection) {
                   if (placement === "after") {
                     // console.debug("moveDocumentAfter", placement);
-                    TreeRoAPI.moveDocumentAfter(activeId, overId);
+                    activePage.moveAfter(overId);
                   } else if (placement === "before") {
                     // console.debug("moveDocumentBefore", placement);
-                    TreeRoAPI.moveDocumentBefore(activeId, overId);
+                    activePage.moveBefore(overId);
                   } else if (placement === "inside") {
-                    if (overGroup.collapsed === false && overGroup.children.length !== 0) {
+                    if (overCollection.collapsed === false && overCollection.children.length !== 0) {
                       // console.debug("moveDocument", placement, 0);
-                      TreeRoAPI.moveDocument(activeId, overId, 0);
+                      activePage.move(overId, 0);
                     } else {
                       // console.debug("moveDocument", placement, -1);
-                      TreeRoAPI.moveDocument(activeId, overId, -1);
+                      activePage.move(overId, -1);
                     }
                   }
-                } else if (activeGroup && overDocument) {
+                } else if (activeCollection && overPage) {
                   if (placement === "after") {
                     // console.debug("moveGroupAfter", placement);
-                    TreeRoAPI.moveGroupAfter(activeId, overId);
+                    activeCollection.moveAfter(overId);
                   } else if (placement === "before") {
                     // console.debug("moveGroupBefore", placement);
-                    TreeRoAPI.moveGroupBefore(activeId, overId);
+                    activeCollection.moveBefore(overId);
                   } else if (placement === "inside") {
                     // console.debug("moveGroupAfter", placement);
-                    TreeRoAPI.moveGroupAfter(activeId, overId);
+                    activeCollection.moveAfter(overId);
                   }
-                } else if (activeGroup && overGroup) {
+                } else if (activeCollection && overCollection) {
                   if (placement === "after") {
                     // console.debug("moveGroupAfter", placement);
-                    TreeRoAPI.moveGroupAfter(activeId, overId);
+                    activeCollection.moveAfter(overId);
                   } else if (placement === "before") {
                     // console.debug("moveGroupBefore", placement);
-                    TreeRoAPI.moveGroupBefore(activeId, overId);
+                    activeCollection.moveBefore(overId);
                   } else if (placement === "inside") {
-                    if (overGroup.collapsed === false && overGroup.children.length !== 0) {
+                    if (overCollection.collapsed === false && overCollection.children.length !== 0) {
                       // console.debug("moveGroup", placement, 0);
-                      TreeRoAPI.moveGroup(activeId, overId, 0);
+                      activeCollection.move(overId, 0);
                     } else {
                       // console.debug("moveGroup", placement, -1);
-                      TreeRoAPI.moveGroup(activeId, overId, -1);
+                      activeCollection.move(overId, -1);
                     }
                   }
                 }
@@ -587,7 +603,7 @@ export default function ExplorerComponent() {
               <div className="RootGroup-outer">
                 <div className="RootGroup-inner">
                   <div className="RootGroupChildren flex flex-col gap-1 py-4 pl-5 sm:pl-2 pr-3 sm:pr-2">
-                    {rootGroup.children.map((childId) => (
+                    {rootCollection.children.map((childId) => (
                       <ExplorerItemComponent key={childId} itemId={childId} />
                       // <NodeComponent key={childId} nodeId={childId} />
                     ))}

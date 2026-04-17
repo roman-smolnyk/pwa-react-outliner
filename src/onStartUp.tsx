@@ -1,39 +1,42 @@
-import { nanoid } from "nanoid";
-import * as Y from "yjs";
-import { TreeRoAPI } from "./api";
+import { TreeRoAPI } from "./apis/treeroApi";
+import { LocalConfig } from "./localConfig";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 import { Conf } from "./appConfig";
 import { fillInMockupData } from "./etc/mockupData";
-import { createWelcomeDocument } from "./etc/welcomeData";
+// import { createWelcomeDocument } from "./etc/welcomeData";
 import { useStore } from "./stateStore";
-import type { DocumentDataType, GroupDataType, MetaDataType, NodeDataType, YDocumentDataType, YGroupDataType, YNodeDataType } from "./types";
-import { Yjs } from "./yjsEnv";
+// import type { YBlockMap, YCollectionMap, YPageMap, YWorkspaceMap } from "esm-treero-api";
+import type { BlockState, WorkspaceState, PageState, CollectionState } from "./types";
 // import { fillInMockupData } from "./etc/mockupData";
 
 export default async function onStartUp() {
-  Yjs.setup();
+  console.debug(`onStartUp`);
+  YjsManager.initializeYjs();
+  YjsManager.addIndexeddbPersistence();
+  YjsManager.addUndoManager();
+
+  const Yjs = YjsManager.getYjs();
+
   Yjs.idbPersistence!.whenSynced.then(() => {
     // console.debug("persistence.whenSynced.then");
-    let roomToken = TreeRoAPI.LocalConfig.get().roomToken;
-
+    let roomToken = LocalConfig.get().roomToken;
+    let workspaceId = LocalConfig.get().workspaceId;
+    let workspace: Workspace;
     // console.debug("ymeta", ymeta.toJSON());
     // New Account
+    console.debug(`onStartUp:roomToken`, roomToken);
     if (!roomToken) {
-      console.debug("onStartUp (!roomToken)");
-      // Create ROOT data
-      const ygroup = new Y.Map() as YGroupDataType;
-      // const group_id = crypto.randomUUID();
-      const group_id = nanoid();
-      ygroup.set("group_id", group_id);
-      ygroup.set("name", "root");
-      ygroup.set("collapsed", false);
-      ygroup.set("children", new Y.Array<string>());
-      Yjs.ygroups!.set(group_id, ygroup);
-      Yjs.ymeta!.set("root_group_id", group_id);
-
-      createWelcomeDocument();
-      fillInMockupData();
       roomToken = TreeRoAPI.generateRoomToken();
-      TreeRoAPI.LocalConfig.set({ roomToken: roomToken });
+      workspace = Workspace.createNew();
+      // createWelcomeDocument();
+      fillInMockupData(workspace);
+
+      LocalConfig.set({ roomToken: roomToken, workspaceId: workspace.id });
+    } else if (workspaceId) {
+      workspace = Workspace.get(workspaceId);
+    } else {
+      // SHOULD THROW AN ERROR
+      workspace = new Workspace("zebra");
     }
 
     Yjs.undoManager!.clear();
@@ -44,8 +47,8 @@ export default async function onStartUp() {
     }
 
     if (isWsOn) {
-      TreeRoAPI.Yjs.connectWebSocket(roomToken);
-      TreeRoAPI.Yjs.wsProvider!.on("status", (e) => {
+      YjsManager.addWebsocketProvider("https://y-websocket-server-t1tj.onrender.com", roomToken);
+      Yjs.wsProvider!.on("status", (e) => {
         // console.debug("WebsocketProvider status", e.status);
         if (e.status === "connecting") {
           useStore.setState({ wsStatus: "connecting" });
@@ -68,21 +71,22 @@ export default async function onStartUp() {
 
     useStore.setState({
       stateIsInitialized: true,
-      localConfig: TreeRoAPI.LocalConfig.get(),
-      meta: Yjs.ymeta!.toJSON() as MetaDataType,
-      groups: new Map(Object.entries(Yjs.ygroups!.toJSON())) as Map<string, GroupDataType>,
-      documents: new Map(Object.entries(Yjs.ydocuments!.toJSON())) as Map<string, DocumentDataType>,
-      nodes: new Map(Object.entries(Yjs.ynodes!.toJSON())) as Map<string, NodeDataType>,
+      localConfig: LocalConfig.get(),
+      workspace: workspace.yworkspace!.toJSON() as WorkspaceState,
+      collections: new Map(Object.entries(Yjs.ycollections.toJSON())) as Map<string, CollectionState>,
+      pages: new Map(Object.entries(Yjs.ypages.toJSON())) as Map<string, PageState>,
+      blocks: new Map(Object.entries(Yjs.yblocks.toJSON())) as Map<string, BlockState>,
     });
 
-    startStateUpdaterViaYjsObserver();
+    // startStateUpdaterViaYjsObserver();
   });
 }
 
 function startStateUpdaterViaYjsObserver() {
   // ########################### Nodes ##################################
 
-  Yjs.ynodes?.observeDeep((events) => {
+  const Yjs = YjsManager.getYjs();
+  Yjs.yblocks.observeDeep((events) => {
     // when nested Y.Array or, Y.Text changes, two events are fired, for themself and for parent Y.Map
     // console.debug("ynodes.observeDeep", events);
     for (const event of events) {
@@ -92,13 +96,13 @@ function startStateUpdaterViaYjsObserver() {
       // console.debug("event.changes.keys", event.changes.keys);
       for (const [key, change] of event.changes.keys) {
         if (change.action === "add") {
-          const ynode = TreeRoAPI.Yjs.YNodeWrap.get(key);
+          const block = Block.get(key);
           // console.debug("add", key, ynode?.ynode.toJSON(), change.oldValue);
-          if (ynode) {
+          if (block) {
             useStore.setState((state) => {
-              const uNodes = new Map(state.nodes);
-              uNodes.set(ynode.node_id, ynode.ynode.toJSON() as NodeDataType);
-              return { nodes: uNodes };
+              const uNodes = new Map(state.blocks);
+              uNodes.set(block.id, block.yblock.toJSON() as BlockState);
+              return { blocks: uNodes };
             });
           }
         } else if (change.action === "delete") {
@@ -152,7 +156,7 @@ function startStateUpdaterViaYjsObserver() {
 
   // ########################### Groups ##################################
 
-  Yjs.ygroups?.observeDeep((events) => {
+  Yjs.ycollections.observeDeep((events) => {
     // console.debug("ygroups.observeDeep", events);
     for (const event of events) {
       // console.debug("event.changes.added", event.changes.added);
@@ -161,12 +165,12 @@ function startStateUpdaterViaYjsObserver() {
       // console.debug("event.changes.keys", event.changes.keys);
       for (const [key, change] of event.changes.keys) {
         if (change.action === "add") {
-          const ygroup = TreeRoAPI.Yjs.YGroupWrap.get(key);
+          const ygroup = Collection.get(key);
           // console.debug("add", key, ygroup?.ygroup.toJSON(), change.oldValue);
           if (ygroup) {
             useStore.setState((state) => {
               const uGroups = new Map(state.groups);
-              uGroups.set(ygroup.group_id, ygroup.ygroup.toJSON() as GroupDataType);
+              uGroups.set(ygroup.id, ygroup.ycollection.toJSON() as GroupDataType);
               return { groups: uGroups };
             });
           }
@@ -211,7 +215,7 @@ function startStateUpdaterViaYjsObserver() {
 
   // ########################### Documents ##################################
 
-  Yjs.ydocuments?.observeDeep((events) => {
+  Yjs.ypages.observeDeep((events) => {
     // console.debug("ydocuments.observeDeep", events);
     for (const event of events) {
       // console.debug("event.changes.added", event.changes.added);
@@ -220,12 +224,12 @@ function startStateUpdaterViaYjsObserver() {
       // console.debug("event.changes.keys", event.changes.keys);
       for (const [key, change] of event.changes.keys) {
         if (change.action === "add") {
-          const ydocument = TreeRoAPI.Yjs.YDocumentWrap.get(key);
+          const ydocument = Page.get(key);
           // console.debug("add", key, ydocument?.ydocument.toJSON(), change.oldValue);
           if (ydocument) {
             useStore.setState((state) => {
               const uDocuments = new Map(state.documents);
-              uDocuments.set(ydocument.document_id, ydocument.ydocument.toJSON() as DocumentDataType);
+              uDocuments.set(ydocument.id, ydocument.ypage.toJSON() as DocumentDataType);
               return { documents: uDocuments };
             });
           }
@@ -261,11 +265,11 @@ function startStateUpdaterViaYjsObserver() {
 
   // ########################### META ##################################
 
-  Yjs.ymeta?.observeDeep((_events) => {
+  Yjs.yworkspace.observeDeep((_events) => {
     // console.debug("ymeta.observeDeep", events);
     useStore.setState((_state) => {
-      const root_group_id = TreeRoAPI.Yjs.ymeta!.get("root_group_id");
-      const inbox_node_id = TreeRoAPI.Yjs.ymeta!.get("inbox_node_id");
+      const root_group_id = new Workspace().rootCollectionId;
+      const inbox_node_id = new Workspace().inboxBlockId;
       return { meta: { root_group_id: root_group_id, inbox_node_id } };
     });
   });

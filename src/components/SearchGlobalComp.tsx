@@ -2,9 +2,10 @@
 import { XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { TreeRoAPI } from "../api";
 import { isMobile } from "../etc/utilities";
 import { useStore } from "../stateStore";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
+import { TreeRoAPI } from "../apis/treeroApi";
 // import { scrollIntoView } from "../etc/utilities";
 
 const rootEl = document.getElementById("root")!;
@@ -25,11 +26,11 @@ function ButtonComponent({
 }
 
 function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeContent: string; query: string }) {
-  const documentId = TreeRoAPI.getNodeDocumentId(nodeId);
-  const document_ = TreeRoAPI.useStore.getState().documents.get(documentId as string);
-  if (!documentId || !document_) return;
-  const documentPath = TreeRoAPI.traverseDocumentPath(documentId);
-  const nodePathMap = TreeRoAPI.traverseNodePath(nodeId);
+  const block = Block.get(nodeId);
+  if (!block) return;
+  const page = block.getPage();
+  const documentPath = page.traversePath().map((a) => a.name);
+  const nodePathMap = block.traversePath().map((a) => a.content);
 
   const nodePathValues = Array.from(nodePathMap.values());
 
@@ -42,7 +43,7 @@ function ItemComponent({ nodeId, nodeContent, query }: { nodeId: string; nodeCon
     <div
       className="cursor-pointer border-b border-gray-100 px-1 py-1 text-sm hover:bg-gray-100"
       onClick={() => {
-        TreeRoAPI.uiOpenNode(nodeId);
+        TreeRoAPI.openBlock(nodeId);
         useStore.setState({ globalSearchIsOpened: false });
         if (isMobile()) {
           useStore.setState({ explorerIsOpened: false });
@@ -76,7 +77,7 @@ export function GlobalSearchPortalComponent() {
 
   const globalSearchIsOpened = useStore((state) => state.globalSearchIsOpened);
 
-  const nodes = useStore((state) => state.nodes);
+  const blocks = useStore((state) => state.blocks);
 
   useEffect(() => {
     const tid = setTimeout(() => {
@@ -86,14 +87,14 @@ export function GlobalSearchPortalComponent() {
     return () => clearTimeout(tid);
   }, [query]);
 
-  const filteredNodes = useMemo(() => {
+  const filteredBlocks = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
 
     const lowerQuery = debouncedQuery.toLowerCase();
-    const nodeList = Array.from(nodes.values());
+    const blockList = Array.from(blocks.values());
 
-    return nodeList.filter((node) => node.content.toLowerCase().includes(lowerQuery)).slice(0, 100); // Optimization: Limit results to top 100
-  }, [nodes, debouncedQuery]);
+    return blockList.filter((block) => block.content.toLowerCase().includes(lowerQuery)).slice(0, 100); // Optimization: Limit results to top 100
+  }, [blocks, debouncedQuery]);
 
   useEffect(() => {
     refInput.current?.focus();
@@ -134,11 +135,11 @@ export function GlobalSearchPortalComponent() {
         </div>
 
         <div className="mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">
-          {filteredNodes.map((node) => (
-            <ItemComponent key={`${node.node_id}-search`} nodeId={node.node_id} nodeContent={node.content} query={query} />
+          {filteredBlocks.map((block) => (
+            <ItemComponent key={`${block.block_id}-search`} nodeId={block.block_id} nodeContent={block.content} query={query} />
           ))}
 
-          {filteredNodes.length === 0 && <div className="px-1 py-2 text-sm text-gray-500">No results</div>}
+          {filteredBlocks.length === 0 && <div className="px-1 py-2 text-sm text-gray-500">No results</div>}
         </div>
       </div>
     </div>,

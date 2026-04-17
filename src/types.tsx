@@ -1,108 +1,49 @@
 import type * as Y from "yjs";
 import type { StoreApi, UseBoundStore } from "zustand";
-import type { Yjs } from "./yjsEnv";
 
-export interface NodeDataType {
-  node_id: string;
-  // only root node and new node have parent_id === null;
+// src/types.ts
+export interface BlockState {
+  block_id: string;
   parent_id: string | null;
   content: string;
   collapsed: boolean;
-  created: number;
-  modified: number;
   children: string[];
 }
-export interface YNodeDataType extends Y.Map<string | null | boolean | number | Y.Array<string> | Y.Text> {
-  get(key: "node_id"): string;
-  get(key: "parent_id"): string | null;
-  get(key: "content"): Y.Text;
-  get(key: "collapsed"): boolean;
-  get(key: "created"): number;
-  get(key: "modified"): number;
-  get(key: "children"): Y.Array<string>;
-}
 
-export interface DocumentDataType {
-  document_id: string;
+export interface PageState {
+  page_id: string;
   parent_id: string;
-  root_node_id: string;
-  // As title used root node content
-}
-export interface YDocumentDataType extends Y.Map<string> {
-  get(key: "document_id"): string;
-  get(key: "parent_id"): string;
-  get(key: "root_node_id"): string;
+  root_block_id: string;
 }
 
-// This one is for atomic updates, atom = document
-export interface DocumentWithNodesDataType {
-  document_id: string;
-  parent_id: string;
-  root_node_id: string;
-  nodes: NodeDataType[];
-  // As title used root node content
-}
-
-export interface GroupDataType {
-  group_id: string;
+export interface CollectionState {
+  collection_id: string;
   parent_id: string | null;
   name: string;
   collapsed: boolean;
-  children: string[]; // can be document_id or group_id
-}
-export interface YGroupDataType extends Y.Map<string | boolean | Y.Array<string>> {
-  get(key: "group_id"): string;
-  get(key: "parent_id"): string | null;
-  get(key: "name"): string;
-  get(key: "collapsed"): boolean;
-  get(key: "children"): Y.Array<string>;
-}
-
-export interface MetaDataType {
-  root_group_id: string;
-  inbox_node_id: string; // TODO
-}
-export interface YMetaDataType extends Y.Map<string> {
-  get(key: "root_group_id"): string;
-  get(key: "inbox_node_id"): string;
-}
-
-// export interface SettingsDataType {
-//   count: string;
-// }
-
-export interface FlattenedNodeType {
-  node_id: string;
-  parent_id: string | null;
-  depth: number;
-  index: number;
-  collapsed: boolean;
   children: string[];
 }
 
-export interface LocalConfigStateType {
+export interface WorkspaceState {
+  workspace_id: string;
+  root_collection_id: string;
+  inbox_block_id: string;
+  version: number;
+}
+
+export interface LocalConfigState {
   roomToken: string;
   authorized: boolean;
-  currentDocumentId: string;
-  currentNodeId: string;
+  workspaceId: string;
+  currentPageId: string;
+  currentBlockId: string;
 }
 
 export interface LocalConfigType {
-  get: () => LocalConfigStateType;
-  set: (localConfig: Partial<LocalConfigStateType>) => void;
+  get: () => LocalConfigState;
+  set: (localConfig: Partial<LocalConfigState>) => void;
   clearData: () => void;
 }
-
-// export interface LocalIndexedDbDataType {
-//   localConfig: LocalConfigType;
-// }
-
-// export interface IDBLocalType {
-//   db: IDBPDatabase<LocalIndexedDbDataType> | null;
-//   clearData(): Promise<void>;
-//   getLocalConfig(): Promise<LocalConfigType | undefined>;
-//   setLocalConfig(localConfig: LocalConfigType): Promise<void>;
-// }
 
 // -----------------------
 // Zustand store
@@ -110,11 +51,12 @@ export interface LocalConfigType {
 export interface zustandUseStoreType {
   // ---------------- Data State ----------------
   stateIsInitialized: boolean;
-  localConfig: LocalConfigStateType;
-  meta: MetaDataType;
-  groups: Map<string, GroupDataType>;
-  documents: Map<string, DocumentDataType>;
-  nodes: Map<string, NodeDataType>;
+  localConfig: LocalConfigState;
+  blocks: Map<string, BlockState>;
+  pages: Map<string, PageState>;
+  collections: Map<string, CollectionState>;
+  workspace: WorkspaceState;
+
   // ---------------- UI State ----------------
   nodesToRender: Record<string, boolean>;
   nodesContentToRender: Record<string, boolean>;
@@ -146,85 +88,4 @@ export interface zustandUseStoreType {
   getCharIndexFromMouse: (element: HTMLElement, x: number, y: number) => number;
 
   activateNode: (nodeId: string, caretPosition?: number) => void;
-}
-
-// -----------------------
-// TreeRo API
-// -----------------------
-// TODO: Check order!!!
-export interface TreeRoAPIType {
-  // Api version
-  version: string;
-  // Yjs
-  Yjs: typeof Yjs;
-  // Local Config (localstorage)
-  LocalConfig: LocalConfigType;
-  // Zustand store
-  useStore: UseBoundStore<StoreApi<zustandUseStoreType>>;
-
-  // ---------------- Misc Methods ----------------
-  clearData(reload?: boolean): void;
-  generateRoomToken(): string;
-
-  // ---------------- Meta Methods ----------------
-  getRootGroupId(): string;
-  setRootGroupId(rootGroupId: string): void;
-
-  // ---------------- Group Methods ----------------
-  insertNewGroup(targetGroupId: string, name?: string, index?: number): string | null;
-  insertNewGroupBefore(referenceGroupId: string, name?: string): string | null;
-  insertNewGroupAfter(referenceGroupId: string, name?: string): string | null;
-  getGroups(groupId?: string): InstanceType<typeof Yjs.YGroupWrap>[];
-  getGroup(groupId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
-  getGroupChildren(groupId: string): (InstanceType<typeof Yjs.YGroupWrap> | InstanceType<typeof Yjs.YDocumentWrap>)[];
-  getParentGroup(childId: string): InstanceType<typeof Yjs.YGroupWrap> | null;
-  getGroupDescendantsGroupsIds(groupId: string): string[];
-  getGroupDescendantsDocumentsIds(groupId: string): string[];
-  updateGroup(groupId: string, { name, collapsed }: { name?: string | undefined; collapsed?: boolean | undefined }): void;
-  moveGroup(movedGroupId: string, targetGroupId: string, index: number): void;
-  moveGroupBefore(movedGroupId: string, referenceId: string): void;
-  moveGroupAfter(movedGroupId: string, referenceId: string): void;
-  deleteGroup(groupId: string): void;
-  uiToggleGroupCollapse(groupId: string): void;
-
-  // ---------------- Document Methods ----------------
-  insertNewDocument(targetGroupId: string, rootNodeContent?: string, index?: number): string | null;
-  insertNewDocumentBefore(referenceId: string, rootNodeContent?: string): void;
-  insertNewDocumentAfter(referenceId: string, rootNodeContent?: string): void;
-  getDocuments(groupId?: string): InstanceType<typeof Yjs.YDocumentWrap>[];
-  getDocument(documentId: string): InstanceType<typeof Yjs.YDocumentWrap> | null;
-  getDocumentRootNodeId(documentId: string): string | null;
-  traverseDocumentPath(documentId: string): string[];
-  updateDocument(documentId: string, rootNodeContent: string): void;
-  moveDocument(movedDocumentId: string, targetGroupId: string, index: number): void;
-  moveDocumentBefore(movedDocumentId: string, referenceId: string): void;
-  moveDocumentAfter(movedDocumentId: string, referenceId: string): void;
-  deleteDocument(documentId: string): void;
-
-  // ---------------- Node Methods ----------------
-  insertNewNode(targetNodeId: string, content?: string, index?: number, args?: Partial<NodeDataType>): string | null;
-  insertNewNodeBefore(referenceNodeId: string, content?: string, args?: Partial<NodeDataType>): string | null;
-  insertNewNodeAfter(referenceNodeId: string, content?: string, args?: Partial<NodeDataType>): string | null;
-  getNodes(documentId?: string): InstanceType<typeof Yjs.YNodeWrap>[];
-  getNode(nodeId: string): InstanceType<typeof Yjs.YNodeWrap> | null;
-  getNodeChildren(nodeId: string): InstanceType<typeof Yjs.YNodeWrap>[];
-  getNodeParent(nodeId: string): InstanceType<typeof Yjs.YNodeWrap> | null;
-  getNodeSibling(nodeId: string, offset: number): InstanceType<typeof Yjs.YNodeWrap> | null;
-  getNodeIndex(nodeId: string): number | null;
-  getNodeDocumentId(nodeId: string): string | null;
-  getNodeDescendantsIds(nodeId: string): string[];
-  traverseNodePath(nodeId: string): Map<string, string>;
-  updateNode(nodeId: string, { content, collapsed }: { content?: string | undefined; collapsed?: boolean | undefined }): void;
-  moveNode(movedNodeId: string, targetNodeId: string, index: number): void;
-  moveNodeBefore(movedNodeId: string, referenceNodeId: string): void;
-  moveNodeAfter(movedNodeId: string, referenceNodeId: string): void;
-  deleteNode(nodeId: string): void;
-
-  uiIndentNode(nodeId: string): void;
-  uiUnindentNode(nodeId: string): void;
-  uiMoveNodeUp(nodeId: string): void;
-  uiMoveNodeDown(nodeId: string): void;
-  uiToggleNodeCollapse(nodeId: string): void;
-  uiToggleNodeDescendantsCollapse(nodeId: string): void;
-  uiOpenNode(nodeId: string): void;
 }

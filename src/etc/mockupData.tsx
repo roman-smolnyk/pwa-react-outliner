@@ -1,18 +1,20 @@
-import { TreeRoAPI } from "../api";
+import { Block, Collection, Page, YjsManager, type Workspace } from "esm-treero-api";
 
-export function fillInMockupData() {
-  const groupId = TreeRoAPI.insertNewGroup(TreeRoAPI.getRootGroupId(), "Mockup Data Group")!;
+export function fillInMockupData(workspace: Workspace) {
+  const collection = Collection.insertNew(workspace.rootCollectionId, "Mockup Data Collection");
+  // const page = Page.insertNew(collection.id, `# Mockup Data Page X`);
+  // console.debug("ycollections", YjsManager.getYjs().ycollections.toJSON())
+  // const block = Block.insertNew(page.rootBlockId, "Some Block text");
 
-  for (let i = 0; i < 50; i++) {
-    const documentId = TreeRoAPI.insertNewDocument(groupId, `# Mockup Data Document ${i}`)!;
-    const ydocument = TreeRoAPI.getDocument(documentId)!;
-    for (let k = 0; k < 20; k++) {
+  for (let i = 0; i < 5; i++) {
+    const page = Page.insertNew(collection.id, `# Mockup Data Page ${i}`);
+    for (let k = 0; k < 5; k++) {
       for (const content of data) {
-        TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
+        Block.insertNew(page.rootBlockId, content);
       }
-      let nodeId = TreeRoAPI.insertNewNode(ydocument.root_node_id, "Indent")!;
+      let block = Block.insertNew(page.rootBlockId, "Indent");
       for (let j = 1; j < 6; j++) {
-        nodeId = TreeRoAPI.insertNewNode(nodeId, `Level ${j}`)!;
+        block = Block.insertNew(block.id, `Level ${j}`);
       }
     }
   }

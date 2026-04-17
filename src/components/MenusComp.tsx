@@ -24,8 +24,12 @@ import {
 } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { TreeRoAPI } from "../api";
-import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
+// import { exportAllDocumentsAsMarkdownMap } from "../etc/exportAsMarkdown";
+import { LocalConfig } from "../localConfig";
+// import {  applyBackup } from "esm-treero-api";
+import { useStore } from "../stateStore";
+import { TreeRoAPI } from "../apis/treeroApi";
+import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 
 declare const __APP_VERSION__: string;
 
@@ -100,7 +104,7 @@ export default function MainMenuComponent() {
               onClick={() => {
                 setOpen(false);
                 navigator.clipboard
-                  .writeText(TreeRoAPI.LocalConfig.get().roomToken)
+                  .writeText(LocalConfig.get().roomToken)
                   .then(() => {
                     toast("Copied", { containerId: "main", className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!" });
                   })
@@ -120,31 +124,28 @@ export default function MainMenuComponent() {
               icon={<HardDriveDownloadIcon className="w-full h-full" />}
               label="Download Backup"
               onClick={async () => {
-                setOpen(false);
-                if (TreeRoAPI.Yjs.ydoc) {
-                  const zip = new JSZip();
-
-                  // BACKUP
-                  const update = TreeRoAPI.Yjs.Y.encodeStateAsUpdate(TreeRoAPI.Yjs.ydoc);
-                  const blob = new Blob([update as BlobPart], { type: "application/octet-stream" });
-                  zip.file("treero-backup.bin", blob);
-
-                  // MARKDOWN (TODO: OMPML, JSON)
-                  const result = await exportAllDocumentsAsMarkdownMap();
-                  for (const [key, value] of Object.entries(result)) {
-                    zip.file(key, value as string);
-                  }
-
-                  // Generate ZIP (in memory)
-                  zip.generateAsync({ type: "blob" }).then((zipBlob) => {
-                    const url = URL.createObjectURL(zipBlob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = "treero-export.zip";
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  });
-                }
+                // setOpen(false);
+                // if (YjsManager.getYjs().ydoc) {
+                //   const zip = new JSZip();
+                //   // BACKUP
+                //   const update = YjsManager.getYjs().Y.encodeStateAsUpdate(YjsManager.getYjs().ydoc);
+                //   const blob = new Blob([update as BlobPart], { type: "application/octet-stream" });
+                //   zip.file("treero-backup.bin", blob);
+                //   // MARKDOWN (TODO: OMPML, JSON)
+                //   const result = await exportAllDocumentsAsMarkdownMap();
+                //   for (const [key, value] of Object.entries(result)) {
+                //     zip.file(key, value as string);
+                //   }
+                //   // Generate ZIP (in memory)
+                //   zip.generateAsync({ type: "blob" }).then((zipBlob) => {
+                //     const url = URL.createObjectURL(zipBlob);
+                //     const a = document.createElement("a");
+                //     a.href = url;
+                //     a.download = "treero-export.zip";
+                //     a.click();
+                //     URL.revokeObjectURL(url);
+                //   });
+                // }
               }}
             />
             <MenuItem
@@ -181,11 +182,11 @@ export default function MainMenuComponent() {
                         if (binFile) {
                           console.debug("applyBackup", name);
                           const bytes = await binFile.async("uint8array");
-                          await TreeRoAPI.Yjs.applyBackup(bytes);
-                          TreeRoAPI.Yjs.idbPersistence?.whenSynced.then(() => {
-                            TreeRoAPI.useStore.getState().clearData();
-                            window.location.replace(window.location.href);
-                          });
+                          // await applyBackup(bytes);
+                          // YjsManager.getYjs().idbPersistence?.whenSynced.then(() => {
+                          //   useStore.getState().clearData();
+                          //   window.location.replace(window.location.href);
+                          // });
                         }
                       }
                     }
@@ -290,6 +291,9 @@ export function NodeOptionsMenuComponent({
 
   const { getFloatingProps } = useInteractions([click, dismiss, role]);
 
+  const block = Block.get(nodeId);
+  if (!block) return;
+
   return (
     <>
       {/* <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
@@ -311,7 +315,7 @@ export function NodeOptionsMenuComponent({
               onClick={() => {
                 // setOpen(false);
                 onClose();
-                TreeRoAPI.uiOpenNode(nodeId);
+                TreeRoAPI.openBlock(nodeId);
               }}
             />
             <MenuItem
@@ -395,7 +399,7 @@ export function NodeOptionsMenuComponent({
                 onClick={() => {
                   // setOpen(false);
                   onClose();
-                  TreeRoAPI.deleteNode(nodeId);
+                  block.delete();
                 }}
               />
             )}
@@ -426,6 +430,9 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
+  const block = Block.get(nodeId);
+  if (!block) return;
+
   return (
     <>
       <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
@@ -446,7 +453,7 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
               label="Zoom In"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.uiOpenNode(nodeId);
+                TreeRoAPI.openBlock(nodeId);
               }}
             />
             <MenuItem
@@ -522,7 +529,7 @@ export function NodeOptionsComponent({ nodeId }: { nodeId: string }) {
               label="Delete"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.deleteNode(nodeId);
+                block.delete();
               }}
             />
           </div>
@@ -551,6 +558,9 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
   const role = useRole(context, { role: "menu" });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  const collection = Collection.get(groupId);
+  if (!collection) return;
 
   return (
     <>
@@ -587,8 +597,10 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
               label="New Document"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.insertNewDocument(groupId, "New Document", 0);
-                TreeRoAPI.updateGroup(groupId, { collapsed: false });
+                YjsManager.getYjs().ydoc.transact(() => {
+                  Page.insertNew(collection.id, "New Page", 0);
+                  collection.collapsed = false;
+                });
               }}
             />
             <MenuItem
@@ -597,8 +609,10 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
               label="New Folder"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.insertNewGroup(groupId, "New Folder", 0);
-                TreeRoAPI.updateGroup(groupId, { collapsed: false });
+                YjsManager.getYjs().ydoc.transact(() => {
+                  Collection.insertNew(collection.id, "New Folder", 0);
+                  collection.collapsed = false;
+                });
               }}
             />
             <MenuItem
@@ -607,7 +621,7 @@ export function GroupOptionsComponent({ groupId, setRenaming }: { groupId: strin
               label="Delete"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.deleteGroup(groupId);
+                collection.delete();
               }}
             />
           </div>
@@ -637,6 +651,9 @@ export const DocumentOptionsComponent = memo(({ documentId, setRenaming }: { doc
   const role = useRole(context, { role: "menu" });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  const page = Page.get(documentId);
+  if (!page) return;
 
   return (
     <>
@@ -689,7 +706,7 @@ export const DocumentOptionsComponent = memo(({ documentId, setRenaming }: { doc
               label="Delete"
               onClick={() => {
                 setOpen(false);
-                TreeRoAPI.deleteDocument(documentId);
+                page.delete();
               }}
             />
           </div>
