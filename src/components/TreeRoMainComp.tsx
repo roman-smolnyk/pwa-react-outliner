@@ -6,10 +6,11 @@ import { ReadOnlyContextProvider, PlainTextViewContextProvider } from "../etc/cu
 import onStartUp from "../onStartUp.tsx";
 import ExplorerComponent from "./ExplorerComp.tsx";
 import { FooterComponent, HeaderComponent } from "./HeaderFooterComp.tsx";
-import TreeRootComponent from "./TreeRootComp.tsx";
+import PageComponent from "./PageComp.tsx";
 import { TreeRoAPI } from "../apis/treeroApi.tsx";
 import { useStore } from "../stateStore.tsx";
 import { YjsManager } from "esm-treero-api";
+import { useParams } from "react-router-dom";
 
 function SpinnerComponent() {
   return (
@@ -70,13 +71,14 @@ export default function TreeRoMainComponent() {
   useEffect(() => {
     onStartUp().then(() => {
       setLoading(false);
-      // document.querySelector("#root > .spinner")?.remove();
     });
   }, []);
 
   if (loading) {
     return <SpinnerComponent />;
   }
+
+  const { block_id } = useParams();
 
   return (
     <ReadOnlyContextProvider>
@@ -87,7 +89,7 @@ export default function TreeRoMainComponent() {
                      text-lg sm:text-base"
         >
           <ExplorerComponent />
-          <TreeRootComponent />
+          <PageComponent />
         </div>
         <FooterComponent />
         <ToastContainer

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LocalConfig } from "../localConfig";
+import { TreeRoAPI } from "../apis/treeroApi";
 
 export function LoginFormComponent() {
   const [token, setToken] = useState("");
@@ -20,10 +20,9 @@ export function LoginFormComponent() {
             type="button"
             className="w-full bg-black text-white p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
-              // console.debug("Login", token);
+              console.debug("Login", token);
               if (token) {
-                LocalConfig.set({ roomToken: token });
-                LocalConfig.set({ authorized: true });
+                TreeRoAPI.authorize(token);
               }
             }}
           >
@@ -33,8 +32,8 @@ export function LoginFormComponent() {
             type="button"
             className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
-              // console.debug("New Account");
-              LocalConfig.set({ authorized: true });
+              console.debug("New Account");
+              TreeRoAPI.authorize(token);
             }}
           >
             New Account

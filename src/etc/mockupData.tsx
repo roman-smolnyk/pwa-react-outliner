@@ -1,4 +1,4 @@
-import { Block, Collection, Page, YjsManager, type Workspace } from "esm-treero-api";
+import { Block, Collection, Page, type Workspace } from "esm-treero-api";
 
 export function fillInMockupData(workspace: Workspace) {
   const collection = Collection.insertNew(workspace.rootCollectionId, "Mockup Data Collection");

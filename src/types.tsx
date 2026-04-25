@@ -1,5 +1,3 @@
-import type * as Y from "yjs";
-import type { StoreApi, UseBoundStore } from "zustand";
 
 // src/types.ts
 export interface BlockState {

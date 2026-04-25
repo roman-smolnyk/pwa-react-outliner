@@ -1,13 +1,14 @@
+import { Block, Collection, Page, Workspace, YjsManager, type YBlockMap, type YCollectionMap, type YPageMap } from "esm-treero-api";
 import { TreeRoAPI } from "./apis/treeroApi";
-import { LocalConfig } from "./localConfig";
-import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 import { Conf } from "./appConfig";
 import { fillInMockupData } from "./etc/mockupData";
+import { LocalConfig } from "./localConfig";
 // import { createWelcomeDocument } from "./etc/welcomeData";
 import { useStore } from "./stateStore";
 // import type { YBlockMap, YCollectionMap, YPageMap, YWorkspaceMap } from "esm-treero-api";
-import type { BlockState, WorkspaceState, PageState, CollectionState } from "./types";
+import type { BlockState, CollectionState, PageState, WorkspaceState } from "./types";
 // import { fillInMockupData } from "./etc/mockupData";
+import * as Y from "yjs";
 
 export default async function onStartUp() {
   console.debug(`onStartUp`);
@@ -20,7 +21,7 @@ export default async function onStartUp() {
   Yjs.idbPersistence!.whenSynced.then(() => {
     // console.debug("persistence.whenSynced.then");
     let roomToken = LocalConfig.get().roomToken;
-    let workspaceId = LocalConfig.get().workspaceId;
+    const workspaceId = LocalConfig.get().workspaceId;
     let workspace: Workspace;
     // console.debug("ymeta", ymeta.toJSON());
     // New Account
@@ -78,7 +79,7 @@ export default async function onStartUp() {
       blocks: new Map(Object.entries(Yjs.yblocks.toJSON())) as Map<string, BlockState>,
     });
 
-    // startStateUpdaterViaYjsObserver();
+    startStateUpdaterViaYjsObserver();
   });
 }
 
@@ -100,17 +101,19 @@ function startStateUpdaterViaYjsObserver() {
           // console.debug("add", key, ynode?.ynode.toJSON(), change.oldValue);
           if (block) {
             useStore.setState((state) => {
-              const uNodes = new Map(state.blocks);
-              uNodes.set(block.id, block.yblock.toJSON() as BlockState);
-              return { blocks: uNodes };
+              const uBlocks = new Map(state.blocks);
+              uBlocks.set(block.id, block.yblock.toJSON() as BlockState);
+              return { blocks: uBlocks };
             });
+          } else {
+            console.debug(`Why you are here? [yblocks]`, key, change);
           }
         } else if (change.action === "delete") {
           // console.debug("delete", key, change.oldValue);
           useStore.setState((state) => {
-            const uNodes = new Map(state.nodes);
-            uNodes.delete(key);
-            return { nodes: uNodes };
+            const uBlocks = new Map(state.blocks);
+            uBlocks.delete(key);
+            return { blocks: uBlocks };
           });
         } else if (change.action === "update") {
           // console.debug("update", key, change.oldValue);
@@ -118,33 +121,36 @@ function startStateUpdaterViaYjsObserver() {
       }
       if (event.target instanceof Y.Text) {
         // node text changed
-        const ynode = event.target.parent as YNodeDataType;
+        // @ts-ignore
+        const yblock = event.target.parent as YBlockMap;
         // console.debug("Y.Text", event.target.toJSON(), ynode.toJSON());
         useStore.setState((state) => {
-          const uNodes = new Map(state.nodes);
-          uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
+          const uBlocks = new Map(state.blocks);
+          uBlocks.set(yblock.get("block_id"), yblock.toJSON() as BlockState);
           // console.debug("Update", ynode.get("node_id"));
-          return { nodes: uNodes };
+          return { blocks: uBlocks };
         });
       } else if (event.target instanceof Y.Array) {
         // node array changed
-        const ynode = event.target.parent as YNodeDataType;
+        // @ts-ignore
+        const yblock = event.target.parent as YBlockMap;
         // console.debug("Y.Array", event.target.toJSON(), ynode.toJSON());
         useStore.setState((state) => {
-          const uNodes = new Map(state.nodes);
-          uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
-          return { nodes: uNodes };
+          const uBlocks = new Map(state.blocks);
+          uBlocks.set(yblock.get("block_id"), yblock.toJSON() as BlockState);
+          return { blocks: uBlocks };
         });
       } else if (event.target instanceof Y.Map) {
         if (!event.target.parent) {
           // This is root ynodes
           continue;
         }
-        const ynode = event.target as YNodeDataType;
+        // @ts-ignore
+        const yblock = event.target as YBlockMap;
         useStore.setState((state) => {
-          const uNodes = new Map(state.nodes);
-          uNodes.set(ynode.get("node_id"), ynode.toJSON() as NodeDataType);
-          return { nodes: uNodes };
+          const uBlocks = new Map(state.blocks);
+          uBlocks.set(yblock.get("block_id"), yblock.toJSON() as BlockState);
+          return { blocks: uBlocks };
         });
 
         // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ynode?.toJSON());
@@ -165,21 +171,21 @@ function startStateUpdaterViaYjsObserver() {
       // console.debug("event.changes.keys", event.changes.keys);
       for (const [key, change] of event.changes.keys) {
         if (change.action === "add") {
-          const ygroup = Collection.get(key);
+          const ycollection = Collection.get(key);
           // console.debug("add", key, ygroup?.ygroup.toJSON(), change.oldValue);
-          if (ygroup) {
+          if (ycollection) {
             useStore.setState((state) => {
-              const uGroups = new Map(state.groups);
-              uGroups.set(ygroup.id, ygroup.ycollection.toJSON() as GroupDataType);
-              return { groups: uGroups };
+              const uCollections = new Map(state.collections);
+              uCollections.set(ycollection.id, ycollection.ycollection.toJSON() as CollectionState);
+              return { collections: uCollections };
             });
           }
         } else if (change.action === "delete") {
           // console.debug("delete", key, change.oldValue);
           useStore.setState((state) => {
-            const uGroups = new Map(state.groups);
-            uGroups.delete(key);
-            return { groups: uGroups };
+            const uCollections = new Map(state.collections);
+            uCollections.delete(key);
+            return { collections: uCollections };
           });
         } else if (change.action === "update") {
           // console.debug("update", key, change.oldValue);
@@ -187,23 +193,25 @@ function startStateUpdaterViaYjsObserver() {
       }
       if (event.target instanceof Y.Array) {
         // node array changed
-        const ygroup = event.target.parent as YGroupDataType;
+        // @ts-ignore
+        const ycollection = event.target.parent as YCollectionMap;
         // console.debug("Y.Array", event.target.toJSON(), ygroup.toJSON());
         useStore.setState((state) => {
-          const uGroups = new Map(state.groups);
-          uGroups.set(ygroup.get("group_id"), ygroup.toJSON() as GroupDataType);
-          return { groups: uGroups };
+          const uCollections = new Map(state.collections);
+          uCollections.set(ycollection.get("collection_id"), ycollection.toJSON() as CollectionState);
+          return { collections: uCollections };
         });
       } else if (event.target instanceof Y.Map) {
         if (!event.target.parent) {
           // This is root ygroups
           continue;
         }
-        const ygroup = event.target as YGroupDataType;
+        // @ts-ignore
+        const ycollection = event.target as YCollectionMap;
         useStore.setState((state) => {
-          const uGroups = new Map(state.groups);
-          uGroups.set(ygroup.get("group_id"), ygroup.toJSON() as GroupDataType);
-          return { groups: uGroups };
+          const uCollections = new Map(state.collections);
+          uCollections.set(ycollection.get("collection_id"), ycollection.toJSON() as CollectionState);
+          return { collections: uCollections };
         });
 
         // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ygroup?.toJSON());
@@ -224,21 +232,21 @@ function startStateUpdaterViaYjsObserver() {
       // console.debug("event.changes.keys", event.changes.keys);
       for (const [key, change] of event.changes.keys) {
         if (change.action === "add") {
-          const ydocument = Page.get(key);
+          const ypage = Page.get(key);
           // console.debug("add", key, ydocument?.ydocument.toJSON(), change.oldValue);
-          if (ydocument) {
+          if (ypage) {
             useStore.setState((state) => {
-              const uDocuments = new Map(state.documents);
-              uDocuments.set(ydocument.id, ydocument.ypage.toJSON() as DocumentDataType);
-              return { documents: uDocuments };
+              const uPages = new Map(state.pages);
+              uPages.set(ypage.id, ypage.ypage.toJSON() as PageState);
+              return { pages: uPages };
             });
           }
         } else if (change.action === "delete") {
           // console.debug("delete", key, change.oldValue);
           useStore.setState((state) => {
-            const uDocuments = new Map(state.documents);
-            uDocuments.delete(key);
-            return { documents: uDocuments };
+            const uPages = new Map(state.pages);
+            uPages.delete(key);
+            return { pages: uPages };
           });
         } else if (change.action === "update") {
           // console.debug("update", key, change.oldValue);
@@ -249,11 +257,12 @@ function startStateUpdaterViaYjsObserver() {
           // This is root ygroups
           continue;
         }
-        const ydocument = event.target as YDocumentDataType;
+        // @ts-ignore
+        const ypage = event.target as YPageMap;
         useStore.setState((state) => {
-          const uDocuments = new Map(state.documents);
-          uDocuments.set(ydocument.get("document_id"), ydocument.toJSON() as DocumentDataType);
-          return { documents: uDocuments };
+          const uPages = new Map(state.pages);
+          uPages.set(ypage.get("page_id"), ypage.toJSON() as PageState);
+          return { pages: uPages };
         });
 
         // console.debug("Y.Map", Boolean(event.target.parent), event.target.toJSON(), ydocument?.toJSON());
@@ -265,12 +274,13 @@ function startStateUpdaterViaYjsObserver() {
 
   // ########################### META ##################################
 
-  Yjs.yworkspace.observeDeep((_events) => {
-    // console.debug("ymeta.observeDeep", events);
-    useStore.setState((_state) => {
-      const root_group_id = new Workspace().rootCollectionId;
-      const inbox_node_id = new Workspace().inboxBlockId;
-      return { meta: { root_group_id: root_group_id, inbox_node_id } };
-    });
+  Yjs.yworkspaces.observeDeep((_events) => {
+    // TODO:
+    console.debug("ymeta.observeDeep", _events);
+    // useStore.setState((_state) => {
+    //   const root_group_id = new Workspace().rootCollectionId;
+    //   const inbox_node_id = new Workspace().inboxBlockId;
+    //   return { meta: { root_group_id: root_group_id, inbox_node_id } };
+    // });
   });
 }

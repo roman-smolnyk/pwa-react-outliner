@@ -2,7 +2,6 @@
 // import { PlusCircle } from "@phosphor-icons/react";
 import { DragOverlay } from "@dnd-kit/core";
 import { memo, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useStore } from "../stateStore";
 import { DnDWrapperComponent } from "./DndComp";
 import { PlainMarkdownComponent } from "./MarkdownComp";
@@ -12,8 +11,8 @@ import { DocumentSearchComponent } from "./SearchDocumentComp";
 import { TreeRoAPI } from "../apis/treeroApi";
 import { Block, Page, Collection, Workspace, YjsManager } from "esm-treero-api";
 
-export default function TreeRootComponent() {
-  const { block_id } = useParams();
+export default function PageComponent({ pageId, blockId }: { pageId: string; blockId: string }) {
+  console.debug("PageComponent", pageId, blockId);
 
   const ref = useRef<HTMLDivElement>(null);
   const currentPageId = useStore((state) => state.localConfig.currentPageId);

@@ -1,9 +1,10 @@
 import { create } from "zustand";
 import type { zustandUseStoreType } from "./types";
+import { LocalConfig } from "./localConfig";
 
 export const useStore = create<zustandUseStoreType>((set, get) => ({
   stateIsInitialized: false,
-  localConfig: { roomToken: "", authorized: false, workspaceId: "", currentPageId: "", currentBlockId: "" },
+  localConfig: LocalConfig.get(),
   workspace: { workspace_id: "", root_collection_id: "", inbox_block_id: "", version: 1 },
   blocks: new Map(),
   pages: new Map(),

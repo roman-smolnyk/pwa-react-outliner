@@ -7,16 +7,13 @@ import { Capacitor } from "@capacitor/core";
 import { LoginFormComponent } from "./components/AuthComp";
 import TreeRoMainComponent from "./components/TreeRoMainComp";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { LocalConfig } from "./localConfig";
+import { useStore } from "./stateStore";
 
 function App() {
-  // const Yjs = initYjs();
-  // console.log(Block.get("ddd"));
-  // console.log(API.method());
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
-  // TreeRoAPI.useStore((state) => state.localConfig.authorized);
+  const authorized = useStore((state) => state.localConfig.authorized);
 
-  if (!LocalConfig.get().authorized) {
+  if (!authorized) {
     return <LoginFormComponent />;
   }
 

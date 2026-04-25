@@ -462,7 +462,7 @@ export const BlockComponent = memo(
   ({ blockId, parentChecked, parentCollapsed }: { blockId: string; parentChecked: boolean; parentCollapsed: boolean }) => {
     // export function NodeComponent({ nodeId, parentChecked, parentCollapsed }: { nodeId: string; parentChecked: boolean; parentCollapsed: boolean }) {
     // console.debug("NodeComponent");
-    console.debug(`BlockComponent: ${blockId}`);
+    // console.debug(`BlockComponent: ${blockId}`);
     const ref = useRef<HTMLDivElement>(null);
     const refNodeSelf = useRef<HTMLDivElement>(null);
 

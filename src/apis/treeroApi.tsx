@@ -24,6 +24,15 @@ export const TreeRoAPI = {
     return nanoid(64);
   },
 
+  authorize(roomToken?: string) {
+    if (roomToken) {
+      LocalConfig.set({ roomToken: roomToken });
+    }
+
+    LocalConfig.set({ authorized: true });
+    useStore.setState({ localConfig: LocalConfig.get() });
+  },
+
   openBlock(blockId: string) {
     const block = Block.get(blockId);
     if (!block) return;
@@ -31,6 +40,8 @@ export const TreeRoAPI = {
 
     LocalConfig.set({ currentBlockId: blockId });
     LocalConfig.set({ currentPageId: page.id });
+
+    useStore.setState({ localConfig: LocalConfig.get() });
   },
 
   indentBlock(blockId: string) {
