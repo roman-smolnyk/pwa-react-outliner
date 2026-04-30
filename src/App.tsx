@@ -7,11 +7,9 @@ import { Capacitor } from "@capacitor/core";
 import { TreeRoAPI } from "./api";
 import { LoginFormComponent } from "./components/AuthComp";
 import TreeRoMainComponent from "./components/TreeRoMainComp";
-import { API } from "esm-treero-api";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-  console.log(API.method());
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
   TreeRoAPI.useStore((state) => state.localConfig.authorized);
 
