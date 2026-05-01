@@ -9,8 +9,7 @@ import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { remarkHighlight } from "../etc/markdownPlugins";
-import { getMarkdownWorker } from "../webworkerClient";
+import { remarkHighlight } from "./markdownPlugins";
 
 function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
   return (
@@ -79,11 +78,7 @@ function SyntaxHighlighterPreTagComponent(props: any) {
   );
 }
 
-export const MarkdownComponent2 = memo(({ children }: { children: string }) => {
-  return <div>{children}</div>;
-});
-
-export const MarkdownComponent = memo(({ children }: { children: string }) => {
+const Markdown = memo(({ children }: { children: string }) => {
   // console.debug("MarkdownComponent");
 
   // const [text, setText] = useState("");
@@ -166,67 +161,6 @@ export const MarkdownComponent = memo(({ children }: { children: string }) => {
     </ReactMarkdown>
   );
 });
-MarkdownComponent.displayName = "MarkdownComponent";
+Markdown.displayName = "Markdown";
 
-export const PlainMarkdownComponent = memo(({ children }: { children: string }) => {
-  return (
-    <ReactMarkdown
-      components={{
-        // block elements
-        p: ({ children }) => <>{children}</>,
-        h1: ({ children }) => <>{children}</>,
-        h2: ({ children }) => <>{children}</>,
-        h3: ({ children }) => <>{children}</>,
-        h4: ({ children }) => <>{children}</>,
-        h5: ({ children }) => <>{children}</>,
-        h6: ({ children }) => <>{children}</>,
-        li: ({ children }) => <>{children} </>,
-        ul: ({ children }) => <>{children}</>,
-        ol: ({ children }) => <>{children}</>,
-        blockquote: ({ children }) => <>{children}</>,
-        pre: ({ children }) => <>{children}</>,
-
-        // inline elements
-        strong: ({ children }) => <>{children}</>,
-        em: ({ children }) => <>{children}</>,
-        del: ({ children }) => <>{children}</>,
-        code: ({ children }) => <>{children}</>,
-        a: ({ children }) => <>{children}</>,
-        img: () => null,
-
-        // tables
-        table: ({ children }) => <>{children}</>,
-        thead: ({ children }) => <>{children}</>,
-        tbody: ({ children }) => <>{children}</>,
-        tr: ({ children }) => <>{children}</>,
-        td: ({ children }) => <>{children} </>,
-        th: ({ children }) => <>{children} </>,
-      }}
-    >
-      {children}
-    </ReactMarkdown>
-  );
-});
-PlainMarkdownComponent.displayName = "PlainMarkdownComponent";
-
-export const MarkdownWebWorkerComponent = memo(({ children }: { children: string }) => {
-  // console.debug("MarkdownWebWorkerComponent");
-  const [html, setHtml] = useState("");
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      const result = await getMarkdownWorker().renderMarkdown(children);
-      if (!cancelled) setHtml(result);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [children]);
-
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: explanation
-  return <div className="MarkdownWebWorkerComponent" dangerouslySetInnerHTML={{ __html: html }} />;
-});
-MarkdownWebWorkerComponent.displayName = "MarkdownWebWorkerComponent";
+export default Markdown;

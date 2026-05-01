@@ -1,20 +1,29 @@
-import { Block, Collection, Page, type Workspace } from "esm-treero-api";
+import { createCollection, createPage, createBlock, move, insert } from "esm-treero-api";
+import type { YjsManager } from "esm-treero-api";
+import localConfigManager from "../config/localConfigManager";
 
-export function fillInMockupData(workspace: Workspace) {
-  const collection = Collection.insertNew(workspace.rootCollectionId, "Mockup Data Collection");
-  // const page = Page.insertNew(collection.id, `# Mockup Data Page X`);
-  // console.debug("ycollections", YjsManager.getYjs().ycollections.toJSON())
-  // const block = Block.insertNew(page.rootBlockId, "Some Block text");
+export function fillInMockupData(yjs: YjsManager) {
+  const rootId = yjs.yaccount.get("root_id");
+  if (!rootId) return;
+
+  const ycollection = createCollection(yjs.ydoc, "Mockup Data Collection");
+  insert(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
 
   for (let i = 0; i < 5; i++) {
-    const page = Page.insertNew(collection.id, `# Mockup Data Page ${i}`);
+    const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
+    localConfigManager.set({ currentBlockId: ypage.get("root_id") });
+    insert(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
     for (let k = 0; k < 5; k++) {
       for (const content of data) {
-        Block.insertNew(page.rootBlockId, content);
+        const yblock = createBlock(yjs.ydoc, content);
+        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id"), -1);
       }
-      let block = Block.insertNew(page.rootBlockId, "Indent");
+      let yblock = createBlock(yjs.ydoc, "Indent");
+      insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id"), -1);
       for (let j = 1; j < 6; j++) {
-        block = Block.insertNew(block.id, `Level ${j}`);
+        const id = yblock.get("id");
+        yblock = createBlock(yjs.ydoc, `Level ${j}`);
+        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
       }
     }
   }
