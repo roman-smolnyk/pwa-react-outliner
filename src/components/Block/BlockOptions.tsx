@@ -26,6 +26,8 @@ import {
   UserRoundIcon,
   ZoomInIcon,
 } from "lucide-react";
+import useZustandStore from "../../store/useZustandStore";
+import { openBlock } from "../../api/api";
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const [isOpened, setIsOpened] = useState(false);
@@ -51,7 +53,12 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5 active:scale-90 transition" {...getReferenceProps()}>
+      <button
+        ref={refs.setReference}
+        type="button"
+        className="BlockOptions cursor-pointer min-h-5 min-w-5 active:scale-90 transition"
+        {...getReferenceProps()}
+      >
         {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
         {/* <div>BTN</div> */}
         <EllipsisVerticalIcon size={15} />
@@ -70,6 +77,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
               onClick={() => {
+                openBlock(id)
                 // setIsOpened(false);
                 // TreeRoAPI.openBlock(id);
               }}

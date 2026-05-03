@@ -8,6 +8,7 @@ import yjs from "../../store/yjsManager";
 import localConfigManager from "../../config/localConfigManager";
 import PageWin from "../Page/PageWin";
 import useZustandStore from "../../store/useZustandStore";
+import { openBlock } from "../../api/api";
 
 export default function Main() {
   const [loaded, setLoaded] = useState(false);
@@ -19,16 +20,12 @@ export default function Main() {
     });
   }, []);
 
-  let rootId: string | undefined;
-
   if (loaded) {
     const yblock = yjs.yblocks.get(localConfigManager.get().currentBlockId);
-    rootId = yblock?.get("id");
-    useZustandStore.setState({ rootId: rootId });
-  }
-
-  if (!loaded || !rootId) {
-    // Returning a spinner or skeleton is better UX than null
+    if (yblock) {
+      openBlock(yblock.get("id"));
+    }
+  } else {
     return <div className="loading-screen">Loading...</div>;
   }
 

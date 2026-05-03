@@ -59,8 +59,6 @@ export default function Block({
   depth,
   isRoot,
   isActive,
-  isOver,
-  projectedDepth,
 }: {
   id: string;
   collapsed: boolean;
@@ -68,8 +66,6 @@ export default function Block({
   depth: number;
   isRoot: boolean;
   isActive: boolean;
-  isOver: boolean;
-  projectedDepth?: number;
 }) {
   const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
 
@@ -82,33 +78,26 @@ export default function Block({
     depth = 1;
   }
 
-  if (isActive) {
-    depth = projectedDepth || depth;
-
-    return (
-      <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
-        <div className="flex" ref={setDraggableNodeRef} style={style}>
-          <DropIndicator />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
-      <div className={`flex items-start ${isActive ? "bg-amber-400" : ""}`} ref={setDraggableNodeRef} style={style}>
-        {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
+      <div className={`flex items-start`} ref={setDraggableNodeRef} style={style}>
+        {isActive ? (
+          <DropIndicator />
+        ) : (
+          <>
+            {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
 
-        {/* // ! ID */}
-        {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
+            {/* // ! ID */}
+            {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-        <div className="flex-auto flex min-w-0">
-          <BlockContent id={id} />
-        </div>
-        <BlockOptions id={id} isRoot={isRoot} />
+            <div className="flex-auto flex min-w-0">
+              <BlockContent id={id} />
+            </div>
+
+            <BlockOptions id={id} isRoot={isRoot} />
+          </>
+        )}
       </div>
-      {/* {isOver && <DropIndicator shrink={!!(projectedDepth && projectedDepth > depth)} />} */}
-      {/* {isOver && <div className={`${projectedDepth && projectedDepth > depth ? "pl-5" : ""}`}>==========</div>} */}
     </div>
   );
 }
@@ -121,15 +110,3 @@ function DropIndicator() {
     </div>
   );
 }
-
-// function DropIndicator({ shrink = false }) {
-//   if (shrink) {
-//     return (
-//       <div className="relative before:absolute before:content-[''] before:top-0 before:end-0 before:h-1 before:w-3/4 before:bg-blue-400 before:-translate-y-1/2" />
-//     );
-//   } else {
-//     return (
-//       <div className="relative before:absolute before:content-[''] before:top-0 before:start-0 before:end-0 before:h-1 before:bg-blue-400 before:-translate-y-1/2" />
-//     );
-//   }
-// }

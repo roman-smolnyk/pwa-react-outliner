@@ -1,27 +1,26 @@
-import type { DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
-import {
-  closestCenter,
-  DndContext,
-  DragOverlay,
-  MouseSensor,
-  rectIntersection,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type Modifier,
-} from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Virtuoso } from "react-virtuoso";
+// import { Virtuoso } from "react-virtuoso";
 
 import type { FlatBlockT } from "../../types/types.tsx";
 
+import { INDENT } from "../../config/appConfig.tsx";
+import { getProjection } from "../../etc/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
 import { useFlattenedTree } from "./useFlattenedTree.tsx";
-import { getProjection } from "../../etc/utilities.tsx";
-import { INDENT } from "../../config/appConfig.tsx";
+import { move } from "esm-treero-api";
+
+const adjustTranslate: Modifier = ({ transform }) => {
+  return {
+    ...transform,
+    x: transform.x,
+    y: transform.y,
+  };
+};
 
 export default function Page({ rootId }: { rootId: string }) {
   // console.debug("Page");
@@ -29,15 +28,10 @@ export default function Page({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  // const blocks = useStore((state) => state.blocks);
-
   const flatItems: FlatBlockT[] = useFlattenedTree(yjs.yblocks, rootId, activeId);
-
-  const projection = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
-
-  const { parentId } = projection || {};
-
   // console.debug("flatItems", flatItems);
+
+  const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -47,58 +41,43 @@ export default function Page({ rootId }: { rootId: string }) {
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);
-    // document.body.style.setProperty("cursor", "grabbing");
   }
 
   function handleDragMove(event: DragMoveEvent) {
-    console.debug("delta.x", event.delta.x);
+    // console.debug("handleDragMove:delta.x", event.delta.x);
     setDragOffsetX(event.delta.x);
     if (event.over?.id) {
       setOverId(event.over.id as string);
-      console.debug("handleDragMove", projection);
-
-      const oldIndex = flatItems.findIndex((i) => i.id === event.active.id);
-      const newIndex = flatItems.findIndex((i) => i.id === event.over?.id);
-      if (newIndex === 0) return;
-
-      // This moves the "Placeholder/Ghost" inside the virtual list
-      // setFlatItems(arrayMove(flatItems, oldIndex, newIndex));
     }
   }
 
-  function handleDragEnd(event: any) {
-    const { active, over } = event;
-    if (active.id !== over?.id) {
-      // const projection = getProjection(flatItems, active.id, over?.id, dragOffsetX, INDENT);
-      console.debug("handleDragEnd", projection);
-      // const oldIndex = flatItems.findIndex((a) => a.id === active.id);
-      // const newIndex = flatItems.findIndex((a) => a.id === over?.id);
-      // setFlatItems(arrayMove(flatItems, oldIndex, newIndex));
-      if (!projection) return;
-
-      const { depth, parentId } = projection;
-
+  function handleDragEnd(event: DragEndEvent) {
+    console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
+    // && event.active.id !== event.over.id
+    if (event.active.id && event.over?.id && projected) {
+      const parentId = projected.parentId ?? rootId;
       const clonedItems: FlatBlockT[] = structuredClone(flatItems);
-
-      const overIndex = clonedItems.findIndex(({ id }) => id === over.id);
-      const activeIndex = clonedItems.findIndex(({ id }) => id === active.id);
+      const overIndex = clonedItems.findIndex(({ id }) => id === event.over?.id);
+      const activeIndex = clonedItems.findIndex(({ id }) => id === event.active.id);
       const activeTreeItem = clonedItems[activeIndex];
-
-      const updatedItem = { ...activeTreeItem, depth, parent_id: parentId };
+      const updatedItem = { ...activeTreeItem, depth: projected.depth, parent_id: parentId };
       clonedItems[activeIndex] = updatedItem;
-
       const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 
-      // 4. FIND THE NEW INDEX AMONG SIBLINGS
-      // Filter the list to find only items that share the same new parent
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
-      const indexInParent = siblings.findIndex((item) => item.id === active.id);
-      console.debug(parentId, indexInParent);
+      const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
+      console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      move(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);
-    // document.body.style.setProperty("cursor", "");
+    setDragOffsetX(0);
   }
+
+  const sortingStrategy: SortingStrategy = (args) => {
+    if (args.overIndex === 0) args.overIndex = 1;
+    return verticalListSortingStrategy(args);
+  };
 
   return (
     <div className="Page flex flex-col gap-1">
@@ -110,18 +89,7 @@ export default function Page({ rootId }: { rootId: string }) {
         onDragEnd={handleDragEnd}
         // autoScroll={false}
       >
-        <SortableContext
-          items={flatItems.map((a) => a.id)}
-          strategy={(args) => {
-            console.debug("args", args);
-            if (args.overIndex === 0) {
-              args.overIndex = 1;
-            }
-            const result = verticalListSortingStrategy(args);
-
-            return result;
-          }}
-        >
+        <SortableContext items={flatItems.map((a) => a.id)} strategy={sortingStrategy}>
           {/* <Virtuoso
             // style={{ height: 400 }}
             totalCount={flatItems.length}
@@ -151,11 +119,9 @@ export default function Page({ rootId }: { rootId: string }) {
                 id={item.id}
                 collapsed={item.collapsed}
                 children_={item.children}
-                depth={item.depth}
+                depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isRoot={item.id === rootId}
                 isActive={item.id === activeId}
-                isOver={item.id === parentId}
-                projectedDepth={projection?.depth}
               />
             );
           })}
@@ -175,11 +141,3 @@ export default function Page({ rootId }: { rootId: string }) {
     </div>
   );
 }
-
-const adjustTranslate: Modifier = ({ transform }) => {
-  return {
-    ...transform,
-    x: transform.x,
-    y: transform.y,
-  };
-};
