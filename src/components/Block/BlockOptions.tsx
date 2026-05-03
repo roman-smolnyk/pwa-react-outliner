@@ -51,7 +51,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="cursor-pointer min-h-5 min-w-5 active:scale-90 transition" {...getReferenceProps()}>
+      <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5 active:scale-90 transition" {...getReferenceProps()}>
         {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
         {/* <div>BTN</div> */}
         <EllipsisVerticalIcon size={15} />

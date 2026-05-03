@@ -55,18 +55,18 @@ export function useFlattenedTree(yblocks: YBlocksMap, rootId: string, activeId: 
     () => tickRef.current,
   );
 
-  console.debug("useFlattenedTree:version", version);
+  // console.debug("useFlattenedTree:version", version);
 
   // 2. Compute the expensive flattened tree only when 'version' changes
   return useMemo(() => {
-    console.debug("useFlattenedTree:useMemo");
+    // console.debug("useFlattenedTree:useMemo");
     const flattenedTree = flattenBlocksTree(yblocks.toJSON(), rootId);
     // const collapsedItemsIds = flattenedTree.reduce<string[]>(
     //   (acc, { children, collapsed, id }) => (collapsed && children?.length ? [...acc, id] : acc),
     //   [],
     // );
     const collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
-    console.debug("collapsedItemsIds", collapsedItemsIds);
+    // console.debug("collapsedItemsIds", collapsedItemsIds);
     return removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
   }, [yblocks, rootId, activeId, version]);
 }

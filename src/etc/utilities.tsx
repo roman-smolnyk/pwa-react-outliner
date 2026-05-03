@@ -14,6 +14,8 @@ export function getProjection(items: FlatBlockT[], activeId: string, overId: str
   const minDepth = getMinDepth(nextItem);
   let depth = projectedDepth;
 
+  // console.debug("previousItem, nextItem", previousItem.id, nextItem.id);
+
   if (projectedDepth >= maxDepth) {
     depth = maxDepth;
   } else if (projectedDepth < minDepth) {

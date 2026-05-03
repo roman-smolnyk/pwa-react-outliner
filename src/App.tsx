@@ -4,11 +4,7 @@ import "./index.css";
 import "./assets/fonts/tro.css";
 
 import { Capacitor } from "@capacitor/core";
-// import { LoginFormComponent } from "./components/AuthComp";
-// import TreeRoMainComponent from "./components/TreeRoMainComp";
-import { HashRouter, Routes, Route } from "react-router-dom";
-import PageWindow from "./components/Page/PageWindow";
-// import { useStore } from "./stateStore";
+import Main from "./components/Main/Main";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
@@ -21,7 +17,7 @@ function App() {
   // return <MainAppComponent />;
 
   return (
-    <PageWindow />
+    <Main />
     // <HashRouter>
     //   <Routes>
     //     <Route path="/" element={<MainComp />} />
