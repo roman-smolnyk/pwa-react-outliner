@@ -8,6 +8,7 @@ import BlockContent from "./BlockContent.tsx";
 import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
 import { BlockOptions } from "./BlockOptions.tsx";
 import { INDENT } from "../../../config.tsx";
+import useZustandStore from "../../store/useZustandStore.tsx";
 
 function HandleButton({
   id,
@@ -67,6 +68,7 @@ export default function Block({
   isRoot: boolean;
   isActive: boolean;
 }) {
+  const isChekboxSelectionActive = useZustandStore((state) => state.isChekboxSelectionActive);
   const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
@@ -85,6 +87,11 @@ export default function Block({
           <DropIndicator />
         ) : (
           <>
+            {!isRoot && isChekboxSelectionActive && (
+              <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
+                <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" />
+              </div>
+            )}
             {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
 
             {/* // ! ID */}

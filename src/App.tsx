@@ -7,6 +7,7 @@ import { Capacitor } from "@capacitor/core";
 import Main from "./components/Main/Main";
 import useZustandStore from "./store/useZustandStore";
 import Authorization from "./components/Authorize/Authorization";
+import PWABadge from "./components/PWA/PWABadge";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
@@ -23,7 +24,11 @@ function App() {
   // return <MainAppComponent />;
 
   return (
-    <Main />
+    <>
+      <Main />
+      <PWABadge />
+    </>
+
     // <HashRouter>
     //   <Routes>
     //     <Route path="/" element={<MainComp />} />

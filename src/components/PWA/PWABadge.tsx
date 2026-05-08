@@ -30,7 +30,7 @@ export default function PWABadge() {
   return (
     <div
       className="PWABadge fixed right-0 bottom-0 mb-100 mr-50 z-100 
-                    border-0"
+                  border-0"
       role="alert"
       aria-labelledby="toast-message"
     >

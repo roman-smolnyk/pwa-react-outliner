@@ -15,7 +15,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
     <button
       type="button"
-      className="CopyCodeButton absolute top-1 right-1 px-2 p-1 z-5 rounded-md cursor-pointer
+      className="CopyCodeButton absolute top-1 right-1 px-2 p-1 z-1 rounded-md cursor-pointer
                 border border-gray-400 bg-white opacity-0 hover:opacity-100 transition-opacity duration-300 ease-in-out
                 text-xs"
       onPointerDown={(e) => {

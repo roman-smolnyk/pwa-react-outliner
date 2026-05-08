@@ -77,8 +77,8 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
               onClick={() => {
-                openBlock(id)
-                // setIsOpened(false);
+                openBlock(id);
+                setIsOpened(false);
                 // TreeRoAPI.openBlock(id);
               }}
             />
