@@ -22,7 +22,8 @@ export default function BlockContent({ id }: { id: string }) {
     <div className="BlockContent w-full">
       {!isEdit ? (
         <div
-          className={`BlockContent-render wrap-break-word min-h-5 pl-[6px] ${readOnly ? "cursor-default" : "cursor-text"}`}
+          className={`BlockContent-render wrap-break-word min-h-5 ${readOnly ? "cursor-default" : "cursor-text"}`}
+          style={{ padding: "0px 6px 0px 6px" }}
           onPointerDown={(e) => {
             console.debug("onPointerDown");
             e.preventDefault();

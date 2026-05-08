@@ -5,9 +5,12 @@ import Page from "./Page";
 import BlockPath from "../Block/BlockPath";
 
 export default function PageWin() {
-  const rootId = useZustandStore((state) => state.rootId);
+  const rootBlockId = useZustandStore((state) => state.rootBlockId);
 
-  const yblock = getBlock(yjs.ydoc, rootId);
+  const yblock = getBlock(yjs.ydoc, rootBlockId);
+  const parentId = yblock.get("parent_id");
+
+  console.debug("PageWin", parentId);
 
   return (
     <div className="PageWin relative z-1 min-w-xs min-h-0 flex flex-col">
@@ -20,8 +23,8 @@ export default function PageWin() {
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
-        {yblock.get("parent_id") && <BlockPath id={yblock.get("parent_id")!} />}
-        <Page rootId={rootId} />
+        {parentId && <BlockPath id={rootBlockId!} />}
+        <Page rootId={rootBlockId} />
       </div>
       <div className="Spacer mb-12 sm:mb-8" />
     </div>

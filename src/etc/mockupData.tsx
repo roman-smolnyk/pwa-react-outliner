@@ -1,17 +1,18 @@
 import { createCollection, createPage, createBlock, move, insert } from "esm-treero-api";
 import type { YjsManager } from "esm-treero-api";
-import localConfigManager from "../config/localConfigManager";
+import localPreferencesManager from "../store/preferences";
+import { openBlock } from "../api/api";
 
-export function fillInMockupData(yjs: YjsManager) {
+export async function fillInMockupData(yjs: YjsManager) {
   const rootId = yjs.yaccount.get("root_id");
   if (!rootId) return;
 
   const ycollection = createCollection(yjs.ydoc, "Mockup Data Collection");
   insert(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
 
+  let blockId: string;
   for (let i = 0; i < 5; i++) {
     const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
-    localConfigManager.set({ currentBlockId: ypage.get("root_id") });
     insert(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
     for (let k = 0; k < 5; k++) {
       for (const content of data) {
@@ -26,7 +27,10 @@ export function fillInMockupData(yjs: YjsManager) {
         insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
       }
     }
+    blockId = ypage.get("root_id");
   }
+
+  await openBlock(blockId!);
 }
 
 const data = [

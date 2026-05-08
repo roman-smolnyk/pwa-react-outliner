@@ -2,12 +2,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import { getBlock } from "esm-treero-api";
-import { INDENT } from "../../config/appConfig.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import BlockContent from "./BlockContent.tsx";
 
 import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
 import { BlockOptions } from "./BlockOptions.tsx";
+import { INDENT } from "../../../config.tsx";
 
 function HandleButton({
   id,

@@ -1,24 +1,21 @@
 import { YjsManager } from "esm-treero-api";
 import { nanoid } from "nanoid";
-// import { useStore } from "../stateStore";
-// import { LocalConfig } from "../localConfig";
 import yjs from "../store/yjsManager";
-import localConfigManager from "../config/localConfigManager";
+import localPreferencesManager from "../store/preferences";
 
 const trApi = {
   version: "0.0.1",
   yjs: yjs,
   YjsManager: YjsManager,
-  localConfigManager: localConfigManager,
+  localPreferencesManager: localPreferencesManager,
   // useStore: useStore,
 
-  clearData(reload: boolean) {
-    // LocalConfig.clearData();
-    yjs.idbPersistence?.clearData().then(() => {
-      if (reload) {
-        window.location.replace(window.location.href);
-      }
-    });
+  async clearData(reload: boolean) {
+    await localPreferencesManager.clear();
+    await yjs.idbPersistence?.clearData();
+    if (reload) {
+      window.location.replace(window.location.href);
+    }
   },
 
   generateRoomToken(): string {

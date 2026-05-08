@@ -5,27 +5,32 @@ import { PlainTextViewContextProvider } from "../../contexts/PlainTextViewContex
 import { useEffect, useState } from "react";
 import onStartUp from "../../onStartUp";
 import yjs from "../../store/yjsManager";
-import localConfigManager from "../../config/localConfigManager";
 import PageWin from "../Page/PageWin";
 import useZustandStore from "../../store/useZustandStore";
 import { openBlock } from "../../api/api";
+import localPreferencesManager from "../../store/preferences";
 
 export default function Main() {
   const [loaded, setLoaded] = useState(false);
+  const [blockId, setBlockId] = useState("");
 
   useEffect(() => {
-    onStartUp(() => {
-      // console.debug("MainComp: setLoaded", true);
+    onStartUp(async () => {
+      console.debug("MainComp:setLoaded", true);
       setLoaded(true);
+      const localPref = await localPreferencesManager.get();
+      console.debug(localPref.rootBlockId)
+      setBlockId(localPref.rootBlockId);
     });
   }, []);
 
-  if (loaded) {
-    const yblock = yjs.yblocks.get(localConfigManager.get().currentBlockId);
+  if (loaded && blockId) {
+    const yblock = yjs.yblocks.get(blockId);
     if (yblock) {
       openBlock(yblock.get("id"));
     }
   } else {
+    console.debug("MAIN", loaded, blockId);
     return <div className="loading-screen">Loading...</div>;
   }
 

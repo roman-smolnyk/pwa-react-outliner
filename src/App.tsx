@@ -5,14 +5,20 @@ import "./assets/fonts/tro.css";
 
 import { Capacitor } from "@capacitor/core";
 import Main from "./components/Main/Main";
+import useZustandStore from "./store/useZustandStore";
+import Authorization from "./components/Authorize/Authorization";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
-  // const authorized = useStore((state) => state.localConfig.authorized);
 
-  // if (!authorized) {
-  //   return <LoginFormComponent />;
-  // }
+  const authorized = useZustandStore((state) => state.authorized);
+  // const authorized = useStore((state) => state.localPreferencesManager.authorized);
+
+  console.debug("authorized", authorized);
+
+  if (!authorized) {
+    return <Authorization />;
+  }
 
   // return <MainAppComponent />;
 

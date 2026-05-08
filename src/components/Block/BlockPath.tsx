@@ -23,6 +23,8 @@ export function BlockPathPart({ id, text }: { id: string; text: string }) {
 export default function BlockPath({ id }: { id: string }) {
   const yblocksArray = traverseBlockPath(yjs.ydoc, id);
 
+  console.debug("BlockPath", yblocksArray);
+
   return (
     <div className="mb-5">
       {yblocksArray.map((item, idx) => {

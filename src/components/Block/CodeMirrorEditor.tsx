@@ -27,7 +27,10 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         fontFamily: "Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
         fontSize: "16px",
         lineHeight: "1.25",
-        padding: "0px"
+        padding: "0px",
+      },
+      ".cm-line": {
+        padding: "0px 6px 0px 6px",
       },
       // ".cm-gutters": {
       //   // If you kept the line numbers, style them here too

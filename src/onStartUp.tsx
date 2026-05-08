@@ -1,6 +1,5 @@
-import { WS_IS_ON, WS_SERVER_URL } from "./config/appConfig";
+import { WS_IS_ON, WS_SERVER_URL } from "../config.tsx";
 import { fillInMockupData } from "./etc/mockupData";
-import localConfigManager from "./config/localConfigManager";
 // import { createWelcomeDocument } from "./etc/welcomeData";
 // import { useStore } from "./stateStore";
 // import type { YBlockMap, YCollectionMap, YPageMap, YAccountMap } from "esm-treero-api";
@@ -11,6 +10,9 @@ import trApi from "./api/treeroApi";
 import yjs from "./store/yjsManager";
 
 import { initNewYjsData } from "esm-treero-api";
+import localPreferencesManager from "./store/preferences.tsx";
+import { login } from "./api/api.tsx";
+import useZustandStore from "./store/useZustandStore.tsx";
 
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp(callback: CallableFunction) {
@@ -22,25 +24,29 @@ export default function onStartUp(callback: CallableFunction) {
   startupPromise = (async () => {
     console.debug(`onStartUp startupPromise`);
 
-    localConfigManager.clear();
-    trApi.clearData(false);
+    // trApi.clearData(false);
 
     yjs.addIndexeddbPersistence();
     yjs.addUndoManager();
 
-    yjs.idbPersistence!.whenSynced.then(() => {
+    yjs.idbPersistence!.whenSynced.then(async () => {
       console.debug("persistence.whenSynced.then");
-      let roomToken = localConfigManager.get().roomToken;
-      console.debug("roomToken", roomToken);
+      let { roomToken, newAccount } = useZustandStore.getState();
+      console.debug(`newAccount`, newAccount);
       // New Account
-      console.debug(`onStartUp:roomToken`, roomToken);
-      if (!roomToken) {
-        roomToken = trApi.generateRoomToken();
+      let newRoomToken = "";
+      if (newAccount) {
         initNewYjsData(yjs);
         // createWelcomeDocument();
-        fillInMockupData(yjs);
-        localConfigManager.set({ roomToken: roomToken });
-        console.debug("localConfig", localConfigManager.get());
+        await fillInMockupData(yjs);
+        newRoomToken = trApi.generateRoomToken();
+        await login(newRoomToken);
+      }
+
+      console.debug("roomToken", roomToken, "newRoomToken", newRoomToken);
+
+      if (!roomToken && !newRoomToken) {
+        throw new Error(`roomToken is missing`);
       }
 
       yjs.undoManager!.clear();
@@ -51,7 +57,7 @@ export default function onStartUp(callback: CallableFunction) {
       }
 
       if (isWsOn) {
-        yjs.addWebsocketProvider(WS_SERVER_URL, roomToken);
+        yjs.addWebsocketProvider(WS_SERVER_URL, newRoomToken ? newRoomToken : roomToken);
         yjs.wsProvider!.on("status", (e) => {
           // console.debug("WebsocketProvider status", e.status);
           // if (e.status === "connecting") {
@@ -77,7 +83,7 @@ export default function onStartUp(callback: CallableFunction) {
 
       // useStore.setState({
       //   stateIsInitialized: true,
-      //   localConfig: LocalConfig.get(),
+      //   localPref: await localPreferencesManager.get(),
       //   account: Yjs.yaccount.toJSON() as AccountState,
       //   collections: new Map(Object.entries(Yjs.ycollections.toJSON())) as Map<string, CollectionState>,
       //   pages: new Map(Object.entries(Yjs.ypages.toJSON())) as Map<string, PageState>,

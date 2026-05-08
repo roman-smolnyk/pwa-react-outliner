@@ -7,12 +7,12 @@ import { createPortal } from "react-dom";
 
 import type { FlatBlockT } from "../../types/types.tsx";
 
-import { INDENT } from "../../config/appConfig.tsx";
 import { getProjection } from "../../etc/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
 import { useFlattenedTree } from "./useFlattenedTree.tsx";
 import { move } from "esm-treero-api";
+import { INDENT } from "../../../config.tsx";
 
 const adjustTranslate: Modifier = ({ transform }) => {
   return {

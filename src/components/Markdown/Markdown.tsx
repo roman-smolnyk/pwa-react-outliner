@@ -11,12 +11,12 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkHighlight } from "./markdownPlugins";
 
-function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
+function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
     <button
       type="button"
-      className="absolute top-1 right-1 px-2 p-1 z-5 rounded-md cursor-pointer
-                border border-gray-400 bg-white opacity-0 hover:opacity-100 transition-opacity 
+      className="CopyCodeButton absolute top-1 right-1 px-2 p-1 z-5 rounded-md cursor-pointer
+                border border-gray-400 bg-white opacity-0 hover:opacity-100 transition-opacity duration-300 ease-in-out
                 text-xs"
       onPointerDown={(e) => {
         e.preventDefault();
@@ -44,8 +44,8 @@ function ButtonCopyCodeComponent({ textToCopy }: { textToCopy: string }) {
   );
 }
 
-function SyntaxHighlighterPreTagComponent(props: any) {
-  // console.debug("SyntaxHighlighterPreTagComponent");
+function SyntaxHighlighterPreTag(props: any) {
+  // console.debug("SyntaxHighlighterPreTag");
   return (
     <div
       className="p-2! rounded-lg text-base! sm:text-[0.95rem]! bg-gray-100!"
@@ -143,9 +143,9 @@ const Markdown = memo(({ children }: { children: string }) => {
 
           return !isInline ? (
             <div className="relative">
-              <ButtonCopyCodeComponent textToCopy={codeString} />
+              <CopyCodeButton textToCopy={codeString} />
               {/* showLineNumbers */}
-              <SyntaxHighlighter PreTag={SyntaxHighlighterPreTagComponent} language={match?.[1] ? match[1] : ""}>
+              <SyntaxHighlighter PreTag={SyntaxHighlighterPreTag} language={match?.[1] ? match[1] : ""}>
                 {codeString}
               </SyntaxHighlighter>
             </div>
