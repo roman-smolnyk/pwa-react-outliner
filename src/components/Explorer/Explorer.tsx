@@ -1,44 +1,67 @@
+import { useSortable } from "@dnd-kit/sortable";
+import {
+  FilePlusIcon,
+  FileTextIcon,
+  FolderDownIcon,
+  FolderIcon,
+  FolderInputIcon,
+  FolderPlusIcon,
+  PanelLeftCloseIcon,
+  SearchIcon,
+} from "lucide-react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../common/Button";
+import PlainMarkdown from "../Markdown/PlainMarkdown";
+import useZustandStore from "../../store/useZustandStore";
+
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
-import { useState } from "react";
 import { createPortal } from "react-dom";
 // import { Virtuoso } from "react-virtuoso";
 
-import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
+import type { FlatBlockT, FlatExplorerT } from "../../types/types.tsx";
 
 import { getProjection } from "../../utils/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
-import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import { move } from "esm-treero-api";
+import { getCollection, move } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 
-const adjustTranslate: Modifier = ({ transform }) => {
-  return {
-    ...transform,
-    x: transform.x,
-    y: transform.y,
-  };
-};
+import { CSS as DnDCSS } from "@dnd-kit/utilities";
 
-export default function Page({ rootId }: { rootId: string }) {
-  // console.debug("Page");
+import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
+import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
+import ExplorerItem from "./ExplorerItem.tsx";
+
+export default function Explorer({ rootId }: { rootId: string }) {
+  console.debug("Explorer");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
-
-  // @ts-ignore
-  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId) as FlatBlocksT;
-  // console.debug("flatItems", flatItems);
-
-  const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
     useSensor(MouseSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
   );
+
+  // @ts-ignore
+  let flatItems = useFlattenedTree(yjs.yexplorer, rootId, activeId) as FlatExplorerT;
+  flatItems = flatItems.slice(1);
+  // console.debug("flatItems", flatItems);
+
+  const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
+
+  if (projected?.parentId) {
+    const yitem = yjs.yexplorer.get(projected.parentId);
+    if (yitem && yitem.get("type") === 1) {
+      const x = flatItems.find((a) => a.id === projected.parentId)!;
+      projected.depth = x.depth;
+      projected.parentId = yitem.get("parent_id");
+    }
+  }
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);
@@ -57,7 +80,7 @@ export default function Page({ rootId }: { rootId: string }) {
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
-      const clonedItems: FlatBlockT[] = structuredClone(flatItems);
+      const clonedItems: FlatExplorerT = structuredClone(flatItems);
       const overIndex = clonedItems.findIndex(({ id }) => id === event.over?.id);
       const activeIndex = clonedItems.findIndex(({ id }) => id === event.active.id);
       const activeTreeItem = clonedItems[activeIndex];
@@ -68,7 +91,7 @@ export default function Page({ rootId }: { rootId: string }) {
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
       console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
-      move(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
+      move(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);
@@ -76,12 +99,12 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   const sortingStrategy: SortingStrategy = (args) => {
-    if (args.overIndex === 0) args.overIndex = 1;
+    // if (args.overIndex === 0) args.overIndex = 1;
     return verticalListSortingStrategy(args);
   };
 
   return (
-    <div className="Page flex flex-col gap-1">
+    <div className={`Explorer relative z-0 flex flex-col gap-1`}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection
@@ -91,33 +114,13 @@ export default function Page({ rootId }: { rootId: string }) {
         // autoScroll={false}
       >
         <SortableContext items={flatItems.map((a) => a.id)} strategy={sortingStrategy}>
-          {/* <Virtuoso
-            // style={{ height: 400 }}
-            totalCount={flatItems.length}
-            overscan={50}
-            itemContent={(index) => {
-              const fItem = flatItems[index];
-              return (
-                <Block
-                  key={fItem.id}
-                  id={fItem.id}
-                  collapsed={fItem.collapsed}
-                  children_={fItem.children}
-                  depth={fItem.depth}
-                  isRoot={fItem.id === rootId}
-                  isActive={fItem.id === activeId}
-                  isOver={fItem.id === parentId}
-                  projectedDepth={projection?.depth}
-                />
-              );
-            }}
-          /> */}
-
           {flatItems.map((item) => {
             return (
-              <Block
+              <ExplorerItem
                 key={item.id}
                 id={item.id}
+                type={item.type}
+                title={item.title}
                 collapsed={item.collapsed}
                 children_={item.children}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
@@ -142,3 +145,11 @@ export default function Page({ rootId }: { rootId: string }) {
     </div>
   );
 }
+
+const adjustTranslate: Modifier = ({ transform }) => {
+  return {
+    ...transform,
+    x: transform.x,
+    y: transform.y,
+  };
+};

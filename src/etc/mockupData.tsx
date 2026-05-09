@@ -17,17 +17,17 @@ export async function fillInMockupData(yjs: YjsManager) {
     for (let k = 0; k < 5; k++) {
       for (const content of data) {
         const yblock = createBlock(yjs.ydoc, content);
-        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id"), -1);
+        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       }
       let yblock = createBlock(yjs.ydoc, "Indent");
-      insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id"), -1);
+      insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       for (let j = 1; j < 6; j++) {
         const id = yblock.get("id");
         yblock = createBlock(yjs.ydoc, `Level ${j}`);
         insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
       }
     }
-    blockId = ypage.get("root_id");
+    blockId = ypage.get("root_id")!;
   }
 
   await openBlock(blockId!);

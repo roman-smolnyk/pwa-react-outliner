@@ -52,7 +52,7 @@ export default function Footer() {
                bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex"
       style={{
-        left: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}`,
+        left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
       }}
     >
       <div

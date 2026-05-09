@@ -23,7 +23,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   roomToken: localPref.roomToken,
   yjsLoaded: false,
   rootBlockId: localPref.rootBlockId,
-  isExplorerOpened: false,
+  isExplorerOpened: true,
   isPageSearchOpened: false,
   isChekboxSelectionActive: false,
   webSocketConnectionStatus: "disconnected",

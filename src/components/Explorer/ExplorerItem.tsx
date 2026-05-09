@@ -1,25 +1,25 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS as DnDCSS } from "@dnd-kit/utilities";
+import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
+import useZustandStore from "../../store/useZustandStore";
 
-import { getBlock } from "esm-treero-api";
-import yjs from "../../store/yjsManager.tsx";
-import BlockContent from "./BlockContent.tsx";
-
-import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
-import { BlockOptions } from "./BlockOptions.tsx";
+import { getCollection } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
+import yjs from "../../store/yjsManager.tsx";
+
+import { CSS as DnDCSS } from "@dnd-kit/utilities";
 
 function HandleButton({
   id,
+  type,
   collapsed,
   children_,
   attributes,
   listeners,
 }: {
   id: string;
-  collapsed: boolean;
-  children_: string[];
+  type: number;
+  collapsed?: boolean;
+  children_?: string[];
   attributes: any;
   listeners: any;
 }) {
@@ -31,30 +31,31 @@ function HandleButton({
       {...listeners}
       onPointerUpCapture={() => {
         console.debug("onPointerUpCapture");
-        if (children_.length !== 0) {
-          const yblock = getBlock(yjs.ydoc, id);
-          yblock.set("collapsed", !collapsed);
+        if (children_ && children_.length !== 0) {
+          const ycollection = getCollection(yjs.ydoc, id);
+          ycollection.set("collapsed", !collapsed);
         }
-
-        // TreeRoAPI.collapseBlock(block.id);
       }}
     >
-      {children_.length > 0 ? (
+      {type === 1 ? (
+        <FileTextIcon size={17} strokeWidth={2.5} />
+      ) : children_ && children_.length > 0 ? (
         collapsed ? (
-          <PlusCircleIcon size={12} strokeWidth={2.5} />
+          <FolderInputIcon size={17} strokeWidth={2.5} />
         ) : (
-          // <MinusIcon size={12} strokeWidth={2.5} />
-          <CircleMinusIcon size={12} strokeWidth={2.5} />
+          <FolderDownIcon size={17} strokeWidth={2.5} />
         )
       ) : (
-        <CircleIcon size={7} fill="black" />
+        <FolderIcon size={17} strokeWidth={2.5} />
       )}
     </button>
   );
 }
 
-export default function Block({
+export default function ExplorerItem({
   id,
+  type,
+  title,
   collapsed,
   children_,
   depth,
@@ -62,8 +63,10 @@ export default function Block({
   isActive,
 }: {
   id: string;
-  collapsed: boolean;
-  children_: string[];
+  type: number;
+  title: string;
+  collapsed?: boolean;
+  children_?: string[];
   depth: number;
   isRoot: boolean;
   isActive: boolean;
@@ -80,8 +83,11 @@ export default function Block({
     depth = 1;
   }
 
+  if (type === 1) {
+  }
+
   return (
-    <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
+    <div className={`ExplorerItem ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
       <div className={`flex items-start`} ref={setDraggableNodeRef} style={style}>
         {isActive ? (
           <DropIndicator />
@@ -92,16 +98,19 @@ export default function Block({
                 <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" />
               </div>
             )}
-            {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
+            {!isRoot && (
+              <HandleButton id={id} type={type} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />
+            )}
 
             {/* // ! ID */}
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
             <div className="flex-auto flex min-w-0">
-              <BlockContent id={id} />
+              {/* <BlockContent id={id} /> */}
+              {title}
             </div>
 
-            <BlockOptions id={id} isRoot={isRoot} />
+            {/* <BlockOptions id={id} isRoot={isRoot} /> */}
           </>
         )}
       </div>

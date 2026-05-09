@@ -45,7 +45,7 @@
 :root {
   font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
   /* --sidebar-width: clamp(200px, 20vw, 500px); */
-   --sidebar-width: 200px;
+   /* --sidebar-width: 200px; */
 }
 
 html, body {
@@ -58,7 +58,7 @@ html, body {
 /* Mobile-first: small screens */
 @media (max-width: 639px) {
   :root {
-    --sidebar-width: 300px;
+    /* --sidebar-width: 300px; */
   }
 }
 

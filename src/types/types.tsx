@@ -14,21 +14,52 @@ export interface FlatBlockT extends BlockT {
   index: number;
 }
 
-export type FlatBlocksT = Array<BlockT>;
+export type FlatBlocksT = Array<FlatBlockT>;
+
+export interface ExpEntryT {
+  id: string;
+  type: 1 | 2;
+  parent_id: string | null | undefined;
+  title: string;
+
+  root_id: string | undefined;
+  name: string | undefined;
+  collapsed: boolean | undefined;
+  children: string[] | undefined;
+}
+
+export interface FlatExpEntryT extends ExpEntryT {
+  depth: number;
+  index: number;
+}
+
+export type FlatExplorerT = Array<FlatExpEntryT>;
 
 export interface PageT {
-  page_id: string;
+  id: string;
   parent_id: string;
-  root_block_id: string;
+  root_id: string;
+}
+
+export interface FlatPageT extends PageT {
+  depth: number;
+  index: number;
 }
 
 export interface CollectionT {
-  collection_id: string;
+  id: string;
   parent_id: string | null;
   name: string;
   collapsed: boolean;
   children: string[];
 }
+
+export interface FlatCollectionT extends CollectionT {
+  depth: number;
+  index: number;
+}
+
+// export type FlatExplorerT = Array<FlatPageT | FlatCollectionT>;
 
 export interface AccountT {
   id: string;

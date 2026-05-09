@@ -57,7 +57,7 @@ export default function Header() {
       className="Header fixed top-0 right-0 min-w-0 min-h-10 sm:min-h-8 px-2 z-10
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]
       flex"
-      style={{ left: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}` }}
+      style={{ left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}` }}
     >
       {/* <div className="px-2 py-3 sm:py-1"> */}
       {/* Left icons */}

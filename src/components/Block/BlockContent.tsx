@@ -6,7 +6,7 @@ import yjs from "../../store/yjsManager";
 import Markdown from "../Markdown/Markdown";
 import { useState } from "react";
 import CodeMirrorEditor from "./CodeMirrorEditor";
-import { getCharIndexFromMouse } from "../../etc/utilities";
+import { getCharIndexFromMouse } from "../../utils/utilities";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 
 export default function BlockContent({ id }: { id: string }) {

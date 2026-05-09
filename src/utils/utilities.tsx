@@ -1,7 +1,65 @@
 import { arrayMove } from "@dnd-kit/sortable";
-import type { FlatBlockT, BlockT } from "../types/types";
+import type { FlatBlockT, BlockT, FlatExplorerT, FlatBlocksT } from "../types/types";
 
-export function getProjection(items: FlatBlockT[], activeId: string, overId: string, dragOffset: number, indentationWidth: number) {
+type TreeItem = {
+  id: string;
+  parent_id?: string | null;
+  children?: string[];
+  collapsed?: boolean;
+};
+
+type Flattened<T> = T & {
+  depth: number;
+  index: number;
+};
+
+export function flattenTree<T extends TreeItem>(treeItems: Record<string, T>, rootId: string): Flattened<T>[] {
+  const result: Flattened<T>[] = [];
+
+  function flattener(id: string, depth: number) {
+    const item = treeItems[id];
+    if (!item) return;
+
+    result.push({
+      ...item,
+      depth,
+      index: result.length,
+    });
+
+    if (item.children) {
+      for (const childId of item.children) {
+        flattener(childId, depth + 1);
+      }
+    }
+  }
+
+  flattener(rootId, 0);
+  return result;
+}
+
+export function removeChildrenOf<T extends Flattened<TreeItem>>(items: T[], ids: string[]): T[] {
+  const excludeParentIds = [...ids];
+
+  return items.filter((item) => {
+    if (item.parent_id && excludeParentIds.includes(item.parent_id)) {
+      if (item.children?.length) {
+        excludeParentIds.push(item.id);
+      }
+
+      return false;
+    }
+
+    return true;
+  });
+}
+
+export function getProjection<T extends Flattened<TreeItem>>(
+  items: T[],
+  activeId: string,
+  overId: string,
+  dragOffset: number,
+  indentationWidth: number,
+) {
   const overItemIndex = items.findIndex(({ id }) => id === overId);
   const activeItemIndex = items.findIndex(({ id }) => id === activeId);
   const activeItem = items[activeItemIndex];
@@ -46,11 +104,11 @@ export function getProjection(items: FlatBlockT[], activeId: string, overId: str
   }
 }
 
-function getDragDepth(offset: number, indentationWidth: number) {
+function getDragDepth(offset: number, indentationWidth: number): number {
   return Math.round(offset / indentationWidth);
 }
 
-function getMaxDepth(previousItem: FlatBlockT) {
+function getMaxDepth<T extends Flattened<TreeItem>>(previousItem: T): number {
   if (previousItem) {
     return previousItem.depth + 1;
   }
@@ -58,51 +116,12 @@ function getMaxDepth(previousItem: FlatBlockT) {
   return 0;
 }
 
-function getMinDepth(nextItem: FlatBlockT) {
+function getMinDepth<T extends Flattened<TreeItem>>(nextItem: T): number {
   if (nextItem) {
     return nextItem.depth;
   }
 
   return 0;
-}
-
-export function removeChildrenOf(items: FlatBlockT[], ids: string[]) {
-  const excludeParentIds = [...ids];
-
-  return items.filter((item) => {
-    if (item.parent_id && excludeParentIds.includes(item.parent_id)) {
-      if (item.children?.length) {
-        excludeParentIds.push(item.id);
-      }
-      return false;
-    }
-
-    return true;
-  });
-}
-
-export function flattenTree(itemsMap: Map<string, BlockT>, rootId: string): FlatBlockT[] {
-  const result: FlatBlockT[] = [];
-
-  function traverse(id: string, depth: number) {
-    const node = itemsMap.get(id);
-    if (!node) return;
-
-    result.push({
-      ...node,
-      depth,
-      index: result.length,
-    });
-
-    if (node.children) {
-      for (const childId of node.children) {
-        traverse(childId, depth + 1);
-      }
-    }
-  }
-
-  traverse(rootId, 0);
-  return result;
 }
 
 export function getCharIndexFromMouse(element: HTMLElement, x: number, y: number) {

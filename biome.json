@@ -21,7 +21,7 @@
 				"noBlankTarget": "off"
 			},
 			"correctness": {
-				"useUniqueElementIds": "on",
+				"useUniqueElementIds": "off",
 				"noUnusedImports": "off",
 				"noUnusedVariables": "on",
 				"noUnusedFunctionParameters": "on",
