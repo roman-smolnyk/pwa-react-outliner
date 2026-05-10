@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MenuItem from "../FloatingMenu/MenuItem";
+import FloatingMenuItem from "../Common/FloatingMenuItem";
 import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { getItem } from "esm-treero-api";
 import yjs from "../../store/yjsManager";
@@ -72,7 +72,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
             className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
-            <MenuItem
+            <FloatingMenuItem
               className="ZoomIntoNode"
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
@@ -82,7 +82,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 // TreeRoAPI.openBlock(id);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<MoveIcon className="w-full h-full" />}
               label="Move to"
@@ -90,7 +90,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<PlusIcon className="w-full h-full" />}
               label="Expand All"
@@ -98,7 +98,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<MinusIcon className="w-full h-full" />}
               label="Collapse All"
@@ -106,7 +106,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<ArrowDownNarrowWideIcon className="w-full h-full" />}
               label="Sort"
@@ -114,7 +114,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<InboxIcon className="w-full h-full" />}
               label="Set as Inbox"
@@ -122,7 +122,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="text-yellow-400"
               icon={<UploadIcon className="w-full h-full" />}
               label="Export"
@@ -130,7 +130,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 setIsOpened(false);
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="CopyNodeLink"
               icon={<LinkIcon className="w-full h-full" />}
               label="Copy link"
@@ -149,7 +149,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 }
               }}
             />
-            <MenuItem
+            <FloatingMenuItem
               className="DeleteNode text-red-600"
               icon={<Trash2Icon className="w-full h-full" />}
               label="Delete"

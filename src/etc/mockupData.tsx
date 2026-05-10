@@ -10,7 +10,7 @@ export async function fillInMockupData(yjs: YjsManager) {
   insertItem(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
 
   let blockId: string;
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 50; i++) {
     const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
     insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
     for (let k = 0; k < 5; k++) {

@@ -1,9 +1,11 @@
 import { EditorState, EditorSelection } from "@codemirror/state";
 import { EditorView } from "codemirror";
+import { keymap } from "@codemirror/view";
 import { getBlock } from "esm-treero-api";
 import { useEffect, useRef } from "react";
 import { yCollab } from "y-codemirror.next";
 import yjs from "../../store/yjsManager";
+import { defaultKeymap, history } from "@codemirror/commands";
 
 export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
   const editorRef = useRef(null);
@@ -19,6 +21,9 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
       //   fontSize: "16px",
       //   lineHeight: "1.25",
       // },
+      ".cm-editor": {
+        "min-height": "100px",
+      },
       ".cm-content": {
         // This targets the actual text area
         // fontFamily: "Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
@@ -57,6 +62,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
       extensions: [
         // basicSetup,
         theme,
+        // history(), // Needed for undo/redo to work correctly with Yjs
+        keymap.of(defaultKeymap), // THIS fixes the Enter key
         blurHandler,
         EditorView.lineWrapping,
         // @ts-ignore
@@ -70,10 +77,14 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
     });
 
     view.focus();
-    view.dispatch({
-      selection: EditorSelection.cursor(charIndex),
-      scrollIntoView: true,
-    });
+    try {
+      view.dispatch({
+        selection: EditorSelection.cursor(charIndex),
+        scrollIntoView: true,
+      });
+    } catch (error) {
+      console.error(error);
+    }
 
     return () => {
       view.destroy();

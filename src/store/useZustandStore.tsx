@@ -13,6 +13,7 @@ export interface useZustandStoreType {
   isChekboxSelectionActive: boolean;
 
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
+  viewportWidth: number;
 }
 
 const localPref = await localPreferencesManager.get();
@@ -27,6 +28,12 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isPageSearchOpened: false,
   isChekboxSelectionActive: false,
   webSocketConnectionStatus: "disconnected",
+  viewportWidth: window.innerWidth,
 }));
+
+// To listen for changes (rotating a phone/resizing a window)
+window.addEventListener("resize", () => {
+  useZustandStore.setState({ viewportWidth: window.innerWidth });
+});
 
 export default useZustandStore;

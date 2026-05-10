@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../common/Button";
+import Button from "../Common/Button.tsx";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
 import useZustandStore from "../../store/useZustandStore";
 
@@ -26,20 +26,23 @@ import type { FlatBlockT, FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
-import { getItem, moveItem } from "esm-treero-api";
+import { getItem, getPageByRootBlockId, moveItem } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 
 import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import ExplorerItem from "./ExplorerItem.tsx";
+import ExpEntry from "./ExpEntry.tsx";
 
 export default function Explorer({ rootId }: { rootId: string }) {
   console.debug("Explorer");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
+
+  const rootBlockId = useZustandStore((state) => state.rootBlockId);
+  const ypage = getPageByRootBlockId(yjs.ydoc, rootBlockId);
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -49,10 +52,12 @@ export default function Explorer({ rootId }: { rootId: string }) {
 
   // @ts-ignore
   let flatItems = useFlattenedTree(yjs.yexplorer, rootId, activeId) as FlatExplorerT;
-  flatItems = flatItems.slice(1);
+  flatItems = flatItems.slice(1); // Remove root
   // console.debug("flatItems", flatItems);
 
   const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
+
+  console.debug("projected", projected);
 
   if (projected?.parentId) {
     const yitem = yjs.yexplorer.get(projected.parentId);
@@ -116,7 +121,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
         <SortableContext items={flatItems.map((a) => a.id)} strategy={sortingStrategy}>
           {flatItems.map((item) => {
             return (
-              <ExplorerItem
+              <ExpEntry
                 key={item.id}
                 id={item.id}
                 type={item.type}
@@ -126,6 +131,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isRoot={item.id === rootId}
                 isActive={item.id === activeId}
+                isSelected={item.id === ypage?.get("id")}
               />
             );
           })}

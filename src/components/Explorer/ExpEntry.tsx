@@ -1,12 +1,16 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
-import useZustandStore from "../../store/useZustandStore";
+import useZustandStore from "../../store/useZustandStore.tsx";
 
 import { getItem, COLLECTION_TYPE, PAGE_TYPE } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 import yjs from "../../store/yjsManager.tsx";
 
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
+import { useState } from "react";
+import TitleEdit from "./TitleEdit.tsx";
+import Title from "./Title.tsx";
+import ExpEntryOptions from "./ExpEntryOptions.tsx";
 
 function HandleButton({
   id,
@@ -38,21 +42,21 @@ function HandleButton({
       }}
     >
       {type === PAGE_TYPE ? (
-        <FileTextIcon size={17} strokeWidth={2.5} />
+        <FileTextIcon size={24} />
       ) : children_ && children_.length > 0 ? (
         collapsed ? (
-          <FolderInputIcon size={17} strokeWidth={2.5} />
+          <FolderInputIcon size={24} />
         ) : (
-          <FolderDownIcon size={17} strokeWidth={2.5} />
+          <FolderDownIcon size={24} />
         )
       ) : (
-        <FolderIcon size={17} strokeWidth={2.5} />
+        <FolderIcon size={24} />
       )}
     </button>
   );
 }
 
-export default function ExplorerItem({
+export default function ExpEntry({
   id,
   type,
   title,
@@ -61,6 +65,7 @@ export default function ExplorerItem({
   depth,
   isRoot,
   isActive,
+  isSelected,
 }: {
   id: string;
   type: number;
@@ -70,7 +75,9 @@ export default function ExplorerItem({
   depth: number;
   isRoot: boolean;
   isActive: boolean;
+  isSelected: boolean;
 }) {
+  const [isEdit, setIsEdit] = useState(false);
   const isChekboxSelectionActive = useZustandStore((state) => state.isChekboxSelectionActive);
   const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
 
@@ -79,38 +86,38 @@ export default function ExplorerItem({
     transition,
   };
 
-  if (isRoot) {
-    depth = 1;
-  }
-
   if (type === PAGE_TYPE) {
   }
 
+  if (depth === 0) {
+    depth = 1;
+  }
+
+  if (isActive) {
+    console.debug("DEPTH", depth);
+  }
+
   return (
-    <div className={`ExplorerItem ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
-      <div className={`flex items-start`} ref={setDraggableNodeRef} style={style}>
+    <div
+      className={`ExplorerItem min-h-5 ${isSelected ? "bg-green-400" : ""}`}
+      ref={setDroppableNodeRef}
+      style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
+    >
+      <div className={`flex items-center justify-center`} ref={setDraggableNodeRef} style={style}>
         {isActive ? (
           <DropIndicator />
         ) : (
           <>
-            {!isRoot && isChekboxSelectionActive && (
-              <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" />
-              </div>
-            )}
-            {!isRoot && (
-              <HandleButton id={id} type={type} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />
-            )}
+            <HandleButton id={id} type={type} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />
 
             {/* // ! ID */}
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-            <div className="flex-auto flex min-w-0">
-              {/* <BlockContent id={id} /> */}
-              {title}
+            <div className="flex-1 min-w-0 flex">
+              {isEdit ? <TitleEdit id={id} title={title} setIsEdit={setIsEdit} /> : <Title title={title} setIsEdit={setIsEdit} />}
             </div>
 
-            {/* <BlockOptions id={id} isRoot={isRoot} /> */}
+            <ExpEntryOptions id={id} setIsEdit={setIsEdit} />
           </>
         )}
       </div>

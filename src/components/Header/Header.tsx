@@ -36,14 +36,15 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 // import { useKeyboardOffset } from "../etc/utilities";
-import Button from "../common/Button";
+import Button from "../Common/Button";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 // import { forceReload } from "../etc/utilities";
+import { type PanelImperativeHandle } from "react-resizable-panels";
 
-export default function Header() {
+export default function Header({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const { readOnly, setReadOnly } = useReadOnly();
   const { plainTextView, setPlainTextView } = usePlainTextView();
 
@@ -69,6 +70,9 @@ export default function Header() {
               title="Open Explorer"
               onClick={() => {
                 useZustandStore.setState({ isExplorerOpened: true });
+                explorerPanelRef?.current?.expand();
+                explorerPanelRef.current?.resize("100%");
+                console.debug(explorerPanelRef.current);
               }}
             >
               <PanelLeftIcon />

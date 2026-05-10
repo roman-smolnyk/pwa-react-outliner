@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 // import { useKeyboardOffset } from "../etc/utilities";
-import Button from "../common/Button";
+import Button from "../Common/Button";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import useZustandStore from "../../store/useZustandStore";

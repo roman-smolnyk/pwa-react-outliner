@@ -13,8 +13,10 @@ import Header from "../Header/Header";
 import { LoaderIcon, RefreshCwIcon } from "lucide-react";
 import Footer from "../Footer/Footer";
 
-import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
+import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
 import Explorer from "../Explorer/Explorer";
+import ExplorerContainer from "../Explorer/ExplorerContainer";
+import { MOBILE_WIDTH } from "../../../config";
 
 function Spinner() {
   return (
@@ -27,7 +29,9 @@ function Spinner() {
 export default function Main() {
   const [loaded, setLoaded] = useState(false);
   const [blockId, setBlockId] = useState("");
-  const explorerPanelRef = useRef(null);
+  const explorerPanelRef = useRef<PanelImperativeHandle>(null);
+
+  const viewportWidth = useZustandStore((state) => state.viewportWidth);
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "panelsLayout",
@@ -61,44 +65,39 @@ export default function Main() {
     <div className="Main">
       <ReadOnlyContextProvider>
         <PlainTextViewContextProvider>
-          <Header />
-          {/* <button
-            className="relative z-100"
-            type="button"
-            onClick={() => {
-              console.debug(explorerPanelRef.current, explorerPanelRef.current?.isCollapsed());
-              if (explorerPanelRef.current?.isCollapsed()) {
-                explorerPanelRef.current?.expand();
-              } else {
-                explorerPanelRef.current?.collapse();
-              }
-            }}
-          >
-            Zebra
-          </button> */}
+          <Header explorerPanelRef={explorerPanelRef} />
 
           <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
             <Panel
               id="ExplorerPanel"
               panelRef={explorerPanelRef}
               defaultSize={"25%"}
-              minSize={150}
-              maxSize={350}
+              minSize={viewportWidth > MOBILE_WIDTH ? 150 : "100%"}
+              maxSize={viewportWidth > MOBILE_WIDTH ? "25%" : "100%"}
               collapsible
               collapsedSize={0}
               onResize={(size) => {
+                if (size.inPixels > 0) {
+                  useZustandStore.setState({ isExplorerOpened: true });
+                } else {
+                  useZustandStore.setState({ isExplorerOpened: false });
+                }
+
                 document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
-                console.debug("ZZZZZ", explorerPanelRef.current?.isCollapsed());
+                // console.debug("ZZZZZ", explorerPanelRef.current?.isCollapsed());
               }}
             >
-              <Explorer rootId={yjs.yaccount.get("root_id")!}/>
+              <div className="h-dvh overflow-hidden flex flex-col">
+                <ExplorerContainer explorerPanelRef={explorerPanelRef} />
+              </div>
             </Panel>
-            <Separator className="w-1 bg-gray-300" />
+            <Separator
+              className="w-0.5 bg-gray-200 z-90
+                                  shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
+                                  "
+            />
             <Panel id="PagePanel">
-              <div
-                className="PageWin-container h-dvh overflow-hidden
-                     text-lg sm:text-base flex flex-col"
-              >
+              <div className="h-dvh overflow-hidden flex flex-col">
                 <div className="border min-h-10 sm:min-h-8"></div>
 
                 <PageContainer />
