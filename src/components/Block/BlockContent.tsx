@@ -1,4 +1,4 @@
-import { getBlock } from "esm-treero-api";
+import { getItem } from "esm-treero-api";
 import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 
 import PlainTextContent from "./PlainTextContent";
@@ -15,7 +15,7 @@ export default function BlockContent({ id }: { id: string }) {
   const { readOnly } = useReadOnly();
   const { plainTextView } = usePlainTextView();
 
-  const yblock = getBlock(yjs.ydoc, id);
+  const yblock = getItem(yjs.yblocks, id);
   const content = yblock.get("content").toString();
 
   return (

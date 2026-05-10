@@ -11,7 +11,7 @@ import { getProjection } from "../../utils/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import { move } from "esm-treero-api";
+import { moveItem } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 
 const adjustTranslate: Modifier = ({ transform }) => {
@@ -68,7 +68,7 @@ export default function Page({ rootId }: { rootId: string }) {
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
       console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
-      move(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
+      moveItem(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);

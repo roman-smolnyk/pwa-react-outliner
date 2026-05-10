@@ -26,7 +26,7 @@ import type { FlatBlockT, FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Block from "../Block/Block.tsx";
-import { getCollection, move } from "esm-treero-api";
+import { getItem, moveItem } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
@@ -91,7 +91,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
       console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
-      move(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
+      moveItem(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);

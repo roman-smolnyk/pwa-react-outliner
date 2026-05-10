@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 
-import { getBlock } from "esm-treero-api";
+import { getItem } from "esm-treero-api";
 import yjs from "../../store/yjsManager.tsx";
 import BlockContent from "./BlockContent.tsx";
 
@@ -32,7 +32,7 @@ function HandleButton({
       onPointerUpCapture={() => {
         console.debug("onPointerUpCapture");
         if (children_.length !== 0) {
-          const yblock = getBlock(yjs.ydoc, id);
+          const yblock = getItem(yjs.yblocks, id);
           yblock.set("collapsed", !collapsed);
         }
 

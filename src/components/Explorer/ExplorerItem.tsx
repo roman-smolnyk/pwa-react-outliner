@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
 import useZustandStore from "../../store/useZustandStore";
 
-import { getCollection } from "esm-treero-api";
+import { getItem, COLLECTION_TYPE, PAGE_TYPE } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
 import yjs from "../../store/yjsManager.tsx";
 
@@ -31,13 +31,13 @@ function HandleButton({
       {...listeners}
       onPointerUpCapture={() => {
         console.debug("onPointerUpCapture");
-        if (children_ && children_.length !== 0) {
-          const ycollection = getCollection(yjs.ydoc, id);
+        if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
+          const ycollection = getItem(yjs.yexplorer, id);
           ycollection.set("collapsed", !collapsed);
         }
       }}
     >
-      {type === 1 ? (
+      {type === PAGE_TYPE ? (
         <FileTextIcon size={17} strokeWidth={2.5} />
       ) : children_ && children_.length > 0 ? (
         collapsed ? (
@@ -83,7 +83,7 @@ export default function ExplorerItem({
     depth = 1;
   }
 
-  if (type === 1) {
+  if (type === PAGE_TYPE) {
   }
 
   return (

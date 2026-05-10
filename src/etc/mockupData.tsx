@@ -1,6 +1,5 @@
-import { createCollection, createPage, createBlock, move, insert } from "esm-treero-api";
 import type { YjsManager } from "esm-treero-api";
-import localPreferencesManager from "../store/preferences";
+import { createBlock, createCollection, createPage, insertItem } from "esm-treero-api";
 import { openBlock } from "../api/api";
 
 export async function fillInMockupData(yjs: YjsManager) {
@@ -8,23 +7,23 @@ export async function fillInMockupData(yjs: YjsManager) {
   if (!rootId) return;
 
   const ycollection = createCollection(yjs.ydoc, "Mockup Data Collection");
-  insert(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
+  insertItem(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
 
   let blockId: string;
   for (let i = 0; i < 5; i++) {
     const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
-    insert(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
+    insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
     for (let k = 0; k < 5; k++) {
       for (const content of data) {
         const yblock = createBlock(yjs.ydoc, content);
-        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
+        insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       }
       let yblock = createBlock(yjs.ydoc, "Indent");
-      insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
+      insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       for (let j = 1; j < 6; j++) {
         const id = yblock.get("id");
         yblock = createBlock(yjs.ydoc, `Level ${j}`);
-        insert(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
+        insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
       }
     }
     blockId = ypage.get("root_id")!;

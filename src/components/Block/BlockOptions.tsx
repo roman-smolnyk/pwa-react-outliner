@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MenuItem from "../FloatingMenu/MenuItem";
 import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
-import { getBlock } from "esm-treero-api";
+import { getItem } from "esm-treero-api";
 import yjs from "../../store/yjsManager";
 
 import {
@@ -49,7 +49,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
-  const yblock = getBlock(yjs.ydoc, id);
+  const yblock = getItem(yjs.yblocks, id);
 
   return (
     <>
