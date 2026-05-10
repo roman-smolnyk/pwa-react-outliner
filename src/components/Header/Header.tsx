@@ -43,6 +43,7 @@ import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 // import { forceReload } from "../etc/utilities";
 import { type PanelImperativeHandle } from "react-resizable-panels";
+import Menu from "../Menu/Menu";
 
 export default function Header({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const { readOnly, setReadOnly } = useReadOnly();
@@ -118,7 +119,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
               title={`WebSocket: ${webSocketConnectionStatus}`}
               onClick={() => {
                 toast(`WebSocket status: '${webSocketConnectionStatus}'`, {
-                  containerId: "main",
+                  containerId: "toaster",
                   className: "min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
                 });
               }}
@@ -137,7 +138,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
               {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
             </Button>
 
-            <Button title="Toggle Markdown and Plain Text views" onClick={() => setPlainTextView(false)}>
+            <Button title="Toggle Markdown and Plain Text views" onClick={() => setPlainTextView(!plainTextView)}>
               {plainTextView ? <BookTypeIcon /> : <BookImageIcon />}
             </Button>
 
@@ -154,8 +155,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
               <SearchIcon />
             </Button>
 
-            {/* <EllipsisVerticalIcon /> */}
-            {/* <MainMenuComponent /> */}
+            <Menu />
           </div>
         </div>
       </div>

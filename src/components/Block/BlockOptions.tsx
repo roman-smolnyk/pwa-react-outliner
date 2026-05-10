@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import useZustandStore from "../../store/useZustandStore";
 import { openBlock } from "../../api/api";
+import { toast } from "react-toastify";
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const [isOpened, setIsOpened] = useState(false);
@@ -139,12 +140,12 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 const nodeUrl = `${window.location.origin}/${id}`;
                 try {
                   await navigator.clipboard.writeText(nodeUrl);
-                  // toast("Copied", {
-                  //   containerId: "main",
-                  //   className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
-                  // });
+                  toast("Copied", {
+                    containerId: "toaster",
+                    className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
+                  });
                 } catch (err) {
-                  // toast.error("Failed to copy");
+                  toast.error("Failed to copy", { containerId: "toaster" });
                   console.error("Failed to copy:", err);
                 }
               }}

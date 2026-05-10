@@ -9,7 +9,7 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
       <ExplorerToolsPanel explorerPanelRef={explorerPanelRef} />
       <div
         className="flex-1 overflow-y-auto overscroll-y-contain
-                    px-5 sm:px-2 pt-5 pb-100
+                    px-5 sm:pl-2 sm:pr-3 pt-5 pb-100
                     "
         // style={{
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each

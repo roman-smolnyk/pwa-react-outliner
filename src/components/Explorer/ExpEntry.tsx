@@ -11,6 +11,7 @@ import { useState } from "react";
 import TitleEdit from "./TitleEdit.tsx";
 import Title from "./Title.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
+import { openBlock } from "../../api/api.tsx";
 
 function HandleButton({
   id,
@@ -99,11 +100,11 @@ export default function ExpEntry({
 
   return (
     <div
-      className={`ExplorerItem min-h-5 ${isSelected ? "bg-green-400" : ""}`}
+      className={`ExpEntry min-w-0 rounded-sm hover:bg-gray-200 ${isSelected ? "bg-gray-300" : ""} `}
       ref={setDroppableNodeRef}
       style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
     >
-      <div className={`flex items-center justify-center`} ref={setDraggableNodeRef} style={style}>
+      <div className={`min-w-0 flex items-center justify-center`} ref={setDraggableNodeRef} style={style}>
         {isActive ? (
           <DropIndicator />
         ) : (
@@ -114,7 +115,20 @@ export default function ExpEntry({
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
             <div className="flex-1 min-w-0 flex">
-              {isEdit ? <TitleEdit id={id} title={title} setIsEdit={setIsEdit} /> : <Title title={title} setIsEdit={setIsEdit} />}
+              {isEdit ? (
+                <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
+              ) : (
+                <div
+                  className="min-w-0 flex"
+                  onClick={() => {
+                    if (type === PAGE_TYPE) {
+                      openBlock(getItem(yjs.yexplorer, id).get("root_id") as string);
+                    }
+                  }}
+                >
+                  <Title title={title} />
+                </div>
+              )}
             </div>
 
             <ExpEntryOptions id={id} setIsEdit={setIsEdit} />

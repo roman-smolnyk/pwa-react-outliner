@@ -19,7 +19,7 @@ export default function BlockContent({ id }: { id: string }) {
   const content = yblock.get("content").toString();
 
   return (
-    <div className="BlockContent w-full">
+    <div className={`BlockContent w-full ${isEdit ? "bg-gray-100" : ""}`}>
       {!isEdit ? (
         <div
           className={`BlockContent-render wrap-break-word min-h-5 ${readOnly ? "cursor-default" : "cursor-text"}`}
