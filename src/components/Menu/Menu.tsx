@@ -1,0 +1,125 @@
+import { useFloating, offset, flip, shift, useClick, autoUpdate, useDismiss, useRole, useInteractions, FloatingPortal } from "@floating-ui/react";
+import {
+  BoltIcon,
+  CircleQuestionMarkIcon,
+  EllipsisVerticalIcon,
+  HardDriveDownloadIcon,
+  HardDriveUploadIcon,
+  LogInIcon,
+  UserRoundIcon,
+} from "lucide-react";
+import { useRef, useState } from "react";
+import FloatingMenuItem from "../Common/FloatingMenuItem";
+import useZustandStore from "../../store/useZustandStore";
+import { toast } from "react-toastify";
+import trApi from "../../api/treeroApi";
+
+declare const __APP_VERSION__: string;
+
+export default function Menu() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: "bottom-end",
+    middleware: [offset(6), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context, {
+    event: "click", // if "mousedown" it prevents onblur to happen
+  });
+
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "menu" });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  return (
+    <>
+      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+        <EllipsisVerticalIcon className="text-gray-600" />
+      </button>
+
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className="w-50 sm:w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            {...getFloatingProps()}
+          >
+            <FloatingMenuItem
+              className="CopyToken"
+              icon={<UserRoundIcon className="w-full h-full" />}
+              label="Copy Token"
+              onClick={() => {
+                setOpen(false);
+                navigator.clipboard
+                  .writeText(useZustandStore.getState().roomToken as string)
+                  .then(() => {
+                    toast("Copied", { containerId: "toaster", className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!" });
+                  })
+                  .catch(() => toast.error("Failed to copy", {containerId: "toaster"}));
+              }}
+            />
+            <FloatingMenuItem
+              className="text-yellow-400"
+              icon={<BoltIcon className="w-full h-full" />}
+              label="Settings"
+              onClick={() => {
+                setOpen(false);
+              }}
+            />
+            <FloatingMenuItem
+              className="DownloadBackup"
+              icon={<HardDriveDownloadIcon className="w-full h-full" />}
+              label="Download Backup"
+              onClick={async () => {
+                setOpen(false);
+              }}
+            />
+            <FloatingMenuItem
+              className="ImportBackup"
+              icon={<HardDriveUploadIcon className="w-full h-full" />}
+              label="Import Backup"
+              onClick={() => {
+                console.debug("onClick", inputRef.current);
+                inputRef.current?.click();
+              }}
+            ></FloatingMenuItem>
+
+            <FloatingMenuItem
+              className="text-yellow-400"
+              icon={<CircleQuestionMarkIcon className="w-full h-full" />}
+              label="Help"
+              onClick={() => {
+                setOpen(false);
+                toast(`${__APP_VERSION__}`, {
+                  containerId: "toaster",
+                  className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
+                });
+              }}
+            />
+            <hr className="m-1 border-gray-300" />
+
+            <FloatingMenuItem
+              className="Exit text-red-600"
+              icon={<LogInIcon className="w-full h-full" />}
+              label="Exit"
+              onClick={() => {
+                setOpen(false);
+                if (confirm("All data on this device will be wiped. Are you sure?")) {
+                  trApi.clearData(true);
+                  // TreeRoAPI.clearData(true);
+                }
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
+  );
+}

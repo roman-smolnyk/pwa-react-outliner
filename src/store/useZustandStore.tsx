@@ -1,0 +1,39 @@
+import { create } from "zustand";
+import localPreferencesManager from "./preferences";
+
+export interface useZustandStoreType {
+  authorized: boolean;
+  newAccount: boolean;
+  roomToken?: string;
+  yjsLoaded: boolean;
+  rootBlockId: string;
+
+  isExplorerOpened: boolean;
+  isPageSearchOpened: boolean;
+  isChekboxSelectionActive: boolean;
+
+  webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
+  viewportWidth: number;
+}
+
+const localPref = await localPreferencesManager.get();
+
+const useZustandStore = create<useZustandStoreType>((set, get) => ({
+  authorized: localPref.authorized,
+  newAccount: false,
+  roomToken: localPref.roomToken,
+  yjsLoaded: false,
+  rootBlockId: localPref.rootBlockId,
+  isExplorerOpened: true,
+  isPageSearchOpened: false,
+  isChekboxSelectionActive: false,
+  webSocketConnectionStatus: "disconnected",
+  viewportWidth: window.innerWidth,
+}));
+
+// To listen for changes (rotating a phone/resizing a window)
+window.addEventListener("resize", () => {
+  useZustandStore.setState({ viewportWidth: window.innerWidth });
+});
+
+export default useZustandStore;

@@ -1,21 +1,35 @@
-import { TreeRoAPI } from "../api";
+import type { YjsManager } from "esm-treero-api";
+import { createBlock, createCollection, createPage, insertItem } from "esm-treero-api";
+import { openBlock } from "../api/api";
 
-export function fillInMockupData() {
-  const groupId = TreeRoAPI.insertNewGroup(TreeRoAPI.getRootGroupId(), "Mockup Data Group")!;
+export async function fillInMockupData(yjs: YjsManager) {
+  const rootId = yjs.yaccount.get("root_id");
+  if (!rootId) return;
 
+  const ycollection = createCollection(yjs.ydoc, "Mockup Data Collection");
+  insertItem(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
+
+  let blockId: string;
   for (let i = 0; i < 50; i++) {
-    const documentId = TreeRoAPI.insertNewDocument(groupId, `# Mockup Data Document ${i}`)!;
-    const ydocument = TreeRoAPI.getDocument(documentId)!;
-    for (let k = 0; k < 20; k++) {
+    const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
+    insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
+    for (let k = 0; k < 5; k++) {
       for (const content of data) {
-        TreeRoAPI.insertNewNode(ydocument.root_node_id, content);
+        const yblock = createBlock(yjs.ydoc, content);
+        insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       }
-      let nodeId = TreeRoAPI.insertNewNode(ydocument.root_node_id, "Indent")!;
+      let yblock = createBlock(yjs.ydoc, "Indent");
+      insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);
       for (let j = 1; j < 6; j++) {
-        nodeId = TreeRoAPI.insertNewNode(nodeId, `Level ${j}`)!;
+        const id = yblock.get("id");
+        yblock = createBlock(yjs.ydoc, `Level ${j}`);
+        insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), id, -1);
       }
     }
+    blockId = ypage.get("root_id")!;
   }
+
+  await openBlock(blockId!);
 }
 
 const data = [

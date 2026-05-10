@@ -45,7 +45,7 @@
 :root {
   font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
   /* --sidebar-width: clamp(200px, 20vw, 500px); */
-   --sidebar-width: 200px;
+   /* --sidebar-width: 200px; */
 }
 
 html, body {
@@ -58,7 +58,7 @@ html, body {
 /* Mobile-first: small screens */
 @media (max-width: 639px) {
   :root {
-    --sidebar-width: 300px;
+    /* --sidebar-width: 300px; */
   }
 }
 
@@ -233,6 +233,20 @@ blockquote {
     scrollbar-width: auto;            
     scrollbar-color: #888 #f1f1f1;   
   }
+}
+
+.BlockContent-render{
+    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
 }
 
 

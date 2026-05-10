@@ -1,31 +1,40 @@
 import "katex/dist/katex.min.css";
 import "react-toastify/dist/ReactToastify.css";
-import "./App.css";
+import "./index.css";
 import "./assets/fonts/tro.css";
 
 import { Capacitor } from "@capacitor/core";
-import { TreeRoAPI } from "./api";
-import { LoginFormComponent } from "./components/AuthComp";
-import TreeRoMainComponent from "./components/TreeRoMainComp";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import Main from "./components/Main/Main";
+import useZustandStore from "./store/useZustandStore";
+import Authorization from "./components/Authorize/Authorization";
+import PWABadge from "./components/PWA/PWABadge";
 
 function App() {
   console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
-  TreeRoAPI.useStore((state) => state.localConfig.authorized);
 
-  if (!TreeRoAPI.LocalConfig.get().authorized) {
-    return <LoginFormComponent />;
+  const authorized = useZustandStore((state) => state.authorized);
+  // const authorized = useStore((state) => state.localPreferencesManager.authorized);
+
+  console.debug("authorized", authorized);
+
+  if (!authorized) {
+    return <Authorization />;
   }
 
   // return <MainAppComponent />;
 
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<TreeRoMainComponent />} />
-        <Route path="/node/:node_id?" element={<TreeRoMainComponent />} />
-      </Routes>
-    </HashRouter>
+    <>
+      <Main />
+      <PWABadge />
+    </>
+
+    // <HashRouter>
+    //   <Routes>
+    //     <Route path="/" element={<MainComp />} />
+    //     <Route path="/:rootBlockId?" element={<MainComp />} />
+    //   </Routes>
+    // </HashRouter>
   );
 }
 
