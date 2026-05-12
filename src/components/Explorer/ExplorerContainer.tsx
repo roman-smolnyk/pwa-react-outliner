@@ -1,7 +1,7 @@
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import yjs from "../../store/yjsManager";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
-import type { PanelImperativeHandle } from "react-resizable-panels";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   console.debug("ExplorerContainer");
@@ -13,13 +13,14 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
       <ExplorerToolsPanel explorerPanelRef={explorerPanelRef} />
       <div
         className="flex-1 overflow-y-auto overscroll-y-contain
-                    px-5 sm:pl-2 sm:pr-3 pt-5 pb-100
+                    px-5 sm:pl-2 sm:pr-3 pt-5
                     "
         // style={{
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
         // }}
       >
         <Explorer rootId={rootId} />
+        <div className="Spacer h-[50dvh]"></div>
       </div>
     </div>
   );

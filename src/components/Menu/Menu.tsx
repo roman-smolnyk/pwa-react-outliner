@@ -1,4 +1,4 @@
-import { useFloating, offset, flip, shift, useClick, autoUpdate, useDismiss, useRole, useInteractions, FloatingPortal } from "@floating-ui/react";
+import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import {
   BoltIcon,
   CircleQuestionMarkIcon,
@@ -9,10 +9,10 @@ import {
   UserRoundIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import FloatingMenuItem from "../Common/FloatingMenuItem";
-import useZustandStore from "../../store/useZustandStore";
 import { toast } from "react-toastify";
 import trApi from "../../api/treeroApi";
+import useZustandStore from "../../store/useZustandStore";
+import FloatingMenuItem from "../Common/FloatingMenuItem";
 
 declare const __APP_VERSION__: string;
 

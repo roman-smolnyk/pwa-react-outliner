@@ -1,34 +1,22 @@
-import { useState } from "react";
-import FloatingMenuItem from "../Common/FloatingMenuItem";
-import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { autoUpdate, flip, FloatingPortal, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { getItem } from "esm-treero-api";
-import yjs from "../../store/yjsManager";
-
 import {
   ArrowDownNarrowWideIcon,
-  BoltIcon,
-  CircleQuestionMarkIcon,
   EllipsisVerticalIcon,
-  FilePlusIcon,
-  FolderPlusIcon,
-  HardDriveDownloadIcon,
-  HardDriveUploadIcon,
   InboxIcon,
   LinkIcon,
-  LogInIcon,
   MinusIcon,
   MoveIcon,
   PlusIcon,
-  Share2Icon,
-  SquarePenIcon,
   Trash2Icon,
   UploadIcon,
-  UserRoundIcon,
-  ZoomInIcon,
+  ZoomInIcon
 } from "lucide-react";
-import useZustandStore from "../../store/useZustandStore";
-import { openBlock } from "../../api/api";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { openBlock } from "../../api/api";
+import yjs from "../../store/yjsManager";
+import FloatingMenuItem from "../Common/FloatingMenuItem";
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const [isOpened, setIsOpened] = useState(false);

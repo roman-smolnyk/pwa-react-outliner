@@ -1,14 +1,12 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
-
 import { getItem } from "esm-treero-api";
-import yjs from "../../store/yjsManager.tsx";
-import BlockContent from "./BlockContent.tsx";
-
-import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
-import { BlockOptions } from "./BlockOptions.tsx";
+import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
 import { INDENT } from "../../../config.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
+import yjs from "../../store/yjsManager.tsx";
+import BlockContent from "./BlockContent.tsx";
+import { BlockOptions } from "./BlockOptions.tsx";
 
 function HandleButton({
   id,
@@ -53,6 +51,7 @@ function HandleButton({
   );
 }
 
+// No sense to memoize
 export default function Block({
   id,
   collapsed,
@@ -68,7 +67,7 @@ export default function Block({
   isRoot: boolean;
   isActive: boolean;
 }) {
-  console.debug("Block");
+  // console.debug("Block");
   const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
   const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
 

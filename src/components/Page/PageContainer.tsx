@@ -1,9 +1,9 @@
-import { getBlock, getItem } from "esm-treero-api";
+import { getItem } from "esm-treero-api";
+import { useMemo } from "react";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import Page from "./Page";
 import BlockPath from "../Block/BlockPath";
-import { useMemo } from "react";
+import Page from "./Page";
 
 export default function PageContainer() {
   console.debug("PageContainer");
@@ -17,7 +17,7 @@ export default function PageContainer() {
       <div
         className="flex-1
                  px-5 w-full @[800px]:w-[800px] mx-auto
-                 pt-12 pb-100
+                 pt-12
                  "
         //  px-5 @sm:px-16 @lg:px-32 @xl:px-56 @2xl:px-70
         // style={{
@@ -26,6 +26,7 @@ export default function PageContainer() {
       >
         {parentId && <BlockPath id={rootBlockId} />}
         <Page rootId={rootBlockId} />
+        <div className="Spacer h-[50dvh]"></div>
       </div>
     </div>
   );

@@ -1,48 +1,28 @@
 import {
-  ArrowDownIcon,
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ArrowUpIcon,
-  BoldIcon,
   BookImageIcon,
   BookTypeIcon,
-  BracketsIcon,
   // CalendarDays,
   CloudAlertIcon,
   CloudCheckIcon,
   CloudCogIcon,
-  Code2Icon,
-  DiamondPlusIcon,
-  HeadingIcon,
-  HighlighterIcon,
-  ItalicIcon,
   ListChecksIcon,
   ListIcon,
   PanelLeftIcon,
   // EllipsisVerticalIcon,
   PencilIcon,
   PencilOffIcon,
-  QuoteIcon,
   RedoIcon,
-  RefreshCwIcon,
   RotateCwIcon,
   SearchIcon,
-  SigmaIcon,
-  StrikethroughIcon,
-  TableIcon,
-  // ZoomInIcon,
-  Trash2Icon,
   UndoIcon,
 } from "lucide-react";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import { toast } from "react-toastify";
-// import { useKeyboardOffset } from "../etc/utilities";
-import Button from "../Common/Button";
-import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { usePlainTextView } from "../../contexts/PlainTextViewContext";
+import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-// import { forceReload } from "../etc/utilities";
-import type { PanelImperativeHandle } from "react-resizable-panels";
+import Button from "../Common/Button";
 import Menu from "../Menu/Menu";
 
 export default function Header({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {

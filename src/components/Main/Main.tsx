@@ -1,22 +1,16 @@
-import { ToastContainer } from "react-toastify";
-import PWABadge from "../PWA/PWABadge";
-import { ReadOnlyContextProvider } from "../../contexts/ReadOnlyContext";
-import { PlainTextViewContextProvider } from "../../contexts/PlainTextViewContext";
+import { LoaderIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import onStartUp from "../../onStartUp";
-import yjs from "../../store/yjsManager";
-import PageContainer from "../Page/PageContainer";
-import useZustandStore from "../../store/useZustandStore";
-import { openBlock } from "../../api/api";
-import localPreferencesManager from "../../store/preferences";
-import Header from "../Header/Header";
-import { LoaderIcon, RefreshCwIcon } from "lucide-react";
-import Footer from "../Footer/Footer";
-
 import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
-import Explorer from "../Explorer/Explorer";
-import ExplorerContainer from "../Explorer/ExplorerContainer";
+import { ToastContainer } from "react-toastify";
 import { MOBILE_WIDTH } from "../../../config";
+import { PlainTextViewContextProvider } from "../../contexts/PlainTextViewContext";
+import { ReadOnlyContextProvider } from "../../contexts/ReadOnlyContext";
+import onStartUp from "../../onStartUp";
+import useZustandStore from "../../store/useZustandStore";
+import ExplorerContainer from "../Explorer/ExplorerContainer";
+import Footer from "../Footer/Footer";
+import Header from "../Header/Header";
+import PageContainer from "../Page/PageContainer";
 
 function Spinner() {
   console.debug("Spinner");
@@ -30,7 +24,6 @@ function Spinner() {
 export default function Main() {
   console.debug("Main");
   const [loaded, setLoaded] = useState(false);
-  const [blockId, setBlockId] = useState("");
   const explorerPanelRef = useRef<PanelImperativeHandle>(null);
 
   const viewportWidth = useZustandStore((s) => s.viewportWidth);
@@ -47,17 +40,10 @@ export default function Main() {
     onStartUp(async () => {
       console.debug("setLoaded", true);
       setLoaded(true);
-      const localPref = await localPreferencesManager.get();
-      setBlockId(localPref.rootBlockId);
     });
   }, []);
 
-  if (loaded && blockId) {
-    const yblock = yjs.yblocks.get(blockId);
-    if (yblock) {
-      openBlock(yblock.get("id"));
-    }
-  } else {
+  if (!loaded) {
     return <Spinner />;
   }
 

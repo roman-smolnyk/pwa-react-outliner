@@ -34,6 +34,7 @@ const PlainMarkdown = memo(({ children }: { children: string }) => {
         tr: ({ children }) => <>{children}</>,
         td: ({ children }) => <>{children} </>,
         th: ({ children }) => <>{children} </>,
+        hr: () => null,
       }}
     >
       {children}

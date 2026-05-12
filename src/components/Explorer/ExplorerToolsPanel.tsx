@@ -1,9 +1,9 @@
+import { createInsertCollection, createInsertPage } from "esm-treero-api";
 import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
-import { createInsertCollection, createInsertPage } from "esm-treero-api";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);

@@ -1,17 +1,14 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
-import useZustandStore from "../../store/useZustandStore.tsx";
-
-import { getItem, COLLECTION_TYPE, PAGE_TYPE } from "esm-treero-api";
-import { INDENT } from "../../../config.tsx";
-import yjs from "../../store/yjsManager.tsx";
-
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
+import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
+import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import TitleEdit from "./TitleEdit.tsx";
-import Title from "./Title.tsx";
-import ExpEntryOptions from "./ExpEntryOptions.tsx";
+import { INDENT } from "../../../config.tsx";
 import { openBlock } from "../../api/api.tsx";
+import yjs from "../../store/yjsManager.tsx";
+import ExpEntryOptions from "./ExpEntryOptions.tsx";
+import Title from "./Title.tsx";
+import TitleEdit from "./TitleEdit.tsx";
 
 function HandleButton({
   id,

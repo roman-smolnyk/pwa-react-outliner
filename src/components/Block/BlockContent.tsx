@@ -1,7 +1,6 @@
 import { getItem } from "esm-treero-api";
-import { usePlainTextView } from "../../contexts/PlainTextViewContext";
-
 import { useEffect, useMemo, useState } from "react";
+import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
@@ -11,6 +10,7 @@ import CodeMirrorEditor from "./CodeMirrorEditor";
 import PlainTextContent from "./PlainTextContent";
 
 export default function BlockContent({ id }: { id: string }) {
+  // console.debug("BlockContent");
   const [isEdit, setIsEdit] = useState(false);
   const [charIndex, setCharIndex] = useState(-1);
   const { readOnly } = useReadOnly();

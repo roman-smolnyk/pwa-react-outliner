@@ -4,44 +4,21 @@ import {
   ArrowRightToLineIcon,
   ArrowUpIcon,
   BoldIcon,
-  BookImageIcon,
-  BookTypeIcon,
   BracketsIcon,
-  // CalendarDays,
-  CloudAlertIcon,
-  CloudCheckIcon,
-  CloudCogIcon,
   Code2Icon,
   DiamondPlusIcon,
   HeadingIcon,
   HighlighterIcon,
   ItalicIcon,
-  ListChecksIcon,
-  ListIcon,
-  PanelLeftIcon,
-  // EllipsisVerticalIcon,
-  PencilIcon,
-  PencilOffIcon,
   QuoteIcon,
-  RedoIcon,
-  RefreshCwIcon,
-  RotateCwIcon,
-  SearchIcon,
   SigmaIcon,
   StrikethroughIcon,
   TableIcon,
   // ZoomInIcon,
-  Trash2Icon,
-  UndoIcon,
+  Trash2Icon
 } from "lucide-react";
-import { toast } from "react-toastify";
-// import { useKeyboardOffset } from "../etc/utilities";
-import Button from "../Common/Button";
-import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import useZustandStore from "../../store/useZustandStore";
-import yjs from "../../store/yjsManager";
-// import { forceReload } from "../etc/utilities";
+import Button from "../Common/Button";
 
 export default function Footer() {
   console.debug("Footer");

@@ -1,11 +1,9 @@
-import { EditorState, EditorSelection } from "@codemirror/state";
+import { defaultKeymap } from "@codemirror/commands";
+import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
-import { createInsertBlockAfter, deleteBlock, getItem, getItemParent, getItemSibling, isRootItem, updateBlock } from "esm-treero-api";
+import { getItem, isRootItem, updateBlock } from "esm-treero-api";
 import { useEffect, useMemo, useRef } from "react";
 import { yCollab } from "y-codemirror.next";
-import yjs from "../../store/yjsManager";
-import { defaultKeymap, history } from "@codemirror/commands";
-import useZustandStore from "../../store/useZustandStore";
 import {
   handleBlockAdd,
   handleBlockDelete,
@@ -16,6 +14,7 @@ import {
   handleSelectBlockDown,
   handleSelectBlockUp,
 } from "../../api/api";
+import yjs from "../../store/yjsManager";
 
 export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
   const editorRef = useRef(null);

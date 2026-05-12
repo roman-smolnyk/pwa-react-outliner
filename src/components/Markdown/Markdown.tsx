@@ -1,7 +1,5 @@
-// import Markdown from "react-markdown";
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
-// import { MarkdownHooks } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { toast } from "react-toastify";
 import rehypeKatex from "rehype-katex";
@@ -34,7 +32,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
             className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
           });
         } catch (err) {
-          toast.error("Failed to copy", {containerId: "toaster"});
+          toast.error("Failed to copy", { containerId: "toaster" });
           console.error("Failed to copy:", err);
         }
       }}
@@ -79,7 +77,7 @@ function SyntaxHighlighterPreTag(props: any) {
 }
 
 const Markdown = memo(({ children }: { children: string }) => {
-  // console.debug("MarkdownComponent");
+  console.debug("Markdown");
 
   // const [text, setText] = useState("");
 

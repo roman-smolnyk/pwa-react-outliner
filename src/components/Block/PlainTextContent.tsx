@@ -1,4 +1,6 @@
+//
 export default function PlainTextContent({ children }: { children: string }) {
+  // console.debug("PlainTextContent");
   if (children.endsWith("\n")) {
     children += "\n";
   }

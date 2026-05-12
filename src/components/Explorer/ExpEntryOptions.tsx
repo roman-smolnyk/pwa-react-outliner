@@ -1,7 +1,7 @@
-import { autoUpdate, flip, FloatingPortal, useClick, useFloating, useDismiss, useRole, useInteractions } from "@floating-ui/react";
+import { autoUpdate, flip, FloatingPortal, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { EllipsisVerticalIcon, InboxIcon, Share2Icon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
-import { EllipsisVerticalIcon, InboxIcon, Share2Icon, SquarePenIcon, Trash2Icon } from "lucide-react";
 
 export default function ExpEntryOptions({ id, setIsEdit }: { id: string; setIsEdit: (v: boolean) => void }) {
   const [open, setOpen] = useState(false);

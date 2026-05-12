@@ -1,38 +1,15 @@
-import { useSortable } from "@dnd-kit/sortable";
-import {
-  FilePlusIcon,
-  FileTextIcon,
-  FolderDownIcon,
-  FolderIcon,
-  FolderInputIcon,
-  FolderPlusIcon,
-  PanelLeftCloseIcon,
-  SearchIcon,
-} from "lucide-react";
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Button from "../Common/Button.tsx";
-import PlainMarkdown from "../Markdown/PlainMarkdown";
-import useZustandStore from "../../store/useZustandStore";
-
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { getPageByRootBlockId, moveItem } from "esm-treero-api";
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-// import { Virtuoso } from "react-virtuoso";
-
-import type { FlatBlockT, FlatExplorerT } from "../../types/types.tsx";
-
-import { getProjection } from "../../utils/utilities.tsx";
-import yjs from "../../store/yjsManager.tsx";
-import Block from "../Block/Block.tsx";
-import { getItem, getPageByRootBlockId, moveItem } from "esm-treero-api";
 import { INDENT } from "../../../config.tsx";
-
-import { CSS as DnDCSS } from "@dnd-kit/utilities";
-
-import { EllipsisVerticalIcon, MinusIcon, PlusCircleIcon, DotIcon, CircleIcon, CircleMinusIcon } from "lucide-react";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
+import useZustandStore from "../../store/useZustandStore";
+import yjs from "../../store/yjsManager.tsx";
+import type { FlatExplorerT } from "../../types/types.tsx";
+import { getProjection } from "../../utils/utilities.tsx";
 import ExpEntry from "./ExpEntry.tsx";
 
 export default function Explorer({ rootId }: { rootId: string }) {

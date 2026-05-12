@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { WS_SERVER_URL } from "../../../config";
 import { login, register, saveWsUrl } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
-import { WS_SERVER_URL } from "../../../config";
 
 export default function Authorization() {
   console.debug("Authorization");
