@@ -21,8 +21,9 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
       function observerCallback(events: any) {
         for (const event of events) {
           if (event.target instanceof Y.Text) {
-            console.debug("event", event)
+            // console.debug("event", event);
             debouncedUpdate();
+            // update();
           } else {
             update();
           }

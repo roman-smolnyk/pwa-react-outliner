@@ -10,10 +10,10 @@ import Authorization from "./components/Authorize/Authorization";
 import PWABadge from "./components/PWA/PWABadge";
 
 function App() {
-  console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
+  console.debug("App");
+  // console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
 
-  const authorized = useZustandStore((state) => state.authorized);
-  // const authorized = useStore((state) => state.localPreferencesManager.authorized);
+  const authorized = useZustandStore((s) => s.authorized);
 
   console.debug("authorized", authorized);
 

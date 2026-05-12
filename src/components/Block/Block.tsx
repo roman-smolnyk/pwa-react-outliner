@@ -68,7 +68,8 @@ export default function Block({
   isRoot: boolean;
   isActive: boolean;
 }) {
-  const isChekboxSelectionActive = useZustandStore((state) => state.isChekboxSelectionActive);
+  console.debug("Block");
+  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
   const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
 
   const style = {

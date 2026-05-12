@@ -24,7 +24,7 @@
 				"useUniqueElementIds": "off",
 				"noUnusedImports": "off",
 				"noUnusedVariables": "on",
-				"noUnusedFunctionParameters": "on",
+				"noUnusedFunctionParameters": "off",
 				"useExhaustiveDependencies": "off",
 				"useJsxKeyInIterable": "on"
 			},

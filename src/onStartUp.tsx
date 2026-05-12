@@ -57,7 +57,8 @@ export default function onStartUp(callback: CallableFunction) {
       }
 
       if (isWsOn) {
-        yjs.addWebsocketProvider(WS_SERVER_URL, newRoomToken ? newRoomToken : (roomToken as string));
+        const webSocketServerUrl = useZustandStore.getState().webSocketServerUrl;
+        yjs.addWebsocketProvider(webSocketServerUrl, newRoomToken ? newRoomToken : (roomToken as string));
         yjs.wsProvider!.on("status", (e) => {
           // console.debug("WebsocketProvider status", e.status);
           // if (e.status === "connecting") {

@@ -9,7 +9,7 @@ import {
   PanelLeftCloseIcon,
   SearchIcon,
 } from "lucide-react";
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../Common/Button.tsx";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
@@ -41,8 +41,9 @@ export default function Explorer({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const rootBlockId = useZustandStore((state) => state.rootBlockId);
-  const ypage = getPageByRootBlockId(yjs.ydoc, rootBlockId);
+  const rootBlockId = useZustandStore((s) => s.rootBlockId);
+
+  const ypage = useMemo(() => getPageByRootBlockId(yjs.ydoc, rootBlockId), [rootBlockId]);
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -54,10 +55,11 @@ export default function Explorer({ rootId }: { rootId: string }) {
   let flatItems = useFlattenedTree(yjs.yexplorer, rootId, activeId) as FlatExplorerT;
   flatItems = flatItems.slice(1); // Remove root
   // console.debug("flatItems", flatItems);
+  const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
   const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
 
-  console.debug("projected", projected);
+  // console.debug("projected", projected);
 
   if (projected?.parentId) {
     const yitem = yjs.yexplorer.get(projected.parentId);
@@ -81,7 +83,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
+    // console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
@@ -95,18 +97,13 @@ export default function Explorer({ rootId }: { rootId: string }) {
 
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
-      console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);
     setDragOffsetX(0);
   }
-
-  const sortingStrategy: SortingStrategy = (args) => {
-    // if (args.overIndex === 0) args.overIndex = 1;
-    return verticalListSortingStrategy(args);
-  };
 
   return (
     <div className={`Explorer relative z-0 flex flex-col gap-1.5`}>
@@ -118,7 +115,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
         onDragEnd={handleDragEnd}
         // autoScroll={false}
       >
-        <SortableContext items={flatItems.map((a) => a.id)} strategy={sortingStrategy}>
+        <SortableContext items={flatItemIds} strategy={verticalListSortingStrategy}>
           {flatItems.map((item) => {
             return (
               <ExpEntry
@@ -129,7 +126,6 @@ export default function Explorer({ rootId }: { rootId: string }) {
                 collapsed={item.collapsed}
                 children_={item.children}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
-                isRoot={item.id === rootId}
                 isActive={item.id === activeId}
                 isSelected={item.id === ypage?.get("id")}
               />

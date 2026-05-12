@@ -1,17 +1,18 @@
-import { getPageByRootBlockId } from "esm-treero-api";
+import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
 import Button from "../Common/Button";
-import { type PanelImperativeHandle } from "react-resizable-panels";
+import { createInsertCollection, createInsertPage } from "esm-treero-api";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
-  const isExplorerOpened = useZustandStore((state) => state.isExplorerOpened);
-  const rootBlockId = useZustandStore((state) => state.rootBlockId);
-  // const ypage = getPageByRootBlockId(yjs.ydoc, rootBlockId);
-  // const globalSearchIsOpened = useStore((state) => state.globalSearchIsOpened);
+  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const rootCollectionId = yjs.yaccount.get("root_id");
+  const rootBlockId = useZustandStore((s) => s.rootBlockId);
 
-  // const rootGroupId = useStore((state) => state.meta.root_group_id);
+  if (!rootCollectionId) {
+    throw new Error(`rootCollectionId is missing`);
+  }
 
   return (
     <div
@@ -32,11 +33,19 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
 
         {/* Right icons */}
         <div className="flex items-center gap-3 sm:gap-2">
-          <Button>
+          <Button
+            onClick={() => {
+              createInsertPage(yjs.ydoc, "Untitled", rootCollectionId, 0);
+            }}
+          >
             <FilePlusIcon />
           </Button>
 
-          <Button>
+          <Button
+            onClick={() => {
+              createInsertCollection(yjs.ydoc, "Untitled", rootCollectionId, 0);
+            }}
+          >
             <FolderPlusIcon />
           </Button>
 

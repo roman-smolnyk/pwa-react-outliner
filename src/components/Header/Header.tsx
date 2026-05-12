@@ -42,17 +42,18 @@ import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 // import { forceReload } from "../etc/utilities";
-import { type PanelImperativeHandle } from "react-resizable-panels";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import Menu from "../Menu/Menu";
 
 export default function Header({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
+  console.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { plainTextView, setPlainTextView } = usePlainTextView();
 
-  const isExplorerOpened = useZustandStore((state) => state.isExplorerOpened);
-  const isPageSearchOpened = useZustandStore((state) => state.isPageSearchOpened);
-  const webSocketConnectionStatus = useZustandStore((state) => state.webSocketConnectionStatus);
-  const isChekboxSelectionActive = useZustandStore((state) => state.isChekboxSelectionActive);
+  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const isPageSearchOpened = useZustandStore((s) => s.isPageSearchOpened);
+  const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
+  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
   return (
     <div

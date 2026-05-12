@@ -1,9 +1,11 @@
 import { Preferences } from "@capacitor/preferences";
+import { WS_SERVER_URL } from "../../config";
 
 export interface LocalPreferences {
   roomToken: string;
   authorized: boolean;
   rootBlockId: string;
+  webSocketServerUrl: string;
 }
 
 export interface LocalPreferencesManager {
@@ -21,6 +23,7 @@ const localPreferencesManager: LocalPreferencesManager = {
       roomToken: "",
       authorized: false,
       rootBlockId: "",
+      webSocketServerUrl: WS_SERVER_URL,
     };
 
     const { value } = await Preferences.get({ key: this.key });

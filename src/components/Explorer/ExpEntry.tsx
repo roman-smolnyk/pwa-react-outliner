@@ -7,7 +7,7 @@ import { INDENT } from "../../../config.tsx";
 import yjs from "../../store/yjsManager.tsx";
 
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TitleEdit from "./TitleEdit.tsx";
 import Title from "./Title.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
@@ -20,6 +20,7 @@ function HandleButton({
   children_,
   attributes,
   listeners,
+  onClick,
 }: {
   id: string;
   type: number;
@@ -27,6 +28,7 @@ function HandleButton({
   children_?: string[];
   attributes: any;
   listeners: any;
+  onClick: (event: React.PointerEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
@@ -34,13 +36,7 @@ function HandleButton({
       type="button"
       {...attributes}
       {...listeners}
-      onPointerUpCapture={() => {
-        console.debug("onPointerUpCapture");
-        if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
-          const ycollection = getItem(yjs.yexplorer, id);
-          ycollection.set("collapsed", !collapsed);
-        }
-      }}
+      onPointerUpCapture={onClick}
     >
       {type === PAGE_TYPE ? (
         <FileTextIcon size={24} />
@@ -64,7 +60,6 @@ export default function ExpEntry({
   collapsed,
   children_,
   depth,
-  isRoot,
   isActive,
   isSelected,
 }: {
@@ -74,42 +69,52 @@ export default function ExpEntry({
   collapsed?: boolean;
   children_?: string[];
   depth: number;
-  isRoot: boolean;
   isActive: boolean;
   isSelected: boolean;
 }) {
   const [isEdit, setIsEdit] = useState(false);
-  const isChekboxSelectionActive = useZustandStore((state) => state.isChekboxSelectionActive);
-  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
+  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, setNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
     transform: DnDCSS.Translate.toString(transform),
     transition,
   };
 
-  if (type === PAGE_TYPE) {
-  }
-
+  // Visual Fix
   if (depth === 0) {
     depth = 1;
   }
 
-  if (isActive) {
-    console.debug("DEPTH", depth);
+  const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
+
+  function onClick() {
+    if (type === PAGE_TYPE) {
+      openBlock(yitem.get("root_id") as string);
+    } else if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
+      yitem.set("collapsed", !collapsed);
+    }
   }
 
   return (
     <div
-      className={`ExpEntry min-w-0 rounded-sm hover:bg-gray-200 ${isSelected ? "bg-gray-300" : ""} `}
-      ref={setDroppableNodeRef}
-      style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
+      className={`ExpEntry min-w-0 rounded-sm hover:bg-gray-200 ${isSelected && !isActive ? "bg-gray-300" : ""} `}
+      ref={setNodeRef}
+      style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
     >
-      <div className={`min-w-0 flex items-center justify-center`} ref={setDraggableNodeRef} style={style}>
+      <div className={`min-w-0 flex items-center justify-center`}>
         {isActive ? (
           <DropIndicator />
         ) : (
           <>
-            <HandleButton id={id} type={type} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />
+            <HandleButton
+              id={id}
+              type={type}
+              collapsed={collapsed}
+              children_={children_}
+              attributes={attributes}
+              listeners={listeners}
+              onClick={onClick}
+            />
 
             {/* // ! ID */}
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
@@ -118,14 +123,7 @@ export default function ExpEntry({
               {isEdit ? (
                 <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
               ) : (
-                <div
-                  className="min-w-0 flex"
-                  onClick={() => {
-                    if (type === PAGE_TYPE) {
-                      openBlock(getItem(yjs.yexplorer, id).get("root_id") as string);
-                    }
-                  }}
-                >
+                <div className="w-full min-w-0 flex" onClick={onClick}>
                   <Title title={title} />
                 </div>
               )}

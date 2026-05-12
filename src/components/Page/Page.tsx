@@ -1,18 +1,15 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
-import { useState } from "react";
-import { createPortal } from "react-dom";
-// import { Virtuoso } from "react-virtuoso";
-
-import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
-
-import { getProjection } from "../../utils/utilities.tsx";
-import yjs from "../../store/yjsManager.tsx";
-import Block from "../Block/Block.tsx";
-import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import { moveItem } from "esm-treero-api";
+import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
+import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
+import yjs from "../../store/yjsManager.tsx";
+import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
+import { getProjection } from "../../utils/utilities.tsx";
+import Block from "../Block/Block.tsx";
 
 const adjustTranslate: Modifier = ({ transform }) => {
   return {
@@ -22,8 +19,13 @@ const adjustTranslate: Modifier = ({ transform }) => {
   };
 };
 
+const sortingStrategy: SortingStrategy = (args) => {
+  if (args.overIndex === 0) args.overIndex = 1;
+  return verticalListSortingStrategy(args);
+};
+
 export default function Page({ rootId }: { rootId: string }) {
-  // console.debug("Page");
+  console.debug("Page");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
@@ -31,6 +33,7 @@ export default function Page({ rootId }: { rootId: string }) {
   // @ts-ignore
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId) as FlatBlocksT;
   // console.debug("flatItems", flatItems);
+  const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
   const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
 
@@ -53,7 +56,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
+    // console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
@@ -67,18 +70,13 @@ export default function Page({ rootId }: { rootId: string }) {
 
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
-      console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);
     setDragOffsetX(0);
   }
-
-  const sortingStrategy: SortingStrategy = (args) => {
-    if (args.overIndex === 0) args.overIndex = 1;
-    return verticalListSortingStrategy(args);
-  };
 
   return (
     <div className="Page flex flex-col gap-1">
@@ -90,29 +88,7 @@ export default function Page({ rootId }: { rootId: string }) {
         onDragEnd={handleDragEnd}
         // autoScroll={false}
       >
-        <SortableContext items={flatItems.map((a) => a.id)} strategy={sortingStrategy}>
-          {/* <Virtuoso
-            // style={{ height: 400 }}
-            totalCount={flatItems.length}
-            overscan={50}
-            itemContent={(index) => {
-              const fItem = flatItems[index];
-              return (
-                <Block
-                  key={fItem.id}
-                  id={fItem.id}
-                  collapsed={fItem.collapsed}
-                  children_={fItem.children}
-                  depth={fItem.depth}
-                  isRoot={fItem.id === rootId}
-                  isActive={fItem.id === activeId}
-                  isOver={fItem.id === parentId}
-                  projectedDepth={projection?.depth}
-                />
-              );
-            }}
-          /> */}
-
+        <SortableContext items={flatItemIds} strategy={sortingStrategy}>
           {flatItems.map((item) => {
             return (
               <Block

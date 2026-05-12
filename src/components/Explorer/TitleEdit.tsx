@@ -10,8 +10,9 @@ export default function TitleEdit({ id, title, setIsEdit }: { id: string; title:
     const input = ref.current;
     if (!input) return;
     input.focus();
+    input.select();
     // place cursor at the beginning
-    input.setSelectionRange(0, 0);
+    // input.setSelectionRange(0, 0);
   }, []);
 
   function onBlur(event: React.FocusEvent<HTMLInputElement>) {

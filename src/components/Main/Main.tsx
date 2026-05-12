@@ -19,6 +19,7 @@ import ExplorerContainer from "../Explorer/ExplorerContainer";
 import { MOBILE_WIDTH } from "../../../config";
 
 function Spinner() {
+  console.debug("Spinner");
   return (
     <div className="h-screen w-screen flex items-center justify-center">
       <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} />
@@ -27,11 +28,12 @@ function Spinner() {
 }
 
 export default function Main() {
+  console.debug("Main");
   const [loaded, setLoaded] = useState(false);
   const [blockId, setBlockId] = useState("");
   const explorerPanelRef = useRef<PanelImperativeHandle>(null);
 
-  const viewportWidth = useZustandStore((state) => state.viewportWidth);
+  const viewportWidth = useZustandStore((s) => s.viewportWidth);
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "panelsLayout",
@@ -43,10 +45,9 @@ export default function Main() {
 
   useEffect(() => {
     onStartUp(async () => {
-      console.debug("MainComp:setLoaded", true);
+      console.debug("setLoaded", true);
       setLoaded(true);
       const localPref = await localPreferencesManager.get();
-      console.debug(localPref.rootBlockId);
       setBlockId(localPref.rootBlockId);
     });
   }, []);
@@ -57,7 +58,6 @@ export default function Main() {
       openBlock(yblock.get("id"));
     }
   } else {
-    console.debug("MAIN", loaded, blockId);
     return <Spinner />;
   }
 

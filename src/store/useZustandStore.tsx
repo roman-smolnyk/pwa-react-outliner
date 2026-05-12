@@ -3,10 +3,14 @@ import localPreferencesManager from "./preferences";
 
 export interface useZustandStoreType {
   authorized: boolean;
+  webSocketServerUrl: string;
   newAccount: boolean;
   roomToken?: string;
   yjsLoaded: boolean;
   rootBlockId: string;
+
+  selectedBlockId: string | null;
+  caretCharIndex: number;
 
   isExplorerOpened: boolean;
   isPageSearchOpened: boolean;
@@ -20,10 +24,13 @@ const localPref = await localPreferencesManager.get();
 
 const useZustandStore = create<useZustandStoreType>((set, get) => ({
   authorized: localPref.authorized,
+  webSocketServerUrl: localPref.webSocketServerUrl,
   newAccount: false,
   roomToken: localPref.roomToken,
   yjsLoaded: false,
   rootBlockId: localPref.rootBlockId,
+  selectedBlockId: null,
+  caretCharIndex: 0,
   isExplorerOpened: true,
   isPageSearchOpened: false,
   isChekboxSelectionActive: false,

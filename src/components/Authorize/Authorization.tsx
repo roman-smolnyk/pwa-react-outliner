@@ -1,13 +1,25 @@
 import { useState } from "react";
-import { login, register } from "../../api/api";
+import { login, register, saveWsUrl } from "../../api/api";
+import useZustandStore from "../../store/useZustandStore";
+import { WS_SERVER_URL } from "../../../config";
 
 export default function Authorization() {
+  console.debug("Authorization");
   const [token, setToken] = useState("");
+  const webSocketServerUrl = useZustandStore((s) => s.webSocketServerUrl);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center ">
-      <div className="w-80 p-8 rounded-xl bg-white shadow-md ">
+      <div className="min-w-50 sm:min-w-100 py-8 px-2 sm:px-8 m-2 rounded-xl bg-white shadow-md ">
         <h1 className="text-2xl font-bold mb-4 text-center">TreeRo</h1>
+        <input
+          className="w-full p-2 mb-4 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600"
+          type="text"
+          placeholder="WebSocket host"
+          value={webSocketServerUrl}
+          onChange={(e) => useZustandStore.setState({ webSocketServerUrl: e.target.value })}
+          onBlur={() => (!webSocketServerUrl ? useZustandStore.setState({ webSocketServerUrl: WS_SERVER_URL }) : null)}
+        />
         <input
           className="w-full p-2 mb-4 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600"
           type="text"
@@ -23,6 +35,7 @@ export default function Authorization() {
               // console.debug("Login", token);
               if (token) {
                 login(token);
+                saveWsUrl(webSocketServerUrl);
               }
             }}
           >
@@ -33,6 +46,7 @@ export default function Authorization() {
             className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
             onClick={(_) => {
               register();
+              saveWsUrl(webSocketServerUrl);
             }}
           >
             New Account

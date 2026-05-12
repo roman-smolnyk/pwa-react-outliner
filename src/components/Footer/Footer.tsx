@@ -44,7 +44,8 @@ import yjs from "../../store/yjsManager";
 // import { forceReload } from "../etc/utilities";
 
 export default function Footer() {
-  const isExplorerOpened = useZustandStore((state) => state.isExplorerOpened);
+  console.debug("Footer");
+  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
 
   return (
     <div

@@ -1,6 +1,7 @@
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 export default function PWABadge() {
+  console.debug("PWABadge");
   // check for updates every hour
   const period = 60 * 60 * 1000;
 
