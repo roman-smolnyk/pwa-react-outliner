@@ -99,10 +99,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
             <Button
               title={`WebSocket: ${webSocketConnectionStatus}`}
               onClick={() => {
-                toast(`WebSocket status: '${webSocketConnectionStatus}'`, {
-                  containerId: "toaster",
-                  className: "min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
-                });
+                toast(`WebSocket status: '${webSocketConnectionStatus}'`, { containerId: "toaster" });
               }}
             >
               {webSocketConnectionStatus === "connecting" && <CloudAlertIcon />}

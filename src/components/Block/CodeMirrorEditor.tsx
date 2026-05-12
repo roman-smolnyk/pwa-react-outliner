@@ -2,7 +2,7 @@ import { defaultKeymap } from "@codemirror/commands";
 import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { getItem, isRootItem, updateBlock } from "esm-treero-api";
-import { useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { yCollab } from "y-codemirror.next";
 import {
   handleBlockAdd,
@@ -15,13 +15,20 @@ import {
   handleSelectBlockUp,
 } from "../../api/api";
 import yjs from "../../store/yjsManager";
+import useZustandStore from "../../store/useZustandStore";
 
+// const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
 export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
-  const editorRef = useRef(null);
+  console.debug("CodeMirrorEditor", id, charIndex, setIsEdit);
+  const editorRef = useRef<HTMLDivElement>(null);
+  // const viewRef = useRef<EditorView | null>(null);
 
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 
   useEffect(() => {
+    console.debug("CodeMirrorEditor:useEffect");
+    // if (viewRef.current) return;
+
     const ytext = yblock.get("content");
 
     const theme = EditorView.theme({
@@ -69,9 +76,11 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
             updateBlock(yjs.ydoc, id, { content: "Untitled" });
           }
         }
+        useZustandStore.setState({ selectedBlockId: null });
         setIsEdit(false);
       },
       focus: (event: FocusEvent, view: EditorView) => {
+        useZustandStore.setState({ selectedBlockId: id });
         // console.debug("Editor gained focus");
       },
     });
@@ -83,6 +92,14 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         theme,
         // history(), // Needed for undo/redo to work correctly with Yjs
         keymap.of([
+          // {
+          //   key: "Mod-Z",
+          //   run: (view: EditorView) => {
+          //     console.debug("Undo");
+          //     yjs.undoManager?.undo();
+          //     return true;
+          //   },
+          // },
           {
             key: "ArrowUp",
             run: (view: EditorView) => {
@@ -106,7 +123,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
             },
           },
           {
-            key: "Ctrl-Enter",
+            key: "Mod-Enter",
             run: (view: EditorView) => {
               handleBlockAdd(id);
               return true;
@@ -123,42 +140,42 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
             },
           },
           {
-            key: "Ctrl-Backspace",
+            key: "Mod-Backspace",
             run: (view: EditorView) => {
               handleBlockDelete(id);
               return true;
             },
           },
           {
-            key: "Ctrl-Delete",
+            key: "Mod-Delete",
             run: (view: EditorView) => {
               handleBlockDelete(id);
               return true;
             },
           },
           {
-            key: "Ctrl-ArrowRight",
+            key: "Mod-ArrowRight",
             run: (view: EditorView) => {
               handleBlockIndent(id);
               return true;
             },
           },
           {
-            key: "Ctrl-ArrowLeft",
+            key: "Mod-ArrowLeft",
             run: (view: EditorView) => {
               handleBlockOutdent(id);
               return true;
             },
           },
           {
-            key: "Ctrl-ArrowUp",
+            key: "Mod-ArrowUp",
             run: (view: EditorView) => {
               handleBlockMoveUp(id);
               return true;
             },
           },
           {
-            key: "Ctrl-ArrowDown",
+            key: "Mod-ArrowDown",
             run: (view: EditorView) => {
               handleBlockMoveDown(id);
               return true;
@@ -177,6 +194,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
       state,
       parent: editorRef.current!,
     });
+    // viewRef.current = view;
 
     function resolveIndex(index: number, docLength: number): number {
       if (index < 0) {
@@ -193,8 +211,10 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
 
     return () => {
       view.destroy();
+      // viewRef.current = null;
     };
   }, []);
 
   return <div ref={editorRef} />;
 }
+// export default CodeMirrorEditor;

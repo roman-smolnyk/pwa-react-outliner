@@ -27,10 +27,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
         // toast.dismiss();
         try {
           await navigator.clipboard.writeText(textToCopy);
-          toast("Copied", {
-            containerId: "toaster",
-            className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
-          });
+          toast("Copied", { containerId: "toaster" });
         } catch (err) {
           toast.error("Failed to copy", { containerId: "toaster" });
           console.error("Failed to copy:", err);

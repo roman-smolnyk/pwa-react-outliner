@@ -15,14 +15,16 @@ import {
   StrikethroughIcon,
   TableIcon,
   // ZoomInIcon,
-  Trash2Icon
+  Trash2Icon,
 } from "lucide-react";
 import useZustandStore from "../../store/useZustandStore";
 import Button from "../Common/Button";
+import { handleBlockAdd, handleBlockDelete, handleBlockIndent, handleBlockMoveDown, handleBlockMoveUp, handleBlockOutdent } from "../../api/api";
 
 export default function Footer() {
   console.debug("Footer");
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const selectedBlockId = useZustandStore((s) => s.selectedBlockId);
 
   return (
     <div
@@ -41,7 +43,13 @@ export default function Footer() {
         <Button
           title="Add block"
           onPointerDown={(e) => {
+            console.debug("onPointerDown", selectedBlockId);
             e.preventDefault();
+            e.stopPropagation();
+            if (selectedBlockId) {
+              handleBlockAdd(selectedBlockId);
+            }
+
             // const activeNodeId = useZustandStore.getState().activeNodeId;
             // const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
             // // console.debug("onPointerDown", { activeNodeId, newNodeId });
@@ -55,10 +63,11 @@ export default function Footer() {
         </Button>
 
         <Button
-          title="Unindent"
+          title="Outdent"
           onPointerDown={(e) => {
             e.preventDefault();
-            // TreeRoAPI.uiUnindentNode(TreeRoAPI.useZustandStore.getState().activeNodeId);
+            e.stopPropagation();
+            if (selectedBlockId) handleBlockOutdent(selectedBlockId);
           }}
         >
           <ArrowLeftToLineIcon />
@@ -68,7 +77,8 @@ export default function Footer() {
           title="Indent"
           onPointerDown={(e) => {
             e.preventDefault();
-            // TreeRoAPI.uiIndentNode(TreeRoAPI.useZustandStore.getState().activeNodeId);
+            e.stopPropagation();
+            if (selectedBlockId) handleBlockIndent(selectedBlockId);
           }}
         >
           <ArrowRightToLineIcon />
@@ -78,7 +88,8 @@ export default function Footer() {
           title="Move Up"
           onPointerDown={(e) => {
             e.preventDefault();
-            // TreeRoAPI.uiMoveNodeUp(TreeRoAPI.useZustandStore.getState().activeNodeId);
+            e.stopPropagation();
+            if (selectedBlockId) handleBlockMoveUp(selectedBlockId);
           }}
         >
           <ArrowUpIcon />
@@ -88,7 +99,9 @@ export default function Footer() {
           title="Move Down"
           onPointerDown={(e) => {
             e.preventDefault();
-            // TreeRoAPI.uiMoveNodeDown(TreeRoAPI.useZustandStore.getState().activeNodeId);
+            e.stopPropagation();
+
+            if (selectedBlockId) handleBlockMoveDown(selectedBlockId);
           }}
         >
           <ArrowDownIcon />
@@ -148,7 +161,15 @@ export default function Footer() {
           className="DeleteNode"
           onPointerDown={(e) => {
             e.preventDefault();
-            // TreeRoAPI.deleteNode(TreeRoAPI.useZustandStore.getState().activeNodeId);
+            e.stopPropagation();
+            if (selectedBlockId) {
+              handleBlockDelete(selectedBlockId);
+            }
+            const button = e.currentTarget;
+            button.classList.add("scale-90");
+            setTimeout(() => {
+              button.classList.remove("scale-90");
+            }, 100);
           }}
         >
           <Trash2Icon />

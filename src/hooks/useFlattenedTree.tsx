@@ -5,6 +5,7 @@ import { flattenTree, removeChildrenOf } from "../utils/utilities.tsx";
 import * as Y from "yjs";
 
 import { debounce } from "lodash";
+import useZustandStore from "../store/useZustandStore.tsx";
 
 export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null) {
   const tickRef = useRef(0);
@@ -22,8 +23,11 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
         for (const event of events) {
           if (event.target instanceof Y.Text) {
             // console.debug("event", event);
-            debouncedUpdate();
-            // update();
+            if (useZustandStore.getState().selectedBlockId) {
+              debouncedUpdate();
+            } else {
+              update();
+            }
           } else {
             update();
           }

@@ -12,21 +12,21 @@ import PlainTextContent from "./PlainTextContent";
 export default function BlockContent({ id }: { id: string }) {
   // console.debug("BlockContent");
   const [isEdit, setIsEdit] = useState(false);
-  const [charIndex, setCharIndex] = useState(-1);
+  const [charIndex, setCharIndex] = useState(0);
   const { readOnly } = useReadOnly();
   const { plainTextView } = usePlainTextView();
 
-  const selectedBlockId = useZustandStore((s) => s.selectedBlockId);
+  const focusBlockId = useZustandStore((s) => s.focusBlockId);
   const caretCharIndex = useZustandStore((s) => s.caretCharIndex);
 
   useEffect(() => {
-    if (selectedBlockId === id) {
+    if (focusBlockId === id) {
       setIsEdit(true);
       setCharIndex(caretCharIndex);
-      useZustandStore.setState({ selectedBlockId: null }); // consume the signal
+      useZustandStore.setState({ focusBlockId: null }); // consume the signal
       useZustandStore.setState({ caretCharIndex: 0 });
     }
-  }, [selectedBlockId, id]);
+  }, [focusBlockId, id]);
 
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
   const content = yblock.get("content").toString();

@@ -10,7 +10,7 @@ import {
   PlusIcon,
   Trash2Icon,
   UploadIcon,
-  ZoomInIcon
+  ZoomInIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -128,10 +128,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
                 const nodeUrl = `${window.location.origin}/${id}`;
                 try {
                   await navigator.clipboard.writeText(nodeUrl);
-                  toast("Copied", {
-                    containerId: "toaster",
-                    className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
-                  });
+                  toast("Copied", { containerId: "toaster" });
                 } catch (err) {
                   toast.error("Failed to copy", { containerId: "toaster" });
                   console.error("Failed to copy:", err);

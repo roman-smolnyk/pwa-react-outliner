@@ -60,9 +60,9 @@ export default function Menu() {
                 navigator.clipboard
                   .writeText(useZustandStore.getState().roomToken as string)
                   .then(() => {
-                    toast("Copied", { containerId: "toaster", className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!" });
+                    toast("Copied", { containerId: "toaster" });
                   })
-                  .catch(() => toast.error("Failed to copy", {containerId: "toaster"}));
+                  .catch(() => toast.error("Failed to copy", { containerId: "toaster" }));
               }}
             />
             <FloatingMenuItem
@@ -97,10 +97,7 @@ export default function Menu() {
               label="Help"
               onClick={() => {
                 setOpen(false);
-                toast(`${__APP_VERSION__}`, {
-                  containerId: "toaster",
-                  className: "min-h-0! h-10! w-30! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!",
-                });
+                toast(`${__APP_VERSION__}`, { containerId: "toaster" });
               }}
             />
             <hr className="m-1 border-gray-300" />

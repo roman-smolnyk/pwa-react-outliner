@@ -43,7 +43,7 @@ export async function openBlock(id: string) {
 }
 
 export function selectBlock(id: string, caretCharIndex: number) {
-  useZustandStore.setState({ selectedBlockId: id, caretCharIndex: caretCharIndex });
+  useZustandStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
 }
 
 export function handleBlockAdd(id: string) {
@@ -72,7 +72,10 @@ export function handleBlockIndent(id: string) {
   }
   const ysibling = getItemSibling(yjs.yblocks, id, -1);
   if (ysibling) {
-    moveItem(yjs.ydoc, yjs.yblocks, id, ysibling.get("id"), -1);
+    yjs.ydoc.transact(() => {
+      ysibling.set("collapsed", false);
+      moveItem(yjs.ydoc, yjs.yblocks, id, ysibling.get("id"), -1);
+    });
   }
 }
 

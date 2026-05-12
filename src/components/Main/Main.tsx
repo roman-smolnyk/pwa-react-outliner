@@ -11,6 +11,8 @@ import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
+import { useHotkeys } from "react-hotkeys-hook";
+import yjs from "../../store/yjsManager";
 
 function Spinner() {
   console.debug("Spinner");
@@ -19,6 +21,53 @@ function Spinner() {
       <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} />
     </div>
   );
+}
+
+function useSetupHotkeys() {
+  useHotkeys(
+    "ctrl+z, meta+z",
+    () => {
+      console.warn("ctrl+z, meta+z");
+      yjs.undoManager?.undo();
+    },
+    // { enableOnContentEditable: true },
+  );
+  useHotkeys(
+    "ctrl+shift+z, meta+shift+z",
+    () => {
+      console.warn("ctrl+shift+z, meta+shift+z");
+      yjs.undoManager?.redo();
+    },
+    // { enableOnContentEditable: true },
+  );
+  // useHotkeys(
+  //   "ctrl+f",
+  //   (e) => {
+  //     console.warn("ctrl+f");
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     TreeRoAPI.useStore.setState((state) => {
+  //       return { documentSearchIsOpened: !state.documentSearchIsOpened };
+  //     });
+  //   },
+  //   {
+  //     enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+  //   },
+  // );
+  // useHotkeys(
+  //   "ctrl+shift+f",
+  //   (e) => {
+  //     console.warn("ctrl+f");
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     TreeRoAPI.useStore.setState((state) => {
+  //       return { globalSearchIsOpened: !state.globalSearchIsOpened };
+  //     });
+  //   },
+  //   {
+  //     enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+  //   },
+  // );
 }
 
 export default function Main() {
@@ -42,6 +91,8 @@ export default function Main() {
       setLoaded(true);
     });
   }, []);
+
+  useSetupHotkeys();
 
   if (!loaded) {
     return <Spinner />;
@@ -105,6 +156,7 @@ export default function Main() {
         draggable={true}
         limit={3}
         style={{ top: 50 }}
+        // toastClassName={"min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!"}
       />
     </div>
   );

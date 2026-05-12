@@ -8,8 +8,9 @@ export interface useZustandStoreType {
   roomToken?: string;
   yjsLoaded: boolean;
   rootBlockId: string;
-
   selectedBlockId: string | null;
+
+  focusBlockId: string | null;
   caretCharIndex: number;
 
   isExplorerOpened: boolean;
@@ -30,6 +31,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   yjsLoaded: false,
   rootBlockId: localPref.rootBlockId,
   selectedBlockId: null,
+  focusBlockId: null,
   caretCharIndex: 0,
   isExplorerOpened: true,
   isPageSearchOpened: false,
