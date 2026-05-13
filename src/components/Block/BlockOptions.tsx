@@ -1,4 +1,4 @@
-import { autoUpdate, flip, FloatingPortal, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { autoUpdate, flip, FloatingPortal, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { getItem } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
@@ -18,6 +18,7 @@ import { openBlock } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
 
+
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const [isOpened, setIsOpened] = useState(false);
 
@@ -25,7 +26,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
     open: isOpened,
     onOpenChange: setIsOpened,
     placement: "bottom-end",
-    middleware: [flip()],
+    middleware: [flip(), shift()],
     whileElementsMounted: autoUpdate,
   });
 
@@ -38,16 +39,9 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
-  const yblock = getItem(yjs.yblocks, id);
-
   return (
     <>
-      <button
-        ref={refs.setReference}
-        type="button"
-        className="BlockOptions cursor-pointer min-h-5 min-w-5 active:scale-90 transition"
-        {...getReferenceProps()}
-      >
+      <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5" {...getReferenceProps()}>
         {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
         {/* <div>BTN</div> */}
         <EllipsisVerticalIcon size={15} />

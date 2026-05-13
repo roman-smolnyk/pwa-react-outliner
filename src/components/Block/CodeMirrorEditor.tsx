@@ -1,9 +1,9 @@
-import { defaultKeymap } from "@codemirror/commands";
-import { EditorSelection, EditorState } from "@codemirror/state";
+import { defaultKeymap, history } from "@codemirror/commands";
+import { Annotation, EditorSelection, EditorState, Transaction } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { getItem, isRootItem, updateBlock } from "esm-treero-api";
 import { memo, useEffect, useMemo, useRef } from "react";
-import { yCollab } from "y-codemirror.next";
+// import { yCollab } from "y-codemirror.next";
 import {
   handleBlockAdd,
   handleBlockDelete,
@@ -28,7 +28,6 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
   useEffect(() => {
     console.debug("CodeMirrorEditor:useEffect");
     // if (viewRef.current) return;
-
     const ytext = yblock.get("content");
 
     const theme = EditorView.theme({
@@ -85,108 +84,192 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
       },
     });
 
+    const CustomAnnotation = Annotation.define<string>();
+
+    const shortcutsKeymap = keymap.of([
+      {
+        key: "Mod-z",
+        run: (view: EditorView) => {
+          console.debug("Undo");
+          yjs.undoManager?.undo();
+          const text = ytext.toString();
+          if (view.state.doc.toString() !== ytext.toString()) {
+            view.dispatch({
+              changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: text,
+              },
+              selection: EditorSelection.cursor(Math.min(text.length, view.state.selection.main.head)),
+              // scrollIntoView: true,
+              annotations: CustomAnnotation.of("customundoredo"),
+            });
+          }
+
+          return true;
+        },
+      },
+      {
+        key: "Mod-Shift-z",
+        run: (view: EditorView) => {
+          console.debug("Redo");
+          yjs.undoManager?.redo();
+          const text = ytext.toString();
+          if (view.state.doc.toString() !== ytext.toString()) {
+            view.dispatch({
+              changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: text,
+              },
+              // selection: EditorSelection.cursor(Math.max(text.length, view.state.selection.main.head)),
+              // scrollIntoView: true,
+              annotations: CustomAnnotation.of("customundoredo"),
+            });
+            try {
+              view.dispatch({
+                selection: EditorSelection.cursor(Math.max(text.length, view.state.selection.main.head)),
+                annotations: CustomAnnotation.of("customundoredo"),
+              });
+            } catch {}
+          }
+
+          return true;
+        },
+      },
+      {
+        key: "ArrowUp",
+        run: (view: EditorView) => {
+          if (view.state.selection.main.head === 0) {
+            handleSelectBlockUp(id);
+            return true;
+          }
+
+          return false;
+        },
+      },
+      {
+        key: "ArrowDown",
+        run: (view: EditorView) => {
+          if (view.state.selection.main.head === view.state.doc.length) {
+            handleSelectBlockDown(id);
+            return true;
+          }
+
+          return false;
+        },
+      },
+      {
+        key: "Mod-Enter",
+        run: (view: EditorView) => {
+          handleBlockAdd(id);
+          return true;
+        },
+      },
+      {
+        key: "Backspace",
+        run: (view: EditorView) => {
+          if (view.state.doc.length === 0) {
+            handleBlockDelete(id);
+            return true;
+          }
+          return false;
+        },
+      },
+      {
+        key: "Mod-Backspace",
+        run: (view: EditorView) => {
+          handleBlockDelete(id);
+          return true;
+        },
+      },
+      {
+        key: "Mod-Delete",
+        run: (view: EditorView) => {
+          handleBlockDelete(id);
+          return true;
+        },
+      },
+      {
+        key: "Mod-ArrowRight",
+        run: (view: EditorView) => {
+          handleBlockIndent(id);
+          return true;
+        },
+      },
+      {
+        key: "Mod-ArrowLeft",
+        run: (view: EditorView) => {
+          handleBlockOutdent(id);
+          return true;
+        },
+      },
+      {
+        key: "Mod-ArrowUp",
+        run: (view: EditorView) => {
+          handleBlockMoveUp(id);
+          return true;
+        },
+      },
+      {
+        key: "Mod-ArrowDown",
+        run: (view: EditorView) => {
+          handleBlockMoveDown(id);
+          return true;
+        },
+      },
+      ...defaultKeymap,
+    ]);
+
+    const updateListener = EditorView.updateListener.of((update) => {
+      if (!update.docChanged) return;
+
+      const tr = update.transactions[0];
+      const tag = tr.annotation(CustomAnnotation);
+      if (tag === "customundoredo") {
+        return;
+      }
+
+      update.changes.iterChanges((fromA, toA, fromB, toB, inserted) => {
+        const insertedText = inserted.toString();
+        const deletedText = update.startState.doc.sliceString(fromA, toA);
+
+        console.log({
+          fromA,
+          toA,
+          fromB,
+          toB,
+          insertedText,
+          deletedText,
+        });
+        // console.log("TRANSACTION", tr.annotation(Transaction.userEvent));
+        // tr.isUserEvent("undo")
+
+        const deletedLength = toA - fromA;
+
+        if (deletedLength > 0) {
+          ytext.delete(fromA, deletedLength);
+        }
+
+        // then insert
+        if (insertedText.length > 0) {
+          ytext.insert(fromA, insertedText);
+        }
+      });
+    });
+
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
         // basicSetup,
         theme,
-        // history(), // Needed for undo/redo to work correctly with Yjs
-        keymap.of([
-          // {
-          //   key: "Mod-Z",
-          //   run: (view: EditorView) => {
-          //     console.debug("Undo");
-          //     yjs.undoManager?.undo();
-          //     return true;
-          //   },
-          // },
-          {
-            key: "ArrowUp",
-            run: (view: EditorView) => {
-              if (view.state.selection.main.head === 0) {
-                handleSelectBlockUp(id);
-                return true;
-              }
-
-              return false;
-            },
-          },
-          {
-            key: "ArrowDown",
-            run: (view: EditorView) => {
-              if (view.state.selection.main.head === view.state.doc.length) {
-                handleSelectBlockDown(id);
-                return true;
-              }
-
-              return false;
-            },
-          },
-          {
-            key: "Mod-Enter",
-            run: (view: EditorView) => {
-              handleBlockAdd(id);
-              return true;
-            },
-          },
-          {
-            key: "Backspace",
-            run: (view: EditorView) => {
-              if (view.state.doc.length === 0) {
-                handleBlockDelete(id);
-                return true;
-              }
-              return false;
-            },
-          },
-          {
-            key: "Mod-Backspace",
-            run: (view: EditorView) => {
-              handleBlockDelete(id);
-              return true;
-            },
-          },
-          {
-            key: "Mod-Delete",
-            run: (view: EditorView) => {
-              handleBlockDelete(id);
-              return true;
-            },
-          },
-          {
-            key: "Mod-ArrowRight",
-            run: (view: EditorView) => {
-              handleBlockIndent(id);
-              return true;
-            },
-          },
-          {
-            key: "Mod-ArrowLeft",
-            run: (view: EditorView) => {
-              handleBlockOutdent(id);
-              return true;
-            },
-          },
-          {
-            key: "Mod-ArrowUp",
-            run: (view: EditorView) => {
-              handleBlockMoveUp(id);
-              return true;
-            },
-          },
-          {
-            key: "Mod-ArrowDown",
-            run: (view: EditorView) => {
-              handleBlockMoveDown(id);
-              return true;
-            },
-          },
-          ...defaultKeymap,
-        ]),
+        // history(),
+        shortcutsKeymap,
         domEventHandlers,
+        updateListener,
         EditorView.lineWrapping,
         // @ts-ignore
-        yCollab(ytext, null, { undoManager: yjs.undoManager! }),
+        // yCollab(ytext, null, { undoManager: yjs.undoManager! }),
       ],
     });
 

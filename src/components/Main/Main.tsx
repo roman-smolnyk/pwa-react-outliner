@@ -129,7 +129,7 @@ export default function Main() {
               </div>
             </Panel>
             <Separator
-              className="w-0.5 bg-gray-200 z-90
+              className="w-0.5 bg-gray-200 z-20
                                   shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
                                   "
             />

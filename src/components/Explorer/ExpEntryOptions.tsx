@@ -25,12 +25,7 @@ export default function ExpEntryOptions({ id, setIsEdit }: { id: string; setIsEd
 
   return (
     <>
-      <button
-        ref={refs.setReference}
-        type="button"
-        className="cursor-pointer active:scale-90 transition flex items-center justify-center"
-        {...getReferenceProps()}
-      >
+      <button ref={refs.setReference} type="button" className="cursor-pointer flex items-center justify-center" {...getReferenceProps()}>
         {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
         <EllipsisVerticalIcon size={15} />
       </button>
