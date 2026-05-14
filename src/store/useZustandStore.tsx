@@ -2,6 +2,7 @@ import { create } from "zustand";
 import localPreferencesManager from "./preferences";
 
 export interface useZustandStoreType {
+  isHydrated: boolean;
   isAuthorized: boolean;
   isNewAccount: boolean;
   webSocketServerUrl: string;
@@ -23,14 +24,13 @@ export interface useZustandStoreType {
   rerenderPage(): void;
 }
 
-const localPref = await localPreferencesManager.get();
-
 const useZustandStore = create<useZustandStoreType>((set, get) => ({
-  isAuthorized: localPref.isAuthorized,
+  isHydrated: false,
+  isAuthorized: false,
   isNewAccount: false,
-  webSocketServerUrl: localPref.webSocketServerUrl,
-  roomToken: localPref.roomToken,
-  rootBlockId: localPref.rootBlockId,
+  webSocketServerUrl: "",
+  roomToken: undefined,
+  rootBlockId: "",
   selectedBlockId: null,
   focusBlockId: null,
   caretCharIndex: 0,
@@ -44,7 +44,18 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   rerenderPage: () => set((state) => ({ rerenderPageTicker: state.rerenderPageTicker + 1 })),
 }));
 
-// To listen for changes (rotating a phone/resizing a window)
+export async function hydrateZustandStateWithPreferences() {
+  const localPref = await localPreferencesManager.get();
+  console.debug("Preferences loaded", localPref);
+  useZustandStore.setState({
+    isHydrated: true,
+    isAuthorized: localPref.isAuthorized,
+    webSocketServerUrl: localPref.webSocketServerUrl,
+    roomToken: localPref.roomToken,
+    rootBlockId: localPref.rootBlockId,
+  });
+}
+
 window.addEventListener("resize", () => {
   useZustandStore.setState({ viewportWidth: window.innerWidth });
 });
