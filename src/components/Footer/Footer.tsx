@@ -28,7 +28,7 @@ export default function Footer() {
 
   return (
     <div
-      className="Footer fixed bottom-0 right-0 min-w-0 min-h-10 sm:min-h-8 px-2 z-10
+      className="Footer fixed bottom-0 right-0 min-w-0 min-h-10 sm:min-h-8 px-4 sm:px-2 z-10
                bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex"
       style={{
