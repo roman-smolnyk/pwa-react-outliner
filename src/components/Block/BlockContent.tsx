@@ -35,24 +35,26 @@ export default function BlockContent({ id }: { id: string }) {
     <div className={`BlockContent w-full ${isEdit ? "bg-gray-100" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render wrap-break-word min-h-5 ${readOnly ? "cursor-default" : "cursor-text"}`}
+          className={`BlockContent-render wrap-break-word min-h-5 select-none ${readOnly ? "cursor-default" : "cursor-text"}`}
           style={{ padding: "0px 6px 0px 6px" }}
           onPointerDown={(e) => {
             // console.debug("onPointerDown");
-            e.preventDefault();
-            e.stopPropagation();
             if (readOnly) return;
             if (e.pointerType !== "touch") {
+              e.preventDefault();
+              e.stopPropagation();
+              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
+              setIsEdit(true);
             }
-            setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-            setIsEdit(true);
           }}
           onPointerUp={(e) => {
             if (readOnly) return;
             if (e.pointerType === "touch") {
+              e.preventDefault();
+              e.stopPropagation();
+              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
+              setIsEdit(true);
             }
-            // setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-            // setIsEdit(true);
           }}
         >
           {plainTextView ? <PlainTextContent>{content}</PlainTextContent> : <Markdown>{content}</Markdown>}

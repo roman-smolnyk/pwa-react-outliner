@@ -14,10 +14,34 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { openBlock } from "../../api/api";
+import { handleBlockDelete, handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
 
+// function MobileSheet({ open, onClose, children }) {
+//   return (
+//     <>
+//       {/* Backdrop */}
+//       <div
+//         className={`fixed inset-0 bg-black/40 transition-opacity z-100 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+//         onClick={onClose}
+//       />
+
+//       {/* Sheet */}
+//       <div
+//         className={`
+//           fixed left-0 right-0 bottom-0
+//           bg-white rounded-t-xl shadow-xl
+//           transition-transform duration-300 z-100
+//           ${open ? "translate-y-0" : "translate-y-full"}
+//         `}
+//         style={{ maxHeight: "85vh" }}
+//       >
+//         <div className="p-4 overflow-y-auto max-h-[85vh]">{children}</div>
+//       </div>
+//     </>
+//   );
+// }
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const [isOpened, setIsOpened] = useState(false);
@@ -60,7 +84,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
               onClick={() => {
-                openBlock(id);
+                handleBlockOpen(id);
                 setIsOpened(false);
                 // TreeRoAPI.openBlock(id);
               }}
@@ -135,7 +159,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               label="Delete"
               onClick={() => {
                 setIsOpened(false);
-                // block.delete();
+                handleBlockDelete(id);
               }}
             />
           </div>

@@ -4,7 +4,7 @@ import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
 import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { INDENT } from "../../../config.tsx";
-import { openBlock } from "../../api/api.tsx";
+import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
@@ -29,7 +29,7 @@ function HandleButton({
 }) {
   return (
     <button
-      className="HandleButton flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
+      className={`HandleButton flex flex-none items-center justify-center min-h-5 min-w-5 ${type === COLLECTION_TYPE ? "cursor-pointer" : ""}`}
       type="button"
       {...attributes}
       {...listeners}
@@ -86,7 +86,7 @@ export default function ExpEntry({
 
   function onClick() {
     if (type === PAGE_TYPE) {
-      openBlock(yitem.get("root_id") as string);
+      handleBlockOpen(yitem.get("root_id") as string);
     } else if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
       yitem.set("collapsed", !collapsed);
     }
@@ -94,7 +94,7 @@ export default function ExpEntry({
 
   return (
     <div
-      className={`ExpEntry min-w-0 rounded-sm hover:bg-gray-200 ${isSelected && !isActive ? "bg-gray-300" : ""} `}
+      className={`ExpEntry min-w-0 py-1 sm:py-1 rounded-sm ${isSelected && !isActive ? "bg-gray-300" : "hover:bg-gray-200"} `}
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
     >
@@ -116,7 +116,7 @@ export default function ExpEntry({
             {/* // ! ID */}
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-            <div className="flex-1 min-w-0 flex">
+            <div className="flex-1 min-w-0 text-lg sm:text-base flex">
               {isEdit ? (
                 <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
               ) : (
@@ -126,7 +126,7 @@ export default function ExpEntry({
               )}
             </div>
 
-            <ExpEntryOptions id={id} setIsEdit={setIsEdit} />
+            <ExpEntryOptions id={id} type={type} setIsEdit={setIsEdit} />
           </>
         )}
       </div>

@@ -39,7 +39,7 @@ export default function Menu() {
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="cursor-pointer active:scale-90 transition" {...getReferenceProps()}>
+      <button ref={refs.setReference} type="button" className="cursor-pointer" {...getReferenceProps()}>
         <EllipsisVerticalIcon className="text-gray-600" />
       </button>
 

@@ -4,19 +4,24 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
+import { handleCollectionAdd, handlePageAdd } from "../../api/api";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const rootCollectionId = yjs.yaccount.get("root_id");
-  const rootBlockId = useZustandStore((s) => s.rootBlockId);
 
+  const rootBlockId = useZustandStore((s) => s.rootBlockId);
+  if (!rootBlockId) {
+    return null;
+  }
+
+  const rootCollectionId = yjs.yaccount.get("root_id");
   if (!rootCollectionId) {
     throw new Error(`rootCollectionId is missing`);
   }
 
   return (
     <div
-      className="ToolsPanel min-w-0 min-h-10 sm:min-h-8 px-2 bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)] flex"
+      className="ToolsPanel min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)] flex"
       style={{ width: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
       {/* {globalSearchIsOpened && <GlobalSearchPortalComponent />} */}
@@ -34,22 +39,25 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
         {/* Right icons */}
         <div className="flex items-center gap-3 sm:gap-2">
           <Button
+            title="Add File"
             onClick={() => {
-              createInsertPage(yjs.ydoc, "Untitled", rootCollectionId, 0);
+              // createInsertPage(yjs.ydoc, "Untitled", rootCollectionId, 0);
+              handlePageAdd(rootCollectionId);
             }}
           >
             <FilePlusIcon />
           </Button>
 
           <Button
+            title="Add Folder"
             onClick={() => {
-              createInsertCollection(yjs.ydoc, "Untitled", rootCollectionId, 0);
+              handleCollectionAdd(rootCollectionId);
             }}
           >
             <FolderPlusIcon />
           </Button>
 
-          <Button>
+          <Button className="text-yellow-400">
             <SearchIcon />
           </Button>
         </div>

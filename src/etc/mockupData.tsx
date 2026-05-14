@@ -1,6 +1,6 @@
 import type { YjsManager } from "esm-treero-api";
 import { createBlock, createCollection, createPage, insertItem } from "esm-treero-api";
-import { openBlock } from "../api/api";
+import { handleBlockOpen } from "../api/api";
 
 export async function fillInMockupData(yjs: YjsManager) {
   const rootId = yjs.yaccount.get("root_id");
@@ -29,7 +29,7 @@ export async function fillInMockupData(yjs: YjsManager) {
     blockId = ypage.get("root_id")!;
   }
 
-  await openBlock(blockId!);
+  await handleBlockOpen(blockId!);
 }
 
 const data = [

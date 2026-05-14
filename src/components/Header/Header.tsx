@@ -37,7 +37,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-10 sm:min-h-8 px-2 z-10
+      className="Header fixed top-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
       bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]
       flex"
       style={{ left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}` }}
@@ -46,7 +46,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
       {/* Left icons */}
 
       <div className="flex-1 flex min-w-0">
-        <div className="mr-3 flex">
+        <div className="mr-4 flex">
           {!isExplorerOpened && (
             <Button
               title="Open Explorer"
@@ -63,7 +63,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
         </div>
 
         <div className="flex-1 min-w-0 overflow-x-auto flex">
-          <div className="LeftIcons min-w-max flex gap-2">
+          <div className="LeftIcons min-w-max flex gap-3 sm:gap-2">
             <Button
               title="Undo"
               onClick={() => {
@@ -80,7 +80,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
             >
               <RedoIcon />
             </Button>
-            <div className="Spacer"></div>
+            {/* <div className="Spacer"></div> */}
             <Button
               title="Reload"
               onClick={(event) => {
@@ -93,7 +93,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
             </Button>
           </div>
 
-          <div className="Spacer flex-1 min-w-4" />
+          <div className="Spacer flex-1 min-w-3" />
 
           <div className="RightIcons flex gap-3 sm:gap-2">
             <Button
@@ -111,6 +111,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
 
             <Button
               title="Toggle checkboxes selection"
+              className="text-yellow-400"
               onClick={() => useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive })}
             >
               {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
@@ -126,15 +127,18 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
 
             <Button
               title="Search in page"
+              className="text-yellow-400"
               onClick={() => {
                 useZustandStore.setState({ isPageSearchOpened: !isPageSearchOpened });
               }}
             >
               <SearchIcon />
             </Button>
-
-            <Menu />
           </div>
+        </div>
+
+        <div className="ml-3 flex">
+          <Menu />
         </div>
       </div>
       {/* </div> */}

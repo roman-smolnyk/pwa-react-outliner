@@ -135,10 +135,9 @@ export default function Main() {
             />
             <Panel id="PagePanel">
               <div className="h-dvh overflow-hidden flex flex-col">
-                <div className="border min-h-10 sm:min-h-8"></div>
-
+                <div className="Spacer border min-h-12 sm:min-h-8"></div>
                 <PageContainer />
-                <div className="border min-h-10 sm:min-h-8"></div>
+                <div className="Spacer border min-h-10 sm:min-h-8"></div>
               </div>
             </Panel>
           </Group>

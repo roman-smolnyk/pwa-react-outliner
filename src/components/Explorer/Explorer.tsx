@@ -83,7 +83,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className={`Explorer relative z-0 flex flex-col gap-1.5`}>
+    <div className={`Explorer relative z-0 flex flex-col gap-0`}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection
@@ -111,11 +111,12 @@ export default function Explorer({ rootId }: { rootId: string }) {
         </SortableContext>
 
         {createPortal(
-          <DragOverlay modifiers={[adjustTranslate]}>
+          <DragOverlay>
             {activeId ? (
-              <div className="DragOverlay inline-block cursor-grabbing pl-5">
-                <div className="border border-black bg-white px-1">Move</div>
-              </div>
+              <div className="cursor-grabbing w-full h-5"></div>
+              // <div className="DragOverlay inline-block cursor-grabbing" style={{ paddingLeft: `${(projected?.depth ?? 0) + 1 * INDENT}px` }}>
+              //   <div className="border border-black bg-white px-1">Move</div>
+              // </div>
             ) : null}
           </DragOverlay>,
           document.body,
@@ -124,11 +125,3 @@ export default function Explorer({ rootId }: { rootId: string }) {
     </div>
   );
 }
-
-const adjustTranslate: Modifier = ({ transform }) => {
-  return {
-    ...transform,
-    x: transform.x,
-    y: transform.y,
-  };
-};

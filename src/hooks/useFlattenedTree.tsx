@@ -7,7 +7,7 @@ import * as Y from "yjs";
 import { debounce } from "lodash";
 import useZustandStore from "../store/useZustandStore.tsx";
 
-export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null) {
+export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null, customTicker?: number) {
   const tickRef = useRef(0);
 
   const version = useSyncExternalStore(
@@ -17,7 +17,7 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
         console.debug("useFlattenedTree:useSyncExternalStore:tickRef", tickRef.current);
         callback(); // Tell React to check the new version
       }
-      const debouncedUpdate = debounce(update, 250);
+      const debouncedUpdate = debounce(update, 500);
 
       function observerCallback(events: any) {
         for (const event of events) {
@@ -25,6 +25,7 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
             // console.debug("event", event);
             if (useZustandStore.getState().selectedBlockId) {
               debouncedUpdate();
+              // update();
             } else {
               update();
             }
@@ -50,5 +51,5 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
     const flattenedTree = flattenTree(yitems.toJSON(), rootId);
     const collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
     return removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
-  }, [yitems, rootId, activeId, version]);
+  }, [yitems, rootId, activeId, version, customTicker]);
 }

@@ -10,14 +10,15 @@ import yjs from "../../store/yjsManager.tsx";
 import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
+import useZustandStore from "../../store/useZustandStore.tsx";
 
-const adjustTranslate: Modifier = ({ transform }) => {
-  return {
-    ...transform,
-    x: transform.x,
-    y: transform.y,
-  };
-};
+// const adjustTranslate: Modifier = ({ transform }) => {
+//   return {
+//     ...transform,
+//     x: transform.x,
+//     y: transform.y,
+//   };
+// };
 
 const sortingStrategy: SortingStrategy = (args) => {
   if (args.overIndex === 0) args.overIndex = 1;
@@ -30,8 +31,10 @@ export default function Page({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
+  const rerenderPageTicker = useZustandStore((s) => s.rerenderPageTicker);
+
   // @ts-ignore
-  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId) as FlatBlocksT;
+  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, rerenderPageTicker) as FlatBlocksT;
   // console.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
@@ -79,7 +82,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className="Page flex flex-col gap-1">
+    <div className="Page flex flex-col gap-2 sm:gap-1">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection
@@ -105,11 +108,12 @@ export default function Page({ rootId }: { rootId: string }) {
         </SortableContext>
 
         {createPortal(
-          <DragOverlay modifiers={[adjustTranslate]}>
+          <DragOverlay>
             {activeId ? (
-              <div className="DragOverlay inline-block cursor-grabbing pl-5">
-                <div className="border border-black bg-white px-1">Move</div>
-              </div>
+              <div className="cursor-grabbing w-full h-5"></div>
+              // <div className="DragOverlay inline-block cursor-grabbing pl-5">
+              //   <div className="border border-black bg-white px-1">Move</div>
+              // </div>
             ) : null}
           </DragOverlay>,
           document.body,

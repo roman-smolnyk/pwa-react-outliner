@@ -19,6 +19,9 @@ export interface useZustandStoreType {
 
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
   viewportWidth: number;
+
+  rerenderPageTicker: number;
+  rerenderPage(): void;
 }
 
 const localPref = await localPreferencesManager.get();
@@ -38,6 +41,9 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isChekboxSelectionActive: false,
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,
+
+  rerenderPageTicker: 0,
+  rerenderPage: () => set((state) => ({ rerenderPageTicker: state.rerenderPageTicker + 1 })),
 }));
 
 // To listen for changes (rotating a phone/resizing a window)

@@ -11,8 +11,8 @@ import {
   handleBlockMoveDown,
   handleBlockMoveUp,
   handleBlockOutdent,
-  handleSelectBlockDown,
-  handleSelectBlockUp,
+  handleBlockSelectDown,
+  handleBlockSelectUp,
 } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import useZustandStore from "../../store/useZustandStore";
@@ -76,6 +76,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
           }
         }
         useZustandStore.setState({ selectedBlockId: null });
+        useZustandStore.getState().rerenderPage();
         setIsEdit(false);
       },
       focus: (event: FocusEvent, view: EditorView) => {
@@ -106,6 +107,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
             });
           }
 
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -122,8 +124,6 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
                 to: view.state.doc.length,
                 insert: text,
               },
-              // selection: EditorSelection.cursor(Math.max(text.length, view.state.selection.main.head)),
-              // scrollIntoView: true,
               annotations: CustomAnnotation.of("customundoredo"),
             });
             try {
@@ -134,6 +134,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
             } catch {}
           }
 
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -141,10 +142,11 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "ArrowUp",
         run: (view: EditorView) => {
           if (view.state.selection.main.head === 0) {
-            handleSelectBlockUp(id);
+            handleBlockSelectUp(id);
             return true;
           }
 
+          useZustandStore.getState().rerenderPage();
           return false;
         },
       },
@@ -152,10 +154,11 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "ArrowDown",
         run: (view: EditorView) => {
           if (view.state.selection.main.head === view.state.doc.length) {
-            handleSelectBlockDown(id);
+            handleBlockSelectDown(id);
             return true;
           }
 
+          useZustandStore.getState().rerenderPage();
           return false;
         },
       },
@@ -163,6 +166,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-Enter",
         run: (view: EditorView) => {
           handleBlockAdd(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -171,6 +176,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         run: (view: EditorView) => {
           if (view.state.doc.length === 0) {
             handleBlockDelete(id);
+
+            useZustandStore.getState().rerenderPage();
             return true;
           }
           return false;
@@ -180,6 +187,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-Backspace",
         run: (view: EditorView) => {
           handleBlockDelete(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -187,6 +196,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-Delete",
         run: (view: EditorView) => {
           handleBlockDelete(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -194,6 +205,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-ArrowRight",
         run: (view: EditorView) => {
           handleBlockIndent(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -201,6 +214,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-ArrowLeft",
         run: (view: EditorView) => {
           handleBlockOutdent(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -208,6 +223,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-ArrowUp",
         run: (view: EditorView) => {
           handleBlockMoveUp(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },
@@ -215,6 +232,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         key: "Mod-ArrowDown",
         run: (view: EditorView) => {
           handleBlockMoveDown(id);
+
+          useZustandStore.getState().rerenderPage();
           return true;
         },
       },

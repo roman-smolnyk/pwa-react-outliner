@@ -3,8 +3,12 @@ import {
   createCollection,
   createInsertBlock,
   createInsertBlockAfter,
+  createInsertCollection,
+  createInsertPage,
   createPage,
   deleteBlock,
+  deleteCollection,
+  deletePage,
   getChildItemIndex,
   getItem,
   getItemParent,
@@ -36,14 +40,14 @@ export async function saveWsUrl(webSocketServerUrl: string) {
   await localPreferencesManager.set({ webSocketServerUrl: webSocketServerUrl });
 }
 
-export async function openBlock(id: string) {
+export function selectBlock(id: string, caretCharIndex: number) {
+  useZustandStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
+}
+
+export async function handleBlockOpen(id: string) {
   console.debug(`openBlock`, id);
   useZustandStore.setState({ rootBlockId: id });
   await localPreferencesManager.set({ rootBlockId: id });
-}
-
-export function selectBlock(id: string, caretCharIndex: number) {
-  useZustandStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
 }
 
 export function handleBlockAdd(id: string) {
@@ -109,7 +113,7 @@ export function handleBlockMoveDown(id: string) {
   }
 }
 
-export function handleSelectBlockUp(id: string) {
+export function handleBlockSelectUp(id: string) {
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -122,9 +126,25 @@ export function handleSelectBlockUp(id: string) {
   }
 }
 
-export function handleSelectBlockDown(id: string) {
+export function handleBlockSelectDown(id: string) {
   const ysibling = getItemSibling(yjs.yblocks, id, 1);
   if (ysibling) {
     selectBlock(ysibling.get("id"), 0);
   }
+}
+
+export function handlePageAdd(id: string) {
+  createInsertPage(yjs.ydoc, "Untitled", id, 0);
+}
+
+export function handleCollectionAdd(id: string) {
+  createInsertCollection(yjs.ydoc, "Untitled", id, 0);
+}
+
+export function handlePageDelete(id: string) {
+  deletePage(yjs.ydoc, id);
+}
+
+export function handleCollectionDelete(id: string) {
+  deleteCollection(yjs.ydoc, id);
 }

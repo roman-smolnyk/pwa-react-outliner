@@ -69,7 +69,7 @@ export default function Block({
 }) {
   // console.debug("Block");
   const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
-  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, transform, transition } = useSortable({ id });
+  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, setNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
     transform: DnDCSS.Translate.toString(transform),
@@ -81,8 +81,8 @@ export default function Block({
   }
 
   return (
-    <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setDroppableNodeRef} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}>
-      <div className={`flex items-start`} ref={setDraggableNodeRef} style={style}>
+    <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setNodeRef} style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}>
+      <div className={`flex items-start`}>
         {isActive ? (
           <DropIndicator />
         ) : (

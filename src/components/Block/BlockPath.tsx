@@ -1,5 +1,5 @@
 import { traverseBlockPath } from "esm-treero-api";
-import { openBlock } from "../../api/api";
+import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
 
@@ -9,7 +9,7 @@ export function BlockPathPart({ id, text }: { id: string; text: string }) {
       <span
         className="inline-block hover:underline cursor-pointer min-h-5 min-w-10 max-w-30 truncate"
         onClick={() => {
-          openBlock(id);
+          handleBlockOpen(id);
         }}
       >
         <PlainMarkdown>{text}</PlainMarkdown>
