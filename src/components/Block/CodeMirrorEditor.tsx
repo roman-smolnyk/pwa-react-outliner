@@ -73,14 +73,19 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         console.debug("CodeMirrorEditor:relatedTarget", relatedTarget);
         if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
           console.debug("CodeMirrorEditor:blur prevent", view.state.selection.main.head);
-          setTimeout(() => {
-            view.focus();
-            view.dispatch({
-              selection: EditorSelection.cursor(view.state.selection.main.head),
-              scrollIntoView: true,
-            });
-          }, 50);
-
+          if (relatedTarget.classList.contains("AddBlock")) {
+            setTimeout(() => {
+              setIsEdit(false);
+            }, 250);
+          } else {
+            setTimeout(() => {
+              view.focus();
+              view.dispatch({
+                selection: EditorSelection.cursor(view.state.selection.main.head),
+                scrollIntoView: true,
+              });
+            }, 50);
+          }
           return;
         }
 

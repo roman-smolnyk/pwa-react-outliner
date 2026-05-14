@@ -42,8 +42,10 @@ export default function Footer() {
       >
         <Button
           title="Add block"
+          className="AddBlock"
+          data-ignore-blur="true"
           onClick={(e) => {
-            console.debug("onPointerDown", selectedBlockId);
+            console.debug("onClick", selectedBlockId);
             if (selectedBlockId) {
               handleBlockAdd(selectedBlockId);
             }
