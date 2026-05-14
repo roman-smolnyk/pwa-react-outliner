@@ -33,7 +33,7 @@ export default defineConfig({
         globIgnores: [],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
 
       devOptions: {
@@ -44,6 +44,17 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          zustand: ["zustand"],
+          katex: ["katex"],
+        },
+      },
+    },
+  },
   // Add variable with version
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
