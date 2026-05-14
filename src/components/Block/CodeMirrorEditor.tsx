@@ -76,15 +76,26 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
           if (relatedTarget.classList.contains("AddBlock")) {
             setTimeout(() => {
               setIsEdit(false);
-            }, 250);
+            }, 200);
           } else {
+            // Needed for keyboard persist
+            view.focus();
+            view.dispatch({
+              selection: EditorSelection.cursor(view.state.selection.main.head),
+              scrollIntoView: true,
+            });
+            // Needed for cursor
             setTimeout(() => {
+              editorRef.current?.scrollIntoView({
+                behavior: "smooth", //
+                block: "nearest",
+              });
               view.focus();
               view.dispatch({
                 selection: EditorSelection.cursor(view.state.selection.main.head),
                 scrollIntoView: true,
               });
-            }, 50);
+            }, 200);
           }
           return;
         }
