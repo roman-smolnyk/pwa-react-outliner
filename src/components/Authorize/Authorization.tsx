@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { WS_SERVER_URL } from "../../../config";
-import { login, register, saveWsUrl } from "../../api/api";
+import { login, register } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 
 export default function Authorization() {
@@ -18,7 +18,7 @@ export default function Authorization() {
           placeholder="WebSocket host"
           value={webSocketServerUrl}
           onChange={(e) => useZustandStore.setState({ webSocketServerUrl: e.target.value })}
-          onBlur={() => (!webSocketServerUrl ? useZustandStore.setState({ webSocketServerUrl: WS_SERVER_URL }) : null)}
+          // onBlur={() => (!webSocketServerUrl ? useZustandStore.setState({ webSocketServerUrl: WS_SERVER_URL }) : null)}
         />
         <input
           className="w-full p-2 mb-4 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600"
@@ -31,11 +31,10 @@ export default function Authorization() {
           <button
             type="button"
             className="w-full bg-black text-white p-2 rounded transition-transform hover:scale-105 active:scale-100"
-            onClick={(_) => {
+            onClick={async (_) => {
               // console.debug("Login", token);
               if (token) {
-                login(token);
-                saveWsUrl(webSocketServerUrl);
+                await login(webSocketServerUrl, token);
               }
             }}
           >
@@ -44,9 +43,8 @@ export default function Authorization() {
           <button
             type="button"
             className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
-            onClick={(_) => {
-              register();
-              saveWsUrl(webSocketServerUrl);
+            onClick={async (_) => {
+              await register(webSocketServerUrl);
             }}
           >
             New Account

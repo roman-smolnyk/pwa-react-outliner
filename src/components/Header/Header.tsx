@@ -86,7 +86,6 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
               onClick={(event) => {
                 event.currentTarget.classList.add("animate-spin");
                 window.location.replace(window.location.href);
-                // forceReload();
               }}
             >
               <RotateCwIcon />

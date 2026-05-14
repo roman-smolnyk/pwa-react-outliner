@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
-import trApi from "../../api/treeroApi";
+import { copyToClipboard, logout } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
 
@@ -55,14 +55,10 @@ export default function Menu() {
               className="CopyToken"
               icon={<UserRoundIcon className="w-full h-full" />}
               label="Copy Token"
-              onClick={() => {
+              onClick={async () => {
                 setOpen(false);
-                navigator.clipboard
-                  .writeText(useZustandStore.getState().roomToken as string)
-                  .then(() => {
-                    toast("Copied", { containerId: "toaster" });
-                  })
-                  .catch(() => toast.error("Failed to copy", { containerId: "toaster" }));
+                await copyToClipboard(useZustandStore.getState().roomToken as string);
+                toast("Copied", { containerId: "toaster" });
               }}
             />
             <FloatingMenuItem
@@ -109,8 +105,7 @@ export default function Menu() {
               onClick={() => {
                 setOpen(false);
                 if (confirm("All data on this device will be wiped. Are you sure?")) {
-                  trApi.clearData(true);
-                  // TreeRoAPI.clearData(true);
+                  logout();
                 }
               }}
             />

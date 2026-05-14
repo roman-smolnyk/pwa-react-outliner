@@ -3,7 +3,7 @@ import { WS_SERVER_URL } from "../../config";
 
 export interface LocalPreferences {
   roomToken: string;
-  authorized: boolean;
+  isAuthorized: boolean;
   rootBlockId: string;
   webSocketServerUrl: string;
 }
@@ -21,7 +21,7 @@ const localPreferencesManager: LocalPreferencesManager = {
   async get() {
     const defaultPrefs: LocalPreferences = {
       roomToken: "",
-      authorized: false,
+      isAuthorized: false,
       rootBlockId: "",
       webSocketServerUrl: WS_SERVER_URL,
     };

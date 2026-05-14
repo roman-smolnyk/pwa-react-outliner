@@ -1,43 +1,50 @@
+import { Clipboard } from "@capacitor/clipboard";
 import {
-  createBlock,
-  createCollection,
   createInsertBlock,
   createInsertBlockAfter,
   createInsertCollection,
   createInsertPage,
-  createPage,
   deleteBlock,
   deleteCollection,
   deletePage,
-  getChildItemIndex,
-  getItem,
   getItemParent,
   getItemSibling,
-  insertItem,
   isRootItem,
   moveItem,
   moveItemAfter,
   moveItemBefore,
   type YBlockMap,
 } from "esm-treero-api";
+import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
 import useZustandStore from "../store/useZustandStore";
 import yjs from "../store/yjsManager";
 
-export async function login(roomToken: string) {
-  console.debug(`authorize`, roomToken);
-  useZustandStore.setState({ authorized: true, newAccount: false });
-  await localPreferencesManager.set({ roomToken: roomToken, authorized: true });
+export function generateRoomToken(): string {
+  return nanoid(64);
 }
 
-export function register() {
-  console.debug(`register`);
-  useZustandStore.setState({ authorized: true, newAccount: true });
+export async function login(webSocketServerUrl: string, roomToken: string) {
+  console.debug(`login`, webSocketServerUrl, roomToken);
+  await localPreferencesManager.set({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
+  useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, isNewAccount: false });
 }
 
-export async function saveWsUrl(webSocketServerUrl: string) {
-  console.debug(`saveWsUrl`, webSocketServerUrl);
-  await localPreferencesManager.set({ webSocketServerUrl: webSocketServerUrl });
+export async function register(webSocketServerUrl: string) {
+  console.debug(`register`, webSocketServerUrl);
+  const newRoomToken = generateRoomToken();
+  await localPreferencesManager.set({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
+  useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, isNewAccount: true });
+}
+
+export async function logout() {
+  await clearAllData();
+  window.location.replace(window.location.href);
+}
+
+export async function clearAllData() {
+  await localPreferencesManager.clear();
+  await yjs.idbPersistence?.clearData();
 }
 
 export function selectBlock(id: string, caretCharIndex: number) {
@@ -147,4 +154,30 @@ export function handlePageDelete(id: string) {
 
 export function handleCollectionDelete(id: string) {
   deleteCollection(yjs.ydoc, id);
+}
+
+export function handleUndo() {
+  yjs.undoManager?.undo();
+}
+
+export function handleRedo() {
+  yjs.undoManager?.redo();
+}
+
+export async function copyToClipboard(text: string) {
+  try {
+    await Clipboard.write({ string: text });
+  } catch (_error) {
+    // console.error(error);
+    copyFallback(text);
+  }
+}
+
+function copyFallback(text: string) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand?.("copy");
+  document.body.removeChild(textarea);
 }

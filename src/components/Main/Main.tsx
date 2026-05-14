@@ -72,29 +72,27 @@ function useSetupHotkeys() {
 
 export default function Main() {
   console.debug("Main");
-  const [loaded, setLoaded] = useState(false);
   const explorerPanelRef = useRef<PanelImperativeHandle>(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const viewportWidth = useZustandStore((s) => s.viewportWidth);
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "panelsLayout",
-    // This set of ids must match the Panels rendered during mount,
-    // or the default layout will not be restored
     panelIds: ["ExplorerPanel", "PagePanel"],
     storage: localStorage,
   });
 
   useEffect(() => {
     onStartUp(async () => {
-      console.debug("setLoaded", true);
-      setLoaded(true);
+      console.debug("setIsDataLoaded", true);
+      setIsDataLoaded(true);
     });
   }, []);
 
   useSetupHotkeys();
 
-  if (!loaded) {
+  if (!isDataLoaded) {
     return <Spinner />;
   }
 
