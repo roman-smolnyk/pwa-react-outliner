@@ -42,20 +42,11 @@ export default function Footer() {
       >
         <Button
           title="Add block"
-          onPointerDown={(e) => {
+          onClick={(e) => {
             console.debug("onPointerDown", selectedBlockId);
-            e.preventDefault();
-            e.stopPropagation();
             if (selectedBlockId) {
               handleBlockAdd(selectedBlockId);
             }
-
-            // const activeNodeId = useZustandStore.getState().activeNodeId;
-            // const newNodeId = TreeRoAPI.insertNewNodeAfter(activeNodeId);
-            // // console.debug("onPointerDown", { activeNodeId, newNodeId });
-            // if (newNodeId) {
-            //   TreeRoAPI.useZustandStore.getState().activateNode(newNodeId);
-            // }
           }}
         >
           {/* <SquarePlusIcon /> */}
@@ -64,9 +55,8 @@ export default function Footer() {
 
         <Button
           title="Outdent"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          data-ignore-blur="true"
+          onClick={(e) => {
             if (selectedBlockId) handleBlockOutdent(selectedBlockId);
           }}
         >
@@ -75,9 +65,8 @@ export default function Footer() {
 
         <Button
           title="Indent"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          data-ignore-blur="true"
+          onClick={(e) => {
             if (selectedBlockId) handleBlockIndent(selectedBlockId);
           }}
         >
@@ -86,9 +75,8 @@ export default function Footer() {
 
         <Button
           title="Move Up"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          data-ignore-blur="true"
+          onClick={(e) => {
             if (selectedBlockId) handleBlockMoveUp(selectedBlockId);
           }}
         >
@@ -97,10 +85,8 @@ export default function Footer() {
 
         <Button
           title="Move Down"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
+          data-ignore-blur="true"
+          onClick={(e) => {
             if (selectedBlockId) handleBlockMoveDown(selectedBlockId);
           }}
         >
@@ -159,9 +145,7 @@ export default function Footer() {
         <Button
           // text-red-600
           className="DeleteNode"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          onClick={(e) => {
             if (selectedBlockId) {
               handleBlockDelete(selectedBlockId);
             }

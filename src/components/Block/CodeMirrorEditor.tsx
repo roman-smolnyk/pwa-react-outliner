@@ -19,7 +19,7 @@ import useZustandStore from "../../store/useZustandStore";
 
 // const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
 export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
-  console.debug("CodeMirrorEditor", id, charIndex, setIsEdit);
+  console.debug("CodeMirrorEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   // const viewRef = useRef<EditorView | null>(null);
 
@@ -68,7 +68,22 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
 
     const domEventHandlers = EditorView.domEventHandlers({
       blur: (event: FocusEvent, view: EditorView) => {
-        console.debug("Editor lost focus", view.state.doc.length);
+        console.debug("CodeMirrorEditor:blur");
+        const relatedTarget = event.relatedTarget as HTMLElement | null;
+        console.debug("CodeMirrorEditor:relatedTarget", relatedTarget);
+        if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
+          console.debug("CodeMirrorEditor:blur prevent", view.state.selection.main.head);
+          setTimeout(() => {
+            view.focus();
+            view.dispatch({
+              selection: EditorSelection.cursor(view.state.selection.main.head),
+              scrollIntoView: true,
+            });
+          }, 50);
+
+          return;
+        }
+
         if (view.state.doc.length === 0) {
           if (isRootItem(yjs.yblocks, id)) {
             console.debug("updateBlock");
@@ -80,8 +95,8 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
         setIsEdit(false);
       },
       focus: (event: FocusEvent, view: EditorView) => {
+        console.debug("CodeMirrorEditor:focus");
         useZustandStore.setState({ selectedBlockId: id });
-        // console.debug("Editor gained focus");
       },
     });
 
