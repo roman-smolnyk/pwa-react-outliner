@@ -30,8 +30,8 @@ export default function PWABadge() {
 
   return (
     <div
-      className="PWABadge absolute top-15 sm:top-11 left-1/2 -translate-x-1/2 min-w-50 p-4 z-100
-                bg-white border border-gray-300 rounded-lg shadow-2xl"
+      className={`PWABadge absolute top-15 sm:top-11 left-1/2 -translate-x-1/2 min-w-50 p-4 z-100
+                bg-white border border-gray-300 rounded-lg shadow-2xl ${!offlineReady && !needRefresh ? "hidden" : ""}`}
       role="alert"
       aria-labelledby="toast-message"
     >
