@@ -36,7 +36,12 @@ export default function BlockContent({ id }: { id: string }) {
       {!isEdit ? (
         <div
           className={`BlockContent-render wrap-break-word min-h-5 select-none ${readOnly ? "cursor-default" : "cursor-text"}`}
-          style={{ padding: "0px 6px 0px 6px" }}
+          style={{
+            fontFamily: "font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
+            fontSize: "16px",
+            lineHeight: "1.5",
+            padding: "0px 6px 0px 6px",
+          }}
           onPointerDown={(e) => {
             // console.debug("onPointerDown");
             if (readOnly) return;
