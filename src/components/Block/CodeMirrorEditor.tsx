@@ -17,8 +17,8 @@ import {
 import yjs from "../../store/yjsManager";
 import useZustandStore from "../../store/useZustandStore";
 
-// const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
-export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
+const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
+  // export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
   console.debug("CodeMirrorEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   // const viewRef = useRef<EditorView | null>(null);
@@ -70,33 +70,40 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
       blur: (event: FocusEvent, view: EditorView) => {
         console.debug("CodeMirrorEditor:blur");
         const relatedTarget = event.relatedTarget as HTMLElement | null;
-        console.debug("CodeMirrorEditor:relatedTarget", relatedTarget);
+        console.debug("CodeMirrorEditor:relatedTarget", relatedTarget, relatedTarget?.dataset.ignoreBlur);
+        if (!document.hasFocus()) {
+          return;
+        }
         if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
+          event.preventDefault();
           console.debug("CodeMirrorEditor:blur prevent", view.state.selection.main.head);
           if (relatedTarget.classList.contains("AddBlock")) {
             setTimeout(() => {
               setIsEdit(false);
             }, 200);
-          } else {
-            // Needed for keyboard persist
-            view.focus();
-            view.dispatch({
-              selection: EditorSelection.cursor(view.state.selection.main.head),
-              scrollIntoView: true,
-            });
-            // Needed for cursor
-            setTimeout(() => {
-              editorRef.current?.scrollIntoView({
-                behavior: "smooth", //
-                block: "nearest",
-              });
-              view.focus();
-              view.dispatch({
-                selection: EditorSelection.cursor(view.state.selection.main.head),
-                scrollIntoView: true,
-              });
-            }, 200);
           }
+          // else {
+          //   // Needed for keyboard persist
+          //   view.focus();
+          //   view.dispatch({
+          //     selection: EditorSelection.cursor(view.state.selection.main.head),
+          //     scrollIntoView: true,
+          //   });
+          //   setIsEdit(true);
+          //   // Needed for cursor
+          //   setTimeout(() => {
+          //     editorRef.current?.scrollIntoView({
+          //       behavior: "smooth", //
+          //       block: "nearest",
+          //     });
+          //     setIsEdit(true);
+          //     view.focus();
+          //     view.dispatch({
+          //       selection: EditorSelection.cursor(view.state.selection.main.head),
+          //       scrollIntoView: true,
+          //     });
+          //   }, 200);
+          // }
           return;
         }
 
@@ -107,7 +114,7 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
           }
         }
         useZustandStore.setState({ selectedBlockId: null });
-        useZustandStore.getState().rerenderPage();
+        // useZustandStore.getState().rerenderPage();
         setIsEdit(false);
       },
       focus: (event: FocusEvent, view: EditorView) => {
@@ -349,5 +356,5 @@ export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: str
   }, []);
 
   return <div ref={editorRef} />;
-}
-// export default CodeMirrorEditor;
+});
+export default CodeMirrorEditor;

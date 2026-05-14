@@ -47,9 +47,9 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
 
   // Compute the expensive flattened tree only when 'version' changes
   return useMemo(() => {
-    console.debug("useFlattenedTree:useMemo:version", version);
+    console.debug("useFlattenedTree:useMemo", version, customTicker, rootId, activeId);
     const flattenedTree = flattenTree(yitems.toJSON(), rootId);
     const collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
     return removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
-  }, [yitems, rootId, activeId, version, customTicker]);
+  }, [yitems, version, customTicker, rootId, activeId]);
 }
