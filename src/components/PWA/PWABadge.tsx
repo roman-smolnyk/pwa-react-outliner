@@ -30,29 +30,31 @@ export default function PWABadge() {
 
   return (
     <div
-      className="PWABadge fixed right-0 bottom-0 mb-100 mr-50 z-100 
-                  border-0"
+      className="PWABadge absolute top-15 sm:top-11 left-1/2 -translate-x-1/2 min-w-50 p-4 z-100
+                bg-white border border-gray-300 rounded-lg shadow-2xl"
       role="alert"
       aria-labelledby="toast-message"
     >
       {(offlineReady || needRefresh) && (
-        <div className="PWABadge-toast">
-          <div className="PWABadge-message">
+        <div className="flex flex-col items-center justify-center text-center gap-3">
+          <div className="text-xl">
             {offlineReady ? <span>App ready to work offline</span> : <span>New content available, click on reload button to update.</span>}
           </div>
-          <div className="PWABadge-buttons">
+          <div className="flex gap-4">
             {needRefresh && (
               <button
+                className="min-w-20 p-2 font-semibold text-white
+                          bg-gray-900 hover:bg-gray-700 rounded-lg shadow-md active:scale-90 transition"
                 type="button"
-                className="PWABadge-toast-button bg-indigo-500 text-white font-semibold p-2 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
                 onClick={() => updateServiceWorker(true)}
               >
                 Reload
               </button>
             )}
             <button
+              className="min-w-20 p-2 font-semibold text-white
+                          bg-gray-900 hover:bg-gray-700 rounded-lg shadow-md active:scale-90 transition"
               type="button"
-              className="PWABadge-toast-button bg-indigo-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200"
               onClick={() => close()}
             >
               Close
