@@ -1,10 +1,21 @@
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import useZustandStore from "../../store/useZustandStore";
 
 export default function PWABadge() {
   console.debug("PWABadge");
   // check for updates every hour
   const period = 60 * 60 * 1000;
+
+  const updatePwaSw = useZustandStore((s) => s.updatePwaSw);
+
+  useEffect(() => {
+    if (updatePwaSw) {
+      updateServiceWorker(true);
+      useZustandStore.setState({ updatePwaSw: false });
+    }
+  }, [updatePwaSw]);
 
   const {
     offlineReady: [offlineReady, setOfflineReady],

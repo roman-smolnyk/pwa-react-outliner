@@ -1,6 +1,7 @@
 import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import {
   BoltIcon,
+  CircleArrowUpIcon,
   CircleQuestionMarkIcon,
   EllipsisVerticalIcon,
   HardDriveDownloadIcon,
@@ -84,6 +85,15 @@ export default function Menu() {
               onClick={() => {
                 console.debug("onClick", inputRef.current);
                 inputRef.current?.click();
+              }}
+            ></FloatingMenuItem>
+
+            <FloatingMenuItem
+              label="Update"
+              className=""
+              icon={<CircleArrowUpIcon className="w-full h-full" />}
+              onClick={() => {
+                useZustandStore.setState({ updatePwaSw: true });
               }}
             ></FloatingMenuItem>
 
