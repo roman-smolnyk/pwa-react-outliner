@@ -12,6 +12,7 @@ export default function PWABadge() {
 
   useEffect(() => {
     if (updatePwaSw) {
+      console.debug("Update PWA Service Worker");
       updateServiceWorker(true);
       useZustandStore.setState({ updatePwaSw: false });
     }

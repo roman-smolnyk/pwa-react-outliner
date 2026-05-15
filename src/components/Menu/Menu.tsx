@@ -93,6 +93,7 @@ export default function Menu() {
               className=""
               icon={<CircleArrowUpIcon className="w-full h-full" />}
               onClick={() => {
+                setOpen(false);
                 useZustandStore.setState({ updatePwaSw: true });
               }}
             ></FloatingMenuItem>
