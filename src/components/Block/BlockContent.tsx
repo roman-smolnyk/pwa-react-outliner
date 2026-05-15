@@ -35,12 +35,12 @@ export default function BlockContent({ id }: { id: string }) {
     <div className={`BlockContent w-full ${isEdit ? "bg-gray-100" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render wrap-break-word min-h-5 ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
+          className={`BlockContent-render wrap-break-word min-h-[28px] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           style={{
             fontFamily: "font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
             fontSize: "16px",
             lineHeight: "1.5",
-            padding: "0px 6px 0px 6px",
+            padding: "4px 6px 4px 6px",
           }}
           onClick={(e) => {
             if (readOnly) return;

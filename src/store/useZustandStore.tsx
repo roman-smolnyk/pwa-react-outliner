@@ -3,13 +3,14 @@ import localPreferencesManager from "./preferences";
 
 export interface useZustandStoreType {
   isHydrated: boolean;
+
   isAuthorized: boolean;
   isNewAccount: boolean;
   webSocketServerUrl: string;
-  roomToken?: string;
+  roomToken: string;
   rootBlockId: string;
-  selectedBlockId: string | null;
 
+  selectedBlockId: string | null;
   focusBlockId: string | null;
   caretCharIndex: number;
 
@@ -20,28 +21,40 @@ export interface useZustandStoreType {
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
   viewportWidth: number;
 
-  rerenderPageTicker: number;
-  rerenderPage(): void;
+  renderPageTicker: number;
+  renderPage(): void;
+
+  explorerPanelAction: "collapse" | "expand" | "";
+  collapseExplorer(): void;
+  expandExplorer(): void;
 }
 
 const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isHydrated: false,
+
   isAuthorized: false,
   isNewAccount: false,
   webSocketServerUrl: "",
-  roomToken: undefined,
+  roomToken: "",
   rootBlockId: "",
+
   selectedBlockId: null,
   focusBlockId: null,
   caretCharIndex: 0,
+
   isExplorerOpened: true,
   isPageSearchOpened: false,
   isChekboxSelectionActive: false,
+
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,
 
-  rerenderPageTicker: 0,
-  rerenderPage: () => set((state) => ({ rerenderPageTicker: state.rerenderPageTicker + 1 })),
+  renderPageTicker: 0,
+  renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
+
+  explorerPanelAction: "",
+  collapseExplorer: () => set({ explorerPanelAction: "collapse" }),
+  expandExplorer: () => set({ explorerPanelAction: "expand" }),
 }));
 
 export async function hydrateZustandStateWithPreferences() {

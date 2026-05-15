@@ -9,11 +9,6 @@ import { handleCollectionAdd, handlePageAdd } from "../../api/api";
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
 
-  const rootBlockId = useZustandStore((s) => s.rootBlockId);
-  if (!rootBlockId) {
-    return null;
-  }
-
   const rootCollectionId = yjs.yaccount.get("root_id");
   if (!rootCollectionId) {
     throw new Error(`rootCollectionId is missing`);
@@ -29,7 +24,12 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
       <div className="flex-1 flex items-center">
         {/* Left icons */}
         <div className="mr-3 flex items-center gap-3 sm:gap-2">
-          <Button onClick={() => explorerPanelRef.current?.collapse()}>
+          <Button
+            onClick={() => {
+              useZustandStore.getState().collapseExplorer();
+              // explorerPanelRef.current?.collapse();
+            }}
+          >
             <PanelLeftCloseIcon />
           </Button>
         </div>

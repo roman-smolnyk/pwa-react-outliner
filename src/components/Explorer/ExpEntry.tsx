@@ -5,7 +5,9 @@ import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucid
 import { useMemo, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
+import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
+import { isMobile } from "../../utils/utilities.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleEdit from "./TitleEdit.tsx";
@@ -87,6 +89,9 @@ export default function ExpEntry({
   function onClick() {
     if (type === PAGE_TYPE) {
       handleBlockOpen(yitem.get("root_id") as string);
+      if (isMobile()) {
+        useZustandStore.getState().collapseExplorer();
+      }
     } else if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
       yitem.set("collapsed", !collapsed);
     }

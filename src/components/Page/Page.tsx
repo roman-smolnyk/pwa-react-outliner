@@ -2,7 +2,7 @@ import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core"
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
 import { moveItem } from "esm-treero-api";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
@@ -25,16 +25,17 @@ const sortingStrategy: SortingStrategy = (args) => {
   return verticalListSortingStrategy(args);
 };
 
+// const Page = memo(({ rootId }: { rootId: string }) => {
 export default function Page({ rootId }: { rootId: string }) {
   console.debug("Page");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const rerenderPageTicker = useZustandStore((s) => s.rerenderPageTicker);
+  const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
 
   // @ts-ignore
-  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, rerenderPageTicker) as FlatBlocksT;
+  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker) as FlatBlocksT;
   // console.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
@@ -82,7 +83,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className="Page flex flex-col gap-2 sm:gap-1">
+    <div className="Page flex flex-col gap-1 sm:gap-0">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection
@@ -122,3 +123,4 @@ export default function Page({ rootId }: { rootId: string }) {
     </div>
   );
 }
+// export default Page;

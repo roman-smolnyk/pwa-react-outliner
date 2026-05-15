@@ -16,7 +16,6 @@ import {
   SearchIcon,
   UndoIcon,
 } from "lucide-react";
-import type { PanelImperativeHandle } from "react-resizable-panels";
 import { toast } from "react-toastify";
 import { usePlainTextView } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
@@ -25,7 +24,7 @@ import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
 import Menu from "../Menu/Menu";
 
-export default function Header({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
+export default function Header() {
   console.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { plainTextView, setPlainTextView } = usePlainTextView();
@@ -51,10 +50,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
             <Button
               title="Open Explorer"
               onClick={() => {
-                useZustandStore.setState({ isExplorerOpened: true });
-                explorerPanelRef?.current?.expand();
-                explorerPanelRef.current?.resize("100%");
-                console.debug(explorerPanelRef.current);
+                useZustandStore.getState().expandExplorer();
               }}
             >
               <PanelLeftIcon />
@@ -63,7 +59,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
         </div>
 
         <div className="flex-1 min-w-0 overflow-x-auto flex">
-          <div className="LeftIcons min-w-max flex gap-3 sm:gap-2">
+          <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">
             <Button
               title="Undo"
               onClick={() => {
@@ -94,7 +90,7 @@ export default function Header({ explorerPanelRef }: { explorerPanelRef: React.R
 
           <div className="Spacer flex-1 min-w-3" />
 
-          <div className="RightIcons flex gap-3 sm:gap-2">
+          <div className="RightIcons flex gap-4 sm:gap-2">
             <Button
               title={`WebSocket: ${webSocketConnectionStatus}`}
               onClick={() => {

@@ -1,5 +1,5 @@
 import { arrayMove } from "@dnd-kit/sortable";
-import type { FlatBlockT, BlockT, FlatExplorerT, FlatBlocksT } from "../types/types";
+import { MOBILE_WIDTH } from "../../config";
 
 type TreeItem = {
   id: string;
@@ -141,6 +141,13 @@ export function getCharIndexFromMouse(element: HTMLElement, x: number, y: number
   }
   return charIndex;
 }
+
+export function isMobile(): boolean {
+  // return window.matchMedia(`(max-width: ${MOBILE_WIDTH}px)`).matches;
+  return window.innerWidth <= MOBILE_WIDTH;
+}
+
+export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 // import debounce from "lodash/debounce";
 // import { useEffect, useRef, useState } from "react";

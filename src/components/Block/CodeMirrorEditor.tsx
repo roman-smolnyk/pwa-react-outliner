@@ -16,6 +16,7 @@ import {
 } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import useZustandStore from "../../store/useZustandStore";
+import type { YTextEvent, Transaction as YTransaction } from "yjs";
 
 const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
   // export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
@@ -54,7 +55,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         fontSize: "16px",
         lineHeight: "1.25",
         // padding: "0px",
-        padding: "0px 6px 0px 6px",
+        padding: "4px 6px 4px 6px",
       },
       ".cm-line": {
         padding: "0px",
@@ -168,7 +169,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
             });
           }
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -178,7 +179,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
           console.debug("Redo");
           yjs.undoManager?.redo();
           const text = ytext.toString();
-          if (view.state.doc.toString() !== ytext.toString()) {
+          if (view.state.doc.toString() !== text) {
             view.dispatch({
               changes: {
                 from: 0,
@@ -195,7 +196,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
             } catch {}
           }
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -207,7 +208,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
             return true;
           }
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return false;
         },
       },
@@ -219,7 +220,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
             return true;
           }
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return false;
         },
       },
@@ -228,7 +229,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockAdd(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -238,7 +239,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
           if (view.state.doc.length === 0) {
             handleBlockDelete(id);
 
-            useZustandStore.getState().rerenderPage();
+            useZustandStore.getState().renderPage();
             return true;
           }
           return false;
@@ -249,7 +250,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockDelete(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -258,7 +259,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockDelete(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -267,7 +268,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockIndent(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -276,7 +277,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockOutdent(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -285,7 +286,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockMoveUp(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -294,7 +295,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         run: (view: EditorView) => {
           handleBlockMoveDown(id);
 
-          useZustandStore.getState().rerenderPage();
+          useZustandStore.getState().renderPage();
           return true;
         },
       },
@@ -372,8 +373,37 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
       scrollIntoView: true,
     });
 
+    // Handles changes from remote that come during edit
+    function ytextObserver(event: YTextEvent, transaction: YTransaction) {
+      if (transaction.origin) {
+        console.info("ytext.observe", event, transaction);
+        const text = ytext.toString();
+        if (view.state.doc.toString() !== text) {
+          view.dispatch({
+            changes: {
+              from: 0,
+              to: view.state.doc.length,
+              insert: text,
+            },
+            annotations: CustomAnnotation.of("customundoredo"),
+          });
+          try {
+            view.dispatch({
+              selection: EditorSelection.cursor(Math.max(text.length, view.state.selection.main.head)),
+              annotations: CustomAnnotation.of("customundoredo"),
+            });
+          } catch {}
+        }
+      }
+    }
+
+    // @ts-ignore
+    ytext.observe(ytextObserver);
+
     return () => {
       view.destroy();
+      // @ts-ignore
+      ytext.unobserve(ytextObserver);
       // viewRef.current = null;
     };
   }, []);

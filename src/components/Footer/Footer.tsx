@@ -20,15 +20,20 @@ import {
 import useZustandStore from "../../store/useZustandStore";
 import Button from "../Common/Button";
 import { handleBlockAdd, handleBlockDelete, handleBlockIndent, handleBlockMoveDown, handleBlockMoveUp, handleBlockOutdent } from "../../api/api";
+import { isMobile } from "../../utils/utilities";
 
 export default function Footer() {
   console.debug("Footer");
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
   const selectedBlockId = useZustandStore((s) => s.selectedBlockId);
 
+  // if (!isMobile()) {
+  //   return null;
+  // }
+
   return (
     <div
-      className="Footer fixed bottom-0 right-0 min-w-0 min-h-10 sm:min-h-8 px-4 sm:px-2 z-10
+      className="Footer fixed bottom-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
                bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex"
       style={{
@@ -36,7 +41,7 @@ export default function Footer() {
       }}
     >
       <div
-        className="min-w-0 flex-1 
+        className="flex-1 min-w-0 pb-2 sm:pb-0
                   overflow-x-auto
                   flex gap-4 sm:gap-2 items-center justify-start sm:justify-center"
       >

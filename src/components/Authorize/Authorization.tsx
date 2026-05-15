@@ -10,7 +10,7 @@ export default function Authorization() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center ">
-      <div className="min-w-50 sm:min-w-100 py-8 px-2 sm:px-8 m-2 rounded-xl bg-white shadow-md ">
+      <div className="min-w-50 sm:min-w-100 m-5 py-8 px-4 sm:px-8 rounded-xl bg-white shadow-md ">
         <h1 className="text-2xl font-bold mb-4 text-center">TreeRo</h1>
         <input
           className="w-full p-2 mb-4 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600"
@@ -27,10 +27,11 @@ export default function Authorization() {
           value={token}
           onChange={(e) => setToken(e.target.value)}
         />
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-2 sm:gap-4">
           <button
             type="button"
-            className="w-full bg-black text-white p-2 rounded transition-transform hover:scale-105 active:scale-100"
+            className="w-full bg-gray-900 text-white p-2 rounded cursor-pointer
+                      hover:scale-105 active:scale-100 transition-transform"
             onClick={async (_) => {
               // console.debug("Login", token);
               if (token) {
@@ -42,7 +43,8 @@ export default function Authorization() {
           </button>
           <button
             type="button"
-            className="w-full bg-gray-300 text-gray-800 p-2 rounded transition-transform hover:scale-105 active:scale-100"
+            className="w-full bg-gray-900 text-white p-2 rounded cursor-pointer
+                      hover:scale-105 active:scale-100 transition-transform"
             onClick={async (_) => {
               await register(webSocketServerUrl);
             }}

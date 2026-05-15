@@ -3,11 +3,13 @@ import { WS_IS_ON } from "../config.tsx";
 import { fillInMockupData } from "./etc/mockupData";
 import useZustandStore from "./store/useZustandStore.tsx";
 import yjs from "./store/yjsManager";
+import { sleep } from "./utils/utilities.tsx";
 
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp(callback: CallableFunction) {
   console.debug(`onStartUp`);
   if (startupPromise) {
+    console.error(`onStartUp called again`);
     return startupPromise;
   }
 
@@ -57,6 +59,13 @@ export default function onStartUp(callback: CallableFunction) {
         });
       } else {
         useZustandStore.setState({ webSocketConnectionStatus: "turned off" });
+      }
+
+      let rootCollectionId = yjs.yaccount.get("root_id");
+      while (!rootCollectionId) {
+        console.debug("Waiting for rootCollectionId");
+        await sleep(250);
+        rootCollectionId = yjs.yaccount.get("root_id");
       }
 
       callback();

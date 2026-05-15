@@ -100,7 +100,7 @@ export default function Main() {
     <div className="Main">
       <ReadOnlyContextProvider>
         <PlainTextViewContextProvider>
-          <Header explorerPanelRef={explorerPanelRef} />
+          <Header />
 
           <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
             <Panel
@@ -119,7 +119,6 @@ export default function Main() {
                 }
 
                 document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
-                // console.debug("ZZZZZ", explorerPanelRef.current?.isCollapsed());
               }}
             >
               <div className="h-dvh overflow-hidden flex flex-col">
@@ -133,9 +132,9 @@ export default function Main() {
             />
             <Panel id="PagePanel">
               <div className="h-dvh overflow-hidden flex flex-col">
-                <div className="Spacer border min-h-12 sm:min-h-8"></div>
+                <div className="Spacer min-h-12 sm:min-h-8"></div>
                 <PageContainer />
-                <div className="Spacer border min-h-10 sm:min-h-8"></div>
+                <div className="Spacer min-h-12 sm:min-h-8"></div>
               </div>
             </Panel>
           </Group>

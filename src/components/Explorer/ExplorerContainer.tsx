@@ -2,9 +2,25 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import yjs from "../../store/yjsManager";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
+import useZustandStore from "../../store/useZustandStore";
+import { useEffect } from "react";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   console.debug("ExplorerContainer");
+
+  // Moved explorer panel actions here to prevent Main component rerender
+  const explorerAction = useZustandStore((s) => s.explorerPanelAction);
+  useEffect(() => {
+    if (!explorerPanelRef.current) return;
+    if (explorerAction === "expand") {
+      explorerPanelRef.current.expand();
+      useZustandStore.setState({ isExplorerOpened: true });
+    } else if (explorerAction === "collapse") {
+      explorerPanelRef.current.collapse();
+      useZustandStore.setState({ isExplorerOpened: false });
+    }
+    useZustandStore.setState({ explorerPanelAction: "" });
+  }, [explorerAction, explorerPanelRef]);
 
   const rootId = yjs.yaccount.get("root_id")!;
 

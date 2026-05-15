@@ -7,6 +7,7 @@ import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
+import { memo } from "react";
 
 function HandleButton({
   id,
@@ -23,7 +24,7 @@ function HandleButton({
 }) {
   return (
     <button
-      className="HandleButton flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
+      className="HandleButton mt-1 flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
       type="button"
       {...attributes}
       {...listeners}
@@ -51,7 +52,8 @@ function HandleButton({
   );
 }
 
-// No sense to memoize
+// const Block = memo(
+//   ({
 export default function Block({
   id,
   collapsed,
@@ -108,6 +110,7 @@ export default function Block({
     </div>
   );
 }
+// export default Block;
 
 function DropIndicator() {
   return (

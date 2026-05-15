@@ -9,11 +9,30 @@ export default function PageContainer() {
   console.debug("PageContainer");
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
 
-  const yblock = useMemo(() => getItem(yjs.yblocks, rootBlockId), [rootBlockId]);
+  const yblock = useMemo(() => {
+    if (rootBlockId) {
+      return getItem(yjs.yblocks, rootBlockId);
+    }
+  }, [rootBlockId]);
+
+  if (!rootBlockId) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-xl text-gray-700">No document selected</div>
+      </div>
+    );
+  }
+
+  if (!yblock) {
+    throw new Error(`yblock with it="${rootBlockId}" is missing`);
+  }
   const parentId = yblock.get("parent_id");
 
   return (
-    <div className="PageContainer @container flex-1 relative z-0 min-w-xs min-h-0 flex flex-col overflow-y-auto overscroll-y-contain">
+    <div
+      className="PageContainer @container flex-1 relative z-0 min-w-xs min-h-0 
+                flex flex-col overflow-y-auto overscroll-y-contain"
+    >
       <div
         className="flex-1
                  px-5 w-full @[800px]:w-[800px] mx-auto
