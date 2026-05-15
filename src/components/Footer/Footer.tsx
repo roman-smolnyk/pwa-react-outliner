@@ -146,8 +146,8 @@ export default function Footer() {
           </Button> */}
 
         <Button
-          // text-red-600
           className="DeleteNode"
+          data-ignore-blur="true"
           onClick={(e) => {
             if (selectedBlockId) {
               handleBlockDelete(selectedBlockId);

@@ -52,9 +52,9 @@ export default function Menu() {
             {...getFloatingProps()}
           >
             <FloatingMenuItem
+              label="Copy Token"
               className="CopyToken"
               icon={<UserRoundIcon className="w-full h-full" />}
-              label="Copy Token"
               onClick={async () => {
                 setOpen(false);
                 await copyToClipboard(useZustandStore.getState().roomToken as string);
@@ -62,25 +62,25 @@ export default function Menu() {
               }}
             />
             <FloatingMenuItem
+              label="Settings"
               className="text-yellow-400"
               icon={<BoltIcon className="w-full h-full" />}
-              label="Settings"
               onClick={() => {
                 setOpen(false);
               }}
             />
             <FloatingMenuItem
-              className="DownloadBackup"
-              icon={<HardDriveDownloadIcon className="w-full h-full" />}
               label="Download Backup"
+              className="text-yellow-400"
+              icon={<HardDriveDownloadIcon className="w-full h-full" />}
               onClick={async () => {
                 setOpen(false);
               }}
             />
             <FloatingMenuItem
-              className="ImportBackup"
-              icon={<HardDriveUploadIcon className="w-full h-full" />}
               label="Import Backup"
+              className="text-yellow-400"
+              icon={<HardDriveUploadIcon className="w-full h-full" />}
               onClick={() => {
                 console.debug("onClick", inputRef.current);
                 inputRef.current?.click();
@@ -88,9 +88,9 @@ export default function Menu() {
             ></FloatingMenuItem>
 
             <FloatingMenuItem
-              className="text-yellow-400"
-              icon={<CircleQuestionMarkIcon className="w-full h-full" />}
               label="Help"
+              className=""
+              icon={<CircleQuestionMarkIcon className="w-full h-full" />}
               onClick={() => {
                 setOpen(false);
                 toast(`${__APP_VERSION__}`, { containerId: "toaster" });
@@ -99,9 +99,9 @@ export default function Menu() {
             <hr className="m-1 border-gray-300" />
 
             <FloatingMenuItem
+              label="Exit"
               className="Exit text-red-600"
               icon={<LogInIcon className="w-full h-full" />}
-              label="Exit"
               onClick={() => {
                 setOpen(false);
                 if (confirm("All data on this device will be wiped. Are you sure?")) {
