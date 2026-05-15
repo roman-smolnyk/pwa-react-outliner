@@ -19,6 +19,7 @@ export default function PWABadge() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
+      console.debug("onRegisteredSW");
       setSwUrl(swUrl);
       setSwRegistration(r);
       if (period <= 0) return;
@@ -34,6 +35,7 @@ export default function PWABadge() {
   });
 
   async function fetchSW() {
+    console.debug("fetchSW", swUrl, swRegistration);
     if ("onLine" in navigator && !navigator.onLine) return;
     if (!swUrl || !swRegistration) return;
 
