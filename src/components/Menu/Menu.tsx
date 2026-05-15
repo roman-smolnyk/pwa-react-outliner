@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { copyToClipboard, logout } from "../../api/api";
+import { copyToClipboard, hardPWAReload, logout } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
 
@@ -92,9 +92,10 @@ export default function Menu() {
               label="Update"
               className=""
               icon={<CircleArrowUpIcon className="w-full h-full" />}
-              onClick={() => {
+              onClick={async () => {
                 setOpen(false);
-                useZustandStore.setState({ updatePwaSw: true });
+                // useZustandStore.setState({ updatePwaSw: true });
+                await hardPWAReload();
               }}
             ></FloatingMenuItem>
 

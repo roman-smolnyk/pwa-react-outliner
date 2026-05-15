@@ -181,3 +181,20 @@ function copyFallback(text: string) {
   document.execCommand?.("copy");
   document.body.removeChild(textarea);
 }
+
+export async function hardPWAReload() {
+  if (!navigator.onLine) return;
+
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((reg) => reg.unregister()));
+
+  const cacheKeys = await caches.keys();
+  await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("v", String(Date.now()));
+  setTimeout(() => {
+    window.location.replace(url);
+  }, 0);
+  // window.location.href = url.toString();
+}
