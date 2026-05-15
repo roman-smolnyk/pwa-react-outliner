@@ -107,8 +107,8 @@ export default function Main() {
               id="ExplorerPanel"
               panelRef={explorerPanelRef}
               defaultSize={"30%"}
-              minSize={viewportWidth > MOBILE_WIDTH ? 150 : "100%"}
-              maxSize={viewportWidth > MOBILE_WIDTH ? "30%" : "100%"}
+              minSize={viewportWidth > MOBILE_WIDTH ? 150 : "90%"}
+              maxSize={viewportWidth > MOBILE_WIDTH ? "30%" : "90%"}
               collapsible
               collapsedSize={0}
               onResize={(size) => {
