@@ -124,16 +124,29 @@ function getMinDepth<T extends Flattened<TreeItem>>(nextItem: T): number {
   return 0;
 }
 
+function getCaretPosition(x: number, y: number) {
+  if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(x, y);
+    if (!pos) return null;
+    return { node: pos.offsetNode, offset: pos.offset };
+  } else if (document.caretRangeFromPoint) {
+    const range = document.caretRangeFromPoint(x, y);
+    if (!range) return null;
+    return { node: range.startContainer, offset: range.startOffset };
+  }
+  return null;
+}
+
 export function getCharIndexFromMouse(element: HTMLElement, x: number, y: number) {
-  const pos = document.caretPositionFromPoint(x, y);
-  if (!pos) return -1;
+  const caret = getCaretPosition(x, y);
+  if (!caret) return -1;
 
   let charIndex = 0;
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
-    if (node === pos.offsetNode) {
-      charIndex += pos.offset;
+    if (node === caret.node) {
+      charIndex += caret.offset;
       break;
     } else {
       charIndex += node.textContent?.length ?? 0;
