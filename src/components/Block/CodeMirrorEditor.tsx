@@ -68,9 +68,8 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
 
     const domEventHandlers = EditorView.domEventHandlers({
       blur: (event: FocusEvent, view: EditorView) => {
-        console.debug("CodeMirrorEditor:blur");
         const relatedTarget = event.relatedTarget as HTMLElement | null;
-        console.debug("CodeMirrorEditor:relatedTarget", relatedTarget, relatedTarget?.dataset.ignoreBlur);
+        console.debug("CodeMirrorEditor:blur", relatedTarget);
         if (!document.hasFocus()) {
           return;
         }
@@ -81,39 +80,63 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
             setTimeout(() => {
               setIsEdit(false);
             }, 200);
+          } else if (relatedTarget.classList.contains("MoveBlockDown")) {
+            requestAnimationFrame(() => {
+              console.debug("requestIdleCallback");
+              view.focus();
+              view.dispatch({
+                selection: EditorSelection.cursor(view.state.selection.main.head),
+                scrollIntoView: true,
+              });
+            });
+            // setTimeout(() => {
+            //   view.focus();
+            //   view.dispatch({
+            //     selection: EditorSelection.cursor(view.state.selection.main.head),
+            //     scrollIntoView: true,
+            //   });
+            // }, 200);
+          } else {
+            requestAnimationFrame(() => {
+              view.focus();
+              view.dispatch({
+                selection: EditorSelection.cursor(view.state.selection.main.head),
+                scrollIntoView: true,
+              });
+            });
+            // Needed for keyboard persist
+            // view.focus();
+            // view.dispatch({
+            //   selection: EditorSelection.cursor(view.state.selection.main.head),
+            //   scrollIntoView: true,
+            // });
+            // setIsEdit(true);
+            // Needed for cursor
+            // setTimeout(() => {
+            //   // editorRef.current?.scrollIntoView({
+            //   //   behavior: "smooth", //
+            //   //   block: "nearest",
+            //   // });
+            //   // setIsEdit(true);
+            //   view.focus();
+            //   view.dispatch({
+            //     selection: EditorSelection.cursor(view.state.selection.main.head),
+            //     scrollIntoView: true,
+            //   });
+            // }, 200);
           }
-          // else {
-          //   // Needed for keyboard persist
-          //   view.focus();
-          //   view.dispatch({
-          //     selection: EditorSelection.cursor(view.state.selection.main.head),
-          //     scrollIntoView: true,
-          //   });
-          //   setIsEdit(true);
-          //   // Needed for cursor
-          //   setTimeout(() => {
-          //     editorRef.current?.scrollIntoView({
-          //       behavior: "smooth", //
-          //       block: "nearest",
-          //     });
-          //     setIsEdit(true);
-          //     view.focus();
-          //     view.dispatch({
-          //       selection: EditorSelection.cursor(view.state.selection.main.head),
-          //       scrollIntoView: true,
-          //     });
-          //   }, 200);
-          // }
           return;
         }
 
-        if (view.state.doc.length === 0) {
-          if (isRootItem(yjs.yblocks, id)) {
-            console.debug("updateBlock");
-            updateBlock(yjs.ydoc, id, { content: "Untitled" });
-          }
+        // if (view.state.doc.length === 0) {
+        //   if (isRootItem(yjs.yblocks, id)) {
+        //     console.debug("updateBlock");
+        //     updateBlock(yjs.ydoc, id, { content: "Untitled" });
+        //   }
+        // }
+        if (useZustandStore.getState().selectedBlockId === id) {
+          useZustandStore.setState({ selectedBlockId: null });
         }
-        useZustandStore.setState({ selectedBlockId: null });
         // useZustandStore.getState().rerenderPage();
         setIsEdit(false);
       },

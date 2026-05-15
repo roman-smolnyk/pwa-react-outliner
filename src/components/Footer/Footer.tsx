@@ -87,6 +87,7 @@ export default function Footer() {
 
         <Button
           title="Move Down"
+          className="MoveBlockDown"
           data-ignore-blur="true"
           onClick={(e) => {
             if (selectedBlockId) handleBlockMoveDown(selectedBlockId);
