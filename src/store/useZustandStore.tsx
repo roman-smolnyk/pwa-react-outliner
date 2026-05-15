@@ -27,8 +27,6 @@ export interface useZustandStoreType {
   explorerPanelAction: "collapse" | "expand" | "";
   collapseExplorer(): void;
   expandExplorer(): void;
-
-  updatePwaSw: boolean;
 }
 
 const useZustandStore = create<useZustandStoreType>((set, get) => ({
@@ -57,8 +55,6 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   explorerPanelAction: "",
   collapseExplorer: () => set({ explorerPanelAction: "collapse" }),
   expandExplorer: () => set({ explorerPanelAction: "expand" }),
-
-  updatePwaSw: false,
 }));
 
 export async function hydrateZustandStateWithPreferences() {
