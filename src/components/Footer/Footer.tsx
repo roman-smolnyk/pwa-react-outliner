@@ -101,6 +101,23 @@ export default function Footer() {
           <ArrowDownIcon />
         </Button>
 
+        <Button
+          className="DeleteNode"
+          data-ignore-blur="true"
+          onClick={(e) => {
+            if (selectedBlockId) {
+              handleBlockDelete(selectedBlockId);
+            }
+            const button = e.currentTarget;
+            button.classList.add("scale-90");
+            setTimeout(() => {
+              button.classList.remove("scale-90");
+            }, 100);
+          }}
+        >
+          <Trash2Icon />
+        </Button>
+
         {/* <Button className="text-yellow-400">
             <MoveIcon />
           </Button> */}
@@ -149,23 +166,6 @@ export default function Footer() {
         {/* <Button className="text-yellow-400">
             <CalendarDays />
           </Button> */}
-
-        <Button
-          className="DeleteNode"
-          data-ignore-blur="true"
-          onClick={(e) => {
-            if (selectedBlockId) {
-              handleBlockDelete(selectedBlockId);
-            }
-            const button = e.currentTarget;
-            button.classList.add("scale-90");
-            setTimeout(() => {
-              button.classList.remove("scale-90");
-            }, 100);
-          }}
-        >
-          <Trash2Icon />
-        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { autoUpdate, flip, FloatingPortal, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
-import { getItem } from "esm-treero-api";
+import { deleteBlock, getItem } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
   EllipsisVerticalIcon,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { handleBlockDelete, handleBlockOpen } from "../../api/api";
+import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import FloatingMenuItem from "../Common/FloatingMenuItem";
 
@@ -143,25 +143,22 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               label="Copy link"
               onClick={async () => {
                 setIsOpened(false);
-                const nodeUrl = `${window.location.origin}/${id}`;
-                try {
-                  await navigator.clipboard.writeText(nodeUrl);
-                  toast("Copied", { containerId: "toaster" });
-                } catch (err) {
-                  toast.error("Failed to copy", { containerId: "toaster" });
-                  console.error("Failed to copy:", err);
-                }
+                const nodeUrl = `${window.location.origin}/#${id}`;
+                await copyToClipboard(nodeUrl);
+                toast("Copied", { containerId: "toaster" });
               }}
             />
-            <FloatingMenuItem
-              className="DeleteNode text-red-600"
-              icon={<Trash2Icon className="w-full h-full" />}
-              label="Delete"
-              onClick={() => {
-                setIsOpened(false);
-                handleBlockDelete(id);
-              }}
-            />
+            {!isRoot && (
+              <FloatingMenuItem
+                className="DeleteNode text-red-600"
+                icon={<Trash2Icon className="w-full h-full" />}
+                label="Delete"
+                onClick={() => {
+                  setIsOpened(false);
+                  deleteBlock(yjs.ydoc, id);
+                }}
+              />
+            )}
           </div>
         </FloatingPortal>
       )}
