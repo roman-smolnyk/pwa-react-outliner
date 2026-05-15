@@ -373,6 +373,12 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
       scrollIntoView: true,
     });
 
+    setTimeout(() => {
+      view.dispatch({
+        scrollIntoView: true,
+      });
+    }, 200);
+
     // Handles changes from remote that come during edit
     function ytextObserver(event: YTextEvent, transaction: YTransaction) {
       if (transaction.origin) {

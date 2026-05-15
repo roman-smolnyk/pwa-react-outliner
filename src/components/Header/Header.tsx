@@ -88,7 +88,7 @@ export default function Header() {
             </Button>
           </div>
 
-          <div className="Spacer flex-1 min-w-3" />
+          <div className="Spacer flex-1 min-w-4" />
 
           <div className="RightIcons flex gap-4 sm:gap-2">
             <Button
