@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import useZustandStore from "../../store/useZustandStore";
@@ -8,15 +8,10 @@ export default function PWABadge() {
   // check for updates every hour
   const period = 60 * 60 * 1000;
 
-  const updatePwaSw = useZustandStore((s) => s.updatePwaSw);
+  const [swUrl, setSwUrl] = useState<string | undefined>(undefined);
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | undefined>(undefined);
 
-  useEffect(() => {
-    if (updatePwaSw) {
-      console.debug("Update PWA Service Worker");
-      updateServiceWorker(true);
-      useZustandStore.setState({ updatePwaSw: false });
-    }
-  }, [updatePwaSw]);
+  const updatePwaSw = useZustandStore((s) => s.updatePwaSw);
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -24,6 +19,8 @@ export default function PWABadge() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
+      setSwUrl(swUrl);
+      setSwRegistration(r);
       if (period <= 0) return;
       if (r?.active?.state === "activated") {
         registerPeriodicSync(period, swUrl, r);
@@ -35,6 +32,31 @@ export default function PWABadge() {
       }
     },
   });
+
+  async function fetchSW() {
+    if ("onLine" in navigator && !navigator.onLine) return;
+    if (!swUrl || !swRegistration) return;
+
+    const resp = await fetch(swUrl, {
+      cache: "no-store",
+      headers: {
+        cache: "no-store",
+        "cache-control": "no-cache",
+      },
+    });
+
+    if (resp?.status === 200) await swRegistration.update();
+  }
+
+  useEffect(() => {
+    if (updatePwaSw) {
+      console.debug("Update PWA Service Worker");
+      fetchSW().then(() => {
+        updateServiceWorker(true);
+        useZustandStore.setState({ updatePwaSw: false });
+      });
+    }
+  }, [updatePwaSw]);
 
   function close() {
     setOfflineReady(false);
