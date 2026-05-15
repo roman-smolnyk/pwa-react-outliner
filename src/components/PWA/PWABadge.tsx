@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 export default function PWABadge() {
@@ -26,6 +27,11 @@ export default function PWABadge() {
   function close() {
     setOfflineReady(false);
     setNeedRefresh(false);
+  }
+
+  if (offlineReady && !needRefresh) {
+    toast("App ready to work offline", { containerId: "toaster" });
+    return <div className="PWABadge"></div>;
   }
 
   return (

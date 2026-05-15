@@ -8,31 +8,33 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkHighlight } from "./markdownPlugins";
+import { copyToClipboard } from "../../api/api";
 
 function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
     <button
       type="button"
       className="CopyCodeButton absolute top-1 right-1 px-2 p-1 z-1 rounded-md cursor-pointer
-                border border-gray-400 bg-white opacity-0 hover:opacity-100 transition-opacity duration-300 ease-in-out
+                border border-gray-400 bg-white opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-400 
                 text-xs"
-      onPointerDown={(e) => {
+      onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        await copyToClipboard(textToCopy);
+        toast("Copied", { containerId: "toaster" });
       }}
-      onPointerUp={async (e) => {
-        // console.debug("onPointerUp -> Copy");
-        e.preventDefault();
-        e.stopPropagation();
-        // toast.dismiss();
-        try {
-          await navigator.clipboard.writeText(textToCopy);
-          toast("Copied", { containerId: "toaster" });
-        } catch (err) {
-          toast.error("Failed to copy", { containerId: "toaster" });
-          console.error("Failed to copy:", err);
-        }
-      }}
+      // onPointerDown={(e) => {
+      //   e.preventDefault();
+      //   e.stopPropagation();
+      // }}
+      // onPointerUp={async (e) => {
+      //   // console.debug("onPointerUp -> Copy");
+      //   e.preventDefault();
+      //   e.stopPropagation();
+      //   // toast.dismiss();
+      //   await copyToClipboard(textToCopy);
+      //   toast("Copied", { containerId: "toaster" });
+      // }}
     >
       Copy
     </button>
