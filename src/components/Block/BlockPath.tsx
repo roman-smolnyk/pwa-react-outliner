@@ -28,7 +28,6 @@ export default function BlockPath({ id }: { id: string }) {
   return (
     <div className="BlockPath mb-5 flex flex-wrap items-center">
       {yblocksArray.map((item, idx) => {
-        // biome-ignore lint/suspicious/noArrayIndexKey: explanation
         return <BlockPathPart key={`BlockPathPart-${idx}`} id={item.get("id")} text={item.get("content").toString()} />;
       })}
     </div>

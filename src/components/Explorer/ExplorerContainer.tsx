@@ -19,6 +19,9 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
     if (explorerAction === "expand") {
       explorerPanelRef.current.expand();
       useZustandStore.setState({ isExplorerOpened: true });
+      if (isMobile()) {
+        useZustandStore.setState({ isGlobalSearchOpened: false });
+      }
     } else if (explorerAction === "collapse") {
       explorerPanelRef.current.collapse();
       useZustandStore.setState({ isExplorerOpened: false });

@@ -169,7 +169,7 @@ export default function Main() {
         hideProgressBar={true}
         closeButton={false}
         closeOnClick={true}
-        draggable={true}
+        draggable={false}
         limit={3}
         style={{ top: 50 }}
         // toastClassName={"min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!"}

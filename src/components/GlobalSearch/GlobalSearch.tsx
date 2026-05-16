@@ -165,12 +165,17 @@ export default function GlobalSearch() {
       >
         <div className="flex items-center gap-2">
           <input
+            className="flex-1 rounded text-sm  px-2 py-1
+                       border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
             ref={refInput}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."
-            className="flex-1 rounded text-sm  px-2 py-1
-                       border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
           />
           <Button
             onClick={() => {

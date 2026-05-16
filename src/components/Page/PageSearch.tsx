@@ -57,12 +57,17 @@ export default function PageSearch() {
     >
       <div className="min-w-xs max-w-xl w-full p-2 mx-5 rounded bg-white  flex items-center gap-2">
         <input
+          className="flex-1 rounded px-2 py-1 min-w-0
+                    border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
           ref={refInput}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search..."
-          className="flex-1 rounded px-2 py-1 min-w-0
-                    border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+          type="text"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck="false"
         />
         <div className="Counter min-w-15 flex items-center justify-center">
           <div className="text-gray-500">{`${index}/${markElements?.length || 0}`}</div>
