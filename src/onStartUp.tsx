@@ -1,15 +1,18 @@
-import { initNewYjsData } from "esm-treero-api";
+import { createNewAccount } from "esm-treero-api";
 import { WS_IS_ON } from "../config.tsx";
 import { fillInMockupData } from "./etc/mockupData";
 import useZustandStore from "./store/useZustandStore.tsx";
 import yjs from "./store/yjsManager";
-import { sleep } from "./utils/utilities.tsx";
+import { sleep, waitUntil } from "./utils/utilities.tsx";
+
+declare const __APP_VERSION__: string;
 
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp(callback: CallableFunction) {
   console.debug(`onStartUp`);
   if (startupPromise) {
     console.error(`onStartUp called again`);
+    callback();
     return startupPromise;
   }
 
@@ -32,7 +35,7 @@ export default function onStartUp(callback: CallableFunction) {
       }
 
       if (isNewAccount) {
-        initNewYjsData(yjs);
+        createNewAccount(yjs, __APP_VERSION__);
         // createWelcomeDocument();
         await fillInMockupData(yjs);
         useZustandStore.setState({ isNewAccount: false });
@@ -61,11 +64,20 @@ export default function onStartUp(callback: CallableFunction) {
         useZustandStore.setState({ webSocketConnectionStatus: "turned off" });
       }
 
-      let rootCollectionId = yjs.yaccount.get("root_id");
-      while (!rootCollectionId) {
-        console.debug("Waiting for rootCollectionId");
-        await sleep(250);
-        rootCollectionId = yjs.yaccount.get("root_id");
+      console.debug("onStartUp:waitUntil rootCollectionId");
+      const rootCollectionId = await waitUntil(() => yjs.yaccount.get("root_id"), 30 * 1000);
+      if (!rootCollectionId) {
+        if (isNewAccount) {
+          useZustandStore.setState({
+            loadingScreenInfo: "Something went wrong.",
+          });
+        } else {
+          useZustandStore.setState({
+            loadingScreenInfo: "Loading data from remote failed. Please make sure that your second device is online and you used valid token.",
+          });
+        }
+        useZustandStore.setState({ isLoadingScreenShowExit: true });
+        return;
       }
 
       callback();

@@ -13,12 +13,32 @@ import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
+import { logout } from "../../api/api";
 
 function Spinner() {
   console.debug("Spinner");
+
+  const loadingScreenInfo = useZustandStore((s) => s.loadingScreenInfo);
+  const isLoadingScreenShowExit = useZustandStore((s) => s.isLoadingScreenShowExit);
+
   return (
-    <div className="h-screen w-screen flex items-center justify-center">
+    <div className="h-screen w-screen flex flex-col items-center justify-center gap-5">
       <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} />
+      <div className="px-10">{loadingScreenInfo}</div>
+      {isLoadingScreenShowExit && (
+        <button
+          className="min-w-30 bg-gray-900 text-white p-2 rounded cursor-pointer
+                      hover:scale-105 active:scale-100 transition-transform"
+          type="button"
+          onClick={() => {
+            if (confirm("All data on this device will be wiped. Are you sure?")) {
+              logout();
+            }
+          }}
+        >
+          Exit
+        </button>
+      )}
     </div>
   );
 }

@@ -10,6 +10,9 @@ export interface useZustandStoreType {
   roomToken: string;
   rootBlockId: string;
 
+  loadingScreenInfo: string;
+  isLoadingScreenShowExit: boolean;
+
   selectedBlockId: string | null;
   focusBlockId: string | null;
   caretCharIndex: number;
@@ -37,6 +40,9 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   webSocketServerUrl: "",
   roomToken: "",
   rootBlockId: "",
+
+  loadingScreenInfo: "Loading...",
+  isLoadingScreenShowExit: false,
 
   selectedBlockId: null,
   focusBlockId: null,

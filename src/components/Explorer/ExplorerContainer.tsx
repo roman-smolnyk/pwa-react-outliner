@@ -47,7 +47,12 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
       {isExplorerOpened &&
         isMobile() &&
         createPortal(
-          <div className="ExplorerShadow fixed top-0 right-0 h-full w-[10dvw] bg-black opacity-60 z-10" />,
+          <div
+            className="ExplorerShadow fixed top-0 right-0 h-full w-[10dvw] bg-black opacity-60 z-10"
+            onClick={() => {
+              useZustandStore.setState({ explorerPanelAction: "collapse" });
+            }}
+          />,
           document.getElementById("root")!,
         )}
     </>

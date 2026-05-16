@@ -162,6 +162,19 @@ export function isMobile(): boolean {
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+export async function waitUntil(fn: CallableFunction, timeout = 5000, interval = 250) {
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < timeout) {
+    const result = await fn();
+    if (result) return result;
+
+    await sleep(interval);
+  }
+
+  return undefined; // Timed out
+}
+
 // import debounce from "lodash/debounce";
 // import { useEffect, useRef, useState } from "react";
 // import type {  } from "../types";

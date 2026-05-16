@@ -15,7 +15,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
     <button
       type="button"
-      className="CopyCodeButton absolute top-1 right-1 px-2 p-1 z-1 rounded-md cursor-pointer
+      className="CopyCodeButton absolute top-1 right-1 px-2 p-0.5 z-1 rounded cursor-pointer
                 border border-gray-400 bg-white opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-500 ease-in-out
                 text-xs"
       onClick={async (e) => {
@@ -179,7 +179,7 @@ const Markdown = memo(({ children }: { children: string }) => {
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className={`px-1 rounded-md text-red-600 bg-gray-100 text-[1rem] sm:text-[0.9rem]`}>{children}</code>
+            <code className={`px-1 rounded text-red-600 bg-gray-100`}>{children}</code>
           );
         },
       }}

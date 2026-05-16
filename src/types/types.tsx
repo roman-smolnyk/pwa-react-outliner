@@ -62,8 +62,8 @@ export interface FlatCollectionT extends CollectionT {
 // export type FlatExplorerT = Array<FlatPageT | FlatCollectionT>;
 
 export interface AccountT {
-  id: string;
-  root_id: string;
-  inbox_id: string;
-  version: number;
+  id: string | undefined;
+  root_id: string | undefined;
+  inbox_id: string | undefined;
+  version: string | undefined;
 }
