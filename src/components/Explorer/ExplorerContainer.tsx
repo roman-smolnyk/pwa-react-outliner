@@ -5,6 +5,7 @@ import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
+import { isMobile } from "../../utils/utilities";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   console.debug("ExplorerContainer");
@@ -44,6 +45,7 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
         </div>
       </div>
       {isExplorerOpened &&
+        isMobile() &&
         createPortal(
           <div className="ExplorerShadow fixed top-0 right-0 h-full w-[10dvw] bg-black opacity-60 z-10" />,
           document.getElementById("root")!,
