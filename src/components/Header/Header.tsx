@@ -1,14 +1,13 @@
 import {
-  BookImageIcon,
-  BookTypeIcon,
-  // CalendarDays,
   CloudAlertIcon,
   CloudCheckIcon,
   CloudCogIcon,
+  FileCodeIcon,
+  FileImageIcon,
+  FilePlayIcon,
   ListChecksIcon,
   ListIcon,
   PanelLeftIcon,
-  // EllipsisVerticalIcon,
   PencilIcon,
   PencilOffIcon,
   RedoIcon,
@@ -17,7 +16,7 @@ import {
   UndoIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { usePlainTextView } from "../../contexts/PlainTextViewContext";
+import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
@@ -27,7 +26,7 @@ import Menu from "../Menu/Menu";
 export default function Header() {
   console.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
-  const { plainTextView, setPlainTextView } = usePlainTextView();
+  const { contentViewMode, setContentViewMode } = useContentViewMode();
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
   const isPageSearchOpened = useZustandStore((s) => s.isPageSearchOpened);
@@ -112,8 +111,20 @@ export default function Header() {
               {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
             </Button>
 
-            <Button title="Toggle Markdown and Plain Text views" onClick={() => setPlainTextView(!plainTextView)}>
-              {plainTextView ? <BookTypeIcon /> : <BookImageIcon />}
+            <Button
+              title="Cycle through content view modes: Source, Markdown, Live Preview."
+              onClick={() => {
+                if (contentViewMode === "source") {
+                  setContentViewMode("markdown");
+                } else if (contentViewMode === "markdown") {
+                  setContentViewMode("livePreview");
+                } else if (contentViewMode === "livePreview") {
+                  setContentViewMode("source");
+                }
+              }}
+            >
+              {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
+              {contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
             </Button>
 
             <Button title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>

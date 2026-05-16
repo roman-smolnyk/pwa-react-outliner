@@ -1,12 +1,13 @@
 import { getItem } from "esm-treero-api";
 import { useEffect, useMemo, useState } from "react";
-import { usePlainTextView } from "../../contexts/PlainTextViewContext";
+import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import { getCharIndexFromMouse } from "../../utils/utilities";
+import CM6LivePreviewEditor from "../Editor/CM6LivePreviewEditor";
+import CM6PlainTextEditor from "../Editor/CM6PlainTextEditor";
 import Markdown from "../Markdown/Markdown";
-import CodeMirrorEditor from "./CodeMirrorEditor";
 import PlainTextContent from "./PlainTextContent";
 
 export default function BlockContent({ id }: { id: string }) {
@@ -14,7 +15,7 @@ export default function BlockContent({ id }: { id: string }) {
   const [isEdit, setIsEdit] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const { readOnly } = useReadOnly();
-  const { plainTextView } = usePlainTextView();
+  const { contentViewMode } = useContentViewMode();
 
   const focusBlockId = useZustandStore((s) => s.focusBlockId);
   const caretCharIndex = useZustandStore((s) => s.caretCharIndex);
@@ -67,11 +68,15 @@ export default function BlockContent({ id }: { id: string }) {
           //   }
           // }}
         >
-          {plainTextView ? <PlainTextContent>{content}</PlainTextContent> : <Markdown>{content}</Markdown>}
+          {contentViewMode === "source" ? <PlainTextContent>{content}</PlainTextContent> : <Markdown>{content}</Markdown>}
         </div>
       ) : (
         <div className="BlockContent-edit">
-          <CodeMirrorEditor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+          {["source", "markdown"].includes(contentViewMode) ? (
+            <CM6PlainTextEditor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+          ) : (
+            <CM6LivePreviewEditor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+          )}
         </div>
       )}
     </div>

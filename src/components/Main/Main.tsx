@@ -1,18 +1,18 @@
 import { LoaderIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
 import { ToastContainer } from "react-toastify";
 import { MOBILE_WIDTH } from "../../../config";
-import { PlainTextViewContextProvider } from "../../contexts/PlainTextViewContext";
+import { ContentViewModeContextProvider } from "../../contexts/PlainTextViewContext";
 import { ReadOnlyContextProvider } from "../../contexts/ReadOnlyContext";
 import onStartUp from "../../onStartUp";
 import useZustandStore from "../../store/useZustandStore";
+import yjs from "../../store/yjsManager";
 import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
-import { useHotkeys } from "react-hotkeys-hook";
-import yjs from "../../store/yjsManager";
 
 function Spinner() {
   console.debug("Spinner");
@@ -99,7 +99,7 @@ export default function Main() {
   return (
     <div className="Main">
       <ReadOnlyContextProvider>
-        <PlainTextViewContextProvider>
+        <ContentViewModeContextProvider>
           <Header />
 
           <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
@@ -140,7 +140,7 @@ export default function Main() {
           </Group>
 
           <Footer />
-        </PlainTextViewContextProvider>
+        </ContentViewModeContextProvider>
       </ReadOnlyContextProvider>
       <ToastContainer
         containerId="toaster"

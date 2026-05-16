@@ -18,16 +18,16 @@ import yjs from "../../store/yjsManager";
 import useZustandStore from "../../store/useZustandStore";
 import type { YTextEvent, Transaction as YTransaction } from "yjs";
 
-const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
-  // export default function CodeMirrorEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
-  console.debug("CodeMirrorEditor", id, charIndex);
+const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
+  // export default function CM6PlainTextEditor({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) {
+  console.debug("CM6PlainTextEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   // const viewRef = useRef<EditorView | null>(null);
 
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 
   useEffect(() => {
-    console.debug("CodeMirrorEditor:useEffect");
+    console.debug("CM6PlainTextEditor:useEffect");
     // if (viewRef.current) return;
     const ytext = yblock.get("content");
 
@@ -70,13 +70,13 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
     const domEventHandlers = EditorView.domEventHandlers({
       blur: (event: FocusEvent, view: EditorView) => {
         const relatedTarget = event.relatedTarget as HTMLElement | null;
-        console.debug("CodeMirrorEditor:blur", relatedTarget);
+        console.debug("CM6PlainTextEditor:blur", relatedTarget);
         if (!document.hasFocus()) {
           return;
         }
         if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
           event.preventDefault();
-          console.debug("CodeMirrorEditor:blur prevent", view.state.selection.main.head);
+          console.debug("CM6PlainTextEditor:blur prevent", view.state.selection.main.head);
           if (relatedTarget.classList.contains("AddBlock")) {
             setTimeout(() => {
               setIsEdit(false);
@@ -142,7 +142,7 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
         setIsEdit(false);
       },
       focus: (event: FocusEvent, view: EditorView) => {
-        console.debug("CodeMirrorEditor:focus");
+        console.debug("CM6PlainTextEditor:focus");
         useZustandStore.setState({ selectedBlockId: id });
       },
     });
@@ -416,4 +416,4 @@ const CodeMirrorEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charI
 
   return <div ref={editorRef} />;
 });
-export default CodeMirrorEditor;
+export default CM6PlainTextEditor;

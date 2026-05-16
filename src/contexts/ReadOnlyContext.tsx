@@ -1,11 +1,11 @@
 import { createContext, useContext, useState } from "react";
 
-type ReadOnlyContextValue = {
+type ReadOnlyContextState = {
   readOnly: boolean;
   setReadOnly: (v: boolean) => void;
 };
 
-const ReadOnlyContext = createContext<ReadOnlyContextValue | null>(null);
+const ReadOnlyContext = createContext<ReadOnlyContextState | null>(null);
 
 export function ReadOnlyContextProvider({ children }: { children: React.ReactNode }) {
   const [readOnly, setReadOnly] = useState<boolean>(false);

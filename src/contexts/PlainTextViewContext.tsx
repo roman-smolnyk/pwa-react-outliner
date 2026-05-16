@@ -1,22 +1,26 @@
 import { createContext, useContext, useState } from "react";
 
-type PlainTextViewContextValue = {
-  plainTextView: boolean;
-  setPlainTextView: (v: boolean) => void;
+type ContentViewMode = "source" | "markdown" | "livePreview";
+
+type ContentViewModeContextState = {
+  contentViewMode: ContentViewMode;
+  setContentViewMode: (v: ContentViewMode) => void;
 };
 
-const PlainTextViewContext = createContext<PlainTextViewContextValue | null>(null);
+const ContentViewModeContext = createContext<ContentViewModeContextState | null>(null);
 
-/* 2. Provider with state */
-export function PlainTextViewContextProvider({ children }: { children: React.ReactNode }) {
-  const [plainTextView, setPlainTextView] = useState<boolean>(false);
+export function ContentViewModeContextProvider({ children }: { children: React.ReactNode }) {
+  const [contentViewMode, setContentViewMode] = useState<ContentViewMode>("markdown");
 
-  return <PlainTextViewContext.Provider value={{ plainTextView, setPlainTextView }}>{children}</PlainTextViewContext.Provider>;
+  return (
+    <ContentViewModeContext.Provider value={{ contentViewMode: contentViewMode, setContentViewMode: setContentViewMode }}>
+      {children}
+    </ContentViewModeContext.Provider>
+  );
 }
 
-/* 3. Hook for consumption */
-export function usePlainTextView() {
-  const ctx = useContext(PlainTextViewContext);
-  if (!ctx) throw new Error("usePlainTextView must be used inside PlainTextViewContextProvider");
+export function useContentViewMode() {
+  const ctx = useContext(ContentViewModeContext);
+  if (!ctx) throw new Error("useContentViewMode must be used inside ContentViewModeContextProvider");
   return ctx;
 }

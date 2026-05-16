@@ -1,11 +1,8 @@
-import { useMemo, useRef, useSyncExternalStore } from "react";
-
-import { flattenTree, removeChildrenOf } from "../utils/utilities.tsx";
-
-import * as Y from "yjs";
-
 import { debounce } from "lodash";
+import { useMemo, useRef, useSyncExternalStore } from "react";
+import * as Y from "yjs";
 import useZustandStore from "../store/useZustandStore.tsx";
+import { flattenTree, removeChildrenOf } from "../utils/utilities.tsx";
 
 export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null, customTicker?: number) {
   const tickRef = useRef(0);
