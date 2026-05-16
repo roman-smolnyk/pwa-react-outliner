@@ -1,4 +1,4 @@
-import { traverseBlockPath } from "esm-treero-api";
+import { traverseBlockPath, traverseItemPath } from "esm-treero-api";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
@@ -8,8 +8,8 @@ export function BlockPathPart({ id, text }: { id: string; text: string }) {
     <div className="text-sm text-gray-500 flex items-center">
       <span
         className="inline-block hover:underline cursor-pointer min-h-5 min-w-10 max-w-30 truncate"
-        onClick={() => {
-          handleBlockOpen(id);
+        onClick={async () => {
+          await handleBlockOpen(id);
         }}
       >
         <PlainMarkdown>{text}</PlainMarkdown>
@@ -20,7 +20,8 @@ export function BlockPathPart({ id, text }: { id: string; text: string }) {
 }
 
 export default function BlockPath({ id }: { id: string }) {
-  const yblocksArray = traverseBlockPath(yjs.ydoc, id);
+  // const yblocksArray = traverseBlockPath(yjs.ydoc, id);
+  const yblocksArray = traverseItemPath(yjs.yblocks, id);
 
   console.debug("BlockPath", yblocksArray);
 

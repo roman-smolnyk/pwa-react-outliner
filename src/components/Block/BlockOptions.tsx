@@ -83,9 +83,9 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               className="ZoomIntoNode"
               icon={<ZoomInIcon className="w-full h-full" />}
               label="Zoom In"
-              onClick={() => {
-                handleBlockOpen(id);
+              onClick={async () => {
                 setIsOpened(false);
+                await handleBlockOpen(id);
                 // TreeRoAPI.openBlock(id);
               }}
             />
@@ -143,8 +143,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               label="Copy link"
               onClick={async () => {
                 setIsOpened(false);
-                const nodeUrl = `${window.location.origin}/#${id}`;
-                await copyToClipboard(nodeUrl);
+                await copyToClipboard(`${window.location.origin}/#${id}`);
                 toast("Copied", { containerId: "toaster" });
               }}
             />

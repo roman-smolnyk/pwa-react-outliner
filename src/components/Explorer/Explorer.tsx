@@ -1,7 +1,7 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { getPageByRootBlockId, moveItem } from "esm-treero-api";
+import { getPageByBlockId, moveItem } from "esm-treero-api";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -20,7 +20,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
 
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
 
-  const ypage = useMemo(() => getPageByRootBlockId(yjs.ydoc, rootBlockId), [rootBlockId]);
+  const ypage = useMemo(() => getPageByBlockId(yjs.ydoc, rootBlockId), [rootBlockId]);
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),

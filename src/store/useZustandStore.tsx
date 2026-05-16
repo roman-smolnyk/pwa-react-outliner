@@ -18,6 +18,7 @@ export interface useZustandStoreType {
   caretCharIndex: number;
 
   isExplorerOpened: boolean;
+  isGlobalSearchOpened: boolean;
   isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
 
@@ -49,6 +50,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   caretCharIndex: 0,
 
   isExplorerOpened: true,
+  isGlobalSearchOpened: false,
   isPageSearchActive: false,
   isChekboxSelectionActive: false,
 

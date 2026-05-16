@@ -83,7 +83,12 @@ export default function Block({
   }
 
   return (
-    <div className={`Block ${isRoot ? "mb-5" : ""}`} ref={setNodeRef} style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}>
+    <div
+      className={`Block ${isRoot ? "mb-5" : ""}`}
+      ref={setNodeRef}
+      style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
+      data-block-id={id}
+    >
       <div className={`flex items-start`}>
         {isActive ? (
           <DropIndicator />

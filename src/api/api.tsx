@@ -19,6 +19,7 @@ import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
 import useZustandStore from "../store/useZustandStore";
 import yjs from "../store/yjsManager";
+import { isMobile } from "../utils/utilities";
 
 export function generateRoomToken(): string {
   return nanoid(64);
@@ -54,6 +55,9 @@ export function selectBlock(id: string, caretCharIndex: number) {
 export async function handleBlockOpen(id: string) {
   console.debug(`openBlock`, id);
   useZustandStore.setState({ rootBlockId: id });
+  if (isMobile()) {
+    useZustandStore.getState().collapseExplorer();
+  }
   await localPreferencesManager.set({ rootBlockId: id });
 }
 

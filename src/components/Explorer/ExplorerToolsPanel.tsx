@@ -5,9 +5,12 @@ import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
 import { handleCollectionAdd, handlePageAdd } from "../../api/api";
+import GlobalSearch from "../GlobalSearch/GlobalSearch";
+import { createPortal } from "react-dom";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const isGlobalSearchOpened = useZustandStore((s) => s.isGlobalSearchOpened);
 
   const rootCollectionId = yjs.yaccount.get("root_id");
   if (!rootCollectionId) {
@@ -57,11 +60,17 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
             <FolderPlusIcon />
           </Button>
 
-          <Button className="text-yellow-400">
+          <Button
+            title="Global Search"
+            onClick={() => {
+              useZustandStore.setState({ isGlobalSearchOpened: true });
+            }}
+          >
             <SearchIcon />
           </Button>
         </div>
       </div>
+      {isGlobalSearchOpened && createPortal(<GlobalSearch />, document.getElementById("root")!)}
     </div>
   );
 }
