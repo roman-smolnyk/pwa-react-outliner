@@ -1,4 +1,4 @@
-import { traverseBlockPath, traverseItemPath } from "esm-treero-api";
+import { traverseItemPath } from "esm-treero-api";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
