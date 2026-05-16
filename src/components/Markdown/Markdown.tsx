@@ -1,6 +1,7 @@
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+// import SyntaxHighlighter from "react-syntax-highlighter";
 import { toast } from "react-toastify";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
@@ -41,12 +42,25 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   );
 }
 
-function SyntaxHighlighterPreTag(props: any) {
-  // console.debug("SyntaxHighlighterPreTag");
+function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
+  // console.debug("PreTag", { children, style, ...rest });
+  const { color, background, textAlign, whiteSpace, wordSpacing, wordBreak, overflowWrap, tabSize, hyphens, overflow } = style!;
   return (
-    <div
-      className="p-2! rounded-lg text-base! sm:text-[0.95rem]! bg-gray-100!"
-      {...props}
+    <pre
+      className="PreTag rounded py-1 px-2"
+      // style={style}
+      style={{
+        color,
+        background,
+        textAlign,
+        whiteSpace,
+        wordSpacing,
+        wordBreak,
+        overflowWrap,
+        tabSize,
+        hyphens,
+        overflow,
+      }}
       onPointerDownCapture={(event) => {
         // console.debug("onPointerDown DIV");
         const el = event.currentTarget;
@@ -71,8 +85,15 @@ function SyntaxHighlighterPreTag(props: any) {
           event.stopPropagation();
         }
       }}
-    />
+    >
+      {children}
+    </pre>
   );
+}
+
+function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
+  // console.debug("CodeTag", { children, style, ...rest });
+  return <code className="PrismCodeTag">{children}</code>;
 }
 
 const Markdown = memo(({ children }: { children: string }) => {
@@ -132,17 +153,28 @@ const Markdown = memo(({ children }: { children: string }) => {
 
           const match = /language-(\w+)/.exec(className || "");
           const isInline = match ? false : !String(children).endsWith("\n");
-          const codeString = String(children).replace(/\n$/, "");
+          // const codeString = String(children).trim().replace(/\n /g, "\n");
+          const codeString = String(children)
+            .split("\n")
+            .map((line) => line.trimEnd().replace(/^ /, "")) // Removes exactly ONE leading space if it exists
+            .join("\n")
+            .trim(); // Cleans up the absolute top and bottom of the string
 
-          // const CustomDiv = (props) => <div className="p-2! rounded-lg" {...props} />;
+          // console.debug(JSON.stringify(String(children)));
 
-          // console.debug("MarkdownComponent.code", isInline, match, codeString);
+          // console.debug("code", isInline, match, codeString);
 
           return !isInline ? (
             <div className="relative">
               <CopyCodeButton textToCopy={codeString} />
               {/* showLineNumbers */}
-              <SyntaxHighlighter PreTag={SyntaxHighlighterPreTag} language={match?.[1] ? match[1] : ""}>
+              <SyntaxHighlighter
+                PreTag={PreTag}
+                CodeTag={CodeTag}
+                language={match?.[1] ? match[1] : ""}
+                showLineNumbers={false}
+                showInlineLineNumbers={false}
+              >
                 {codeString}
               </SyntaxHighlighter>
             </div>

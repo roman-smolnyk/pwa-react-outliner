@@ -17,6 +17,22 @@
 }
 
 @font-face {
+  font-family: "Roboto Mono";
+  src: url("assets/fonts/RobotoMono-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("assets/fonts/RobotoMono-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: italic;
+}
+
+@font-face {
   font-family: "Inter";
   src: url("assets/fonts/InterVariable.woff2") format("woff2-variations");
   font-weight: 100 900;
@@ -44,6 +60,16 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+  }
+
+  code,
+  pre {
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    line-height: 1.25;
+  }
+
+  span.token {
+    background: none !important;
   }
 
   h1 {

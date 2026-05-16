@@ -40,7 +40,7 @@ export default function BlockContent({ id }: { id: string }) {
           style={{
             fontFamily: "font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
             fontSize: "16px",
-            lineHeight: "1.5",
+            // lineHeight: "1.25",
             padding: "4px 6px 4px 6px",
           }}
           onClick={(e) => {
