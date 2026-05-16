@@ -11,6 +11,7 @@ import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
+import PageSearch from "./PageSearch.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
 //   return {
@@ -33,9 +34,10 @@ export default function Page({ rootId }: { rootId: string }) {
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
   const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
+  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
 
   // @ts-ignore
-  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker) as FlatBlocksT;
+  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker, isPageSearchActive) as FlatBlocksT;
   // console.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
@@ -84,6 +86,7 @@ export default function Page({ rootId }: { rootId: string }) {
 
   return (
     <div className="Page flex flex-col gap-1 sm:gap-0">
+      {isPageSearchActive && createPortal(<PageSearch />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection

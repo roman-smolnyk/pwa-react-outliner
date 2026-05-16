@@ -29,7 +29,7 @@ export default function Header() {
   const { contentViewMode, setContentViewMode } = useContentViewMode();
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const isPageSearchOpened = useZustandStore((s) => s.isPageSearchOpened);
+  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
   const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
   const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
@@ -133,9 +133,9 @@ export default function Header() {
 
             <Button
               title="Search in page"
-              className="text-yellow-400"
+              className=""
               onClick={() => {
-                useZustandStore.setState({ isPageSearchOpened: !isPageSearchOpened });
+                useZustandStore.setState({ isPageSearchActive: !isPageSearchActive });
               }}
             >
               <SearchIcon />

@@ -18,7 +18,7 @@ export interface useZustandStoreType {
   caretCharIndex: number;
 
   isExplorerOpened: boolean;
-  isPageSearchOpened: boolean;
+  isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
 
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
@@ -49,7 +49,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   caretCharIndex: 0,
 
   isExplorerOpened: true,
-  isPageSearchOpened: false,
+  isPageSearchActive: false,
   isChekboxSelectionActive: false,
 
   webSocketConnectionStatus: "disconnected",

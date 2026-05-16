@@ -4,7 +4,7 @@ import * as Y from "yjs";
 import useZustandStore from "../store/useZustandStore.tsx";
 import { flattenTree, removeChildrenOf } from "../utils/utilities.tsx";
 
-export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null, customTicker?: number) {
+export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null, customTicker?: number, doNotCollapse?: boolean) {
   const tickRef = useRef(0);
 
   const version = useSyncExternalStore(
@@ -46,7 +46,11 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
   return useMemo(() => {
     console.debug("useFlattenedTree:useMemo", version, customTicker, rootId, activeId);
     const flattenedTree = flattenTree(yitems.toJSON(), rootId);
-    const collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
-    return removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
-  }, [yitems, version, customTicker, rootId, activeId]);
+    let collapsedItemsIds = [];
+    if (!doNotCollapse) {
+      collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
+    }
+    const result = removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
+    return result;
+  }, [yitems, version, rootId, activeId, customTicker, doNotCollapse]);
 }

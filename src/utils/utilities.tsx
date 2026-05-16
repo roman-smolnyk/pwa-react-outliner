@@ -175,6 +175,18 @@ export async function waitUntil(fn: CallableFunction, timeout = 5000, interval =
   return undefined; // Timed out
 }
 
+export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  const rect = element.getBoundingClientRect();
+
+  container.scrollBy({
+    top: rect.bottom - vv.height + vv.height / 2,
+    behavior: "smooth",
+  });
+}
+
 // import debounce from "lodash/debounce";
 // import { useEffect, useRef, useState } from "react";
 // import type {  } from "../types";
@@ -254,31 +266,6 @@ export async function waitUntil(fn: CallableFunction, timeout = 5000, interval =
 //     const top = element.offsetTop - container.offsetTop;
 //     container.scrollTo({ top });
 //   }
-// }
-
-// export function scrollIntoView2(element: HTMLElement, container: HTMLElement) {
-//   const rect = element.getBoundingClientRect();
-
-//   const vv = window.visualViewport;
-//   if (!vv) return;
-
-//   const visibleBottom = vv.height; // bottom of visible area
-
-//   // If caret is below visible area → scroll it up
-//   // if (rect.bottom > visibleBottom) {
-//   container.scrollBy({
-//     top: rect.bottom - visibleBottom + vv.height / 2,
-//     behavior: "smooth",
-//   });
-//   // }
-
-//   // If caret is above visible area → scroll it down
-//   // if (rect.top < 0) {
-//   // container.scrollBy({
-//   //   top: rect.top - vv.height / 2,
-//   //   behavior: "smooth",
-//   // });
-//   // }
 // }
 
 // export function arrayMove<T>(array: T[], from: number, to: number): T[] {
