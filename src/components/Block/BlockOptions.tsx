@@ -31,7 +31,7 @@ import FloatingMenuItem from "../Common/FloatingMenuItem";
 //       <div
 //         className={`
 //           fixed left-0 right-0 bottom-0
-//           bg-white rounded-t-xl shadow-xl
+//           bg-theme-bg rounded-t-xl shadow-xl
 //           transition-transform duration-300 z-100
 //           ${open ? "translate-y-0" : "translate-y-full"}
 //         `}
@@ -66,8 +66,6 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   return (
     <>
       <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5" {...getReferenceProps()}>
-        {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
-        {/* <div>BTN</div> */}
         <EllipsisVerticalIcon size={15} />
       </button>
 
@@ -76,7 +74,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-40 py-2 z-100 bg-theme-bg shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <FloatingMenuItem
@@ -90,7 +88,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<MoveIcon className="w-full h-full" />}
               label="Move to"
               onClick={() => {
@@ -98,7 +96,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<PlusIcon className="w-full h-full" />}
               label="Expand All"
               onClick={() => {
@@ -106,7 +104,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<MinusIcon className="w-full h-full" />}
               label="Collapse All"
               onClick={() => {
@@ -114,7 +112,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<ArrowDownNarrowWideIcon className="w-full h-full" />}
               label="Sort"
               onClick={() => {
@@ -122,7 +120,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<InboxIcon className="w-full h-full" />}
               label="Set as Inbox"
               onClick={() => {
@@ -130,7 +128,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
               }}
             />
             <FloatingMenuItem
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<UploadIcon className="w-full h-full" />}
               label="Export"
               onClick={() => {
@@ -149,7 +147,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
             />
             {!isRoot && (
               <FloatingMenuItem
-                className="DeleteNode text-red-600"
+                className="DeleteNode text-theme-error"
                 icon={<Trash2Icon className="w-full h-full" />}
                 label="Delete"
                 onClick={() => {

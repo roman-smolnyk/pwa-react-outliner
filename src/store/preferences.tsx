@@ -1,58 +1,72 @@
 import { Preferences } from "@capacitor/preferences";
 import { WS_SERVER_URL } from "../../config";
 
-export interface LocalPreferences {
+type StorageSchema = {
   roomToken: string;
   isAuthorized: boolean;
   rootBlockId: string;
   webSocketServerUrl: string;
-}
+  theme: "system" | "light" | "dark";
+};
 
-export interface LocalPreferencesManager {
-  key: "LocalPreferences";
-  get(): Promise<LocalPreferences>;
-  set(localPref: Partial<LocalPreferences>): Promise<void>;
-  clear: () => Promise<void>;
-}
+const defaultValues: StorageSchema = {
+  roomToken: "",
+  isAuthorized: false,
+  rootBlockId: "",
+  webSocketServerUrl: WS_SERVER_URL,
+  theme: "system",
+};
 
-const localPreferencesManager: LocalPreferencesManager = {
-  key: "LocalPreferences",
+const localPreferencesManager = {
+  namespace: "treero:pref",
 
-  async get() {
-    const defaultPrefs: LocalPreferences = {
-      roomToken: "",
-      isAuthorized: false,
-      rootBlockId: "",
-      webSocketServerUrl: WS_SERVER_URL,
-    };
+  buildKey(key: keyof StorageSchema) {
+    return `${this.namespace}:${key}`;
+  },
 
-    const { value } = await Preferences.get({ key: this.key });
+  async get<K extends keyof StorageSchema>(key: K): Promise<StorageSchema[K]> {
+    const namespacedKey = this.buildKey(key);
+    const { value } = await Preferences.get({ key: namespacedKey });
 
-    try {
-      return value ? JSON.parse(value) : defaultPrefs;
-    } catch {
-      return defaultPrefs;
+    if (value === null) return defaultValues[key];
+
+    return JSON.parse(value).v;
+  },
+
+  async set<K extends keyof StorageSchema>(key: K, value: StorageSchema[K]) {
+    const namespacedKey = this.buildKey(key);
+    await Preferences.set({
+      key: namespacedKey,
+      value: JSON.stringify({ v: value }),
+    });
+  },
+
+  async setBatch(values: Partial<StorageSchema>) {
+    const entries = Object.entries(values) as [keyof StorageSchema, StorageSchema[keyof StorageSchema]][];
+
+    for (const [key, value] of entries) {
+      await this.set(key, value);
     }
   },
 
-  async set(localPref) {
-    const currentPrefs = await this.get();
-
-    const updatedPrefs = {
-      ...currentPrefs,
-      ...localPref,
-    };
-
-    console.debug("Preferences.set", updatedPrefs);
-    await Preferences.set({
-      key: this.key,
-      value: JSON.stringify(updatedPrefs),
-    });
+  async remove<K extends keyof StorageSchema>(key: K) {
+    const namespacedKey = this.buildKey(key);
+    await Preferences.remove({ key: namespacedKey });
   },
 
   async clear() {
     await Preferences.clear();
   },
-};
 
+  async clearNamespace() {
+    const { keys } = await Preferences.keys();
+    const prefix = this.namespace + ":";
+
+    for (const key of keys) {
+      if (key.startsWith(prefix)) {
+        await Preferences.remove({ key });
+      }
+    }
+  },
+};
 export default localPreferencesManager;

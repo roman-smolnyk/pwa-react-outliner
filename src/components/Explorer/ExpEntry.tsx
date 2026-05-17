@@ -94,7 +94,7 @@ export default function ExpEntry({
 
   return (
     <div
-      className={`ExpEntry min-w-0 py-1 sm:py-1 rounded-sm ${isSelected && !isActive ? "bg-gray-300" : "hover:bg-gray-200"} `}
+      className={`ExpEntry min-w-0 py-1 sm:py-1 rounded-sm ${isSelected && !isActive ? "bg-theme-bg-selected" : "hover:bg-theme-bg-hover"} `}
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
     >
@@ -116,7 +116,7 @@ export default function ExpEntry({
             {/* // ! ID */}
             {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-            <div className="flex-1 min-w-0 text-lg sm:text-base flex">
+            <div className="flex-1 min-w-0 max-sm:text-lg flex">
               {isEdit ? (
                 <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
               ) : (

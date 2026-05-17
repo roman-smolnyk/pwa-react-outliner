@@ -116,7 +116,7 @@ export default function Page({ rootId }: { rootId: string }) {
             {activeId ? (
               <div className="cursor-grabbing w-full h-5"></div>
               // <div className="DragOverlay inline-block cursor-grabbing pl-5">
-              //   <div className="border border-black bg-white px-1">Move</div>
+              //   <div className="border border-black bg-theme-bg px-1">Move</div>
               // </div>
             ) : null}
           </DragOverlay>,

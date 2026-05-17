@@ -28,7 +28,7 @@ export default function PageSearch() {
                 setMarkElements(document.querySelectorAll("mark[data-markjs='true']"));
               },
               exclude: ["[data-no-mark]"],
-              className: "bg-yellow-300 text-black px-0.5 rounded-sm shadow-sm",
+              className: "bg-theme-warning px-0.5 rounded-sm shadow-sm",
             });
           },
         });
@@ -55,7 +55,7 @@ export default function PageSearch() {
         left: `var(--explorer-width)`,
       }}
     >
-      <div className="min-w-xs max-w-xl w-full p-2 mx-5 rounded bg-white  flex items-center gap-2">
+      <div className="min-w-xs max-w-xl w-full p-2 mx-5 rounded bg-theme-bg flex items-center gap-2">
         <input
           className="flex-1 rounded px-2 py-1 min-w-0
                     border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
@@ -70,7 +70,7 @@ export default function PageSearch() {
           spellCheck="false"
         />
         <div className="Counter min-w-15 flex items-center justify-center">
-          <div className="text-gray-500">{`${index}/${markElements?.length || 0}`}</div>
+          <div className="text-theme-fg-muted">{`${index}/${markElements?.length || 0}`}</div>
         </div>
         <Button
           onPointerDown={(e) => {

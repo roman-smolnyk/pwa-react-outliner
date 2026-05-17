@@ -115,7 +115,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
             {activeId ? (
               <div className="cursor-grabbing w-full h-5"></div>
               // <div className="DragOverlay inline-block cursor-grabbing" style={{ paddingLeft: `${(projected?.depth ?? 0) + 1 * INDENT}px` }}>
-              //   <div className="border border-black bg-white px-1">Move</div>
+              //   <div className="border border-black bg-theme-bg px-1">Move</div>
               // </div>
             ) : null}
           </DragOverlay>,

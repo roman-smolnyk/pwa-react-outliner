@@ -19,7 +19,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
 
   return (
     <div
-      className="ToolsPanel min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)] flex"
+      className="ToolsPanel min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 bg-theme-bg shadow-[0_1px_5px_rgba(0,0,0,0.15)] flex"
       style={{ width: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}` }}
     >
       {/* {globalSearchIsOpened && <GlobalSearchPortalComponent />} */}

@@ -19,7 +19,7 @@ export default function PageContainer() {
   if (!rootBlockId) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-xl text-gray-700">No document selected</div>
+        <div className="text-xl">No document selected</div>
       </div>
     );
   }

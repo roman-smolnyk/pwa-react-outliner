@@ -34,7 +34,7 @@ export default function Footer() {
   return (
     <div
       className="Footer fixed bottom-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
-               bg-white shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
+               bg-theme-bg shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
                  flex"
       style={{
         left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
@@ -118,52 +118,52 @@ export default function Footer() {
           <Trash2Icon />
         </Button>
 
-        {/* <Button className="text-yellow-400">
+        {/* <Button className="text-theme-warning">
             <MoveIcon />
           </Button> */}
 
         {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <HeadingIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <BoldIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <ItalicIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <StrikethroughIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <Code2Icon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <BracketsIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <HighlighterIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <TableIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <QuoteIcon />
         </Button>
 
-        <Button className="text-yellow-400">
+        <Button className="text-theme-warning">
           <SigmaIcon />
         </Button>
 
-        {/* <Button className="text-yellow-400">
+        {/* <Button className="text-theme-warning">
             <CalendarDays />
           </Button> */}
       </div>

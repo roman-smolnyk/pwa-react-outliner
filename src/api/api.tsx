@@ -27,14 +27,14 @@ export function generateRoomToken(): string {
 
 export async function login(webSocketServerUrl: string, roomToken: string) {
   console.debug(`login`, webSocketServerUrl, roomToken);
-  await localPreferencesManager.set({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
+  await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
   useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, isNewAccount: false });
 }
 
 export async function register(webSocketServerUrl: string) {
   console.debug(`register`, webSocketServerUrl);
   const newRoomToken = generateRoomToken();
-  await localPreferencesManager.set({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
+  await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
   useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, isNewAccount: true });
 }
 
@@ -58,7 +58,7 @@ export async function handleBlockOpen(id: string) {
   if (isMobile()) {
     useZustandStore.getState().collapseExplorer();
   }
-  await localPreferencesManager.set({ rootBlockId: id });
+  await localPreferencesManager.set("rootBlockId", id);
 }
 
 export function handleBlockAdd(id: string) {

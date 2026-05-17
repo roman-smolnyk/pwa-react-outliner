@@ -27,7 +27,7 @@ function Spinner() {
       <div className="px-10">{loadingScreenInfo}</div>
       {isLoadingScreenShowExit && (
         <button
-          className="min-w-30 bg-gray-900 text-white p-2 rounded cursor-pointer
+          className="min-w-30 p-2 rounded cursor-pointer
                       hover:scale-105 active:scale-100 transition-transform"
           type="button"
           onClick={() => {
@@ -146,9 +146,11 @@ export default function Main() {
               </div>
             </Panel>
             <Separator
-              className="w-0.5 bg-gray-200 z-20
-                                  shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
-                                  "
+              // shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
+              // shadow-[1.5px_0px_5px_var(--color-theme-fg)]
+              className="w-0.5 bg-theme-bg-selected z-20
+                        shadow-[1px_0px_6px_var(--color-theme-fg)]
+                        "
             />
             <Panel id="PagePanel">
               <div className="h-dvh overflow-hidden flex flex-col">

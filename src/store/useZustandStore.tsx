@@ -66,14 +66,12 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
 }));
 
 export async function hydrateZustandStateWithPreferences() {
-  const localPref = await localPreferencesManager.get();
-  console.debug("Preferences loaded", localPref);
   useZustandStore.setState({
     isHydrated: true,
-    isAuthorized: localPref.isAuthorized,
-    webSocketServerUrl: localPref.webSocketServerUrl,
-    roomToken: localPref.roomToken,
-    rootBlockId: localPref.rootBlockId,
+    isAuthorized: await localPreferencesManager.get("isAuthorized"),
+    webSocketServerUrl: await localPreferencesManager.get("webSocketServerUrl"),
+    roomToken: await localPreferencesManager.get("roomToken"),
+    rootBlockId: await localPreferencesManager.get("rootBlockId"),
   });
 }
 

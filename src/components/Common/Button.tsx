@@ -8,7 +8,7 @@ export default function Button({
   className?: string;
 }) {
   return (
-    <button type="button" className={`cursor-pointer active:scale-90 transition text-gray-600 ${className ?? ""}`} {...props}>
+    <button type="button" className={`text-theme-icon cursor-pointer active:scale-90 transition ${className ?? ""}`} {...props}>
       {children}
     </button>
   );

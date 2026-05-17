@@ -96,7 +96,7 @@ export default function Block({
           <>
             {!isRoot && isChekboxSelectionActive && (
               <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" />
+                <input type="checkbox" className="form-checkbox h-4 w-4 text-theme-info" />
               </div>
             )}
             {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}

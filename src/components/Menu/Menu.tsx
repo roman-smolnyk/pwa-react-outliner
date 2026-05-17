@@ -41,7 +41,7 @@ export default function Menu() {
   return (
     <>
       <button ref={refs.setReference} type="button" className="cursor-pointer" {...getReferenceProps()}>
-        <EllipsisVerticalIcon className="text-gray-600" />
+        <EllipsisVerticalIcon className="text-theme-icon" />
       </button>
 
       {open && (
@@ -49,7 +49,7 @@ export default function Menu() {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-50 sm:w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-50 sm:w-40 py-2 z-100 bg-theme-bg shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <FloatingMenuItem
@@ -64,7 +64,7 @@ export default function Menu() {
             />
             <FloatingMenuItem
               label="Settings"
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<BoltIcon className="w-full h-full" />}
               onClick={() => {
                 setOpen(false);
@@ -72,7 +72,7 @@ export default function Menu() {
             />
             <FloatingMenuItem
               label="Download Backup"
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<HardDriveDownloadIcon className="w-full h-full" />}
               onClick={async () => {
                 setOpen(false);
@@ -80,7 +80,7 @@ export default function Menu() {
             />
             <FloatingMenuItem
               label="Import Backup"
-              className="text-yellow-400"
+              className="text-theme-warning"
               icon={<HardDriveUploadIcon className="w-full h-full" />}
               onClick={() => {
                 console.debug("onClick", inputRef.current);
@@ -111,7 +111,7 @@ export default function Menu() {
 
             <FloatingMenuItem
               label="Exit"
-              className="Exit text-red-600"
+              className="Exit text-theme-error"
               icon={<LogInIcon className="w-full h-full" />}
               onClick={() => {
                 setOpen(false);

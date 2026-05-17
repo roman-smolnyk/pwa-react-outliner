@@ -62,7 +62,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
 
   return (
     <div
-      className="border-b border-gray-100 px-1 py-1 text-sm hover:bg-gray-100 cursor-pointer"
+      className="border-b border-theme-border px-1 py-1 hover:bg-theme-bg-hover cursor-pointer"
       onClick={async () => {
         useZustandStore.setState({ isGlobalSearchOpened: false });
         await handleBlockOpen(id);
@@ -77,7 +77,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
         // });
       }}
     >
-      <div className="text-gray-800">
+      <div className="">
         {clips.length === 0 && <span>{content.slice(0, 80)}…</span>}
 
         {clips.map((clip, i) => {
@@ -86,11 +86,11 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
 
           return (
             <span key={i}>
-              {i > 0 && <span className="text-gray-400"> … </span>}
+              {i > 0 && <span className="text-theme-fg-muted"> … </span>}
               {clip.text.startsWith(query) ? "" : "…"}
               {parts.map((p, idx) =>
                 regex.test(p) ? (
-                  <span key={idx} className="bg-yellow-200 text-black">
+                  <span key={idx} className="bg-theme-warning">
                     {p}
                   </span>
                 ) : (
@@ -103,7 +103,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
         })}
       </div>
 
-      <div className="text-gray-400">{path.join("/")}</div>
+      <div className="text-theme-fg-muted">{path.join("/")}</div>
     </div>
   );
 }
@@ -149,7 +149,7 @@ export default function GlobalSearch() {
 
   return (
     <div
-      className="fixed inset-0 bg-black/30 z-100"
+      className="fixed inset-0 bg-black/40 z-100"
       onClick={() => {
         useZustandStore.setState({ isGlobalSearchOpened: false });
       }}
@@ -159,13 +159,13 @@ export default function GlobalSearch() {
                    w-9/10 sm:w-3/4 min-w-80 max-w-230 
                    h-6/7
                    p-3
-                   rounded-lg bg-white shadow-2xl
+                   rounded-lg bg-theme-bg shadow-2xl
                    flex flex-col"
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >
         <div className="flex items-center gap-2">
           <input
-            className="flex-1 rounded text-sm  px-2 py-1
+            className="flex-1 rounded text-sm px-2 py-1
                        border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
             ref={refInput}
             value={query}
@@ -191,7 +191,7 @@ export default function GlobalSearch() {
             <SearchResultEntry key={`SearchResultEntry-${id}`} id={id} query={debouncedQuery} />
           ))}
 
-          {searchResult.length === 0 && <div className="px-1 py-2 text-sm text-gray-500">No results</div>}
+          {searchResult.length === 0 && <div className="px-1 py-2 text-sm">No results</div>}
         </div>
       </div>
     </div>

@@ -7,17 +7,21 @@ import {
   FilePlayIcon,
   ListChecksIcon,
   ListIcon,
+  MoonIcon,
   PanelLeftIcon,
   PencilIcon,
   PencilOffIcon,
   RedoIcon,
   RotateCwIcon,
   SearchIcon,
+  SunIcon,
+  SunMoonIcon,
   UndoIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
@@ -27,6 +31,7 @@ export default function Header() {
   console.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
+  const { theme, setTheme } = useTheme();
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
@@ -36,7 +41,7 @@ export default function Header() {
   return (
     <div
       className="Header fixed top-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
-      bg-white shadow-[0_1px_5px_rgba(0,0,0,0.15)]
+      bg-theme-bg shadow-[0_1px_5px_rgba(0,0,0,0.15)]
       flex"
       style={{ left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}` }}
     >
@@ -104,8 +109,23 @@ export default function Header() {
             </Button>
 
             <Button
+              title={`Theme: ${theme}`}
+              onClick={() => {
+                if (theme === "system") {
+                  setTheme("light");
+                } else if (theme === "light") {
+                  setTheme("dark");
+                } else if (theme === "dark") {
+                  setTheme("system");
+                }
+              }}
+            >
+              {theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />}
+            </Button>
+
+            <Button
               title="Toggle checkboxes selection"
-              className="text-yellow-400"
+              className="text-theme-warning"
               onClick={() => useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive })}
             >
               {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}

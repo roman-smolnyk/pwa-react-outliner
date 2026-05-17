@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Roboto";
   src: url("assets/fonts/Roboto-VariableFont_wdth,wght.ttf") format("truetype");
@@ -48,53 +50,155 @@
   font-display: swap;
 }
 
+@theme {
+  --color-theme-bg: var(--color-raw-bg);
+  --color-theme-bg-subtle: var(--color-raw-bg-subtle);
+  --color-theme-bg-hover: var(--color-raw-bg-hover);
+  --color-theme-bg-selected: var(--color-raw-bg-selected);
+  --color-theme-bg-active: var(--color-raw-bg-active);
+
+  --color-theme-fg: var(--color-raw-fg);
+  --color-theme-fg-muted: var(--color-raw-fg-muted);
+
+  --color-theme-border: var(--color-raw-border);
+  --color-theme-border-subtle: var(--color-raw-border-subtle);
+  --color-theme-ring: var(--color-raw-ring);
+
+  --color-theme-primary: var(--color-raw-primary);
+  --color-theme-primary-fg: var(--color-raw-primary-fg);
+
+  --color-theme-success: var(--color-raw-success);
+  --color-theme-warning: var(--color-raw-warning);
+  --color-theme-warning-fg: var(--color-raw-warning-fg);
+  --color-theme-error: var(--color-raw-error);
+  --color-theme-info: var(--color-raw-info);
+
+  --color-theme-icon: var(--color-raw-icon);
+}
+
 @layer base {
   :root {
     font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+
+    --color-raw-bg: var(--color-white);
+    --color-raw-bg-subtle: var(--color-neutral-200);
+    --color-raw-bg-hover: var(--color-neutral-300);
+    --color-raw-bg-selected: var(--color-neutral-400);
+    --color-raw-bg-active: var(--color-neutral-200);
+
+    --color-raw-fg: var(--color-neutral-800);
+    --color-raw-fg-muted: var(--color-neutral-500);
+
+    --color-raw-border: var(--color-neutral-300);
+    --color-raw-border-subtle: var(--color-neutral-150);
+    --color-raw-ring: var(--color-neutral-500);
+
+    --color-raw-primary: var(--color-gray-700);
+    --color-raw-primary-fg: var(--color-neutral-50);
+
+    --color-raw-success: var(--color-green-600);
+    --color-raw-warning: var(--color-yellow-400);
+    --color-raw-warning-fg: var(--color-neutral-800);
+    --color-raw-error: var(--color-red-600);
+    --color-raw-info: var(--color-blue-600);
+
+    --color-theme-icon: var(--color-balck);
+  }
+
+  [data-theme="dark"] {
+    --color-raw-bg: var(--color-neutral-800);
+    --color-raw-bg-subtle: var(--color-neutral-600);
+    --color-raw-bg-hover: var(--color-neutral-500);
+    --color-raw-bg-selected: var(--color-neutral-400);
+    --color-raw-bg-active: var(--color-neutral-600);
+
+    --color-raw-fg: var(--color-neutral-300);
+    --color-raw-fg-muted: var(--color-neutral-500);
+
+    --color-raw-border: var(--color-neutral-700);
+    --color-raw-border-subtle: var(--color-neutral-800);
+    --color-raw-ring: var(--color-neutral-500);
+
+    --color-raw-primary: var(--color-gray-300);
+    --color-raw-primary-fg: var(--color-neutral-950);
+
+    --color-raw-success: var(--color-green-600);
+    --color-raw-warning: var(--color-yellow-400);
+    --color-raw-warning-fg: var(--color-neutral-950);
+    --color-raw-error: var(--color-red-600);
+    --color-raw-info: var(--color-blue-600);
+
+    --color-theme-icon: var(--color-white);
   }
 
   html,
   body {
-    /* position: fixed; */
-    position: relative;
-    width: 100%;
-    height: 100%;
     overflow: hidden;
+    @apply bg-theme-bg text-theme-fg;
   }
 
-  code,
-  pre {
-    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-    line-height: 1.25;
-    font-size: 14px;
-  }
-
-  span.token {
-    background: none !important;
-  }
-
-  h1 {
+  h1,
+  .md-h1 {
     @apply text-3xl font-bold;
   }
 
-  h2 {
+  h2,
+  .md-h2 {
     @apply text-2xl font-semibold;
   }
 
-  h3 {
+  h3,
+  .md-h3 {
     @apply text-xl font-semibold;
   }
 
-  h4 {
+  h4,
+  .md-h4 {
     @apply text-lg font-semibold;
   }
 
-  h5 {
+  h5,
+  .md-h5 {
     @apply text-base font-semibold;
   }
 
-  h6 {
+  h6,
+  .md-h6 {
     @apply text-sm font-semibold;
+  }
+
+  p {
+    @apply leading-tight;
+  }
+
+  a {
+    @apply text-blue-600;
+  }
+
+  strong,
+  .md-bold {
+    font-weight: bolder;
+  }
+
+  em,
+  .md-italic {
+    font-style: italic;
+  }
+
+  del {
+    text-decoration: line-through;
+  }
+
+  pre,
+  code,
+  .md-code {
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    line-height: 1.25;
+    font-size: 0.9rem;
+  }
+  /* Markdown symbols in code for some reason have background color */
+  span.token {
+    background: none !important;
   }
 
   table {
@@ -106,10 +210,6 @@
   td {
     border: 1px solid #000000;
     padding: 4px 8px;
-  }
-
-  p {
-    @apply leading-tight;
   }
 
   ol {
@@ -134,12 +234,19 @@
     @apply my-3;
   }
 
-  a {
-    @apply text-blue-600;
-  }
-
   blockquote {
-    @apply border-l-4 border-gray-300 pl-4 italic text-gray-700;
+    @apply pl-4 italic border-l-4 border-theme-border text-theme-fg-muted;
+  }
+}
+
+@layer utilities {
+  .block-content,
+  .cm-content {
+    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+    /* font-size: 1rem; */
+    line-height: 1.25;
+    padding: 4px 6px 4px 6px !important;
+    overflow-wrap: break-word !important;
   }
 }
 

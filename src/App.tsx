@@ -9,6 +9,7 @@ import Authorization from "./components/Authorize/Authorization";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
+import { ThemeContextProvider } from "./contexts/ThemeContext";
 
 function App() {
   console.debug("App", treero.version);
@@ -31,10 +32,11 @@ function App() {
   }
 
   return (
-    <>
+    // zinc slate neutral stone gray
+    <ThemeContextProvider>
       <Main />
       <PWABadge />
-    </>
+    </ThemeContextProvider>
   );
 }
 

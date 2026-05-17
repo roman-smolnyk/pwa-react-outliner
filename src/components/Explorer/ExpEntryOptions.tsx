@@ -37,7 +37,7 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-100 bg-white shadow-lg rounded-md flex flex-col gap-1"
+            className="w-40 py-2 z-100 bg-theme-bg shadow-lg rounded-md flex flex-col gap-1"
             {...getFloatingProps()}
           >
             <FloatingMenuItem
@@ -73,7 +73,7 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
             )}
 
             {/* <FloatingMenuItem
-              className="text-yellow-400"
+              className=""
               icon={<Share2Icon className="w-full h-full" />}
               label="Share"
               onClick={() => {
@@ -81,7 +81,7 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
               }}
             /> */}
             <FloatingMenuItem
-              className="DeleteDocument text-red-600"
+              className="DeleteDocument text-theme-error"
               icon={<Trash2Icon className="w-full h-full" />}
               label="Delete"
               onClick={() => {

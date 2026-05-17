@@ -86,22 +86,22 @@ const livePreviewPlugin = ViewPlugin.fromClass(
 );
 
 const markdownTheme = EditorView.theme({
-  ".md-bold": { fontWeight: "700" },
-  ".md-italic": { fontStyle: "italic" },
-  ".md-code": {
-    fontFamily: "monospace",
-    fontSize: "0.88em",
-    backgroundColor: "#e5e7eb",
-    borderRadius: "3px",
-    padding: "1px 4px",
-  },
-  ".md-h": { fontWeight: "700", lineHeight: "1.3" },
-  ".md-h1": { fontSize: "1.875em" },
-  ".md-h2": { fontSize: "1.5em" },
-  ".md-h3": { fontSize: "1.25em" },
-  ".md-h4": { fontSize: "1.125em" },
-  ".md-h5": { fontSize: "1em" },
-  ".md-h6": { fontSize: "0.9em", color: "#6b7280" },
+  // ".md-bold": { fontWeight: "700" },
+  // ".md-italic": { fontStyle: "italic" },
+  // ".md-code": {
+  //   fontFamily: "monospace",
+  //   fontSize: "0.88em",
+  //   backgroundColor: "#e5e7eb",
+  //   borderRadius: "3px",
+  //   padding: "1px 4px",
+  // },
+  // ".md-h": { fontWeight: "700", lineHeight: "1.3" },
+  // ".md-h1": { fontSize: "1.875em" },
+  // ".md-h2": { fontSize: "1.5em" },
+  // ".md-h3": { fontSize: "1.25em" },
+  // ".md-h4": { fontSize: "1.125em" },
+  // ".md-h5": { fontSize: "1em" },
+  // ".md-h6": { fontSize: "0.9em", color: "#6b7280" },
 });
 
 // ─── component ───────────────────────────────────────────────────────────────

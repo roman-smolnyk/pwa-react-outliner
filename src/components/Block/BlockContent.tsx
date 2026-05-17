@@ -33,16 +33,10 @@ export default function BlockContent({ id }: { id: string }) {
   const content = yblock.get("content").toString();
 
   return (
-    <div className={`BlockContent w-full ${isEdit ? "bg-gray-100" : ""}`}>
+    <div className={`BlockContent w-full ${isEdit ? "bg-theme-bg-active" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render wrap-break-word min-h-[28px] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
-          style={{
-            fontFamily: "font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif",
-            fontSize: "16px",
-            // lineHeight: "1.25",
-            padding: "4px 6px 4px 6px",
-          }}
+          className={`BlockContent-render block-content min-h-[28px] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           onClick={(e) => {
             if (readOnly) return;
             setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
