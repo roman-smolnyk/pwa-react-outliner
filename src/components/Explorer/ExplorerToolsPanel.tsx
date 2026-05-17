@@ -7,6 +7,7 @@ import Button from "../Common/Button";
 import { handleCollectionAdd, handlePageAdd } from "../../api/api";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 import { createPortal } from "react-dom";
+import LucideIcon from "../Common/LucideIcon";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
@@ -33,7 +34,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
               // explorerPanelRef.current?.collapse();
             }}
           >
-            <PanelLeftCloseIcon />
+            <LucideIcon icon={<PanelLeftCloseIcon />} />
           </Button>
         </div>
 
@@ -48,7 +49,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
               handlePageAdd(rootCollectionId);
             }}
           >
-            <FilePlusIcon />
+            <LucideIcon icon={<FilePlusIcon />} />
           </Button>
 
           <Button
@@ -57,7 +58,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
               handleCollectionAdd(rootCollectionId);
             }}
           >
-            <FolderPlusIcon />
+            <LucideIcon icon={<FolderPlusIcon />} />
           </Button>
 
           <Button
@@ -66,7 +67,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
               useZustandStore.setState({ isGlobalSearchOpened: true });
             }}
           >
-            <SearchIcon />
+            <LucideIcon icon={<SearchIcon />} />
           </Button>
         </div>
       </div>

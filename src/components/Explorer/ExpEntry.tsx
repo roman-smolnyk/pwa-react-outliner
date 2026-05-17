@@ -9,6 +9,7 @@ import yjs from "../../store/yjsManager.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleEdit from "./TitleEdit.tsx";
+import LucideIcon from "../Common/LucideIcon.tsx";
 
 function HandleButton({
   id,
@@ -29,23 +30,25 @@ function HandleButton({
 }) {
   return (
     <button
-      className={`HandleButton flex flex-none items-center justify-center min-h-5 min-w-5 ${type === COLLECTION_TYPE ? "cursor-pointer" : ""}`}
+      className={`HandleButton flex-none flex items-center justify-center ${type === COLLECTION_TYPE ? "cursor-pointer" : ""}`}
       type="button"
       {...attributes}
       {...listeners}
       onPointerUpCapture={onClick}
     >
-      {type === PAGE_TYPE ? (
-        <FileTextIcon size={24} />
-      ) : children_ && children_.length > 0 ? (
-        collapsed ? (
-          <FolderInputIcon size={24} />
+      <LucideIcon>
+        {type === PAGE_TYPE ? (
+          <FileTextIcon />
+        ) : children_ && children_.length > 0 ? (
+          collapsed ? (
+            <FolderInputIcon />
+          ) : (
+            <FolderDownIcon />
+          )
         ) : (
-          <FolderDownIcon size={24} />
-        )
-      ) : (
-        <FolderIcon size={24} />
-      )}
+          <FolderIcon />
+        )}
+      </LucideIcon>
     </button>
   );
 }
@@ -94,7 +97,11 @@ export default function ExpEntry({
 
   return (
     <div
-      className={`ExpEntry min-w-0 py-1 sm:py-1 rounded-sm ${isSelected && !isActive ? "bg-theme-bg-selected" : "hover:bg-theme-bg-hover"} `}
+      className={`ExpEntry min-w-0 py-1 pr-3 ${
+        isSelected && !isActive
+          ? "bg-theme-bg-selected border-l-16 sm:border-l-12 border-theme-bg-selected"
+          : "border-l-16 sm:border-l-12 border-transparent hover:bg-theme-bg-hover hover:border-theme-bg-hover"
+      }`}
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
     >

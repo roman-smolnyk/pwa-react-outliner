@@ -25,7 +25,8 @@ import { useTheme } from "../../contexts/ThemeContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
-import Menu from "../Menu/Menu";
+import MainMenu from "../MainMenu/MainMenu";
+import LucideIcon from "../Common/LucideIcon";
 
 export default function Header() {
   console.debug("Header");
@@ -57,7 +58,7 @@ export default function Header() {
                 useZustandStore.getState().expandExplorer();
               }}
             >
-              <PanelLeftIcon />
+              <LucideIcon icon={<PanelLeftIcon />} />
             </Button>
           )}
         </div>
@@ -70,7 +71,7 @@ export default function Header() {
                 yjs.undoManager?.undo();
               }}
             >
-              <UndoIcon />
+              <LucideIcon icon={<UndoIcon />} />
             </Button>
             <Button
               title="Redo"
@@ -78,7 +79,7 @@ export default function Header() {
                 yjs.undoManager?.redo();
               }}
             >
-              <RedoIcon />
+              <LucideIcon icon={<RedoIcon />} />
             </Button>
             {/* <div className="Spacer"></div> */}
             <Button
@@ -88,7 +89,7 @@ export default function Header() {
                 window.location.replace(window.location.href);
               }}
             >
-              <RotateCwIcon />
+              <LucideIcon icon={<RotateCwIcon />} />
             </Button>
           </div>
 
@@ -101,11 +102,11 @@ export default function Header() {
                 toast(`WebSocket status: '${webSocketConnectionStatus}'`, { containerId: "toaster" });
               }}
             >
-              {webSocketConnectionStatus === "connecting" && <CloudAlertIcon />}
-              {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
-              {/* {webSocketConnectionStatus === "disconnected" && <RefreshCwIcon className="animate-spin" />} */}
-              {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
-              {webSocketConnectionStatus === "turned off" && <CloudCogIcon />}
+              {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />}
+              {webSocketConnectionStatus === "connected" && <LucideIcon icon={<CloudCheckIcon />} />}
+              {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
+              {webSocketConnectionStatus === "disconnected" && <LucideIcon icon={<CloudAlertIcon />} />}
+              {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />}
             </Button>
 
             <Button
@@ -120,7 +121,7 @@ export default function Header() {
                 }
               }}
             >
-              {theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />}
+              <LucideIcon icon={theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />} />
             </Button>
 
             <Button
@@ -128,7 +129,7 @@ export default function Header() {
               className="text-theme-warning"
               onClick={() => useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive })}
             >
-              {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
+              <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
             </Button>
 
             <Button
@@ -144,11 +145,13 @@ export default function Header() {
               }}
             >
               {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-              {contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
+              <LucideIcon
+                icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
+              />
             </Button>
 
             <Button title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>
-              {readOnly ? <PencilOffIcon /> : <PencilIcon />}
+              <LucideIcon icon={readOnly ? <PencilOffIcon /> : <PencilIcon />} />
             </Button>
 
             <Button
@@ -158,13 +161,13 @@ export default function Header() {
                 useZustandStore.setState({ isPageSearchActive: !isPageSearchActive });
               }}
             >
-              <SearchIcon />
+              <LucideIcon icon={<SearchIcon />} />
             </Button>
           </div>
         </div>
 
         <div className="ml-3 flex">
-          <Menu />
+          <MainMenu />
         </div>
       </div>
       {/* </div> */}

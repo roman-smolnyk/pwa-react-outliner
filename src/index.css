@@ -83,7 +83,7 @@
     --color-raw-bg: var(--color-white);
     --color-raw-bg-subtle: var(--color-neutral-200);
     --color-raw-bg-hover: var(--color-neutral-300);
-    --color-raw-bg-selected: var(--color-neutral-400);
+    --color-raw-bg-selected: var(--color-neutral-300);
     --color-raw-bg-active: var(--color-neutral-200);
 
     --color-raw-fg: var(--color-neutral-800);
@@ -105,12 +105,14 @@
     --color-theme-icon: var(--color-balck);
   }
 
+  /*  zinc slate neutral stone gray */
+
   [data-theme="dark"] {
     --color-raw-bg: var(--color-neutral-800);
     --color-raw-bg-subtle: var(--color-neutral-600);
-    --color-raw-bg-hover: var(--color-neutral-500);
-    --color-raw-bg-selected: var(--color-neutral-400);
-    --color-raw-bg-active: var(--color-neutral-600);
+    --color-raw-bg-hover: var(--color-neutral-600);
+    --color-raw-bg-selected: var(--color-neutral-600);
+    --color-raw-bg-active: var(--color-neutral-700);
 
     --color-raw-fg: var(--color-neutral-300);
     --color-raw-fg-muted: var(--color-neutral-500);

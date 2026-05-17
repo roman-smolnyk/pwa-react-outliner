@@ -1,11 +1,7 @@
-import { LoaderIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
-import { ToastContainer } from "react-toastify";
 import { MOBILE_WIDTH } from "../../../config";
-import { ContentViewModeContextProvider } from "../../contexts/PlainTextViewContext";
-import { ReadOnlyContextProvider } from "../../contexts/ReadOnlyContext";
 import onStartUp from "../../onStartUp";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
@@ -13,35 +9,7 @@ import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
-import { logout } from "../../api/api";
-
-function Spinner() {
-  console.debug("Spinner");
-
-  const loadingScreenInfo = useZustandStore((s) => s.loadingScreenInfo);
-  const isLoadingScreenShowExit = useZustandStore((s) => s.isLoadingScreenShowExit);
-
-  return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center gap-5">
-      <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} />
-      <div className="px-10">{loadingScreenInfo}</div>
-      {isLoadingScreenShowExit && (
-        <button
-          className="min-w-30 p-2 rounded cursor-pointer
-                      hover:scale-105 active:scale-100 transition-transform"
-          type="button"
-          onClick={() => {
-            if (confirm("All data on this device will be wiped. Are you sure?")) {
-              logout();
-            }
-          }}
-        >
-          Exit
-        </button>
-      )}
-    </div>
-  );
-}
+import Spinner from "./Spinner";
 
 function useSetupHotkeys() {
   useHotkeys(
@@ -118,64 +86,51 @@ export default function Main() {
 
   return (
     <div className="Main">
-      <ReadOnlyContextProvider>
-        <ContentViewModeContextProvider>
-          <Header />
+      <Header />
 
-          <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
-            <Panel
-              id="ExplorerPanel"
-              panelRef={explorerPanelRef}
-              defaultSize={"30%"}
-              minSize={viewportWidth > MOBILE_WIDTH ? 150 : "90%"}
-              maxSize={viewportWidth > MOBILE_WIDTH ? "30%" : "90%"}
-              collapsible
-              collapsedSize={0}
-              onResize={(size) => {
-                if (size.inPixels > 0) {
-                  useZustandStore.setState({ isExplorerOpened: true });
-                } else {
-                  useZustandStore.setState({ isExplorerOpened: false });
-                }
+      <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
+        <Panel
+          id="ExplorerPanel"
+          panelRef={explorerPanelRef}
+          defaultSize={"30%"}
+          minSize={viewportWidth > MOBILE_WIDTH ? 150 : "90%"}
+          maxSize={viewportWidth > MOBILE_WIDTH ? "30%" : "90%"}
+          collapsible
+          collapsedSize={0}
+          onResize={(size) => {
+            if (size.inPixels > 0) {
+              useZustandStore.setState({ isExplorerOpened: true });
+            } else {
+              useZustandStore.setState({ isExplorerOpened: false });
+            }
 
-                document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
-              }}
-            >
-              <div className="h-dvh overflow-hidden flex flex-col">
-                <ExplorerContainer explorerPanelRef={explorerPanelRef} />
-              </div>
-            </Panel>
-            <Separator
-              // shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
-              // shadow-[1.5px_0px_5px_var(--color-theme-fg)]
-              className="w-0.5 bg-theme-bg-selected z-20
-                        shadow-[1px_0px_6px_var(--color-theme-fg)]
-                        "
-            />
-            <Panel id="PagePanel">
-              <div className="h-dvh overflow-hidden flex flex-col">
-                <div className="Spacer min-h-12 sm:min-h-8"></div>
-                <PageContainer />
-                <div className="Spacer min-h-12 sm:min-h-8"></div>
-              </div>
-            </Panel>
-          </Group>
+            document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
+          }}
+        >
+          <div className="h-dvh overflow-hidden flex flex-col">
+            <ExplorerContainer explorerPanelRef={explorerPanelRef} />
+          </div>
+        </Panel>
+        <Separator
+          // shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
+          // shadow-[1.5px_0px_5px_var(--color-theme-fg)]
+          className="w-0.5 bg-theme-bg-selected z-20"
+          style={{
+            // boxShadow: "10px 0px 10px -4px rgba(0, 0, 0, 0.3)"
+            boxShadow: "1px 0px 4px rgba(0, 0, 0, 0.8)",
+            clipPath: "inset(0px -20px 0px 0px)",
+          }}
+        />
+        <Panel id="PagePanel">
+          <div className="h-dvh overflow-hidden flex flex-col">
+            <div className="Spacer min-h-12 sm:min-h-8"></div>
+            <PageContainer />
+            <div className="Spacer min-h-12 sm:min-h-8"></div>
+          </div>
+        </Panel>
+      </Group>
 
-          <Footer />
-        </ContentViewModeContextProvider>
-      </ReadOnlyContextProvider>
-      <ToastContainer
-        containerId="toaster"
-        position="top-right"
-        autoClose={3_000}
-        hideProgressBar={true}
-        closeButton={false}
-        closeOnClick={true}
-        draggable={false}
-        limit={3}
-        style={{ top: 50 }}
-        // toastClassName={"min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!"}
-      />
+      <Footer />
     </div>
   );
 }

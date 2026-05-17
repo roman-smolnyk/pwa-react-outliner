@@ -9,6 +9,7 @@ type ThemeContextState = {
 const ThemeContext = createContext<ThemeContextState | null>(null);
 
 export function ThemeContextProvider({ children }: { children: React.ReactNode }) {
+  console.debug("ThemeContextProvider");
   const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
 
   useEffect(() => {

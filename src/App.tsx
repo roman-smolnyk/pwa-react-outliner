@@ -10,6 +10,9 @@ import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
 import { ThemeContextProvider } from "./contexts/ThemeContext";
+import { ToastContainer } from "react-toastify";
+import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
+import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
 
 function App() {
   console.debug("App", treero.version);
@@ -28,14 +31,33 @@ function App() {
 
   console.debug("isAuthorized", isAuthorized);
   if (!isAuthorized) {
-    return <Authorization />;
+    return (
+      <ThemeContextProvider>
+        <Authorization />
+      </ThemeContextProvider>
+    );
   }
 
   return (
-    // zinc slate neutral stone gray
     <ThemeContextProvider>
-      <Main />
-      <PWABadge />
+      <ReadOnlyContextProvider>
+        <ContentViewModeContextProvider>
+          <Main />
+          <PWABadge />
+          <ToastContainer
+            containerId="toaster"
+            position="top-right"
+            autoClose={3_000}
+            hideProgressBar={true}
+            closeButton={false}
+            closeOnClick={true}
+            draggable={false}
+            limit={3}
+            style={{ top: 50 }}
+            // toastClassName={"min-h-0! h-10! w-60! rounded-xl! top-5! sm:top-0! right-5! sm:right-0!"}
+          />
+        </ContentViewModeContextProvider>
+      </ReadOnlyContextProvider>
     </ThemeContextProvider>
   );
 }

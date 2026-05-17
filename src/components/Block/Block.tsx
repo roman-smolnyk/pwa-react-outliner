@@ -8,6 +8,9 @@ import yjs from "../../store/yjsManager.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
 import { memo } from "react";
+import LucideIcon from "../Common/LucideIcon.tsx";
+import Button from "../Common/Button.tsx";
+import BlockButton from "./BlockButton.tsx";
 
 function HandleButton({
   id,
@@ -15,6 +18,7 @@ function HandleButton({
   children_,
   attributes,
   listeners,
+  ...props
 }: {
   id: string;
   collapsed: boolean;
@@ -23,9 +27,9 @@ function HandleButton({
   listeners: any;
 }) {
   return (
-    <button
-      className="HandleButton mt-1 flex flex-none items-center justify-center cursor-pointer min-h-5 min-w-5"
-      type="button"
+    <BlockButton
+      title={id}
+      className="HandleButton"
       {...attributes}
       {...listeners}
       onPointerUpCapture={() => {
@@ -34,21 +38,18 @@ function HandleButton({
           const yblock = getItem(yjs.yblocks, id);
           yblock.set("collapsed", !collapsed);
         }
-
-        // TreeRoAPI.collapseBlock(block.id);
       }}
     >
       {children_.length > 0 ? (
         collapsed ? (
-          <PlusCircleIcon size={12} strokeWidth={2.5} />
+          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<PlusCircleIcon size={12} strokeWidth={2.5} />} />
         ) : (
-          // <MinusIcon size={12} strokeWidth={2.5} />
-          <CircleMinusIcon size={12} strokeWidth={2.5} />
+          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleMinusIcon size={12} strokeWidth={2.5} />} />
         )
       ) : (
-        <CircleIcon size={7} fill="black" />
+        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-theme-icon" size={7} fill="none" />} />
       )}
-    </button>
+    </BlockButton>
   );
 }
 

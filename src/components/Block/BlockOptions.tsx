@@ -1,5 +1,5 @@
-import { autoUpdate, flip, FloatingPortal, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
-import { deleteBlock, getItem } from "esm-treero-api";
+import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { deleteBlock } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
   EllipsisVerticalIcon,
@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
+import { copyToClipboard, handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
-import FloatingMenuItem from "../Common/FloatingMenuItem";
+import FloatingMenuButton from "../Common/FloatingMenuButton";
+import LucideIcon from "../Common/LucideIcon";
+import BlockButton from "./BlockButton";
 
 // function MobileSheet({ open, onClose, children }) {
 //   return (
@@ -49,8 +51,8 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const { refs, floatingStyles, context } = useFloating({
     open: isOpened,
     onOpenChange: setIsOpened,
-    placement: "bottom-end",
-    middleware: [flip(), shift()],
+    placement: "bottom-start",
+    middleware: [offset(10), flip(), shift()],
     whileElementsMounted: autoUpdate,
   });
 
@@ -65,96 +67,107 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5" {...getReferenceProps()}>
+      <BlockButton className="BlockOptions" ref={refs.setReference} {...getReferenceProps()}>
+        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<EllipsisVerticalIcon size={15} />} />
+      </BlockButton>
+      {/* <button ref={refs.setReference} type="button" className="BlockOptions cursor-pointer min-h-5 min-w-5" {...getReferenceProps()}>
         <EllipsisVerticalIcon size={15} />
-      </button>
+      </button> */}
 
       {isOpened && (
         <FloatingPortal>
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-100 bg-theme-bg shadow-lg rounded-md flex flex-col gap-1"
+            className="py-1 rounded-md bg-theme-bg shadow-lg z-100 flex flex-col"
             {...getFloatingProps()}
           >
-            <FloatingMenuItem
-              className="ZoomIntoNode"
-              icon={<ZoomInIcon className="w-full h-full" />}
-              label="Zoom In"
+            <FloatingMenuButton
+              className="ZoomIn"
               onClick={async () => {
                 setIsOpened(false);
                 await handleBlockOpen(id);
-                // TreeRoAPI.openBlock(id);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<MoveIcon className="w-full h-full" />}
-              label="Move to"
+            >
+              <LucideIcon icon={<ZoomInIcon />} />
+              <div>Zoom in</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="MoveTo text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<PlusIcon className="w-full h-full" />}
-              label="Expand All"
+            >
+              <LucideIcon icon={<MoveIcon />} />
+              <div>Move to</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="ExpandAll text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<MinusIcon className="w-full h-full" />}
-              label="Collapse All"
+            >
+              <LucideIcon icon={<PlusIcon />} />
+              <div>Expand All</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="CollapseAll text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<ArrowDownNarrowWideIcon className="w-full h-full" />}
-              label="Sort"
+            >
+              <LucideIcon icon={<MinusIcon />} />
+              <div>Collapse All</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="Sort text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<InboxIcon className="w-full h-full" />}
-              label="Set as Inbox"
+            >
+              <LucideIcon icon={<ArrowDownNarrowWideIcon />} />
+              <div>Sort</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="SetAsInbox text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="text-theme-warning"
-              icon={<UploadIcon className="w-full h-full" />}
-              label="Export"
+            >
+              <LucideIcon icon={<InboxIcon />} />
+              <div>Set as Inbox</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="Export text-theme-warning"
               onClick={() => {
                 setIsOpened(false);
               }}
-            />
-            <FloatingMenuItem
-              className="CopyNodeLink"
-              icon={<LinkIcon className="w-full h-full" />}
-              label="Copy link"
+            >
+              <LucideIcon icon={<UploadIcon />} />
+              <div>Export</div>
+            </FloatingMenuButton>
+            <FloatingMenuButton
+              className="CopyLink"
               onClick={async () => {
                 setIsOpened(false);
                 await copyToClipboard(`${window.location.origin}/#${id}`);
                 toast("Copied", { containerId: "toaster" });
               }}
-            />
+            >
+              <LucideIcon icon={<LinkIcon />} />
+              <div>Copy link</div>
+            </FloatingMenuButton>
             {!isRoot && (
-              <FloatingMenuItem
-                className="DeleteNode text-theme-error"
-                icon={<Trash2Icon className="w-full h-full" />}
-                label="Delete"
+              <FloatingMenuButton
+                className="Delete text-theme-error"
                 onClick={() => {
                   setIsOpened(false);
                   deleteBlock(yjs.ydoc, id);
                 }}
-              />
+              >
+                <LucideIcon icon={<Trash2Icon />} />
+                <div>Delete</div>
+              </FloatingMenuButton>
             )}
           </div>
         </FloatingPortal>

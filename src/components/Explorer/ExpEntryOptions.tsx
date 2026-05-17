@@ -1,18 +1,19 @@
-import { autoUpdate, flip, FloatingPortal, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
+import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import { EllipsisVerticalIcon, FilePlusIcon, FolderPlusIcon, InboxIcon, Share2Icon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
-import FloatingMenuItem from "../Common/FloatingMenuItem";
+import FloatingMenuButton from "../Common/FloatingMenuButton";
 import { COLLECTION_TYPE, PAGE_TYPE } from "esm-treero-api";
 import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
+import LucideIcon from "../Common/LucideIcon";
 
 export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; type: number; setIsEdit: (v: boolean) => void }) {
-  const [open, setOpen] = useState(false);
+  const [isOpened, setIsOpened] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
-    open,
-    onOpenChange: setOpen,
-    placement: "bottom-end",
-    middleware: [flip()],
+    open: isOpened,
+    onOpenChange: setIsOpened,
+    placement: "bottom-start",
+    middleware: [offset(10), flip(), shift()],
     whileElementsMounted: autoUpdate,
   });
 
@@ -27,48 +28,55 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
 
   return (
     <>
-      <button ref={refs.setReference} type="button" className="h-6 cursor-pointer flex items-center justify-center" {...getReferenceProps()}>
-        {/* <i className="ph-bold ph-dots-three-vertical text-[1.2rem]"></i> */}
-        <EllipsisVerticalIcon size={15} />
+      <button
+        ref={refs.setReference}
+        type="button"
+        className="flex-none w-5 h-7 sm:w-4 sm:h-6 cursor-pointer flex items-center justify-center"
+        {...getReferenceProps()}
+      >
+        <LucideIcon className="h-5! sm:h-4! [&>svg]:w-auto!" icon={<EllipsisVerticalIcon />} />
       </button>
 
-      {open && (
+      {isOpened && (
         <FloatingPortal>
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="w-40 py-2 z-100 bg-theme-bg shadow-lg rounded-md flex flex-col gap-1"
+            className="py-1 rounded-md bg-theme-bg shadow-lg z-100 flex flex-col"
             {...getFloatingProps()}
           >
-            <FloatingMenuItem
-              className="RenameDocument"
-              icon={<SquarePenIcon className="w-full h-full" />}
-              label="Rename"
+            <FloatingMenuButton
+              className="Rename"
               onClick={() => {
-                setOpen(false);
+                setIsOpened(false);
                 setIsEdit(true);
               }}
-            />
+            >
+              <LucideIcon icon={<SquarePenIcon />} />
+              <div>Rename</div>
+            </FloatingMenuButton>
             {type === COLLECTION_TYPE && (
               <>
-                <FloatingMenuItem
-                  className="AddNewDocument"
-                  icon={<FilePlusIcon className="w-full h-full" />}
-                  label="New Document"
+                <FloatingMenuButton
+                  className="NewDocument"
                   onClick={() => {
-                    setOpen(false);
+                    setIsOpened(false);
                     handlePageAdd(id);
                   }}
-                />
-                <FloatingMenuItem
-                  className="AddNewFolder"
-                  icon={<FolderPlusIcon className="w-full h-full" />}
-                  label="New Folder"
+                >
+                  <LucideIcon icon={<FilePlusIcon />} />
+                  <div>New Document</div>
+                </FloatingMenuButton>
+                <FloatingMenuButton
+                  className="New Folder"
                   onClick={() => {
-                    setOpen(false);
+                    setIsOpened(false);
                     handleCollectionAdd(id);
                   }}
-                />
+                >
+                  <LucideIcon icon={<FolderPlusIcon />} />
+                  <div>New Folder</div>
+                </FloatingMenuButton>
               </>
             )}
 
@@ -80,19 +88,20 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
                 setOpen(false);
               }}
             /> */}
-            <FloatingMenuItem
-              className="DeleteDocument text-theme-error"
-              icon={<Trash2Icon className="w-full h-full" />}
-              label="Delete"
+            <FloatingMenuButton
+              className="Delete text-theme-error"
               onClick={() => {
-                setOpen(false);
+                setIsOpened(false);
                 if (type === COLLECTION_TYPE) {
                   handleCollectionDelete(id);
                 } else if (type === PAGE_TYPE) {
                   handlePageDelete(id);
                 }
               }}
-            />
+            >
+              <LucideIcon icon={<Trash2Icon />} />
+              <div>Delete</div>
+            </FloatingMenuButton>
           </div>
         </FloatingPortal>
       )}
