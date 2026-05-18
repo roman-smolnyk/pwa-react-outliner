@@ -55,7 +55,7 @@ export default function FloatingMenu({
       {isOpened && (
         <FloatingPortal>
           <div
-            className="FloatingMenu py-1 text-secondary-foreground bg-popover border border-border rounded shadow-lg z-50 flex flex-col"
+            className="FloatingMenu py-1 text-primary bg-popover border border-border rounded shadow-lg z-50 flex flex-col"
             style={floatingStyles}
             ref={refs.setFloating}
             {...getFloatingProps()}

@@ -47,7 +47,7 @@ function HandleButton({
       ) : (
         <LucideIcon
           className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!"
-          icon={<CircleIcon className="fill-sidebar-foreground" size={7} fill="none" />}
+          icon={<CircleIcon className="fill-primary" size={7} fill="none" />}
         />
       )}
     </Button>

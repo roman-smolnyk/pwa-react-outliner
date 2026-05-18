@@ -2,24 +2,18 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
 import {
-  ChevronDownIcon,
-  ChevronRight,
   ChevronRightIcon,
-  FileTextIcon,
-  FolderDownIcon,
-  FolderIcon,
-  FolderInputIcon,
-  GripVerticalIcon,
+  GripVerticalIcon
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
+import Button from "../Common/Button.tsx";
+import LucideIcon from "../Common/LucideIcon.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleEdit from "./TitleEdit.tsx";
-import LucideIcon from "../Common/LucideIcon.tsx";
-import Button from "../Common/Button.tsx";
 
 function HandleButton({
   id,
@@ -36,13 +30,13 @@ function HandleButton({
   children_?: string[];
   attributes: any;
   listeners: any;
-  onClick: (event: React.PointerEvent<HTMLButtonElement>) => void;
+  onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onPointerUpCapture={onClick}>
+    <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
       <LucideIcon className="size-auto!">
         {type === PAGE_TYPE ? (
-          <GripVerticalIcon className="text-gray-400" />
+          <GripVerticalIcon className="" />
         ) : (
           <ChevronRightIcon className={`transition-transform duration-200 ease-in-out ${!collapsed ? "rotate-90" : ""}`} />
         )}
@@ -103,8 +97,9 @@ export default function ExpEntry({
 
   const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
 
-  async function onClick() {
+  async function onClick(e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement | HTMLDivElement>) {
     console.debug("onClick", type);
+    e.preventDefault();
     if (type === PAGE_TYPE) {
       await handleBlockOpen(yitem.get("root_id") as string);
     } else if (type === COLLECTION_TYPE) {
@@ -117,8 +112,8 @@ export default function ExpEntry({
     <div
       className={`ExpEntry relative min-w-0 pr-3 ${
         isSelected && !isActive
-          ? "bg-accent text-accent-foreground border-l-16 sm:border-l-12 border-accent"
-          : "border-l-16 sm:border-l-12 border-transparent hover:bg-accent hover:border-accent hover:text-accent-foreground"
+          ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 sm:border-l-12 border-sidebar-accent"
+          : "border-l-16 sm:border-l-12 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
       }`}
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}

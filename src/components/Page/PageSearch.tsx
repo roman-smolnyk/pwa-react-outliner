@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollIntoView } from "../../utils/utilities";
 import Button from "../Common/Button";
 import Input from "../Common/Input";
+import LucideIcon from "../Common/LucideIcon";
 
 export default function PageSearch() {
   const refInput = useRef<HTMLInputElement | null>(null);
@@ -100,7 +101,7 @@ export default function PageSearch() {
             }
           }}
         >
-          <ArrowUpIcon />
+          <LucideIcon icon={<ArrowUpIcon />} />
         </Button>
         <Button
           onPointerDown={(e) => {
@@ -124,7 +125,7 @@ export default function PageSearch() {
             }
           }}
         >
-          <ArrowDownIcon />
+          <LucideIcon icon={<ArrowDownIcon />} />
         </Button>
       </div>
     </div>
