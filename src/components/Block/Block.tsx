@@ -30,7 +30,7 @@ function HandleButton({
       className="HandleButton size-5! mt-1 active:*:scale-100!"
       {...attributes}
       {...listeners}
-      onPointerUpCapture={() => {
+      onClick={() => {
         console.debug("onPointerUpCapture");
         if (children_.length !== 0) {
           const yblock = getItem(yjs.yblocks, id);
@@ -45,10 +45,7 @@ function HandleButton({
           <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleMinusIcon size={12} strokeWidth={2.5} />} />
         )
       ) : (
-        <LucideIcon
-          className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!"
-          icon={<CircleIcon className="fill-primary" size={7} fill="none" />}
-        />
+        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-primary" size={7} fill="none" />} />
       )}
     </Button>
   );
