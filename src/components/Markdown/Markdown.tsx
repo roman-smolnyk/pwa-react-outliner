@@ -2,14 +2,15 @@ import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 // import SyntaxHighlighter from "react-syntax-highlighter";
+import { prism, vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { toast } from "react-toastify";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { remarkHighlight } from "./markdownPlugins";
 import { copyToClipboard } from "../../api/api";
+import { remarkHighlight } from "./markdownPlugins";
 
 function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
@@ -84,8 +85,8 @@ function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreEleme
   return <code className="PrismCodeTag">{children}</code>;
 }
 
-const Markdown = memo(({ children }: { children: string }) => {
-  console.debug("Markdown");
+const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkTheme: boolean }) => {
+  console.debug("Markdown", isDarkTheme);
 
   // const [text, setText] = useState("");
 
@@ -139,7 +140,7 @@ const Markdown = memo(({ children }: { children: string }) => {
           // console.info("children", children);
           // console.info("rest", rest);
 
-          const match = /language-(\w+)/.exec(className || "");
+          const match = /language-(.+)/.exec(className || "");
           const isInline = match ? false : !String(children).endsWith("\n");
           // const codeString = String(children).trim().replace(/\n /g, "\n");
           const codeString = String(children)
@@ -162,6 +163,8 @@ const Markdown = memo(({ children }: { children: string }) => {
                 language={match?.[1] ? match[1] : ""}
                 showLineNumbers={false}
                 showInlineLineNumbers={false}
+                // useInlineStyles={false}
+                style={isDarkTheme ? vscDarkPlus : prism}
               >
                 {codeString}
               </SyntaxHighlighter>

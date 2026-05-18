@@ -2,6 +2,7 @@ import { getItem } from "esm-treero-api";
 import { useEffect, useMemo, useState } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
+import { useTheme } from "../../hooks/theme";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import { getCharIndexFromMouse } from "../../utils/utilities";
@@ -16,6 +17,8 @@ export default function BlockContent({ id }: { id: string }) {
   const [charIndex, setCharIndex] = useState(0);
   const { readOnly } = useReadOnly();
   const { contentViewMode } = useContentViewMode();
+  const { theme, setTheme } = useTheme();
+  const isDarkTheme = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const focusBlockId = useZustandStore((s) => s.focusBlockId);
   const caretCharIndex = useZustandStore((s) => s.caretCharIndex);
@@ -62,7 +65,11 @@ export default function BlockContent({ id }: { id: string }) {
           //   }
           // }}
         >
-          {contentViewMode === "source" ? <PlainTextContent>{content ?? " "}</PlainTextContent> : <Markdown>{content}</Markdown>}
+          {contentViewMode === "source" ? (
+            <PlainTextContent>{content ?? " "}</PlainTextContent>
+          ) : (
+            <Markdown isDarkTheme={isDarkTheme}>{content}</Markdown>
+          )}
         </div>
       ) : (
         <div className="BlockContent-edit">
