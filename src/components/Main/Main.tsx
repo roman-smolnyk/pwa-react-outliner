@@ -112,7 +112,7 @@ export default function Main() {
           </div>
         </Panel>
         <Separator
-          className="relative w-2 group cursor-col-resize z-20
+          className="relative max-sm:hidden w-2 group cursor-col-resize z-20
                     bg-sidebar
                     flex justify-center items-center select-none"
           style={

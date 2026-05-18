@@ -45,6 +45,7 @@ export async function logout() {
 }
 
 export async function clearAllData() {
+  // await localPreferencesManager.clearNamespace();
   await localPreferencesManager.clear();
   await yjs.idbPersistence?.clearData();
 }
