@@ -77,7 +77,7 @@ export function createDomEventHandlers(id: string, setIsEdit: CallableFunction) 
   });
 }
 
-export function createShortcutsKeymap(id: string, ytext: YText) {
+export function createShortcutsKeymap(id: string, ytext: YText | any) {
   return keymap.of([
     {
       key: "Mod-z",
@@ -209,7 +209,7 @@ export function createShortcutsKeymap(id: string, ytext: YText) {
   ]);
 }
 
-export function createUpdateListener(ytext: YText) {
+export function createUpdateListener(ytext: YText | any) {
   return EditorView.updateListener.of((update) => {
     if (!update.docChanged) return;
     if (update.transactions[0]?.annotation(CustomAnnotation) === "customundoredo") return;
@@ -232,8 +232,8 @@ export function createUpdateListener(ytext: YText) {
   });
 }
 
-export function createYtextObserver(view: EditorView, ytext: YText) {
-  return function ytextObserver(event: YTextEvent, transaction: YTransaction) {
+export function createYtextObserver(view: EditorView, ytext: YText | any) {
+  return function ytextObserver(event: YTextEvent | any, transaction: YTransaction | any) {
     if (!transaction.origin) return; // Remote transaction has origin attr
     console.info("CM6:ytext.observe remote change");
     const text = ytext.toString();

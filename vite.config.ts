@@ -37,7 +37,8 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Matches any external or internal URL ending in standard image extensions
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(?:\?.*)?$/i,
+            // urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(?:\?.*)?$/i,
+            urlPattern: ({ request }) => request.destination === "image",
             handler: "CacheFirst",
             options: {
               cacheName: "external-images-cache",
@@ -47,7 +48,7 @@ export default defineConfig({
               },
 
               expiration: {
-                maxEntries: 100, // Caps the total number of images saved
+                maxEntries: 50, // Caps the total number of images saved
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
                 purgeOnQuotaError: true, // Automatically safely clears if the device fills up
               },

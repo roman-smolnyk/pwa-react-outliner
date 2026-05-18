@@ -14,8 +14,8 @@ function extractClips(text: string, query: string, offset = 30) {
   const regex = new RegExp(query, "gi");
   const clips: { text: string; match: string }[] = [];
 
-  let match: any;
-  while ((match = regex.exec(text)) !== null) {
+  let match: any = regex.exec(text);
+  while (match !== null) {
     const start = Math.max(0, match.index - offset);
     const end = Math.min(text.length, match.index + match[0].length + offset);
 
@@ -23,6 +23,8 @@ function extractClips(text: string, query: string, offset = 30) {
       text: text.slice(start, end),
       match: match[0],
     });
+
+    match = regex.exec(text);
   }
 
   // Merge overlapping clips
