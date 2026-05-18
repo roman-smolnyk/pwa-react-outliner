@@ -29,7 +29,7 @@ export default function PageSearch() {
                 setMarkElements(document.querySelectorAll("mark[data-markjs='true']"));
               },
               exclude: ["[data-no-mark]"],
-              className: "bg-theme-warning px-0.5 rounded shadow",
+              className: "bg-warning px-0.5 rounded shadow",
             });
           },
         });

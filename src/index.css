@@ -311,9 +311,9 @@
 }
 
 @theme {
-  --color-theme-success: var(--color-green-600);
-  --color-theme-warning: var(--color-yellow-400);
-  --color-theme-warning-foreground: var(--color-neutral-950);
-  --color-theme-error: var(--color-red-600);
-  --color-theme-info: var(--color-blue-600);
+  --color-success: var(--color-green-600);
+  --color-warning: var(--color-yellow-400);
+  --color-warning-foreground: var(--color-neutral-950);
+  --color-error: var(--color-red-600);
+  --color-info: var(--color-blue-600);
 }

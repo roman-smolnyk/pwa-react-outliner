@@ -123,7 +123,7 @@ const Markdown = memo(({ children }: { children: string }) => {
         span({ node, className, ...props }) {
           // console.debug("md-highlight", node, props);
           if (className?.includes("md-highlight")) {
-            return <span {...props} className={`${className} bg-theme-warning text-theme-warning-foreground`} />;
+            return <span {...props} className={`${className} bg-warning text-warning-foreground`} />;
           }
           return <span {...props} className={className} />;
         },
@@ -167,7 +167,7 @@ const Markdown = memo(({ children }: { children: string }) => {
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className={`px-1 rounded text-theme-error bg-muted`}>{children}</code>
+            <code className={`px-1 rounded text-error bg-muted`}>{children}</code>
           );
         },
       }}

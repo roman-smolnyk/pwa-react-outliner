@@ -91,7 +91,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
               {clip.text.startsWith(query) ? "" : "…"}
               {parts.map((p, idx) =>
                 regex.test(p) ? (
-                  <span key={idx} className="bg-theme-warning">
+                  <span key={idx} className="bg-warning">
                     {p}
                   </span>
                 ) : (

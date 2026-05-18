@@ -64,7 +64,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Zoom in</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="MoveTo text-theme-warning"
+        className="MoveTo text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -73,7 +73,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Move to</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="ExpandAll text-theme-warning"
+        className="ExpandAll text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -82,7 +82,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Expand All</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="CollapseAll text-theme-warning"
+        className="CollapseAll text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -91,7 +91,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Collapse All</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="Sort text-theme-warning"
+        className="Sort text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -100,7 +100,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Sort</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="SetAsInbox text-theme-warning"
+        className="SetAsInbox text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -109,7 +109,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <div>Set as Inbox</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="Export text-theme-warning"
+        className="Export text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
@@ -130,13 +130,13 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
       </FloatingMenuButton>
       {!isRoot && (
         <FloatingMenuButton
-          className="Delete text-theme-error!"
+          className="Delete text-error!"
           onClick={() => {
             // setIsOpened(false);
             deleteBlock(yjs.ydoc, id);
           }}
         >
-          <LucideIcon icon={<Trash2Icon className="text-theme-error" />} />
+          <LucideIcon icon={<Trash2Icon className="text-error" />} />
           <div>Delete</div>
         </FloatingMenuButton>
       )}

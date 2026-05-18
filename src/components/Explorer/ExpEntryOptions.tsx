@@ -62,7 +62,7 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
               }}
             /> */}
       <FloatingMenuButton
-        className="Delete text-theme-error!"
+        className="Delete text-error!"
         onClick={() => {
           // setIsOpened(false);
           if (type === COLLECTION_TYPE) {
@@ -72,7 +72,7 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
           }
         }}
       >
-        <LucideIcon icon={<Trash2Icon className="text-theme-error" />} />
+        <LucideIcon icon={<Trash2Icon className="text-error" />} />
         <div>Delete</div>
       </FloatingMenuButton>
     </FloatingMenu>

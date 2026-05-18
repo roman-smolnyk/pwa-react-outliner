@@ -120,52 +120,52 @@ export default function Footer() {
           <LucideIcon icon={<Trash2Icon />} />
         </Button>
 
-        {/* <Button className="text-theme-warning">
+        {/* <Button className="text-warning">
             <MoveIcon />
           </Button> */}
 
         {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
         <Button>
-          <LucideIcon icon={<HeadingIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<HeadingIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<BoldIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<BoldIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<ItalicIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<ItalicIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<StrikethroughIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<StrikethroughIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<Code2Icon className="text-theme-warning" />} />
+          <LucideIcon icon={<Code2Icon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<BracketsIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<BracketsIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<HighlighterIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<HighlighterIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<TableIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<TableIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<QuoteIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<QuoteIcon className="text-warning" />} />
         </Button>
 
         <Button>
-          <LucideIcon icon={<SigmaIcon className="text-theme-warning" />} />
+          <LucideIcon icon={<SigmaIcon className="text-warning" />} />
         </Button>
 
-        {/* <Button className="text-theme-warning">
+        {/* <Button className="text-warning">
             <LucideIcon icon={<CalendarDays />} />
           </Button> */}
       </div>

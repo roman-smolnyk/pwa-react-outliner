@@ -33,7 +33,7 @@ export default function MainMenu() {
         <div>Copy Token</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="Settings text-theme-warning"
+        className="Settings text-warning"
         onClick={() => {
           // setOpen(false);
         }}
@@ -42,7 +42,7 @@ export default function MainMenu() {
         <div>Settings</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="DownloadBackup text-theme-warning"
+        className="DownloadBackup text-warning"
         onClick={async () => {
           // setOpen(false);
         }}
@@ -51,7 +51,7 @@ export default function MainMenu() {
         <div>Download Backup</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="ImportBackup text-theme-warning"
+        className="ImportBackup text-warning"
         onClick={() => {
           // setOpen(false);
         }}
@@ -84,7 +84,7 @@ export default function MainMenu() {
       <hr className="m-1 border-gray-300" />
 
       <FloatingMenuButton
-        className="Exit text-theme-error!"
+        className="Exit text-error!"
         onClick={() => {
           // setOpen(false);
           if (confirm("All data on this device will be wiped. Are you sure?")) {
@@ -92,7 +92,7 @@ export default function MainMenu() {
           }
         }}
       >
-        <LucideIcon icon={<LogInIcon className="text-theme-error" />} />
+        <LucideIcon icon={<LogInIcon className="text-error" />} />
         <div>Exit</div>
       </FloatingMenuButton>
     </FloatingMenu>

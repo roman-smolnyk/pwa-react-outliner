@@ -117,7 +117,7 @@ export default function Block({
           <>
             {!isRoot && isChekboxSelectionActive && (
               <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-theme-info" />
+                <input type="checkbox" className="form-checkbox h-4 w-4 text-info" />
               </div>
             )}
             {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
@@ -141,8 +141,8 @@ export default function Block({
 function DropIndicator() {
   return (
     <div className="relative flex items-center w-full pl-2.5 pr-3">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-theme-info"></div>
-      <div className=" w-full h-1.5 rounded-full bg-theme-info"></div>
+      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-info"></div>
+      <div className=" w-full h-1.5 rounded-full bg-info"></div>
     </div>
   );
 }
