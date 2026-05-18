@@ -1,10 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
-import {
-  ChevronRightIcon,
-  GripVerticalIcon
-} from "lucide-react";
+import { ChevronRightIcon, CircleIcon, FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon, GripVerticalIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
@@ -33,16 +30,39 @@ function HandleButton({
   onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
-      <LucideIcon className="size-auto!">
+    <Button
+      className="HandleButton [&_svg]:size-5! active:*:scale-100!"
+      {...attributes}
+      {...listeners}
+      onClick={(e) => type === COLLECTION_TYPE && onClick(e)}
+    >
+      <LucideIcon>
         {type === PAGE_TYPE ? (
-          <GripVerticalIcon className="" />
+          <FileTextIcon />
+        ) : children_ && children_.length > 0 ? (
+          collapsed ? (
+            <FolderInputIcon />
+          ) : (
+            <FolderDownIcon />
+          )
         ) : (
-          <ChevronRightIcon className={`transition-transform duration-200 ease-in-out ${!collapsed ? "rotate-90" : ""}`} />
+          <FolderIcon />
         )}
       </LucideIcon>
     </Button>
   );
+
+  // return (
+  //   <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
+  //     <LucideIcon className="size-auto!">
+  //       {type === PAGE_TYPE ? (
+  //         <GripVerticalIcon />
+  //       ) : (
+  //         <ChevronRightIcon className={`transition-transform duration-200 ease-in-out ${!collapsed ? "rotate-90" : ""}`} />
+  //       )}
+  //     </LucideIcon>
+  //   </Button>
+  // );
 }
 
 function IndentGuides({ id, depth }: { id: string; depth: number }) {
