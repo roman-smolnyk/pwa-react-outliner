@@ -29,18 +29,15 @@ export default function PageContainer() {
   }
   const parentId = yblock.get("parent_id");
 
+  // @container
+  // @[800]:
+  // @sm:
   return (
     <div
-      className="PageContainer @container flex-1 relative z-0 min-w-xs min-h-0 
+      className="PageContainer flex-1 relative z-0 min-w-xs min-h-0 
                 flex flex-col overflow-y-auto overscroll-y-contain"
     >
-      <div
-        className={`flex-1 w-full pl-3 pr-4 sm:px-5 mx-auto @[800px]:w-[800px] ${isPageSearchActive ? "pt-22" : "pt-12"}`}
-        //  px-5 @sm:px-16 @lg:px-32 @xl:px-56 @2xl:px-70
-        // style={{
-        //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
-        // }}
-      >
+      <div className={`flex-1 w-full md:w-3/4 max-w-3xl pl-3 pr-4 sm:px-5 mx-auto ${isPageSearchActive ? "pt-22" : "pt-12"}`}>
         {parentId && <BlockPath id={rootBlockId} />}
         <Page rootId={rootBlockId} />
         <div className="Spacer h-[50dvh]"></div>

@@ -9,7 +9,7 @@ export default function LucideIcon({
   className?: string;
 } & ({ icon: React.ReactNode; children?: never } | { children: React.ReactNode; icon?: never })) {
   return (
-    <div className={`size-6 max-sm:size-6.5 text-primary [&>svg]:w-full [&>svg]:h-full flex items-center justify-center ${className}`}>
+    <div className={`size-6 max-sm:size-6.5 [&>svg]:w-full [&>svg]:h-full flex items-center justify-center ${className}`}>
       {icon ?? children}
     </div>
   );

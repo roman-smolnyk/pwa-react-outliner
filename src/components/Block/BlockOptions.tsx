@@ -63,22 +63,24 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         <LucideIcon icon={<ZoomInIcon />} />
         <div>Zoom in</div>
       </FloatingMenuButton>
-      <FloatingMenuButton
-        className="MoveTo text-warning"
-        onClick={() => {
-          // setIsOpened(false);
-        }}
-      >
-        <LucideIcon icon={<MoveIcon />} />
-        <div>Move to</div>
-      </FloatingMenuButton>
+      {!isRoot && (
+        <FloatingMenuButton
+          className="MoveTo text-warning"
+          onClick={() => {
+            // setIsOpened(false);
+          }}
+        >
+          <LucideIcon icon={<MoveIcon className="text-warning!" />} />
+          <div>Move to</div>
+        </FloatingMenuButton>
+      )}
       <FloatingMenuButton
         className="ExpandAll text-warning"
         onClick={() => {
           // setIsOpened(false);
         }}
       >
-        <LucideIcon icon={<PlusIcon />} />
+        <LucideIcon icon={<PlusIcon className="text-warning!" />} />
         <div>Expand All</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -87,7 +89,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           // setIsOpened(false);
         }}
       >
-        <LucideIcon icon={<MinusIcon />} />
+        <LucideIcon icon={<MinusIcon className="text-warning!" />} />
         <div>Collapse All</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -96,7 +98,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           // setIsOpened(false);
         }}
       >
-        <LucideIcon icon={<ArrowDownNarrowWideIcon />} />
+        <LucideIcon icon={<ArrowDownNarrowWideIcon className="text-warning!" />} />
         <div>Sort</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -105,7 +107,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           // setIsOpened(false);
         }}
       >
-        <LucideIcon icon={<InboxIcon />} />
+        <LucideIcon icon={<InboxIcon className="text-warning!" />} />
         <div>Set as Inbox</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -114,7 +116,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           // setIsOpened(false);
         }}
       >
-        <LucideIcon icon={<UploadIcon />} />
+        <LucideIcon icon={<UploadIcon className="text-warning!" />} />
         <div>Export</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -136,7 +138,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
             deleteBlock(yjs.ydoc, id);
           }}
         >
-          <LucideIcon icon={<Trash2Icon className="text-error" />} />
+          <LucideIcon icon={<Trash2Icon className="text-error!" />} />
           <div>Delete</div>
         </FloatingMenuButton>
       )}

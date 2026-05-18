@@ -38,7 +38,7 @@ export default function MainMenu() {
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<BoltIcon />} />
+        <LucideIcon icon={<BoltIcon className="text-warning!"/>} />
         <div>Settings</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -47,7 +47,7 @@ export default function MainMenu() {
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<HardDriveDownloadIcon />} />
+        <LucideIcon icon={<HardDriveDownloadIcon className="text-warning!"/>} />
         <div>Download Backup</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -56,7 +56,7 @@ export default function MainMenu() {
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<HardDriveUploadIcon />} />
+        <LucideIcon icon={<HardDriveUploadIcon className="text-warning!"/>} />
         <div>Import Backup</div>
       </FloatingMenuButton>
 
@@ -92,7 +92,7 @@ export default function MainMenu() {
           }
         }}
       >
-        <LucideIcon icon={<LogInIcon className="text-error" />} />
+        <LucideIcon icon={<LogInIcon className="text-error!" />} />
         <div>Exit</div>
       </FloatingMenuButton>
     </FloatingMenu>

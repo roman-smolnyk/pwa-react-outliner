@@ -11,7 +11,7 @@ const Button = React.forwardRef<
     <button
       ref={ref}
       type="button"
-      className={`Button flex-none cursor-pointer *:transition active:*:scale-90 flex items-center justify-center ${className}`}
+      className={`Button flex-none text-primary cursor-pointer *:transition active:*:scale-90 flex items-center justify-center ${className}`}
       {...props}
     >
       {children}

@@ -8,6 +8,7 @@ import Button from "../Common/Button";
 import { handleBlockOpen } from "../../api/api";
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
 import Input from "../Common/Input";
+import LucideIcon from "../Common/LucideIcon";
 
 function extractClips(text: string, query: string, offset = 30) {
   const regex = new RegExp(query, "gi");
@@ -171,7 +172,7 @@ export default function GlobalSearch() {
               useZustandStore.setState({ isGlobalSearchOpened: false });
             }}
           >
-            <XIcon />
+            <LucideIcon icon={<XIcon />} />
           </Button>
         </div>
 
