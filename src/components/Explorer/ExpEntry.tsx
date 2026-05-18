@@ -51,6 +51,24 @@ function HandleButton({
   );
 }
 
+function IndentGuides({ id, depth }: { id: string; depth: number }) {
+  if (depth <= 1) return null;
+
+  return (
+    <div className="absolute inset-y-0 left-0 pointer-events-none">
+      {Array.from({ length: depth - 1 }).map((_, i) => (
+        <div
+          key={`indent-guide-${id}-${i}`}
+          className="absolute top-0 bottom-0 w-px bg-border"
+          style={{
+            left: `${INDENT * i + INDENT / 2}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ExpEntry({
   id,
   type,
@@ -97,7 +115,7 @@ export default function ExpEntry({
 
   return (
     <div
-      className={`ExpEntry min-w-0 pr-3 ${
+      className={`ExpEntry relative min-w-0 pr-3 ${
         isSelected && !isActive
           ? "bg-accent text-accent-foreground border-l-16 sm:border-l-12 border-accent"
           : "border-l-16 sm:border-l-12 border-transparent hover:bg-accent hover:border-accent hover:text-accent-foreground"
@@ -105,6 +123,7 @@ export default function ExpEntry({
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
     >
+      <IndentGuides id={id} depth={depth} />
       <div className={`min-w-0 flex items-center justify-center`}>
         {isActive ? (
           <DropIndicator />
