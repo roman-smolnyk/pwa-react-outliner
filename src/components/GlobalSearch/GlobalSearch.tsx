@@ -160,7 +160,7 @@ export default function GlobalSearch() {
                    w-9/10 sm:w-3/4 min-w-80 max-w-230 
                    h-6/7
                    p-3
-                   rounded-lg bg-popover border border-border shadow-2xl
+                   rounded-lg text-popover-foreground bg-popover border border-border shadow-2xl
                    flex flex-col"
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >

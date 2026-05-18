@@ -122,7 +122,7 @@ export default function Main() {
             }
           }
         >
-          <div className="w-1 h-full bg-muted group-hover:bg-ring group-hover:w-1 transition-all duration-150 ease-in-out" />
+          <div className="w-1 h-full bg-border group-hover:bg-ring group-hover:w-1 transition-all duration-150 ease-in-out" />
         </Separator>
         <Panel id="PagePanel">
           <div className="h-dvh overflow-hidden flex flex-col">

@@ -59,7 +59,7 @@ export default function PageSearch() {
     >
       <div
         className="min-w-xs max-w-xl w-full p-2 mx-5
-                  rounded-lg text-secondary-foreground bg-popover border border-border
+                  rounded-lg text-popover-foreground bg-popover border border-border
                   flex items-center gap-2"
       >
         <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
