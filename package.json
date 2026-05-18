@@ -29,6 +29,7 @@
     "@floating-ui/react": "^0.27.16",
     "@lezer/markdown": "^1.6.3",
     "@tailwindcss/vite": "^4.1.16",
+    "@wrksz/themes": "^0.9.2",
     "@y/websocket-server": "^0.1.1",
     "codemirror": "^6.0.2",
     "esm-treero-api": "^0.1.2",

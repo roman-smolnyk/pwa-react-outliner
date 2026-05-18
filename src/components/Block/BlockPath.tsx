@@ -5,7 +5,7 @@ import PlainMarkdown from "../Markdown/PlainMarkdown";
 
 export function BlockPathPart({ id, text }: { id: string; text: string }) {
   return (
-    <div className="text-sm text-theme-fg-muted flex items-center">
+    <div className="text-sm text-muted-foreground flex items-center">
       <span
         className="inline-block hover:underline cursor-pointer min-h-5 min-w-10 max-w-30 truncate"
         onClick={async () => {

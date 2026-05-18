@@ -20,8 +20,14 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
 
   return (
     <div
-      className="ToolsPanel min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 bg-theme-bg shadow-[0_1px_5px_rgba(0,0,0,0.15)] flex"
-      style={{ width: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}` }}
+      className="ToolsPanel min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2
+                bg-sidebar text-sidebar-foreground border-b border-border
+                flex"
+      style={{
+        width: `${isExplorerOpened ? "var(--sidebar-width)" : "0px"}`,
+        // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
+        // clipPath: "inset(0px 0px -20px 0px)",
+      }}
     >
       {/* {globalSearchIsOpened && <GlobalSearchPortalComponent />} */}
 

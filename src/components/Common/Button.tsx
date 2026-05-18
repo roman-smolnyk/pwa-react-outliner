@@ -8,7 +8,12 @@ const Button = React.forwardRef<
   }
 >(({ children, className = "", ...props }, ref) => {
   return (
-    <button ref={ref} type="button" className={`Button cursor-pointer active:scale-90 transition ${className}`} {...props}>
+    <button
+      ref={ref}
+      type="button"
+      className={`Button flex-none cursor-pointer *:transition active:*:scale-90 flex items-center justify-center ${className}`}
+      {...props}
+    >
       {children}
     </button>
   );

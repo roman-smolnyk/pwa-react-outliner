@@ -1,6 +1,7 @@
 import { getItem } from "esm-treero-api";
 import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
+import Input from "../Common/Input";
 
 export default function TitleEdit({ id, title, setIsEdit }: { id: string; title: string; setIsEdit: (v: boolean) => void }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -25,15 +26,25 @@ export default function TitleEdit({ id, title, setIsEdit }: { id: string; title:
   }
 
   return (
-    <input
-      className="TitleEdit w-full min-w-0 max-w-full rounded-xs border-none outline-none focus:ring-2 focus:ring-gray-400"
-      style={{ padding: "0px 6px" }}
+    <Input
+      className="TitleEdit py-0.5!"
+      placeholder="Title..."
       ref={ref}
-      type="text"
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
     />
+    // <input
+    //   className="TitleEdit w-full min-w-0 max-w-full py-1
+    //             rounded border border-input focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-ring"
+    //   style={{ padding: "0px 6px" }}
+    //   ref={ref}
+    //   type="text"
+    //   value={value}
+    //   onChange={(e) => setValue(e.target.value)}
+    //   onBlur={onBlur}
+    //   onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
+    // />
   );
 }

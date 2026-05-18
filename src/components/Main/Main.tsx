@@ -112,15 +112,18 @@ export default function Main() {
           </div>
         </Panel>
         <Separator
-          // shadow-[2px_0px_5px_rgba(0,0,0,0.15)]
-          // shadow-[1.5px_0px_5px_var(--color-theme-fg)]
-          className="w-0.5 bg-theme-bg-selected z-20"
-          style={{
-            // boxShadow: "10px 0px 10px -4px rgba(0, 0, 0, 0.3)"
-            boxShadow: "1px 0px 4px rgba(0, 0, 0, 0.8)",
-            clipPath: "inset(0px -20px 0px 0px)",
-          }}
-        />
+          className="relative w-2 group cursor-col-resize z-20
+                    bg-sidebar
+                    flex justify-center items-center select-none"
+          style={
+            {
+              // boxShadow: "1px 0px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
+              // clipPath: "inset(0px -20px 0px 0px)",
+            }
+          }
+        >
+          <div className="w-1 h-full bg-muted group-hover:bg-ring group-hover:w-1 transition-all duration-150 ease-in-out" />
+        </Separator>
         <Panel id="PagePanel">
           <div className="h-dvh overflow-hidden flex flex-col">
             <div className="Spacer min-h-12 sm:min-h-8"></div>

@@ -38,7 +38,7 @@ export default function PWABadge() {
   return (
     <div
       className={`PWABadge absolute top-15 sm:top-11 left-1/2 -translate-x-1/2 min-w-50 p-4 z-100
-                bg-theme-bg border border-gray-300 rounded-lg shadow-2xl ${!offlineReady && !needRefresh ? "hidden" : ""}`}
+                bg-background border border-gray-300 rounded-lg shadow-2xl ${!offlineReady && !needRefresh ? "hidden" : ""}`}
       role="alert"
       aria-labelledby="toast-message"
     >
@@ -50,8 +50,8 @@ export default function PWABadge() {
           <div className="flex gap-4">
             {needRefresh && (
               <button
-                className="min-w-20 p-2 font-semibold bg-theme-primary text-theme-primary
-                          rounded-lg shadow-md active:scale-90 transition"
+                className="min-w-20 p-2 font-semibold bg-primary text-primary-foreground
+                          rounded shadow-md active:scale-90 transition"
                 type="button"
                 onClick={() => updateServiceWorker(true)}
               >
@@ -59,8 +59,8 @@ export default function PWABadge() {
               </button>
             )}
             <button
-              className="min-w-20 p-2 font-semibold bg-theme-primary text-theme-primary
-                          rounded-lg shadow-md active:scale-90 transition"
+              className="min-w-20 p-2 font-semibold bg-primary text-primary-foreground
+                          rounded shadow-md active:scale-90 transition"
               type="button"
               onClick={() => close()}
             >

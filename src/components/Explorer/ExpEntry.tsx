@@ -1,7 +1,16 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
-import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRight,
+  ChevronRightIcon,
+  FileTextIcon,
+  FolderDownIcon,
+  FolderIcon,
+  FolderInputIcon,
+  GripVerticalIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
@@ -10,6 +19,7 @@ import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleEdit from "./TitleEdit.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
+import Button from "../Common/Button.tsx";
 
 function HandleButton({
   id,
@@ -29,27 +39,15 @@ function HandleButton({
   onClick: (event: React.PointerEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <button
-      className={`HandleButton flex-none flex items-center justify-center ${type === COLLECTION_TYPE ? "cursor-pointer" : ""}`}
-      type="button"
-      {...attributes}
-      {...listeners}
-      onPointerUpCapture={onClick}
-    >
-      <LucideIcon>
+    <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onPointerUpCapture={onClick}>
+      <LucideIcon className="size-auto!">
         {type === PAGE_TYPE ? (
-          <FileTextIcon />
-        ) : children_ && children_.length > 0 ? (
-          collapsed ? (
-            <FolderInputIcon />
-          ) : (
-            <FolderDownIcon />
-          )
+          <GripVerticalIcon className="text-gray-400" />
         ) : (
-          <FolderIcon />
+          <ChevronRightIcon className={`transition-transform duration-200 ease-in-out ${!collapsed ? "rotate-90" : ""}`} />
         )}
       </LucideIcon>
-    </button>
+    </Button>
   );
 }
 
@@ -88,19 +86,21 @@ export default function ExpEntry({
   const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
 
   async function onClick() {
+    console.debug("onClick", type);
     if (type === PAGE_TYPE) {
       await handleBlockOpen(yitem.get("root_id") as string);
-    } else if (type === COLLECTION_TYPE && children_ && children_.length !== 0) {
+    } else if (type === COLLECTION_TYPE) {
+      console.debug("COOLLLAA", !collapsed);
       yitem.set("collapsed", !collapsed);
     }
   }
 
   return (
     <div
-      className={`ExpEntry min-w-0 py-1 pr-3 ${
+      className={`ExpEntry min-w-0 pr-3 ${
         isSelected && !isActive
-          ? "bg-theme-bg-selected border-l-16 sm:border-l-12 border-theme-bg-selected"
-          : "border-l-16 sm:border-l-12 border-transparent hover:bg-theme-bg-hover hover:border-theme-bg-hover"
+          ? "bg-accent text-accent-foreground border-l-16 sm:border-l-12 border-accent"
+          : "border-l-16 sm:border-l-12 border-transparent hover:bg-accent hover:border-accent hover:text-accent-foreground"
       }`}
       ref={setNodeRef}
       style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
@@ -120,14 +120,11 @@ export default function ExpEntry({
               onClick={onClick}
             />
 
-            {/* // ! ID */}
-            {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
-
-            <div className="flex-1 min-w-0 max-sm:text-lg flex">
+            <div className="flex-1 min-w-0 flex">
               {isEdit ? (
                 <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
               ) : (
-                <div className="w-full min-w-0 flex" onClick={onClick}>
+                <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
                   <Title title={title} />
                 </div>
               )}
@@ -143,9 +140,9 @@ export default function ExpEntry({
 
 function DropIndicator() {
   return (
-    <div className="relative flex items-center w-full pl-2.5 pr-3">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-blue-500"></div>
-      <div className=" w-full h-1.5 rounded-full bg-blue-500"></div>
+    <div className="relative flex items-center w-full pl-2.5 pr-3 z-20">
+      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-theme-info"></div>
+      <div className=" w-full h-1.5 rounded-full bg-theme-info"></div>
     </div>
   );
 }

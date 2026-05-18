@@ -7,6 +7,7 @@ import {
   deleteBlock,
   deleteCollection,
   deletePage,
+  getItem,
   getItemParent,
   getItemSibling,
   isRootItem,
@@ -145,11 +146,18 @@ export function handleBlockSelectDown(id: string) {
 }
 
 export function handlePageAdd(id: string) {
-  createInsertPage(yjs.ydoc, "Untitled", id, 0);
+  yjs.ydoc.transact(() => {
+    createInsertPage(yjs.ydoc, "Untitled", id, 0);
+    getItem(yjs.yexplorer, id).set("collapsed", false);
+  });
 }
 
 export function handleCollectionAdd(id: string) {
-  createInsertCollection(yjs.ydoc, "Untitled", id, 0);
+  yjs.ydoc.transact(() => {
+    const ycollection = createInsertCollection(yjs.ydoc, "Untitled", id, 0);
+    ycollection.set("collapsed", true);
+    getItem(yjs.yexplorer, id).set("collapsed", false);
+  });
 }
 
 export function handlePageDelete(id: string) {

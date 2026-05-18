@@ -17,10 +17,10 @@ import {
   // ZoomInIcon,
   Trash2Icon,
 } from "lucide-react";
+import { handleBlockAdd, handleBlockDelete, handleBlockIndent, handleBlockMoveDown, handleBlockMoveUp, handleBlockOutdent } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import Button from "../Common/Button";
-import { handleBlockAdd, handleBlockDelete, handleBlockIndent, handleBlockMoveDown, handleBlockMoveUp, handleBlockOutdent } from "../../api/api";
-import { isMobile } from "../../utils/utilities";
+import LucideIcon from "../Common/LucideIcon";
 
 export default function Footer() {
   console.debug("Footer");
@@ -34,10 +34,12 @@ export default function Footer() {
   return (
     <div
       className="Footer fixed bottom-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
-               bg-theme-bg shadow-[0_-1px_5px_rgba(0,0,0,0.15)]
-                 flex"
+                bg-sidebar text-sidebar-foreground border-t border-border
+                flex"
       style={{
         left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
+        // boxShadow: "0px -1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
+        // clipPath: "inset(-20px 0px 0px 0px)",
       }}
     >
       <div
@@ -57,7 +59,7 @@ export default function Footer() {
           }}
         >
           {/* <SquarePlusIcon /> */}
-          <DiamondPlusIcon />
+          <LucideIcon icon={<DiamondPlusIcon />} />
         </Button>
 
         <Button
@@ -67,7 +69,7 @@ export default function Footer() {
             if (selectedBlockId) handleBlockOutdent(selectedBlockId);
           }}
         >
-          <ArrowLeftToLineIcon />
+          <LucideIcon icon={<ArrowLeftToLineIcon />} />
         </Button>
 
         <Button
@@ -77,7 +79,7 @@ export default function Footer() {
             if (selectedBlockId) handleBlockIndent(selectedBlockId);
           }}
         >
-          <ArrowRightToLineIcon />
+          <LucideIcon icon={<ArrowRightToLineIcon />} />
         </Button>
 
         <Button
@@ -87,7 +89,7 @@ export default function Footer() {
             if (selectedBlockId) handleBlockMoveUp(selectedBlockId);
           }}
         >
-          <ArrowUpIcon />
+          <LucideIcon icon={<ArrowUpIcon />} />
         </Button>
 
         <Button
@@ -98,7 +100,7 @@ export default function Footer() {
             if (selectedBlockId) handleBlockMoveDown(selectedBlockId);
           }}
         >
-          <ArrowDownIcon />
+          <LucideIcon icon={<ArrowDownIcon />} />
         </Button>
 
         <Button
@@ -115,7 +117,7 @@ export default function Footer() {
             }, 100);
           }}
         >
-          <Trash2Icon />
+          <LucideIcon icon={<Trash2Icon />} />
         </Button>
 
         {/* <Button className="text-theme-warning">
@@ -123,48 +125,48 @@ export default function Footer() {
           </Button> */}
 
         {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
-        <Button className="text-theme-warning">
-          <HeadingIcon />
+        <Button>
+          <LucideIcon icon={<HeadingIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <BoldIcon />
+        <Button>
+          <LucideIcon icon={<BoldIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <ItalicIcon />
+        <Button>
+          <LucideIcon icon={<ItalicIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <StrikethroughIcon />
+        <Button>
+          <LucideIcon icon={<StrikethroughIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <Code2Icon />
+        <Button>
+          <LucideIcon icon={<Code2Icon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <BracketsIcon />
+        <Button>
+          <LucideIcon icon={<BracketsIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <HighlighterIcon />
+        <Button>
+          <LucideIcon icon={<HighlighterIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <TableIcon />
+        <Button>
+          <LucideIcon icon={<TableIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <QuoteIcon />
+        <Button>
+          <LucideIcon icon={<QuoteIcon className="text-theme-warning" />} />
         </Button>
 
-        <Button className="text-theme-warning">
-          <SigmaIcon />
+        <Button>
+          <LucideIcon icon={<SigmaIcon className="text-theme-warning" />} />
         </Button>
 
         {/* <Button className="text-theme-warning">
-            <CalendarDays />
+            <LucideIcon icon={<CalendarDays />} />
           </Button> */}
       </div>
     </div>

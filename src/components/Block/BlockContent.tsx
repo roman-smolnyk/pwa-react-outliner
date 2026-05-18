@@ -33,10 +33,10 @@ export default function BlockContent({ id }: { id: string }) {
   const content = yblock.get("content").toString();
 
   return (
-    <div className={`BlockContent w-full ${isEdit ? "bg-theme-bg-active" : ""}`}>
+    <div className={`BlockContent w-full ${isEdit ? "bg-muted" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render block-content min-h-[28px] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
+          className={`BlockContent-render block-content min-h-[1em] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           onClick={(e) => {
             if (readOnly) return;
             setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
@@ -62,7 +62,7 @@ export default function BlockContent({ id }: { id: string }) {
           //   }
           // }}
         >
-          {contentViewMode === "source" ? <PlainTextContent>{content}</PlainTextContent> : <Markdown>{content}</Markdown>}
+          {contentViewMode === "source" ? <PlainTextContent>{content ?? " "}</PlainTextContent> : <Markdown>{content}</Markdown>}
         </div>
       ) : (
         <div className="BlockContent-edit">

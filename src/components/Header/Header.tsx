@@ -21,12 +21,12 @@ import {
 import { toast } from "react-toastify";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { useTheme } from "../../contexts/ThemeContext";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
 import MainMenu from "../MainMenu/MainMenu";
 import LucideIcon from "../Common/LucideIcon";
+import { useTheme } from "../../hooks/theme";
 
 export default function Header() {
   console.debug("Header");
@@ -42,9 +42,13 @@ export default function Header() {
   return (
     <div
       className="Header fixed top-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
-      bg-theme-bg shadow-[0_1px_5px_rgba(0,0,0,0.15)]
+      bg-sidebar text-sidebar-foreground border-b border-border
       flex"
-      style={{ left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}` }}
+      style={{
+        left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
+        // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
+        // clipPath: "inset(0px 0px -20px 0px)",
+      }}
     >
       {/* <div className="px-2 py-3 sm:py-1"> */}
       {/* Left icons */}
@@ -112,6 +116,7 @@ export default function Header() {
             <Button
               title={`Theme: ${theme}`}
               onClick={() => {
+                console.debug("theme", theme);
                 if (theme === "system") {
                   setTheme("light");
                 } else if (theme === "light") {

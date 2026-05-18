@@ -1,7 +1,7 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { getPageByBlockId, moveItem } from "esm-treero-api";
+import { getItem, getPageByBlockId, moveItem } from "esm-treero-api";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -76,6 +76,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
       // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
+      getItem(yjs.yexplorer, parentId).set("collapsed", false);
     }
     setActiveId(null);
     setOverId(null);
@@ -115,7 +116,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
             {activeId ? (
               <div className="cursor-grabbing w-full h-5"></div>
               // <div className="DragOverlay inline-block cursor-grabbing" style={{ paddingLeft: `${(projected?.depth ?? 0) + 1 * INDENT}px` }}>
-              //   <div className="border border-black bg-theme-bg px-1">Move</div>
+              //   <div className="border border-black bg-background px-1">Move</div>
               // </div>
             ) : null}
           </DragOverlay>,

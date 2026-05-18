@@ -5,12 +5,10 @@ import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
 import { INDENT } from "../../../config.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
+import Button from "../Common/Button.tsx";
+import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
-import { memo } from "react";
-import LucideIcon from "../Common/LucideIcon.tsx";
-import Button from "../Common/Button.tsx";
-import BlockButton from "./BlockButton.tsx";
 
 function HandleButton({
   id,
@@ -27,9 +25,9 @@ function HandleButton({
   listeners: any;
 }) {
   return (
-    <BlockButton
+    <Button
       title={id}
-      className="HandleButton"
+      className="HandleButton size-5! mt-1 active:*:scale-100!"
       {...attributes}
       {...listeners}
       onPointerUpCapture={() => {
@@ -47,9 +45,12 @@ function HandleButton({
           <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleMinusIcon size={12} strokeWidth={2.5} />} />
         )
       ) : (
-        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-theme-icon" size={7} fill="none" />} />
+        <LucideIcon
+          className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!"
+          icon={<CircleIcon className="fill-sidebar-foreground" size={7} fill="none" />}
+        />
       )}
-    </BlockButton>
+    </Button>
   );
 }
 
@@ -121,8 +122,8 @@ export default function Block({
 function DropIndicator() {
   return (
     <div className="relative flex items-center w-full pl-2.5 pr-3">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-blue-500"></div>
-      <div className=" w-full h-1.5 rounded-full bg-blue-500"></div>
+      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-theme-info"></div>
+      <div className=" w-full h-1.5 rounded-full bg-theme-info"></div>
     </div>
   );
 }

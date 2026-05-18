@@ -7,6 +7,7 @@ import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
 import { handleBlockOpen } from "../../api/api";
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
+import Input from "../Common/Input";
 
 function extractClips(text: string, query: string, offset = 30) {
   const regex = new RegExp(query, "gi");
@@ -62,7 +63,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
 
   return (
     <div
-      className="border-b border-theme-border px-1 py-1 hover:bg-theme-bg-hover cursor-pointer"
+      className="border-b border-border px-1 py-1 hover:bg-accentcursor-pointer"
       onClick={async () => {
         useZustandStore.setState({ isGlobalSearchOpened: false });
         await handleBlockOpen(id);
@@ -86,7 +87,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
 
           return (
             <span key={i}>
-              {i > 0 && <span className="text-theme-fg-muted"> … </span>}
+              {i > 0 && <span className="text-muted-foreground"> … </span>}
               {clip.text.startsWith(query) ? "" : "…"}
               {parts.map((p, idx) =>
                 regex.test(p) ? (
@@ -103,7 +104,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
         })}
       </div>
 
-      <div className="text-theme-fg-muted">{path.join("/")}</div>
+      <div className="text-sm text-muted-foreground">{path.join("/")}</div>
     </div>
   );
 }
@@ -149,7 +150,7 @@ export default function GlobalSearch() {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 z-100"
+      className="GlobalSearch fixed inset-0 bg-black/40 z-100"
       onClick={() => {
         useZustandStore.setState({ isGlobalSearchOpened: false });
       }}
@@ -159,24 +160,12 @@ export default function GlobalSearch() {
                    w-9/10 sm:w-3/4 min-w-80 max-w-230 
                    h-6/7
                    p-3
-                   rounded-lg bg-theme-bg shadow-2xl
+                   rounded-lg bg-popover border border-border shadow-2xl
                    flex flex-col"
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >
         <div className="flex items-center gap-2">
-          <input
-            className="flex-1 rounded text-sm px-2 py-1
-                       border border-gray-300 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
-            ref={refInput}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search..."
-            type="text"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
-            spellCheck="false"
-          />
+          <Input placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
           <Button
             onClick={() => {
               useZustandStore.setState({ isGlobalSearchOpened: false });

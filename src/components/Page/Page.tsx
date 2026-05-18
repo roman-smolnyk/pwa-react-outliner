@@ -1,7 +1,7 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
-import { moveItem } from "esm-treero-api";
+import { getItem, moveItem } from "esm-treero-api";
 import { memo, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -78,6 +78,7 @@ export default function Page({ rootId }: { rootId: string }) {
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
       // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
+      getItem(yjs.yblocks, parentId).set("collapsed", false);
     }
     setActiveId(null);
     setOverId(null);
@@ -85,7 +86,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className="Page flex flex-col gap-1 sm:gap-0">
+    <div className="Page flex flex-col">
       {isPageSearchActive && createPortal(<PageSearch />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}
@@ -116,7 +117,7 @@ export default function Page({ rootId }: { rootId: string }) {
             {activeId ? (
               <div className="cursor-grabbing w-full h-5"></div>
               // <div className="DragOverlay inline-block cursor-grabbing pl-5">
-              //   <div className="border border-black bg-theme-bg px-1">Move</div>
+              //   <div className="border border-black bg-background px-1">Move</div>
               // </div>
             ) : null}
           </DragOverlay>,

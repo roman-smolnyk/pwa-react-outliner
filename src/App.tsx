@@ -9,7 +9,7 @@ import Authorization from "./components/Authorize/Authorization";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
-import { ThemeContextProvider } from "./contexts/ThemeContext";
+import { ThemeProvider } from "./hooks/theme";
 import { ToastContainer } from "react-toastify";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
@@ -30,19 +30,12 @@ function App() {
   }
 
   console.debug("isAuthorized", isAuthorized);
-  if (!isAuthorized) {
-    return (
-      <ThemeContextProvider>
-        <Authorization />
-      </ThemeContextProvider>
-    );
-  }
 
   return (
-    <ThemeContextProvider>
+    <ThemeProvider>
       <ReadOnlyContextProvider>
         <ContentViewModeContextProvider>
-          <Main />
+          {isAuthorized ? <Main /> : <Authorization />}
           <PWABadge />
           <ToastContainer
             containerId="toaster"
@@ -58,7 +51,7 @@ function App() {
           />
         </ContentViewModeContextProvider>
       </ReadOnlyContextProvider>
-    </ThemeContextProvider>
+    </ThemeProvider>
   );
 }
 
