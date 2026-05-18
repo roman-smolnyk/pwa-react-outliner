@@ -40,7 +40,7 @@ function App() {
           <ToastContainer
             containerId="toaster"
             position="top-right"
-            autoClose={300_000}
+            autoClose={3_000}
             hideProgressBar={true}
             closeButton={false}
             closeOnClick={true}
