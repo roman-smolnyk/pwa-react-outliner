@@ -35,7 +35,7 @@ export default function PageContainer() {
                 flex flex-col overflow-y-auto overscroll-y-contain"
     >
       <div
-        className={`flex-1 w-full px-5 mx-auto @[800px]:w-[800px] ${isPageSearchActive ? "pt-22" : "pt-12"}`}
+        className={`flex-1 w-full pl-3 pr-4 sm:px-5 mx-auto @[800px]:w-[800px] ${isPageSearchActive ? "pt-22" : "pt-12"}`}
         //  px-5 @sm:px-16 @lg:px-32 @xl:px-56 @2xl:px-70
         // style={{
         //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
