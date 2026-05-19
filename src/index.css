@@ -121,18 +121,22 @@
     font-size: 0.9rem;
   }
   /* Markdown symbols in code for some reason have background color */
-  span.token {
+  /* span.token {
     background: none !important;
+  } */
+
+  img {
+    @apply inline-block my-1;
   }
 
   table {
     border-collapse: collapse;
-    /* width: 100%; */
+    @apply my-1;
   }
 
   th,
   td {
-    border: 1px solid #000000;
+    border: 1px solid light-dark(black, white);
     padding: 4px 8px;
   }
 
