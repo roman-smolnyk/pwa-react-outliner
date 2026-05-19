@@ -36,7 +36,7 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
   const { color, background, textAlign, whiteSpace, wordSpacing, wordBreak, overflowWrap, tabSize, hyphens, overflow } = style!;
   return (
     <pre
-      className="PreTag rounded py-1 px-2"
+      className="PreTag rounded py-1 px-2 my-1"
       // style={style}
       style={{
         color,
@@ -170,7 +170,7 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className={`px-1 rounded text-error bg-muted`}>{children}</code>
+            <code className={`InlineCode text-md inline-block px-1 my-1 rounded text-error bg-muted`}>{children}</code>
           );
         },
       }}
