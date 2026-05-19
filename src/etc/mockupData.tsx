@@ -3,6 +3,7 @@ import { createBlock, createCollection, createPage, insertItem } from "esm-treer
 import { handleBlockOpen } from "../api/api";
 
 export async function fillInMockupData(yjs: YjsManager) {
+  console.debug("fillInMockupData");
   const rootId = yjs.yaccount.get("root_id");
   if (!rootId) return;
 
@@ -10,10 +11,11 @@ export async function fillInMockupData(yjs: YjsManager) {
   insertItem(yjs.ydoc, yjs.yexplorer, ycollection.get("id"), rootId, -1);
 
   let blockId: string;
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 40; i++) {
+    console.debug("fillInMockupData:i", i);
     const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
     insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
-    for (let k = 0; k < 5; k++) {
+    for (let k = 0; k < 50; k++) {
       for (const content of data) {
         const yblock = createBlock(yjs.ydoc, content);
         insertItem(yjs.ydoc, yjs.yblocks, yblock.get("id"), ypage.get("root_id")!, -1);

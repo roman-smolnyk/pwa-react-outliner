@@ -35,6 +35,7 @@ export default function onStartUp(callback: CallableFunction) {
       }
 
       if (isNewAccount) {
+        console.debug(`createNewAccount`);
         createNewAccount(yjs, __APP_VERSION__);
         // createWelcomeDocument();
         await fillInMockupData(yjs);
