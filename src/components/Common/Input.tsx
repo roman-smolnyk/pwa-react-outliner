@@ -12,10 +12,10 @@ const Input = React.forwardRef<
                 rounded border border-input focus:outline-none focus:ring-1 focus:ring-ring ${className}`}
       ref={ref}
       type="text"
-      autoComplete="off"
-      autoCorrect="off"
-      autoCapitalize="none"
-      spellCheck="false"
+      // autoComplete="off"
+      // autoCorrect="off"
+      // autoCapitalize="off"
+      // spellCheck="false"
       {...props}
     />
   );

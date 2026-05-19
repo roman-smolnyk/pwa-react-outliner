@@ -168,7 +168,7 @@ export default function GlobalSearch() {
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
       >
         <div className="flex items-center gap-2">
-          <Input placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
           <Button
             onClick={() => {
               useZustandStore.setState({ isGlobalSearchOpened: false });
