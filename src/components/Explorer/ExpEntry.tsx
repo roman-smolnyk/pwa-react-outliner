@@ -1,8 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
-import { ChevronRightIcon, CircleIcon, FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon, GripVerticalIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
@@ -16,7 +16,7 @@ function HandleButton({
   id,
   type,
   collapsed,
-  children_,
+  childrenLength,
   attributes,
   listeners,
   onClick,
@@ -24,7 +24,7 @@ function HandleButton({
   id: string;
   type: number;
   collapsed?: boolean;
-  children_?: string[];
+  childrenLength?: number;
   attributes: any;
   listeners: any;
   onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
@@ -39,7 +39,7 @@ function HandleButton({
       <LucideIcon>
         {type === PAGE_TYPE ? (
           <FileTextIcon />
-        ) : children_ && children_.length > 0 ? (
+        ) : childrenLength !== undefined && childrenLength > 0 ? (
           collapsed ? (
             <FolderInputIcon />
           ) : (
@@ -65,7 +65,7 @@ function HandleButton({
   // );
 }
 
-function IndentGuides({ id, depth }: { id: string; depth: number }) {
+const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
   if (depth <= 1) return null;
 
   return (
@@ -81,14 +81,108 @@ function IndentGuides({ id, depth }: { id: string; depth: number }) {
       ))}
     </div>
   );
-}
+});
+
+const ExpEntryInner = memo(
+  function ExpEntryInner({
+    id,
+    type,
+    title,
+    collapsed,
+    childrenLength,
+    depth,
+    isActive,
+    isSelected,
+    setRefs,
+    handleProps,
+  }: {
+    id: string;
+    type: number;
+    title: string;
+    collapsed?: boolean;
+    childrenLength?: number;
+    depth: number;
+    isActive: boolean;
+    isSelected: boolean;
+    setRefs: any;
+    handleProps: any;
+  }) {
+    console.debug("ExpEntryInner", id);
+    const [isEdit, setIsEdit] = useState(false);
+
+    if (depth === 0) depth = 1;
+
+    const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
+
+    async function onClick(e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement | HTMLDivElement>) {
+      console.debug("onClick", type);
+      e.preventDefault();
+      if (type === PAGE_TYPE) {
+        await handleBlockOpen(yitem.get("root_id") as string);
+      } else if (type === COLLECTION_TYPE) {
+        console.debug("COOLLLAA", !collapsed);
+        yitem.set("collapsed", !collapsed);
+      }
+    }
+
+    return (
+      <div
+        className={`ExpEntry relative min-w-0 pr-3 ${
+          isSelected && !isActive
+            ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 sm:border-l-12 border-sidebar-accent"
+            : "border-l-16 sm:border-l-12 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
+        }`}
+        ref={setRefs}
+        style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
+      >
+        <IndentGuides id={id} depth={depth} />
+        <div className={`min-w-0 flex items-center justify-center`}>
+          {isActive ? (
+            <DropIndicator />
+          ) : (
+            <>
+              <HandleButton id={id} type={type} collapsed={collapsed} childrenLength={childrenLength} onClick={onClick} {...handleProps} />
+
+              <div className="flex-1 min-w-0 flex">
+                {isEdit ? (
+                  <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
+                ) : (
+                  <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
+                    <Title title={title} />
+                  </div>
+                )}
+              </div>
+
+              <ExpEntryOptions id={id} type={type} setIsEdit={setIsEdit} />
+            </>
+          )}
+        </div>
+      </div>
+    );
+  },
+  (prev, next) => {
+    return (
+      prev.id === next.id &&
+      prev.type === next.type &&
+      prev.title === next.title &&
+      prev.collapsed === next.collapsed &&
+      prev.childrenLength === next.childrenLength &&
+      prev.depth === next.depth &&
+      prev.isActive === next.isActive &&
+      prev.isSelected === next.isSelected &&
+      prev.setRefs === next.setRefs
+      // prev.handleProps === next.handleProps // Muted just like in Block to prevent inline object rerenders
+    );
+  },
+);
+ExpEntryInner.displayName = "ExpEntryInner";
 
 export default function ExpEntry({
   id,
   type,
   title,
   collapsed,
-  children_,
+  childrenLength,
   depth,
   isActive,
   isSelected,
@@ -97,78 +191,42 @@ export default function ExpEntry({
   type: number;
   title: string;
   collapsed?: boolean;
-  children_?: string[];
+  childrenLength?: number;
   depth: number;
   isActive: boolean;
   isSelected: boolean;
 }) {
-  const [isEdit, setIsEdit] = useState(false);
-  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, setNodeRef, transform, transition } = useSortable({ id });
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
-  const style = {
-    transform: DnDCSS.Translate.toString(transform),
-    transition,
-  };
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      console.debug("setNodeRef", id);
+      nodeRef.current = node;
+      setNodeRef(node);
+    },
+    [setNodeRef],
+  );
 
-  // Visual Fix
-  if (depth === 0) {
-    depth = 1;
-  }
-
-  const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
-
-  async function onClick(e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement | HTMLDivElement>) {
-    console.debug("onClick", type);
-    e.preventDefault();
-    if (type === PAGE_TYPE) {
-      await handleBlockOpen(yitem.get("root_id") as string);
-    } else if (type === COLLECTION_TYPE) {
-      console.debug("COOLLLAA", !collapsed);
-      yitem.set("collapsed", !collapsed);
-    }
-  }
+  useEffect(() => {
+    if (!nodeRef.current) return;
+    nodeRef.current.style.transform = DnDCSS.Translate.toString(transform) ?? "";
+    nodeRef.current.style.transition = transition ?? "";
+  }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);
 
   return (
-    <div
-      className={`ExpEntry relative min-w-0 pr-3 ${
-        isSelected && !isActive
-          ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 sm:border-l-12 border-sidebar-accent"
-          : "border-l-16 sm:border-l-12 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
-      }`}
-      ref={setNodeRef}
-      style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
-    >
-      <IndentGuides id={id} depth={depth} />
-      <div className={`min-w-0 flex items-center justify-center`}>
-        {isActive ? (
-          <DropIndicator />
-        ) : (
-          <>
-            <HandleButton
-              id={id}
-              type={type}
-              collapsed={collapsed}
-              children_={children_}
-              attributes={attributes}
-              listeners={listeners}
-              onClick={onClick}
-            />
-
-            <div className="flex-1 min-w-0 flex">
-              {isEdit ? (
-                <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
-              ) : (
-                <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
-                  <Title title={title} />
-                </div>
-              )}
-            </div>
-
-            <ExpEntryOptions id={id} type={type} setIsEdit={setIsEdit} />
-          </>
-        )}
-      </div>
-    </div>
+    <ExpEntryInner
+      id={id}
+      type={type}
+      title={title}
+      collapsed={collapsed}
+      childrenLength={childrenLength}
+      depth={depth}
+      isActive={isActive}
+      isSelected={isSelected}
+      setRefs={setRefs}
+      handleProps={{ attributes, listeners }}
+    />
   );
 }
 

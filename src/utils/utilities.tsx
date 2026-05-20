@@ -1,4 +1,6 @@
 import { arrayMove } from "@dnd-kit/sortable";
+import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
+import * as Y from "yjs";
 import { MOBILE_WIDTH } from "../../config";
 
 type TreeItem = {
@@ -37,7 +39,91 @@ export function flattenTree<T extends TreeItem>(treeItems: Record<string, T>, ro
   return result;
 }
 
-export function removeChildrenOf<T extends Flattened<TreeItem>>(items: T[], ids: string[]): T[] {
+export function flattenYTree<T extends YBlocksMap | YExplorerMap>(treeItems: T, rootId: string): Flattened<TreeItem>[] {
+  const result: Flattened<TreeItem>[] = [];
+
+  function flattener(id: string, depth: number) {
+    const yitem = treeItems.get(id);
+    if (!yitem) return;
+
+    const item: any = {
+      depth,
+      index: result.length,
+    };
+
+    for (const [key, value] of yitem.entries()) {
+      if (value instanceof Y.Text) {
+        item[key] = value.toString();
+      } else if (value instanceof Y.Array) {
+        item[key] = value.toArray();
+      } else {
+        item[key] = value;
+      }
+    }
+
+    result.push(item);
+
+    const chidren = yitem.get("children");
+    if (chidren) {
+      for (const childId of chidren) {
+        flattener(childId, depth + 1);
+      }
+    }
+  }
+
+  flattener(rootId, 0);
+  return result;
+}
+
+export function flattenAndFilterYTree<T extends YBlocksMap | YExplorerMap>(
+  treeItems: T,
+  rootId: string,
+  activeId: string | null,
+  doNotCollapse?: boolean,
+): Flattened<TreeItem>[] {
+  const result: Flattened<TreeItem>[] = [];
+
+  function flattener(id: string, depth: number) {
+    const yitem = treeItems.get(id);
+    if (!yitem) return;
+
+    const item: any = {
+      depth,
+      index: result.length,
+    };
+
+    for (const [key, value] of yitem.entries()) {
+      if (value instanceof Y.Text) {
+        item[key] = value.toString();
+      } else if (value instanceof Y.Array) {
+        item[key] = value.toArray();
+      } else {
+        item[key] = value;
+      }
+    }
+
+    result.push(item);
+
+    // Early exit for children of the active item
+    if (activeId !== null && id === activeId) return;
+
+    const isCollapsed = !doNotCollapse && item.collapsed;
+    if (isCollapsed && id !== rootId) return;
+
+    const children = yitem.get("children");
+    if (children) {
+      for (const childId of children) {
+        flattener(childId, depth + 1);
+      }
+    }
+  }
+
+  flattener(rootId, 0);
+  return result;
+}
+
+export function removeChildrenOf(items: Flattened<TreeItem>[], ids: string[]): Flattened<TreeItem>[] {
+  // * If planing to use again add fix: if (isCollapsed && id !== rootId) return;
   const excludeParentIds = [...ids];
 
   return items.filter((item) => {

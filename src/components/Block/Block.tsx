@@ -2,6 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { getItem } from "esm-treero-api";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
@@ -9,18 +10,19 @@ import Button from "../Common/Button.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
+import { handleBlockCollapseToggle } from "../../api/api.tsx";
 
 function HandleButton({
   id,
   collapsed,
-  children_,
+  childrenLength,
   attributes,
   listeners,
   ...props
 }: {
   id: string;
   collapsed: boolean;
-  children_: string[];
+  childrenLength: number;
   attributes: any;
   listeners: any;
 }) {
@@ -32,13 +34,12 @@ function HandleButton({
       {...listeners}
       onClick={() => {
         console.debug("onPointerUpCapture");
-        if (children_.length !== 0) {
-          const yblock = getItem(yjs.yblocks, id);
-          yblock.set("collapsed", !collapsed);
+        if (childrenLength !== 0) {
+          handleBlockCollapseToggle(id);
         }
       }}
     >
-      {children_.length > 0 ? (
+      {childrenLength > 0 ? (
         collapsed ? (
           <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<PlusCircleIcon size={12} strokeWidth={2.5} />} />
         ) : (
@@ -51,7 +52,7 @@ function HandleButton({
   );
 }
 
-function IndentGuides({ id, depth }: { id: string; depth: number }) {
+const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
   if (depth <= 1) return null;
 
   return (
@@ -67,73 +68,150 @@ function IndentGuides({ id, depth }: { id: string; depth: number }) {
       ))}
     </div>
   );
-}
+});
 
-// const Block = memo(
-//   ({
+// ! Custom memo condition used
+const BlockInner = memo(
+  function BlockInner({
+    id,
+    collapsed,
+    childrenLength,
+    depth,
+    isRoot,
+    isActive,
+    isChecked,
+    setRefs,
+    handleProps,
+  }: {
+    id: string;
+    collapsed: boolean;
+    childrenLength: number;
+    depth: number;
+    isRoot: boolean;
+    isActive: boolean;
+    isChecked: boolean;
+    setRefs: any;
+    handleProps: any;
+    // TODO: Add types
+  }) {
+    console.debug("BlockInner", id);
+    const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+
+    if (isRoot) depth = 1;
+
+    return (
+      <div className={`Block relative ${isRoot ? "mb-5" : ""}`} ref={setRefs} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }} data-block-id={id}>
+        <IndentGuides id={id} depth={depth} />
+        <div className={`flex items-start`}>
+          {isActive ? (
+            <DropIndicator />
+          ) : (
+            <>
+              {!isRoot && isChekboxSelectionActive && isChecked && (
+                <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-4 w-4 text-info"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log("Checkbox clicked and intercepted!");
+                    }}
+                  />
+                </div>
+              )}
+              {!isRoot && <HandleButton id={id} collapsed={collapsed} childrenLength={childrenLength} {...handleProps} />}
+
+              {/* // ! ID */}
+              {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
+
+              <div className="flex-auto flex min-w-0">
+                <BlockContent id={id} />
+              </div>
+
+              <BlockOptions id={id} isRoot={isRoot} />
+            </>
+          )}
+        </div>
+      </div>
+    );
+  },
+  (prev, next) => {
+    return (
+      prev.id === next.id &&
+      prev.collapsed === next.collapsed &&
+      prev.childrenLength === next.childrenLength &&
+      prev.depth === next.depth &&
+      prev.isRoot === next.isRoot &&
+      prev.isActive === next.isActive &&
+      prev.isChecked === next.isChecked &&
+      prev.setRefs === next.setRefs
+      // prev.handleProps === next.handleProps // Causes rerenders. should be muted
+    );
+  },
+);
+BlockInner.displayName = "BlockInner";
+
 export default function Block({
   id,
   collapsed,
-  children_,
+  childrenLength,
   depth,
   isRoot,
   isActive,
+  isChecked,
 }: {
   id: string;
   collapsed: boolean;
-  children_: string[];
+  childrenLength: number;
   depth: number;
   isRoot: boolean;
   isActive: boolean;
+  isChecked: boolean;
 }) {
   // console.debug("Block");
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
-  const { attributes, listeners, setDraggableNodeRef, setDroppableNodeRef, setNodeRef, transform, transition } = useSortable({ id });
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
-  const style = {
-    transform: DnDCSS.Translate.toString(transform),
-    transition,
-  };
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      console.debug("setNodeRef", id);
+      nodeRef.current = node;
+      setNodeRef(node);
+    },
+    [setNodeRef],
+  );
 
-  if (isRoot) {
-    depth = 1;
-  }
+  useEffect(() => {
+    if (!nodeRef.current) return;
+    // console.debug("TRANSFORM", id);
+    nodeRef.current.style.transform = DnDCSS.Translate.toString(transform) ?? "";
+    nodeRef.current.style.transition = transition ?? "";
+  }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);
+
+  // TODO: Find which one is faster
+
+  // const style: React.CSSProperties = useMemo(() => {
+  //   return {
+  //     transform: DnDCSS.Translate.toString(transform) ?? "",
+  //     transition: transition ?? "",
+  //   };
+  // }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);
 
   return (
-    <div
-      className={`Block relative ${isRoot ? "mb-5" : ""}`}
-      ref={setNodeRef}
-      style={{ ...style, paddingLeft: `${INDENT * (depth - 1)}px` }}
-      data-block-id={id}
-    >
-      <IndentGuides id={id} depth={depth} />
-      <div className={`flex items-start`}>
-        {isActive ? (
-          <DropIndicator />
-        ) : (
-          <>
-            {!isRoot && isChekboxSelectionActive && (
-              <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-info" />
-              </div>
-            )}
-            {!isRoot && <HandleButton id={id} collapsed={collapsed} children_={children_} attributes={attributes} listeners={listeners} />}
-
-            {/* // ! ID */}
-            {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
-
-            <div className="flex-auto flex min-w-0">
-              <BlockContent id={id} />
-            </div>
-
-            <BlockOptions id={id} isRoot={isRoot} />
-          </>
-        )}
-      </div>
-    </div>
+    <BlockInner
+      id={id}
+      collapsed={collapsed}
+      childrenLength={childrenLength}
+      depth={depth}
+      isRoot={isRoot}
+      isActive={isActive}
+      isChecked={isChecked}
+      setRefs={setRefs}
+      handleProps={{ attributes, listeners }}
+    />
   );
 }
-// export default Block;
 
 function DropIndicator() {
   return (

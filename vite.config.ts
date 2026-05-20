@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -34,27 +35,27 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        runtimeCaching: [
-          {
-            // Matches any external or internal URL ending in standard image extensions
-            // urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(?:\?.*)?$/i,
-            urlPattern: ({ request }) => request.destination === "image",
-            handler: "CacheFirst",
-            options: {
-              cacheName: "external-images-cache",
+        // runtimeCaching: [
+        //   {
+        //     // Matches any external or internal URL ending in standard image extensions
+        //     // urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(?:\?.*)?$/i,
+        //     urlPattern: ({ request }) => request.destination === "image",
+        //     handler: "CacheFirst",
+        //     options: {
+        //       cacheName: "external-images-cache",
 
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
+        //       cacheableResponse: {
+        //         statuses: [0, 200],
+        //       },
 
-              expiration: {
-                maxEntries: 50, // Caps the total number of images saved
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-                purgeOnQuotaError: true, // Automatically safely clears if the device fills up
-              },
-            },
-          },
-        ],
+        //       expiration: {
+        //         maxEntries: 50, // Caps the total number of images saved
+        //         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+        //         purgeOnQuotaError: true, // Automatically safely clears if the device fills up
+        //       },
+        //     },
+        //   },
+        // ],
       },
 
       devOptions: {
@@ -65,6 +66,11 @@ export default defineConfig({
       },
     }),
   ],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+  },
   // Add variable with version
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),

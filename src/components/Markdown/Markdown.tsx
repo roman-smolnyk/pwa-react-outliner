@@ -86,7 +86,7 @@ function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreEleme
 }
 
 const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkTheme: boolean }) => {
-  console.debug("Markdown", isDarkTheme);
+  // console.debug("Markdown", isDarkTheme);
 
   // const [text, setText] = useState("");
 

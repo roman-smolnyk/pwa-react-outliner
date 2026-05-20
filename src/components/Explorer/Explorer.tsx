@@ -102,7 +102,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
                 type={item.type}
                 title={item.title}
                 collapsed={item.collapsed}
-                children_={item.children}
+                childrenLength={item.children ? item.children.length : undefined}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isActive={item.id === activeId}
                 isSelected={item.id === ypage?.get("id")}

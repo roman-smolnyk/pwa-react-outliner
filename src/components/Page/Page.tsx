@@ -35,8 +35,8 @@ export default function Page({ rootId }: { rootId: string }) {
 
   const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
+  const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
 
-  // @ts-ignore
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker, isPageSearchActive) as FlatBlocksT;
   // console.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
@@ -103,10 +103,11 @@ export default function Page({ rootId }: { rootId: string }) {
                 key={item.id}
                 id={item.id}
                 collapsed={item.collapsed}
-                children_={item.children}
+                childrenLength={item.children.length}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isRoot={item.id === rootId}
                 isActive={item.id === activeId}
+                isChecked={checkedBlockIds.includes(item.id)}
               />
             );
           })}

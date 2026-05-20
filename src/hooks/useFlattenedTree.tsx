@@ -1,10 +1,17 @@
+import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
 import { debounce } from "lodash";
 import { useMemo, useRef, useSyncExternalStore } from "react";
 import * as Y from "yjs";
 import useZustandStore from "../store/useZustandStore.tsx";
-import { flattenTree, removeChildrenOf } from "../utils/utilities.tsx";
+import { flattenAndFilterYTree } from "../utils/utilities.tsx";
 
-export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: string | null, customTicker?: number, doNotCollapse?: boolean) {
+export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
+  yitems: T,
+  rootId: string,
+  activeId: string | null,
+  customTicker?: number,
+  doNotCollapse?: boolean,
+) {
   const tickRef = useRef(0);
 
   const version = useSyncExternalStore(
@@ -34,23 +41,23 @@ export function useFlattenedTree<T>(yitems: Y.Map<T>, rootId: string, activeId: 
 
       yitems.observeDeep(observerCallback);
       return () => {
+        debouncedUpdate.cancel();
         yitems.unobserveDeep(observerCallback);
       };
     },
     () => tickRef.current,
   );
 
-  // console.debug("useFlattenedTree:version", version);
-
   // Compute the expensive flattened tree only when 'version' changes
   return useMemo(() => {
     console.debug("useFlattenedTree:useMemo", version, customTicker, rootId, activeId);
-    const flattenedTree = flattenTree(yitems.toJSON(), rootId);
-    let collapsedItemsIds = [];
-    if (!doNotCollapse) {
-      collapsedItemsIds = flattenedTree.filter(({ children, collapsed }) => collapsed && children?.length).map(({ id }) => id);
-    }
-    const result = removeChildrenOf(flattenedTree, activeId != null ? [activeId, ...collapsedItemsIds] : collapsedItemsIds);
+    // performance.mark("start");
+
+    const result = flattenAndFilterYTree(yitems, rootId, activeId, doNotCollapse);
+
+    // performance.mark("end");
+    // performance.measure("flattenTree", "start", "end");
+    // console.debug("PERF", performance.getEntriesByName("flattenTree").slice(-1)[0]);
     return result;
   }, [yitems, version, rootId, activeId, customTicker, doNotCollapse]);
 }

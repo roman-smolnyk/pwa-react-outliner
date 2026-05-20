@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "preview": "vite preview --host 127.0.0.1",
+    "lint": "biome lint ./src/",
+    "format": "biome format ./src/",
+    "test": "vitest",
+    "bench": "vitest bench",
     "adb": "adb reverse tcp:5173 tcp:5173",
     "wss": "npx y-websocket"
   },
@@ -63,6 +66,8 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.37.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/lodash": "^4.17.23",
     "@types/mark.js": "^8.11.12",
     "@types/node": "^24.6.2",
@@ -76,11 +81,13 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.23",
     "globals": "^16.4.0",
+    "jsdom": "^29.1.1",
     "knip": "^6.12.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
     "vite": "^7.1.9",
     "vite-plugin-pwa": "^1.1.0",
+    "vitest": "^4.1.7",
     "workbox-core": "^7.3.0",
     "workbox-window": "^7.4.0"
   },

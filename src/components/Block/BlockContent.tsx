@@ -27,8 +27,7 @@ export default function BlockContent({ id }: { id: string }) {
     if (focusBlockId === id) {
       setIsEdit(true);
       setCharIndex(caretCharIndex);
-      useZustandStore.setState({ focusBlockId: null }); // consume the signal
-      useZustandStore.setState({ caretCharIndex: 0 });
+      useZustandStore.setState({ focusBlockId: null, caretCharIndex: 0 });
     }
   }, [focusBlockId, id]);
 
@@ -40,30 +39,30 @@ export default function BlockContent({ id }: { id: string }) {
       {!isEdit ? (
         <div
           className={`BlockContent-render block-content min-h-[1em] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
-          onClick={(e) => {
+          // onClick={(e) => {
+          //   if (readOnly) return;
+          //   setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
+          //   setIsEdit(true);
+          // }}
+          onPointerDown={(e) => {
+            // console.debug("onPointerDown");
             if (readOnly) return;
-            setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-            setIsEdit(true);
+            if (e.pointerType !== "touch") {
+              e.preventDefault();
+              e.stopPropagation();
+              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
+              setIsEdit(true);
+            }
           }}
-          // onPointerDown={(e) => {
-          //   // console.debug("onPointerDown");
-          //   if (readOnly) return;
-          //   if (e.pointerType !== "touch") {
-          //     e.preventDefault();
-          //     e.stopPropagation();
-          //     setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-          //     setIsEdit(true);
-          //   }
-          // }}
-          // onPointerUp={(e) => {
-          //   if (readOnly) return;
-          //   if (e.pointerType === "touch") {
-          //     e.preventDefault();
-          //     e.stopPropagation();
-          //     setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-          //     setIsEdit(true);
-          //   }
-          // }}
+          onPointerUp={(e) => {
+            if (readOnly) return;
+            if (e.pointerType === "touch") {
+              e.preventDefault();
+              e.stopPropagation();
+              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
+              setIsEdit(true);
+            }
+          }}
         >
           {contentViewMode === "source" ? (
             <PlainTextContent>{content ?? " "}</PlainTextContent>

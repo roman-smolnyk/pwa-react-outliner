@@ -22,6 +22,8 @@ export interface useZustandStoreType {
   isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
 
+  checkedBlockIds: string[];
+
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
   viewportWidth: number;
 
@@ -53,6 +55,8 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isGlobalSearchOpened: false,
   isPageSearchActive: false,
   isChekboxSelectionActive: false,
+
+  checkedBlockIds: [],
 
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,

@@ -63,6 +63,11 @@ export async function handleBlockOpen(id: string) {
   await localPreferencesManager.set("rootBlockId", id);
 }
 
+export function handleBlockCollapseToggle(id: string) {
+  const yblock = getItem(yjs.yblocks, id);
+  yblock.set("collapsed", !yblock.get("collapsed"));
+}
+
 export function handleBlockAdd(id: string) {
   let newYblock: YBlockMap;
   if (isRootItem(yjs.yblocks, id)) {
@@ -140,9 +145,12 @@ export function handleBlockSelectUp(id: string) {
 }
 
 export function handleBlockSelectDown(id: string) {
+  const yitem = getItem(yjs.yblocks, id);
   const ysibling = getItemSibling(yjs.yblocks, id, 1);
   if (ysibling) {
     selectBlock(ysibling.get("id"), 0);
+  } else if (yitem.get("collapsed") === false && yitem.get("children").length > 0) {
+    selectBlock(yitem.get("children").get(0), 0);
   }
 }
 
