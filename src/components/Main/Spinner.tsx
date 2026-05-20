@@ -1,10 +1,11 @@
+import log from "loglevel";
 import { LoaderIcon } from "lucide-react";
-import useZustandStore from "../../store/useZustandStore";
 import { logout } from "../../api/api";
+import useZustandStore from "../../store/useZustandStore";
 import LucideIcon from "../Common/LucideIcon";
 
 export default function Spinner() {
-  console.debug("Spinner");
+  log.debug("Spinner");
 
   const loadingScreenInfo = useZustandStore((s) => s.loadingScreenInfo);
   const isLoadingScreenShowExit = useZustandStore((s) => s.isLoadingScreenShowExit);

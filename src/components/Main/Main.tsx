@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import log from "loglevel";
+import { useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
 import { MOBILE_WIDTH } from "../../../config";
@@ -15,7 +16,7 @@ function useSetupHotkeys() {
   useHotkeys(
     "ctrl+z, meta+z",
     () => {
-      console.warn("ctrl+z, meta+z");
+      log.warn("ctrl+z, meta+z");
       yjs.undoManager?.undo();
     },
     // { enableOnContentEditable: true },
@@ -23,7 +24,7 @@ function useSetupHotkeys() {
   useHotkeys(
     "ctrl+shift+z, meta+shift+z",
     () => {
-      console.warn("ctrl+shift+z, meta+shift+z");
+      log.warn("ctrl+shift+z, meta+shift+z");
       yjs.undoManager?.redo();
     },
     // { enableOnContentEditable: true },
@@ -31,7 +32,7 @@ function useSetupHotkeys() {
   // useHotkeys(
   //   "ctrl+f",
   //   (e) => {
-  //     console.warn("ctrl+f");
+  //     log.warn("ctrl+f");
   //     e.preventDefault();
   //     e.stopPropagation();
   //     TreeRoAPI.useStore.setState((state) => {
@@ -45,7 +46,7 @@ function useSetupHotkeys() {
   // useHotkeys(
   //   "ctrl+shift+f",
   //   (e) => {
-  //     console.warn("ctrl+f");
+  //     log.warn("ctrl+f");
   //     e.preventDefault();
   //     e.stopPropagation();
   //     TreeRoAPI.useStore.setState((state) => {
@@ -59,10 +60,9 @@ function useSetupHotkeys() {
 }
 
 export default function Main() {
-  console.debug("Main");
+  log.debug("Main");
   const explorerPanelRef = useRef<PanelImperativeHandle>(null);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-
+  const isDataLoaded = useZustandStore((s) => s.isDataLoaded);
   const viewportWidth = useZustandStore((s) => s.viewportWidth);
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
@@ -72,10 +72,7 @@ export default function Main() {
   });
 
   useEffect(() => {
-    onStartUp(async () => {
-      console.debug("setIsDataLoaded", true);
-      setIsDataLoaded(true);
-    });
+    onStartUp();
   }, []);
 
   useSetupHotkeys();

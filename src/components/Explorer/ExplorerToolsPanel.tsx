@@ -1,22 +1,17 @@
-import { createInsertCollection, createInsertPage } from "esm-treero-api";
+import { getRootCollectionId } from "esm-treero-api";
 import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
+import { handleCollectionAdd, handlePageAdd } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
-import { handleCollectionAdd, handlePageAdd } from "../../api/api";
-import GlobalSearch from "../GlobalSearch/GlobalSearch";
-import { createPortal } from "react-dom";
 import LucideIcon from "../Common/LucideIcon";
+import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
   const isGlobalSearchOpened = useZustandStore((s) => s.isGlobalSearchOpened);
-
-  const rootCollectionId = yjs.yaccount.get("root_id");
-  if (!rootCollectionId) {
-    throw new Error(`rootCollectionId is missing`);
-  }
 
   return (
     <div
@@ -51,8 +46,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
           <Button
             title="Add File"
             onClick={() => {
-              // createInsertPage(yjs.ydoc, "Untitled", rootCollectionId, 0);
-              handlePageAdd(rootCollectionId);
+              handlePageAdd(getRootCollectionId(yjs.yaccount));
             }}
           >
             <LucideIcon icon={<FilePlusIcon />} />
@@ -61,7 +55,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
           <Button
             title="Add Folder"
             onClick={() => {
-              handleCollectionAdd(rootCollectionId);
+              handleCollectionAdd(getRootCollectionId(yjs.yaccount));
             }}
           >
             <LucideIcon icon={<FolderPlusIcon />} />

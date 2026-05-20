@@ -1,7 +1,8 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
-import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { getItem, getPageByBlockId, moveItem } from "esm-treero-api";
+import log from 'loglevel';
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -13,7 +14,7 @@ import { getProjection } from "../../utils/utilities.tsx";
 import ExpEntry from "./ExpEntry.tsx";
 
 export default function Explorer({ rootId }: { rootId: string }) {
-  console.debug("Explorer");
+  log.debug("Explorer");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
@@ -31,12 +32,12 @@ export default function Explorer({ rootId }: { rootId: string }) {
   // @ts-ignore
   let flatItems = useFlattenedTree(yjs.yexplorer, rootId, activeId) as FlatExplorerT;
   flatItems = flatItems.slice(1); // Remove root
-  // console.debug("flatItems", flatItems);
+  // log.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
   const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
 
-  // console.debug("projected", projected);
+  // log.debug("projected", projected);
 
   if (projected?.parentId) {
     const yitem = yjs.yexplorer.get(projected.parentId);
@@ -52,7 +53,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   }
 
   function handleDragMove(event: DragMoveEvent) {
-    // console.debug("handleDragMove:delta.x", event.delta.x);
+    // log.debug("handleDragMove:delta.x", event.delta.x);
     setDragOffsetX(event.delta.x);
     if (event.over?.id) {
       setOverId(event.over.id as string);
@@ -60,7 +61,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    // console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
+    // log.debug("handleDragEnd", event.active.id, event.over?.id, projected);
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
@@ -74,7 +75,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
 
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
-      // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      // log.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yexplorer, event.active.id as string, parentId, indexInParent);
       getItem(yjs.yexplorer, parentId).set("collapsed", false);
     }

@@ -1,3 +1,4 @@
+import log from "loglevel";
 import {
   ArrowDownIcon,
   ArrowLeftToLineIcon,
@@ -23,7 +24,7 @@ import Button from "../Common/Button";
 import LucideIcon from "../Common/LucideIcon";
 
 export default function Footer() {
-  console.debug("Footer");
+  log.debug("Footer");
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
   const selectedBlockId = useZustandStore((s) => s.selectedBlockId);
 
@@ -52,7 +53,7 @@ export default function Footer() {
           className="AddBlock"
           data-ignore-blur="true"
           onClick={(e) => {
-            console.debug("onClick", selectedBlockId);
+            log.debug("onClick", selectedBlockId);
             if (selectedBlockId) {
               handleBlockAdd(selectedBlockId);
             }

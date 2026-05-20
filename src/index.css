@@ -52,7 +52,7 @@
 
 @layer base {
   :root {
-    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+    font-family: Inter, Roboto, Arial, system-ui, Avenir, Helvetica, sans-serif;
   }
 
   html,
@@ -171,7 +171,7 @@
   .block-content,
   .cm-content {
     caret-color: light-dark(black, white) !important;
-    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+    font-family: Inter, Roboto, Arial, system-ui, Avenir, Helvetica, sans-serif;
     /* font-size: 1rem; */
     line-height: 1.25;
     padding: 2px 6px 2px 6px !important;

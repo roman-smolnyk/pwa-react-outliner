@@ -1,12 +1,13 @@
 import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { getItem } from "esm-treero-api";
+import log from 'loglevel';
 import { memo, useEffect, useMemo, useRef } from "react";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
 
 const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
-  console.debug("CM6PlainTextEditor", id, charIndex);
+  log.debug("CM6PlainTextEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 

@@ -3,20 +3,22 @@ import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
 // import { Capacitor } from "@capacitor/core";
+import log from "loglevel";
 import { useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 import treero from "./api/treero";
 import Authorization from "./components/Authorize/Authorization";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
-import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
-import { ThemeProvider } from "./hooks/theme";
-import { ToastContainer } from "react-toastify";
-import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
+import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
+import { ThemeProvider } from "./hooks/theme";
+import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
+import { LOG_LEVEL } from "../config";
 
 function App() {
-  console.debug("App", treero.version);
-  // console.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
+  console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
+  // log.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
   const isHydrated = useZustandStore((s) => s.isHydrated);
   const isAuthorized = useZustandStore((s) => s.isAuthorized);
 
@@ -24,12 +26,12 @@ function App() {
     hydrateZustandStateWithPreferences();
   }, []);
 
-  console.debug("isHydrated", isHydrated);
+  log.debug("isHydrated", isHydrated);
   if (!isHydrated) {
     return null;
   }
 
-  console.debug("isAuthorized", isAuthorized);
+  log.debug("isAuthorized", isAuthorized);
 
   return (
     <ThemeProvider>
@@ -48,7 +50,7 @@ function App() {
             limit={3}
             style={{ top: 60 }}
             toastClassName={(context) => {
-              console.debug("context", context);
+              log.debug("context", context);
               return `max-w-xs min-w-3xs min-h-0 
                       px-4 py-2.5 mb-2 mr-3 
                       bg-card text-card-foreground text-sm 

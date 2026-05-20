@@ -1,4 +1,5 @@
 import { traverseItemPath } from "esm-treero-api";
+import log from "loglevel";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
@@ -23,7 +24,7 @@ export default function BlockPath({ id }: { id: string }) {
   // const yblocksArray = traverseBlockPath(yjs.ydoc, id);
   const yblocksArray = traverseItemPath(yjs.yblocks, id);
 
-  console.debug("BlockPath", yblocksArray);
+  log.debug("BlockPath", yblocksArray);
 
   return (
     <div className="BlockPath mb-5 flex flex-wrap items-center">

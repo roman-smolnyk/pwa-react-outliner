@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
+import log from "loglevel";
 import { FileTextIcon, FolderDownIcon, FolderIcon, FolderInputIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { INDENT } from "../../../config.tsx";
@@ -107,7 +108,7 @@ const ExpEntryInner = memo(
     setRefs: any;
     handleProps: any;
   }) {
-    console.debug("ExpEntryInner", id);
+    // log.debug("ExpEntryInner", id);
     const [isEdit, setIsEdit] = useState(false);
 
     if (depth === 0) depth = 1;
@@ -115,12 +116,12 @@ const ExpEntryInner = memo(
     const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
 
     async function onClick(e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement | HTMLDivElement>) {
-      console.debug("onClick", type);
+      log.debug("onClick", type);
       e.preventDefault();
       if (type === PAGE_TYPE) {
         await handleBlockOpen(yitem.get("root_id") as string);
       } else if (type === COLLECTION_TYPE) {
-        console.debug("COOLLLAA", !collapsed);
+        log.debug("COOLLLAA", !collapsed);
         yitem.set("collapsed", !collapsed);
       }
     }
@@ -201,7 +202,7 @@ export default function ExpEntry({
 
   const setRefs = useCallback(
     (node: HTMLDivElement | null) => {
-      console.debug("setNodeRef", id);
+      // log.debug("setNodeRef", id);
       nodeRef.current = node;
       setNodeRef(node);
     },

@@ -1,10 +1,11 @@
+import log from 'loglevel';
 import { useState } from "react";
 import { login, register } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import Input from "../Common/Input";
 
 export default function Authorization() {
-  console.debug("Authorization");
+  log.debug("Authorization");
   const [token, setToken] = useState("");
   const webSocketServerUrl = useZustandStore((s) => s.webSocketServerUrl);
 
@@ -32,7 +33,7 @@ export default function Authorization() {
             className="w-full bg-primary text-primary-foreground p-1 rounded cursor-pointer
                       hover:scale-105 active:scale-100 transition-transform"
             onClick={async (_) => {
-              // console.debug("Login", token);
+              // log.debug("Login", token);
               if (token) {
                 await login(webSocketServerUrl, token);
               }

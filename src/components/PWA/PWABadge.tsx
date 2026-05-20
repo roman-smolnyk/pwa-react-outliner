@@ -1,8 +1,9 @@
+import log from 'loglevel';
 import { toast } from "react-toastify";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 export default function PWABadge() {
-  console.debug("PWABadge");
+  log.debug("PWABadge");
   // check for updates every hour
   const period = 60 * 60 * 1000;
 
@@ -12,7 +13,7 @@ export default function PWABadge() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
-      console.debug("onRegisteredSW", swUrl);
+      log.debug("onRegisteredSW", swUrl);
       if (period <= 0) return;
       if (r?.active?.state === "activated") {
         registerPeriodicSync(period, swUrl, r);

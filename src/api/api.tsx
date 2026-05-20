@@ -16,6 +16,7 @@ import {
   moveItemBefore,
   type YBlockMap,
 } from "esm-treero-api";
+import log from 'loglevel';
 import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
 import useZustandStore from "../store/useZustandStore";
@@ -27,13 +28,13 @@ export function generateRoomToken(): string {
 }
 
 export async function login(webSocketServerUrl: string, roomToken: string) {
-  console.debug(`login`, webSocketServerUrl, roomToken);
+  log.debug(`login`, webSocketServerUrl, roomToken);
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
   useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, isNewAccount: false });
 }
 
 export async function register(webSocketServerUrl: string) {
-  console.debug(`register`, webSocketServerUrl);
+  log.debug(`register`, webSocketServerUrl);
   const newRoomToken = generateRoomToken();
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
   useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, isNewAccount: true });
@@ -55,7 +56,7 @@ export function selectBlock(id: string, caretCharIndex: number) {
 }
 
 export async function handleBlockOpen(id: string) {
-  console.debug(`openBlock`, id);
+  log.debug(`openBlock`, id);
   useZustandStore.setState({ rootBlockId: id });
   if (isMobile()) {
     useZustandStore.getState().collapseExplorer();
@@ -189,7 +190,7 @@ export async function copyToClipboard(text: string) {
   try {
     await Clipboard.write({ string: text });
   } catch (_error) {
-    // console.error(error);
+    // log.error(error);
     copyFallback(text);
   }
 }

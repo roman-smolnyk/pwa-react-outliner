@@ -1,16 +1,15 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
-import { getItem } from "esm-treero-api";
+import log from "loglevel";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
+import { handleBlockCollapseToggle } from "../../api/api.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
-import yjs from "../../store/yjsManager.tsx";
 import Button from "../Common/Button.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
-import { handleBlockCollapseToggle } from "../../api/api.tsx";
 
 function HandleButton({
   id,
@@ -33,7 +32,7 @@ function HandleButton({
       {...attributes}
       {...listeners}
       onClick={() => {
-        console.debug("onPointerUpCapture");
+        log.debug("onPointerUpCapture");
         if (childrenLength !== 0) {
           handleBlockCollapseToggle(id);
         }
@@ -94,7 +93,7 @@ const BlockInner = memo(
     handleProps: any;
     // TODO: Add types
   }) {
-    console.debug("BlockInner", id);
+    // log.debug("BlockInner", id);
     const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
     if (isRoot) depth = 1;
@@ -115,7 +114,7 @@ const BlockInner = memo(
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log("Checkbox clicked and intercepted!");
+                      log.log("Checkbox clicked and intercepted!");
                     }}
                   />
                 </div>
@@ -169,13 +168,13 @@ export default function Block({
   isActive: boolean;
   isChecked: boolean;
 }) {
-  // console.debug("Block");
+  // log.debug("Block");
   const nodeRef = useRef<HTMLDivElement>(null);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
   const setRefs = useCallback(
     (node: HTMLDivElement | null) => {
-      console.debug("setNodeRef", id);
+      // log.debug("setNodeRef", id);
       nodeRef.current = node;
       setNodeRef(node);
     },
@@ -184,7 +183,7 @@ export default function Block({
 
   useEffect(() => {
     if (!nodeRef.current) return;
-    // console.debug("TRANSFORM", id);
+    // log.debug("TRANSFORM", id);
     nodeRef.current.style.transform = DnDCSS.Translate.toString(transform) ?? "";
     nodeRef.current.style.transition = transition ?? "";
   }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);

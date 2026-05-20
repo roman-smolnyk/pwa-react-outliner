@@ -1,14 +1,15 @@
+import log from "loglevel";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
+import { isMobile } from "../../utils/utilities";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
-import { isMobile } from "../../utils/utilities";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
-  console.debug("ExplorerContainer");
+  log.debug("ExplorerContainer");
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
 

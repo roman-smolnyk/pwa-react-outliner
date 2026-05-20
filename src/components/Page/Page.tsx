@@ -1,16 +1,17 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
-import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, type Modifier } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
 import { getItem, moveItem } from "esm-treero-api";
-import { memo, useMemo, useState } from "react";
+import log from 'loglevel';
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
+import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
 import PageSearch from "./PageSearch.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
@@ -28,7 +29,7 @@ const sortingStrategy: SortingStrategy = (args) => {
 
 // const Page = memo(({ rootId }: { rootId: string }) => {
 export default function Page({ rootId }: { rootId: string }) {
-  console.debug("Page");
+  log.debug("Page");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
@@ -38,7 +39,7 @@ export default function Page({ rootId }: { rootId: string }) {
   const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
 
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker, isPageSearchActive) as FlatBlocksT;
-  // console.debug("flatItems", flatItems);
+  // log.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
   const projected = activeId && overId ? getProjection(flatItems, activeId, overId, dragOffsetX, INDENT) : null;
@@ -54,7 +55,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   function handleDragMove(event: DragMoveEvent) {
-    // console.debug("handleDragMove:delta.x", event.delta.x);
+    // log.debug("handleDragMove:delta.x", event.delta.x);
     setDragOffsetX(event.delta.x);
     if (event.over?.id) {
       setOverId(event.over.id as string);
@@ -62,7 +63,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    // console.debug("handleDragEnd", event.active.id, event.over?.id, projected);
+    // log.debug("handleDragEnd", event.active.id, event.over?.id, projected);
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
@@ -76,7 +77,7 @@ export default function Page({ rootId }: { rootId: string }) {
 
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
-      // console.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      // log.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
       moveItem(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
       getItem(yjs.yblocks, parentId).set("collapsed", false);
     }

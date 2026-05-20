@@ -12,7 +12,7 @@ import Markdown from "../Markdown/Markdown";
 import PlainTextContent from "./PlainTextContent";
 
 export default function BlockContent({ id }: { id: string }) {
-  // console.debug("BlockContent");
+  // log.debug("BlockContent");
   const [isEdit, setIsEdit] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const { readOnly } = useReadOnly();
@@ -45,7 +45,7 @@ export default function BlockContent({ id }: { id: string }) {
           //   setIsEdit(true);
           // }}
           onPointerDown={(e) => {
-            // console.debug("onPointerDown");
+            // log.debug("onPointerDown");
             if (readOnly) return;
             if (e.pointerType !== "touch") {
               e.preventDefault();

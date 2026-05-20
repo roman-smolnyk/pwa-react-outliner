@@ -1,7 +1,8 @@
 import { defaultKeymap } from "@codemirror/commands";
 import { Annotation, EditorSelection } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
-import type { Transaction as YTransaction, Text as YText, YTextEvent } from "yjs";
+import log from 'loglevel';
+import type { Text as YText, YTextEvent, Transaction as YTransaction } from "yjs";
 import {
   handleBlockAdd,
   handleBlockDelete,
@@ -26,7 +27,7 @@ export function createDomEventHandlers(id: string, setIsEdit: CallableFunction) 
   return EditorView.domEventHandlers({
     blur: (event: FocusEvent, view: EditorView) => {
       const relatedTarget = event.relatedTarget as HTMLElement | null;
-      console.debug("CM6:blur", id, relatedTarget);
+      log.debug("CM6:blur", id, relatedTarget);
 
       if (!document.hasFocus()) return;
 
@@ -71,7 +72,7 @@ export function createDomEventHandlers(id: string, setIsEdit: CallableFunction) 
     },
 
     focus: () => {
-      console.debug("CM6:focus", id);
+      log.debug("CM6:focus", id);
       useZustandStore.setState({ selectedBlockId: id });
     },
   });
@@ -217,7 +218,7 @@ export function createUpdateListener(ytext: YText | any) {
     update.changes.iterChanges((fromA, toA, _fromB, _toB, inserted) => {
       const insertedText = inserted.toString();
       //   const deletedText = update.startState.doc.sliceString(fromA, toA);
-      //   console.log({
+      //   log.log({
       //     fromA,
       //     toA,
       //     _fromB,
@@ -235,7 +236,7 @@ export function createUpdateListener(ytext: YText | any) {
 export function createYtextObserver(view: EditorView, ytext: YText | any) {
   return function ytextObserver(event: YTextEvent | any, transaction: YTransaction | any) {
     if (!transaction.origin) return; // Remote transaction has origin attr
-    console.info("CM6:ytext.observe remote change");
+    log.info("CM6:ytext.observe remote change");
     const text = ytext.toString();
     if (view.state.doc.toString() === text) return;
 

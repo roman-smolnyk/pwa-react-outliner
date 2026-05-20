@@ -1,6 +1,7 @@
 import type { Root, Text } from "mdast";
 import type { Node } from "unist";
 import { visit } from "unist-util-visit";
+// import log from 'loglevel';
 // import { findAndReplace } from "mdast-util-find-and-replace";
 
 /*
@@ -79,7 +80,7 @@ export function remarkPreserveNewlines() {
     visit(tree, "paragraph", (_node, index, parent) => {
       if (!parent || typeof index !== "number") return;
 
-      // console.debug("remarkPreserveNewlines", node);
+      // log.debug("remarkPreserveNewlines", node);
 
       // const parts = node.value.split("\n");
       // if (parts.length > 1) {

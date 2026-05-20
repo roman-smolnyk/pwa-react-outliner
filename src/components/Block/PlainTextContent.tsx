@@ -1,6 +1,7 @@
-//
+// import log from "loglevel";
+
 export default function PlainTextContent({ children }: { children: string }) {
-  // console.debug("PlainTextContent");
+  // log.debug("PlainTextContent");
   if (children.endsWith("\n")) {
     children += "\n";
   }

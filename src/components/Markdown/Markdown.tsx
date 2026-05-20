@@ -32,7 +32,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
 }
 
 function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
-  // console.debug("PreTag", { children, style, ...rest });
+  // log.debug("PreTag", { children, style, ...rest });
   const { color, background, textAlign, whiteSpace, wordSpacing, wordBreak, overflowWrap, tabSize, hyphens, overflow } = style!;
   return (
     <pre
@@ -51,7 +51,7 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
         overflow,
       }}
       onPointerDownCapture={(event) => {
-        // console.debug("onPointerDown DIV");
+        // log.debug("onPointerDown DIV");
         const el = event.currentTarget;
         const rect = el.getBoundingClientRect();
 
@@ -69,7 +69,7 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
         const canScrollX = hasHorizontalScroll && (overflowX === "auto" || overflowX === "scroll");
 
         if ((canScrollX || canScrollY) && (scrollbarX || scrollbarY)) {
-          // console.debug("stopPropagation");
+          // log.debug("stopPropagation");
           // User is interacting with the scrollbar -> don't toggle edit mode
           event.stopPropagation();
         }
@@ -81,12 +81,12 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
 }
 
 function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
-  // console.debug("CodeTag", { children, style, ...rest });
+  // log.debug("CodeTag", { children, style, ...rest });
   return <code className="PrismCodeTag">{children}</code>;
 }
 
 const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkTheme: boolean }) => {
-  // console.debug("Markdown", isDarkTheme);
+  // log.debug("Markdown", isDarkTheme);
 
   // const [text, setText] = useState("");
 
@@ -122,7 +122,7 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
       // fallback={<div>Rendering markdown…</div>}
       components={{
         span({ node, className, ...props }) {
-          // console.debug("md-highlight", node, props);
+          // log.debug("md-highlight", node, props);
           if (className?.includes("md-highlight")) {
             return <span {...props} className={`${className} bg-warning text-warning-foreground`} />;
           }
@@ -136,9 +136,9 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
         code(props) {
           // ...rest
           const { children, className } = props;
-          // console.info("className", className);
-          // console.info("children", children);
-          // console.info("rest", rest);
+          // log.info("className", className);
+          // log.info("children", children);
+          // log.info("rest", rest);
 
           const match = /language-(.+)/.exec(className || "");
           const isInline = match ? false : !String(children).endsWith("\n");
@@ -149,9 +149,9 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
             .join("\n")
             .trim(); // Cleans up the absolute top and bottom of the string
 
-          // console.debug(JSON.stringify(String(children)));
+          // log.debug(JSON.stringify(String(children)));
 
-          // console.debug("code", isInline, match, codeString);
+          // log.debug("code", isInline, match, codeString);
 
           return !isInline ? (
             <div className="relative">

@@ -1,4 +1,5 @@
 import { getItem } from "esm-treero-api";
+import log from 'loglevel';
 import { useMemo } from "react";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
@@ -6,7 +7,7 @@ import BlockPath from "../Block/BlockPath";
 import Page from "./Page";
 
 export default function PageContainer() {
-  console.debug("PageContainer");
+  log.debug("PageContainer");
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
 

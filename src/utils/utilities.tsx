@@ -158,7 +158,7 @@ export function getProjection<T extends Flattened<TreeItem>>(
   const minDepth = getMinDepth(nextItem);
   let depth = projectedDepth;
 
-  // console.debug("previousItem, nextItem", previousItem.id, nextItem.id);
+  // log.debug("previousItem, nextItem", previousItem.id, nextItem.id);
 
   if (projectedDepth >= maxDepth) {
     depth = maxDepth;
@@ -384,7 +384,7 @@ export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
 //   targetIndex = Math.max(0, Math.min(targetIndex, newArray.length));
 
 //   newArray.splice(targetIndex, 0, removed);
-//   // console.debug(
+//   // log.debug(
 //   //   "arrayRelativeMove",
 //   //   {
 //   //     array: array,
@@ -488,12 +488,12 @@ export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
 // export function printDOM(element: HTMLElement, level = 0) {
 //   element.childNodes.forEach((node) => {
 //     if (node.nodeType === Node.TEXT_NODE) {
-//       console.debug(`printDOM:Node.TEXT_NODE`, node.nodeName, JSON.stringify(node.textContent));
+//       log.debug(`printDOM:Node.TEXT_NODE`, node.nodeName, JSON.stringify(node.textContent));
 //     } else if (node.nodeType === Node.ELEMENT_NODE) {
-//       console.debug(`printDOM:Node.ELEMENT_NODE`, node.nodeName);
+//       log.debug(`printDOM:Node.ELEMENT_NODE`, node.nodeName);
 //       printDOM(node as HTMLElement, level + 1);
 //     } else {
-//       console.debug(`printDOM:ELSE`, node.nodeName);
+//       log.debug(`printDOM:ELSE`, node.nodeName);
 //     }
 //   });
 // }
@@ -574,7 +574,7 @@ export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
 //   let currentLine = "";
 
 //   element.childNodes.forEach((node) => {
-//     // console.debug(`getPlainTextWithNewlines ->`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
+//     // log.debug(`getPlainTextWithNewlines ->`, node.nodeName, node.textContent?.replace(/\n/g, "\\n"));
 //     if (node.nodeType === Node.TEXT_NODE) {
 //       currentLine += node.textContent ?? "";
 //     } else if (node.nodeType === Node.ELEMENT_NODE) {

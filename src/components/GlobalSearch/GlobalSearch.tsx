@@ -1,12 +1,12 @@
+import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
+import { debounce } from "lodash";
+import log from "loglevel";
 import { XIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { isMobile, scrollIntoView } from "../../utils/utilities";
+import { handleBlockOpen } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
-import { debounce } from "lodash";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
-import { handleBlockOpen } from "../../api/api";
-import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
 import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
 
@@ -59,7 +59,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
   const path2 = yblocksArray.map((a) => a.get("content").toString());
 
   const path = [...path1, ...path2].map((s) => (s.length > 10 ? s.slice(0, 10) + "…" : s));
-  console.debug("path", path);
+  log.debug("path", path);
 
   const content = yblock.get("content").toString();
   const clips = extractClips(content, query, 40); // 40 chars left/right

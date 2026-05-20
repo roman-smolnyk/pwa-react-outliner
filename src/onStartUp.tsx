@@ -1,23 +1,23 @@
 import { createNewAccount } from "esm-treero-api";
+import log from 'loglevel';
 import { WS_IS_ON } from "../config.tsx";
 import { fillInMockupData } from "./etc/mockupData";
 import useZustandStore from "./store/useZustandStore.tsx";
 import yjs from "./store/yjsManager";
-import { sleep, waitUntil } from "./utils/utilities.tsx";
+import { waitUntil } from "./utils/utilities.tsx";
 
 declare const __APP_VERSION__: string;
 
 let startupPromise: Promise<void> | null = null;
-export default function onStartUp(callback: CallableFunction) {
-  console.debug(`onStartUp`);
+export default function onStartUp() {
+  log.debug(`onStartUp`);
   if (startupPromise) {
-    console.error(`onStartUp called again`);
-    callback();
+    log.warn(`onStartUp called again`);
     return startupPromise;
   }
 
   startupPromise = (async () => {
-    console.debug(`onStartUp startupPromise`);
+    log.debug(`onStartUp startupPromise`);
 
     // clearAllData;
 
@@ -25,17 +25,17 @@ export default function onStartUp(callback: CallableFunction) {
     yjs.addUndoManager();
 
     yjs.idbPersistence!.whenSynced.then(async () => {
-      console.debug("persistence.whenSynced.then");
+      log.debug("persistence.whenSynced.then");
 
       const { roomToken, isNewAccount, webSocketServerUrl } = useZustandStore.getState();
-      console.debug(`isNewAccount`, isNewAccount);
+      log.debug(`isNewAccount`, isNewAccount);
 
       if (!roomToken) {
         throw new Error(`roomToken is missing`);
       }
 
       if (isNewAccount) {
-        console.debug(`createNewAccount`);
+        log.debug(`createNewAccount`);
         createNewAccount(yjs, __APP_VERSION__);
         // createWelcomeDocument();
         await fillInMockupData(yjs);
@@ -49,10 +49,10 @@ export default function onStartUp(callback: CallableFunction) {
         isWsOn = false;
       }
       if (isWsOn && webSocketServerUrl) {
-        console.debug("Connecting... webSocketServerUrl", webSocketServerUrl);
+        log.debug("Connecting... webSocketServerUrl", webSocketServerUrl);
         yjs.addWebsocketProvider(webSocketServerUrl, roomToken);
         yjs.wsProvider!.on("status", (e) => {
-          console.debug("WebsocketProvider status", e.status);
+          log.debug("WebsocketProvider status", e.status);
           if (e.status === "connecting") {
             useZustandStore.setState({ webSocketConnectionStatus: "connecting" });
           } else if (e.status === "connected") {
@@ -65,7 +65,7 @@ export default function onStartUp(callback: CallableFunction) {
         useZustandStore.setState({ webSocketConnectionStatus: "turned off" });
       }
 
-      console.debug("onStartUp:waitUntil rootCollectionId");
+      log.debug("onStartUp:waitUntil rootCollectionId");
       const rootCollectionId = await waitUntil(() => yjs.yaccount.get("root_id"), 30 * 1000);
       if (!rootCollectionId) {
         if (isNewAccount) {
@@ -81,7 +81,8 @@ export default function onStartUp(callback: CallableFunction) {
         return;
       }
 
-      callback();
+      useZustandStore.setState({ isDataLoaded: true });
+      log.debug("isDataLoaded", true);
 
       // const allRootTypes = Object.values(Yjs.ydoc.share);
       // Yjs.undoManager.addToScope(allRootTypes);

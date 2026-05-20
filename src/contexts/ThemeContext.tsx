@@ -1,3 +1,4 @@
+import log from 'loglevel';
 import { createContext, useContext, useEffect, useState } from "react";
 import localPreferencesManager from "../store/preferences";
 
@@ -9,7 +10,7 @@ type ThemeContextState = {
 const ThemeContext = createContext<ThemeContextState | null>(null);
 
 export function ThemeContextProvider({ children }: { children: React.ReactNode }) {
-  console.debug("ThemeContextProvider");
+  log.debug("ThemeContextProvider");
   const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import log from "loglevel";
 import {
   CloudAlertIcon,
   CloudCheckIcon,
@@ -21,15 +22,15 @@ import {
 import { toast } from "react-toastify";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
+import { useTheme } from "../../hooks/theme";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
-import MainMenu from "../MainMenu/MainMenu";
 import LucideIcon from "../Common/LucideIcon";
-import { useTheme } from "../../hooks/theme";
+import MainMenu from "../MainMenu/MainMenu";
 
 export default function Header() {
-  console.debug("Header");
+  log.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
   const { theme, setTheme } = useTheme();
@@ -116,7 +117,7 @@ export default function Header() {
             <Button
               title={`Theme: ${theme}`}
               onClick={() => {
-                console.debug("theme", theme);
+                log.debug("theme", theme);
                 if (theme === "system") {
                   setTheme("light");
                 } else if (theme === "light") {

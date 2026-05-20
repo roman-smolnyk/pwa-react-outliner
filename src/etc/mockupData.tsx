@@ -1,9 +1,10 @@
 import type { YjsManager } from "esm-treero-api";
 import { createBlock, createCollection, createPage, insertItem } from "esm-treero-api";
+import log from 'loglevel';
 import { handleBlockOpen } from "../api/api";
 
 export async function fillInMockupData(yjs: YjsManager) {
-  console.debug("fillInMockupData");
+  log.debug("fillInMockupData");
   const rootId = yjs.yaccount.get("root_id");
   if (!rootId) return;
 
@@ -12,7 +13,7 @@ export async function fillInMockupData(yjs: YjsManager) {
 
   let blockId: string;
   for (let i = 0; i < 25; i++) {
-    console.debug("fillInMockupData:i", i);
+    log.debug("fillInMockupData:i", i);
     const ypage = createPage(yjs.ydoc, `# Mockup Data Page ${i}`);
     insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), ycollection.get("id"), -1);
     for (let k = 0; k < 15; k++) {
@@ -44,7 +45,7 @@ const data = [
   "# Heading level 1\n## Heading level 2\n### Heading level 3\n#### Heading level 4\n##### Heading level 5\n###### Heading level 6",
   "Test newlines:\n2\n\n5\n\n\n\n\n",
   "Inline code `x = 12`",
-  "Multiline code:\n```js\nvar zebra = 12;\nvar bebra = 99;\nconsole.log(zebra + bebra);\n```\n\n```OneLine```\n\n```\nMissing lang\n```\n\n```js\nMissing trailing newline```",
+  "Multiline code:\n```js\nvar zebra = 12;\nvar bebra = 99;\nlog.log(zebra + bebra);\n```\n\n```OneLine```\n\n```\nMissing lang\n```\n\n```js\nMissing trailing newline```",
   "Image:\n![Image](https://picsum.photos/300/200)",
   "| Syntax      | Description | Test Text     |\n| :---        |    :----:   |          ---: |\n| Header      | Title       | Here's this   |\n| Paragraph   | Text        | And more      |",
   "$$E = mc^2$$",

@@ -6,6 +6,7 @@ export interface useZustandStoreType {
 
   isAuthorized: boolean;
   isNewAccount: boolean;
+  isDataLoaded: boolean;
   webSocketServerUrl: string;
   roomToken: string;
   rootBlockId: string;
@@ -40,6 +41,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
 
   isAuthorized: false,
   isNewAccount: false,
+  isDataLoaded: false,
   webSocketServerUrl: "",
   roomToken: "",
   rootBlockId: "",
