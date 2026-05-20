@@ -1,11 +1,13 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
+import { getItemDescendantIds } from "esm-treero-api";
 import log from "loglevel";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockCollapseToggle } from "../../api/api.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
+import yjs from "../../store/yjsManager.tsx";
 import Button from "../Common/Button.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
@@ -93,8 +95,20 @@ const BlockInner = memo(
     handleProps: any;
     // TODO: Add types
   }) {
-    // log.debug("BlockInner", id);
+    // log.debug("BlockInner", id, isChecked);
     const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+
+    function onChange(checked: boolean) {
+      const { checkedBlockIds } = useZustandStore.getState();
+      if (checked && !checkedBlockIds.has(id)) {
+        const descendantIds = getItemDescendantIds(yjs.yblocks, id);
+        useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds, id, ...descendantIds]) });
+      } else {
+        const descendantIds = getItemDescendantIds(yjs.yblocks, id);
+        [id, ...descendantIds].forEach((a) => checkedBlockIds.delete(a));
+        useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds]) });
+      }
+    }
 
     if (isRoot) depth = 1;
 
@@ -106,15 +120,19 @@ const BlockInner = memo(
             <DropIndicator />
           ) : (
             <>
-              {!isRoot && isChekboxSelectionActive && isChecked && (
+              {!isRoot && isChekboxSelectionActive && (
                 <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
                   <input
+                    className="form-checkbox h-4 w-4"
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-info"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      log.log("Checkbox clicked and intercepted!");
+                    checked={isChecked}
+                    onPointerDown={(e) => {
+                      onChange(!isChecked);
+                    }}
+                    onPointerOver={(e) => {
+                      if (e.buttons === 1) {
+                        onChange(!isChecked);
+                      }
                     }}
                   />
                 </div>
@@ -168,7 +186,7 @@ export default function Block({
   isActive: boolean;
   isChecked: boolean;
 }) {
-  // log.debug("Block");
+  // log.debug("Block", id, isChecked);
   const nodeRef = useRef<HTMLDivElement>(null);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 

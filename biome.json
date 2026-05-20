@@ -39,7 +39,8 @@
       "suspicious": {
         "noTsIgnore": "off",
         "noExplicitAny": "off",
-        "noArrayIndexKey": "off"
+        "noArrayIndexKey": "off",
+        "useIterableCallbackReturn": "off"
       }
     }
   },

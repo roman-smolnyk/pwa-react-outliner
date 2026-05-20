@@ -2,7 +2,7 @@ import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core"
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
 import { getItem, moveItem } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -37,6 +37,7 @@ export default function Page({ rootId }: { rootId: string }) {
   const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
   const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
+  log.debug("checkedBlockIds", checkedBlockIds);
 
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker, isPageSearchActive) as FlatBlocksT;
   // log.debug("flatItems", flatItems);
@@ -99,6 +100,7 @@ export default function Page({ rootId }: { rootId: string }) {
       >
         <SortableContext items={flatItemIds} strategy={sortingStrategy}>
           {flatItems.map((item) => {
+            if (checkedBlockIds.has(item.id)) log.debug("LAVENDER", checkedBlockIds.has(item.id));
             return (
               <Block
                 key={item.id}
@@ -108,7 +110,7 @@ export default function Page({ rootId }: { rootId: string }) {
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isRoot={item.id === rootId}
                 isActive={item.id === activeId}
-                isChecked={checkedBlockIds.includes(item.id)}
+                isChecked={checkedBlockIds.has(item.id)}
               />
             );
           })}

@@ -132,8 +132,10 @@ export default function Header() {
 
             <Button
               title="Toggle checkboxes selection"
-              className="text-warning"
-              onClick={() => useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive })}
+              className=""
+              onClick={() => {
+                useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive, checkedBlockIds: new Set() });
+              }}
             >
               <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
             </Button>
