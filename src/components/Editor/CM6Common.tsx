@@ -1,7 +1,7 @@
 import { defaultKeymap } from "@codemirror/commands";
 import { Annotation, EditorSelection } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
-import log from 'loglevel';
+import log from "loglevel";
 import type { Text as YText, YTextEvent, Transaction as YTransaction } from "yjs";
 import {
   handleBlockAdd,
@@ -74,6 +74,7 @@ export function createDomEventHandlers(id: string, setIsEdit: CallableFunction) 
     focus: () => {
       log.debug("CM6:focus", id);
       useZustandStore.setState({ selectedBlockId: id });
+      setIsEdit(true);
     },
   });
 }

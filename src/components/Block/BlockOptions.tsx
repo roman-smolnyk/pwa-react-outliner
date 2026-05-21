@@ -1,4 +1,4 @@
-import { deleteBlock } from "esm-treero-api";
+import { deleteBlock, getItem, getItemDescendants, isRootItem } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
   EllipsisVerticalIcon,
@@ -75,29 +75,34 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
         </FloatingMenuButton>
       )}
       <FloatingMenuButton
-        className="ExpandAll text-warning"
+        className="ExpandAll "
         onClick={() => {
-          // setIsOpened(false);
+          if (!isRootItem(yjs.yblocks, id)) {
+            getItem(yjs.yblocks, id).set("collapsed", false);
+          }
+          for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+            yitem.set("collapsed", false);
+          }
         }}
       >
-        <LucideIcon icon={<PlusIcon className="text-warning!" />} />
+        <LucideIcon icon={<PlusIcon className="" />} />
         <div>Expand All</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="CollapseAll text-warning"
+        className="CollapseAll "
         onClick={() => {
-          // setIsOpened(false);
+          if (!isRootItem(yjs.yblocks, id)) {
+            getItem(yjs.yblocks, id).set("collapsed", true);
+          }
+          for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+            yitem.set("collapsed", true);
+          }
         }}
       >
-        <LucideIcon icon={<MinusIcon className="text-warning!" />} />
+        <LucideIcon icon={<MinusIcon className="" />} />
         <div>Collapse All</div>
       </FloatingMenuButton>
-      <FloatingMenuButton
-        className="Sort text-warning"
-        onClick={() => {
-          // setIsOpened(false);
-        }}
-      >
+      <FloatingMenuButton className="Sort text-warning" onClick={() => {}}>
         <LucideIcon icon={<ArrowDownNarrowWideIcon className="text-warning!" />} />
         <div>Sort</div>
       </FloatingMenuButton>
