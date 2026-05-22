@@ -8,6 +8,7 @@ import {
   deleteCollection,
   deletePage,
   getItem,
+  getItemDescendantIds,
   getItemParent,
   getItemSibling,
   isRootItem,
@@ -16,12 +17,12 @@ import {
   moveItemBefore,
   type YBlockMap,
 } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
 import useZustandStore from "../store/useZustandStore";
 import yjs from "../store/yjsManager";
-import { isMobile } from "../utils/utilities";
+import { flattenAndFilterYTree, isMobile } from "../utils/utilities";
 
 export function generateRoomToken(): string {
   return nanoid(64);
@@ -70,6 +71,7 @@ export function handleBlockCollapseToggle(id: string) {
 }
 
 export function handleBlockAdd(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   let newYblock: YBlockMap;
   if (isRootItem(yjs.yblocks, id)) {
     newYblock = createInsertBlock(yjs.ydoc, "", id, 0);
@@ -83,13 +85,33 @@ export function handleBlockDelete(id: string) {
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
-  const ysibling = getItemSibling(yjs.yblocks, id, -1);
-  const yparent = getItemParent(yjs.yblocks, id);
-  selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
-  deleteBlock(yjs.ydoc, id);
+  if (useZustandStore.getState().isChekboxSelectionActive) {
+    handleBlockDeleteBatch();
+  } else {
+    if (useZustandStore.getState().selectedBlockId) {
+      const ysibling = getItemSibling(yjs.yblocks, id, -1);
+      const yparent = getItemParent(yjs.yblocks, id);
+      selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
+    }
+    deleteBlock(yjs.ydoc, id);
+  }
+}
+
+export function handleBlockDeleteBatch() {
+  const checkedParentBlockIds = getCheckedParentBlockIds();
+
+  // const ids = new Set([id, ...checkedParentBlockIds]);
+
+  yjs.ydoc.transact(() => {
+    for (const id of checkedParentBlockIds) {
+      deleteBlock(yjs.ydoc, id);
+    }
+  });
+  useZustandStore.setState({ checkedBlockIds: new Set() });
 }
 
 export function handleBlockIndent(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -103,6 +125,7 @@ export function handleBlockIndent(id: string) {
 }
 
 export function handleBlockOutdent(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -113,6 +136,7 @@ export function handleBlockOutdent(id: string) {
 }
 
 export function handleBlockMoveUp(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -123,6 +147,7 @@ export function handleBlockMoveUp(id: string) {
 }
 
 export function handleBlockMoveDown(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -132,26 +157,21 @@ export function handleBlockMoveDown(id: string) {
   }
 }
 
-export function handleBlockSelectUp(id: string) {
-  if (isRootItem(yjs.yblocks, id)) {
-    return;
-  }
-  const ysibling = getItemSibling(yjs.yblocks, id, -1);
-  const yparent = getItemParent(yjs.yblocks, id)!;
-  if (ysibling) {
-    selectBlock(ysibling.get("id"), -1);
-  } else if (yparent) {
-    selectBlock(yparent.get("id"), -1);
+export function handleBlockSelectUp(id: string, rootBlockId: string) {
+  const flattenedItems = flattenAndFilterYTree(yjs.yblocks, rootBlockId, true);
+  const index = flattenedItems.findIndex((a) => a.id === id);
+  const item = flattenedItems[index - 1];
+  if (item) {
+    selectBlock(item.id, -1);
   }
 }
 
-export function handleBlockSelectDown(id: string) {
-  const yitem = getItem(yjs.yblocks, id);
-  const ysibling = getItemSibling(yjs.yblocks, id, 1);
-  if (ysibling) {
-    selectBlock(ysibling.get("id"), 0);
-  } else if (yitem.get("collapsed") === false && yitem.get("children").length > 0) {
-    selectBlock(yitem.get("children").get(0), 0);
+export function handleBlockSelectDown(id: string, rootBlockId: string) {
+  const flattenedItems = flattenAndFilterYTree(yjs.yblocks, rootBlockId, true);
+  const index = flattenedItems.findIndex((a) => a.id === id);
+  const item = flattenedItems[index + 1];
+  if (item) {
+    selectBlock(item.id, 0);
   }
 }
 
@@ -219,4 +239,66 @@ export async function hardPWAReload() {
     window.location.replace(url);
   }, 0);
   // window.location.href = url.toString();
+}
+
+export function handleBlockCheckbox(id: string, checked: boolean) {
+  const { checkedBlockIds } = useZustandStore.getState();
+  const yblock = getItem(yjs.yblocks, id);
+  if (checkedBlockIds.has(yblock.get("parent_id") as string)) {
+    return;
+  }
+  const descendantIds = getItemDescendantIds(yjs.yblocks, id);
+  if (checked && !checkedBlockIds.has(id)) {
+    useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds, id, ...descendantIds]) });
+  } else {
+    [id, ...descendantIds].forEach((a) => checkedBlockIds.delete(a));
+    useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds]) });
+  }
+}
+
+export function handleBlockMove(id: string, parentId: string, indexInParent: number) {
+  if (useZustandStore.getState().isChekboxSelectionActive) {
+    handleBlockMoveBatch(parentId, indexInParent);
+  } else {
+    yjs.ydoc.transact(() => {
+      moveItem(yjs.ydoc, yjs.yblocks, id, parentId, indexInParent);
+      getItem(yjs.yblocks, parentId).set("collapsed", false);
+    });
+  }
+}
+
+export function handleBlockMoveBatch(parentId: string, indexInParent: number) {
+  const checkedParentBlockIds = getCheckedParentBlockIds();
+  const flattenedItems = flattenAndFilterYTree(yjs.yblocks, useZustandStore.getState().rootBlockId, true);
+
+  // const ids = new Set([id, ...checkedParentBlockIds]);
+  const sortedIds = flattenedItems.map((item) => item.id).filter((itemId) => checkedParentBlockIds.has(itemId));
+
+  yjs.ydoc.transact(() => {
+    let index = indexInParent;
+    for (const id of sortedIds) {
+      moveItem(yjs.ydoc, yjs.yblocks, id, parentId, index);
+      index++;
+    }
+    getItem(yjs.yblocks, parentId).set("collapsed", false);
+  });
+}
+
+function getCheckedParentBlockIds(): Set<string> {
+  const { checkedBlockIds } = useZustandStore.getState();
+
+  const itemsToRemove = new Set<string>();
+  for (const itemId of checkedBlockIds) {
+    // Optimization: If this item is already marked for removal by a previous
+    // parent's scan, do NOT fetch its descendants again.
+    if (itemsToRemove.has(itemId)) continue;
+
+    const descendants = getItemDescendantIds(yjs.yblocks, itemId);
+
+    for (const descId of descendants) {
+      itemsToRemove.add(descId);
+    }
+  }
+
+  return new Set([...checkedBlockIds].filter((id) => !itemsToRemove.has(id)));
 }

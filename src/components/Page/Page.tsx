@@ -13,6 +13,7 @@ import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
 import PageSearch from "./PageSearch.tsx";
+import { handleBlockMove, handleBlockMoveBatch } from "../../api/api.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
 //   return {
@@ -39,7 +40,7 @@ export default function Page({ rootId }: { rootId: string }) {
   const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
   log.debug("checkedBlockIds", checkedBlockIds);
 
-  const flatItems = useFlattenedTree(yjs.yblocks, rootId, activeId, renderPageTicker, isPageSearchActive) as FlatBlocksT;
+  const flatItems = useFlattenedTree(yjs.yblocks, rootId, !isPageSearchActive, activeId, renderPageTicker) as FlatBlocksT;
   // log.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);
 
@@ -68,7 +69,8 @@ export default function Page({ rootId }: { rootId: string }) {
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
-      const clonedItems: FlatBlockT[] = structuredClone(flatItems);
+      console.debug("flatItems", flatItems);
+      const clonedItems = structuredClone(flatItems);
       const overIndex = clonedItems.findIndex(({ id }) => id === event.over?.id);
       const activeIndex = clonedItems.findIndex(({ id }) => id === event.active.id);
       const activeTreeItem = clonedItems[activeIndex];
@@ -78,9 +80,8 @@ export default function Page({ rootId }: { rootId: string }) {
 
       const siblings = sortedItems.filter((item) => item.parent_id === parentId);
       const indexInParent = siblings.findIndex((item) => item.id === event.active.id);
-      // log.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
-      moveItem(yjs.ydoc, yjs.yblocks, event.active.id as string, parentId, indexInParent);
-      getItem(yjs.yblocks, parentId).set("collapsed", false);
+      log.debug("MOVE", { id: event.active.id, parentId: parentId, index: indexInParent });
+      handleBlockMove(event.active.id as string, parentId, indexInParent);
     }
     setActiveId(null);
     setOverId(null);
@@ -100,7 +101,6 @@ export default function Page({ rootId }: { rootId: string }) {
       >
         <SortableContext items={flatItemIds} strategy={sortingStrategy}>
           {flatItems.map((item) => {
-            if (checkedBlockIds.has(item.id)) log.debug("LAVENDER", checkedBlockIds.has(item.id));
             return (
               <Block
                 key={item.id}

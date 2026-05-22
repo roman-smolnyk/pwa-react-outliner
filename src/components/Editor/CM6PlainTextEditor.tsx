@@ -1,7 +1,7 @@
 import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { getItem } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { memo, useEffect, useMemo, useRef } from "react";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
@@ -22,6 +22,7 @@ const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; cha
         createShortcutsKeymap(id, ytext),
         createUpdateListener(ytext),
         EditorView.lineWrapping,
+        EditorView.contentAttributes.of({ spellcheck: "true" }),
       ],
     });
 

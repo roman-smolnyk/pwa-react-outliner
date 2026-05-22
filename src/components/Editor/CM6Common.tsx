@@ -122,7 +122,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "ArrowUp",
       run: (view) => {
         if (view.state.selection.main.head === 0) {
-          handleBlockSelectUp(id);
+          handleBlockSelectUp(id, useZustandStore.getState().rootBlockId);
           return true;
         }
         useZustandStore.getState().renderPage();
@@ -133,7 +133,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "ArrowDown",
       run: (view) => {
         if (view.state.selection.main.head === view.state.doc.length) {
-          handleBlockSelectDown(id);
+          handleBlockSelectDown(id, useZustandStore.getState().rootBlockId);
           return true;
         }
         useZustandStore.getState().renderPage();

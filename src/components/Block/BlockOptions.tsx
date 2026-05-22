@@ -1,4 +1,4 @@
-import { deleteBlock, getItem, getItemDescendants, isRootItem } from "esm-treero-api";
+import { getItem, getItemDescendants, isRootItem } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
   EllipsisVerticalIcon,
@@ -12,7 +12,7 @@ import {
   ZoomInIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { copyToClipboard, handleBlockOpen } from "../../api/api";
+import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import Button from "../Common/Button";
 import FloatingMenu from "../Common/FloatingMenu";
@@ -140,7 +140,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           className="Delete text-error!"
           onClick={() => {
             // setIsOpened(false);
-            deleteBlock(yjs.ydoc, id);
+            handleBlockDelete(id);
           }}
         >
           <LucideIcon icon={<Trash2Icon className="text-error!" />} />

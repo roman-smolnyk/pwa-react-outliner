@@ -5,7 +5,7 @@ import log from "loglevel";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
-import { handleBlockCollapseToggle } from "../../api/api.tsx";
+import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import Button from "../Common/Button.tsx";
@@ -98,18 +98,6 @@ const BlockInner = memo(
     // log.debug("BlockInner", id, isChecked);
     const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
-    function onChange(checked: boolean) {
-      const { checkedBlockIds } = useZustandStore.getState();
-      if (checked && !checkedBlockIds.has(id)) {
-        const descendantIds = getItemDescendantIds(yjs.yblocks, id);
-        useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds, id, ...descendantIds]) });
-      } else {
-        const descendantIds = getItemDescendantIds(yjs.yblocks, id);
-        [id, ...descendantIds].forEach((a) => checkedBlockIds.delete(a));
-        useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds]) });
-      }
-    }
-
     if (isRoot) depth = 1;
 
     return (
@@ -127,13 +115,14 @@ const BlockInner = memo(
                     type="checkbox"
                     checked={isChecked}
                     onPointerDown={(e) => {
-                      onChange(!isChecked);
+                      handleBlockCheckbox(id, !isChecked);
                     }}
                     onPointerOver={(e) => {
-                      if (e.buttons === 1) {
-                        onChange(!isChecked);
+                      if (e.ctrlKey && e.buttons === 1) {
+                        handleBlockCheckbox(id, !isChecked);
                       }
                     }}
+                    onChange={() => {}}
                   />
                 </div>
               )}

@@ -78,8 +78,8 @@ export function flattenYTree<T extends YBlocksMap | YExplorerMap>(treeItems: T, 
 export function flattenAndFilterYTree<T extends YBlocksMap | YExplorerMap>(
   treeItems: T,
   rootId: string,
-  activeId: string | null,
-  doNotCollapse?: boolean,
+  collapse: boolean,
+  activeId?: string | null,
 ): Flattened<TreeItem>[] {
   const result: Flattened<TreeItem>[] = [];
 
@@ -90,24 +90,27 @@ export function flattenAndFilterYTree<T extends YBlocksMap | YExplorerMap>(
     const item: any = {
       depth,
       index: result.length,
+      ...yitem.toJSON(),
     };
 
-    for (const [key, value] of yitem.entries()) {
-      if (value instanceof Y.Text) {
-        item[key] = value.toString();
-      } else if (value instanceof Y.Array) {
-        item[key] = value.toArray();
-      } else {
-        item[key] = value;
-      }
-    }
+    // for (const [key, value] of yitem.entries()) {
+    //   if (value instanceof Y.Text) {
+    //     item[key] = value.toString();
+    //   } else if (value instanceof Y.Array) {
+    //     item[key] = value.toArray();
+    //   } else if (value && typeof (value as any).toJSON === "function") {
+    //     console.debug("WHYYYY???", key, value);
+    //     item[key] = (value as any).toJSON();
+    //   } else {
+    //     item[key] = value;
+    //   }
+    // }
 
     result.push(item);
 
-    // Early exit for children of the active item
-    if (activeId !== null && id === activeId) return;
+    if (activeId && id === activeId) return;
 
-    const isCollapsed = !doNotCollapse && item.collapsed;
+    const isCollapsed = collapse && item.collapsed;
     if (isCollapsed && id !== rootId) return;
 
     const children = yitem.get("children");

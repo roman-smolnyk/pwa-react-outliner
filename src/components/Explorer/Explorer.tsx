@@ -2,7 +2,7 @@ import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core"
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { getItem, getPageByBlockId, moveItem } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
@@ -29,8 +29,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
   );
 
-  // @ts-ignore
-  let flatItems = useFlattenedTree(yjs.yexplorer, rootId, activeId) as FlatExplorerT;
+  let flatItems = useFlattenedTree(yjs.yexplorer, rootId, true, activeId) as FlatExplorerT;
   flatItems = flatItems.slice(1); // Remove root
   // log.debug("flatItems", flatItems);
   const flatItemIds = useMemo(() => flatItems.map((a) => a.id), [flatItems]);

@@ -18,7 +18,15 @@ import {
   // ZoomInIcon,
   Trash2Icon,
 } from "lucide-react";
-import { handleBlockAdd, handleBlockDelete, handleBlockIndent, handleBlockMoveDown, handleBlockMoveUp, handleBlockOutdent } from "../../api/api";
+import {
+  handleBlockAdd,
+  handleBlockDelete,
+  handleBlockDeleteBatch,
+  handleBlockIndent,
+  handleBlockMoveDown,
+  handleBlockMoveUp,
+  handleBlockOutdent,
+} from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import Button from "../Common/Button";
 import LucideIcon from "../Common/LucideIcon";
@@ -105,11 +113,13 @@ export default function Footer() {
         </Button>
 
         <Button
-          className="DeleteNode"
+          className="DeleteBlock"
           data-ignore-blur="true"
           onClick={(e) => {
             if (selectedBlockId) {
               handleBlockDelete(selectedBlockId);
+            } else if (useZustandStore.getState().isChekboxSelectionActive) {
+              handleBlockDeleteBatch();
             }
             const button = e.currentTarget;
             button.classList.add("scale-90");
