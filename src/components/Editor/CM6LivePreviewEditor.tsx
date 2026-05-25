@@ -5,6 +5,7 @@ import { Decoration, EditorView, ViewPlugin, ViewUpdate, type DecorationSet } fr
 import { getItem } from "esm-treero-api";
 import log from "loglevel";
 import { memo, useEffect, useMemo, useRef } from "react";
+import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
 
@@ -109,17 +110,28 @@ const markdownTheme = EditorView.theme({
 
 const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: (v: boolean) => void }) => {
   log.debug("CM6LivePreviewEditor", id, charIndex);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const isDestroyingRef = useRef(false);
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 
   useEffect(() => {
+    log.debug("CM6LivePreviewEditor:useEffect");
+    isDestroyingRef.current = false;
+    if (!ref.current) return;
+
+    function onBlur() {
+      log.debug("onBlur isDestroyingRef.current", isDestroyingRef.current);
+      if (!isDestroyingRef.current) {
+        setIsEdit(false);
+      }
+    }
     const ytext = yblock.get("content");
 
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
         sharedTheme,
-        createDomEventHandlers(id, setIsEdit),
+        createDomEventHandlers(id, onBlur),
         createShortcutsKeymap(id, ytext),
         createUpdateListener(ytext),
         EditorView.lineWrapping,
@@ -129,7 +141,9 @@ const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; c
       ],
     });
 
-    const view = new EditorView({ state, parent: editorRef.current! });
+    const view = new EditorView({ state, parent: ref.current });
+
+    useZustandStore.setState({ selectedBlockId: id, editorView: view });
 
     view.focus();
     view.dispatch({
@@ -142,12 +156,17 @@ const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; c
     ytext.observe(ytextObserver);
 
     return () => {
+      log.debug("CM6LivePreviewEditor:useEffect:unmount", id);
+      isDestroyingRef.current = true;
+      if (useZustandStore.getState().selectedBlockId === id) {
+        useZustandStore.setState({ selectedBlockId: null, editorView: null });
+      }
       view.destroy();
       ytext.unobserve(ytextObserver);
     };
   }, []);
 
-  return <div ref={editorRef} />;
+  return <div ref={ref} />;
 });
 
 export default CM6LivePreviewEditor;
