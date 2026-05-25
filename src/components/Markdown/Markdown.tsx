@@ -20,10 +20,20 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
                 border border-gray-400 bg-background opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-500 ease-in-out
                 text-xs"
       onPointerDown={async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await copyToClipboard(textToCopy);
-        toast("Copied", { containerId: "toaster" });
+        if (e.pointerType !== "touch") {
+          e.preventDefault();
+          e.stopPropagation();
+          await copyToClipboard(textToCopy);
+          toast("Copied", { containerId: "toaster" });
+        }
+      }}
+      onPointerUp={async (e) => {
+        if (e.pointerType === "touch") {
+          e.preventDefault();
+          e.stopPropagation();
+          await copyToClipboard(textToCopy);
+          toast("Copied", { containerId: "toaster" });
+        }
       }}
     >
       Copy
