@@ -105,6 +105,7 @@ export default function Page({ rootId }: { rootId: string }) {
               <Block
                 key={item.id}
                 id={item.id}
+                content={item.content}
                 collapsed={item.collapsed}
                 childrenLength={item.children.length}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}

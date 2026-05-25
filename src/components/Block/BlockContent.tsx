@@ -12,7 +12,7 @@ import CM6PlainTextEditor from "../Editor/CM6PlainTextEditor";
 import Markdown from "../Markdown/Markdown";
 import PlainTextContent from "./PlainTextContent";
 
-export default function BlockContent({ id }: { id: string }) {
+export default function BlockContent({ id, content }: { id: string; content: string }) {
   // log.debug("BlockContent");
   const [isEdit, setIsEdit] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
@@ -32,8 +32,8 @@ export default function BlockContent({ id }: { id: string }) {
     }
   }, [focusBlockId, id]);
 
-  const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
-  const content = yblock.get("content").toString();
+  // const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
+  // const content = yblock.get("content").toString();
 
   // log.debug("BlockContent", id, { isEdit });
 

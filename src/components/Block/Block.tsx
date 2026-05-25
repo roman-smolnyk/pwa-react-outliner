@@ -75,6 +75,7 @@ const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; dep
 const BlockInner = memo(
   function BlockInner({
     id,
+    content,
     collapsed,
     childrenLength,
     depth,
@@ -85,6 +86,7 @@ const BlockInner = memo(
     handleProps,
   }: {
     id: string;
+    content: string;
     collapsed: boolean;
     childrenLength: number;
     depth: number;
@@ -132,7 +134,7 @@ const BlockInner = memo(
               {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
               <div className="flex-auto flex min-w-0">
-                <BlockContent id={id} />
+                <BlockContent id={id} content={content} />
               </div>
 
               <BlockOptions id={id} isRoot={isRoot} />
@@ -145,6 +147,7 @@ const BlockInner = memo(
   (prev, next) => {
     return (
       prev.id === next.id &&
+      prev.content === next.content &&
       prev.collapsed === next.collapsed &&
       prev.childrenLength === next.childrenLength &&
       prev.depth === next.depth &&
@@ -160,6 +163,7 @@ BlockInner.displayName = "BlockInner";
 
 export default function Block({
   id,
+  content,
   collapsed,
   childrenLength,
   depth,
@@ -168,6 +172,7 @@ export default function Block({
   isChecked,
 }: {
   id: string;
+  content: string;
   collapsed: boolean;
   childrenLength: number;
   depth: number;
@@ -207,6 +212,7 @@ export default function Block({
   return (
     <BlockInner
       id={id}
+      content={content}
       collapsed={collapsed}
       childrenLength={childrenLength}
       depth={depth}
