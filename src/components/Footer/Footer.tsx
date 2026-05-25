@@ -30,7 +30,7 @@ import {
 import useZustandStore from "../../store/useZustandStore";
 import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
-import { makeBold } from "../Editor/CM6Common";
+import { addHeading, toggleInlineFormatting } from "../Editor/CM6Common";
 
 export default function Footer() {
   log.debug("Footer");
@@ -137,8 +137,32 @@ export default function Footer() {
           </Button> */}
 
         {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
-        <IconedButton>
-          <LucideIcon icon={<HeadingIcon className="text-warning" />} />
+        <IconedButton
+          className="AddHeading"
+          data-ignore-blur="true"
+          onPointerDown={(e) => {
+            log.debug("onPointerDown", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType !== "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              if (selectedBlockId && editorView) {
+                addHeading(editorView);
+              }
+            }
+          }}
+          onPointerUpCapture={(e) => {
+            log.debug("onPointerUpCapture", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType === "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              log.debug("onPointerUpCapture", selectedBlockId, editorView);
+              if (selectedBlockId && editorView) {
+                addHeading(editorView);
+              }
+            }
+          }}
+        >
+          <LucideIcon icon={<HeadingIcon className="" />} />
         </IconedButton>
 
         <IconedButton
@@ -150,7 +174,7 @@ export default function Footer() {
             if (e.pointerType !== "touch") {
               const { selectedBlockId, editorView } = useZustandStore.getState();
               if (selectedBlockId && editorView) {
-                makeBold(editorView);
+                toggleInlineFormatting(editorView, "**");
               }
             }
           }}
@@ -161,7 +185,7 @@ export default function Footer() {
               const { selectedBlockId, editorView } = useZustandStore.getState();
               log.debug("onPointerUpCapture", selectedBlockId, editorView);
               if (selectedBlockId && editorView) {
-                makeBold(editorView);
+                toggleInlineFormatting(editorView, "**");
               }
             }
           }}
@@ -169,16 +193,88 @@ export default function Footer() {
           <LucideIcon icon={<BoldIcon className="" />} />
         </IconedButton>
 
-        <IconedButton>
-          <LucideIcon icon={<ItalicIcon className="text-warning" />} />
+        <IconedButton
+          className="MakeItalic"
+          data-ignore-blur="true"
+          onPointerDown={(e) => {
+            log.debug("onPointerDown", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType !== "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "_");
+              }
+            }
+          }}
+          onPointerUpCapture={(e) => {
+            log.debug("onPointerUpCapture", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType === "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              log.debug("onPointerUpCapture", selectedBlockId, editorView);
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "_");
+              }
+            }
+          }}
+        >
+          <LucideIcon icon={<ItalicIcon className="" />} />
         </IconedButton>
 
-        <IconedButton>
-          <LucideIcon icon={<StrikethroughIcon className="text-warning" />} />
+        <IconedButton
+          className="MakeStrike"
+          data-ignore-blur="true"
+          onPointerDown={(e) => {
+            log.debug("onPointerDown", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType !== "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "~~");
+              }
+            }
+          }}
+          onPointerUpCapture={(e) => {
+            log.debug("onPointerUpCapture", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType === "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              log.debug("onPointerUpCapture", selectedBlockId, editorView);
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "~~");
+              }
+            }
+          }}
+        >
+          <LucideIcon icon={<StrikethroughIcon className="" />} />
         </IconedButton>
 
-        <IconedButton>
-          <LucideIcon icon={<Code2Icon className="text-warning" />} />
+        <IconedButton
+          className="MakeCode"
+          data-ignore-blur="true"
+          onPointerDown={(e) => {
+            log.debug("onPointerDown", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType !== "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "```\n");
+              }
+            }
+          }}
+          onPointerUpCapture={(e) => {
+            log.debug("onPointerUpCapture", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType === "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              log.debug("onPointerUpCapture", selectedBlockId, editorView);
+              if (selectedBlockId && editorView) {
+                toggleInlineFormatting(editorView, "```\n");
+              }
+            }
+          }}
+        >
+          <LucideIcon icon={<Code2Icon className="" />} />
         </IconedButton>
 
         <IconedButton>

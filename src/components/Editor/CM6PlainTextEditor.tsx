@@ -9,19 +9,29 @@ import useZustandStore from "../../store/useZustandStore";
 
 const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: (v: boolean) => void }) => {
   log.debug("CM6PlainTextEditor", id, charIndex);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const isDestroyingRef = useRef(false);
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 
   useEffect(() => {
     log.debug("CM6PlainTextEditor:useEffect");
-    if (!editorRef.current) return
+    isDestroyingRef.current = false;
+    if (!ref.current) return;
+
+    function onBlur() {
+      log.debug("onBlur isDestroyingRef.current", isDestroyingRef.current);
+      if (!isDestroyingRef.current) {
+        setIsEdit(false);
+      }
+    }
+
     const ytext = yblock.get("content");
 
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
         sharedTheme,
-        createDomEventHandlers(id, setIsEdit),
+        createDomEventHandlers(id, onBlur),
         createShortcutsKeymap(id, ytext),
         createUpdateListener(ytext),
         EditorView.lineWrapping,
@@ -29,10 +39,9 @@ const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; cha
       ],
     });
 
-    const view = new EditorView({ state, parent: editorRef.current });
+    const view = new EditorView({ state, parent: ref.current });
 
     useZustandStore.setState({ selectedBlockId: id, editorView: view });
-    // setIsEdit(true);
 
     view.focus();
     view.dispatch({
@@ -45,13 +54,17 @@ const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; cha
     ytext.observe(ytextObserver);
 
     return () => {
-      log.debug("CM6PlainTextEditor:useEffect:unmount");
+      log.debug("CM6PlainTextEditor:useEffect:unmount", id);
+      isDestroyingRef.current = true;
+      if (useZustandStore.getState().selectedBlockId === id) {
+        useZustandStore.setState({ selectedBlockId: null, editorView: null });
+      }
       view.destroy();
       ytext.unobserve(ytextObserver);
     };
   }, []);
 
-  return <div ref={editorRef} />;
+  return <div ref={ref} />;
 });
 
 export default CM6PlainTextEditor;

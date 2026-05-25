@@ -16,60 +16,166 @@ import {
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 
-export function makeBold(view: EditorView) {
-  log.debug("makeBold");
+export function toggleInlineFormatting(view: EditorView, syntax: string): boolean {
+  log.debug(`toggleInlineFormatting: ${syntax}`);
   const { main } = view.state.selection;
+  const len = syntax.length;
 
+  // Case 1: No text selected
   if (main.empty) {
-    // Case 1: Cursor is empty -> Insert **** and put cursor in the middle
+    const pos = main.from;
+
+    const leftChars = view.state.doc.sliceString(Math.max(0, pos - len), pos);
+    const rightChars = view.state.doc.sliceString(pos, Math.min(view.state.doc.length, pos + len));
+
+    // If already wrapped in syntax (e.g., **|**), remove them
+    if (leftChars === syntax && rightChars === syntax) {
+      view.dispatch({
+        changes: { from: pos - len, to: pos + len, insert: "" },
+        selection: EditorSelection.cursor(pos - len),
+        scrollIntoView: true,
+      });
+      return true;
+    }
+
+    // Default: Insert syntax twice (e.g., ****) and put cursor in the middle
     view.dispatch({
-      changes: { from: main.from, insert: "****" },
-      selection: EditorSelection.cursor(main.from + 2),
+      changes: { from: pos, insert: syntax + syntax },
+      selection: EditorSelection.cursor(pos + len),
       scrollIntoView: true,
     });
     return true;
   }
 
-  // Case 2: Text is selected -> Check if it's already bolded
-  const from = main.from;
-  const to = main.to;
+  // Case 2: Text is selected
+  const { from, to } = main;
 
-  // Fetch the characters immediately outside the selection bounds
-  const leftChars = view.state.doc.sliceString(Math.max(0, from - 2), from);
-  const rightChars = view.state.doc.sliceString(to, Math.min(view.state.doc.length, to + 2));
+  const leftChars = view.state.doc.sliceString(Math.max(0, from - len), from);
+  const rightChars = view.state.doc.sliceString(to, Math.min(view.state.doc.length, to + len));
 
-  // Fetch the characters inside the edge of the selection bounds
-  const insideLeftChars = view.state.doc.sliceString(from, from + 2);
-  const insideRightChars = view.state.doc.sliceString(to - 2, to);
+  const insideLeftChars = view.state.doc.sliceString(from, from + len);
+  const insideRightChars = view.state.doc.sliceString(to - len, to);
 
-  // Scenario A: Selection is strictly INSIDE asterisks -> **|text|**
-  if (leftChars === "**" && rightChars === "**") {
+  // Scenario A: Selection is strictly INSIDE syntax -> **|text|**
+  if (leftChars === syntax && rightChars === syntax) {
     const selectedText = view.state.doc.sliceString(from, to);
     view.dispatch({
-      // Target the asterisks outside the selection to remove them
-      changes: { from: from - 2, to: to + 2, insert: selectedText },
-      selection: EditorSelection.range(from - 2, to - 2),
+      changes: { from: from - len, to: to + len, insert: selectedText },
+      selection: EditorSelection.range(from - len, to - len),
       scrollIntoView: true,
     });
   }
-  // Scenario B: Selection INCLUDES the asterisks -> |**text**|
-  else if (insideLeftChars === "**" && insideRightChars === "**" && to - from >= 4) {
-    const cleanText = view.state.doc.sliceString(from + 2, to - 2);
+  // Scenario B: Selection INCLUDES the syntax -> |**text**|
+  // Note: Selection must be long enough to actually contain the characters (len * 2)
+  else if (insideLeftChars === syntax && insideRightChars === syntax && to - from >= len * 2) {
+    const cleanText = view.state.doc.sliceString(from + len, to - len);
     view.dispatch({
       changes: { from: from, to: to, insert: cleanText },
-      selection: EditorSelection.range(from, to - 4),
+      selection: EditorSelection.range(from, to - len * 2),
       scrollIntoView: true,
     });
   }
-  // Scenario C: Text is not bolded yet -> Wrap it -> **text**
+  // Scenario C: Text is not formatted yet -> Wrap it -> **text**
   else {
     const selectedText = view.state.doc.sliceString(from, to);
     view.dispatch({
-      changes: { from: from, to: to, insert: `**${selectedText}**` },
-      selection: EditorSelection.range(from, to + 4),
+      changes: { from: from, to: to, insert: `${syntax}${selectedText}${syntax}` },
+      selection: EditorSelection.range(from, to + len * 2),
       scrollIntoView: true,
     });
   }
+
+  return true;
+}
+
+export function addHeading(view: EditorView) {
+  log.debug("addHeading");
+  const { main } = view.state.selection;
+  const pos = main.from;
+  const line = view.state.doc.lineAt(pos);
+
+  // Case 1: No text selected
+  if (main.empty) {
+    const textBeforeCursor = line.text.slice(0, pos - line.from);
+    const trailingHeadingMatch = textBeforeCursor.match(/(#+)\s*$/);
+
+    if (trailingHeadingMatch) {
+      const existingHashes = trailingHeadingMatch[1];
+      const matchLength = trailingHeadingMatch[0].length;
+      const targetFrom = pos - matchLength;
+
+      const nextInsert = existingHashes.length >= 6 ? "# " : "#" + existingHashes + " ";
+
+      view.dispatch({
+        changes: { from: targetFrom, to: pos, insert: nextInsert },
+        selection: EditorSelection.cursor(targetFrom + nextInsert.length),
+        scrollIntoView: true,
+      });
+      return true;
+    }
+
+    view.dispatch({
+      changes: { from: pos, insert: "# " },
+      selection: EditorSelection.cursor(pos + 2),
+      scrollIntoView: true,
+    });
+    return true;
+  }
+
+  // Case 2: Text is selected
+  const from = main.from;
+  const to = main.to;
+
+  // 1. Check if the selection ITSELF starts with hashes (e.g., |# Selection|)
+  const selectedText = view.state.doc.sliceString(from, to);
+  const internalMatch = selectedText.match(/^(#+)\s*/);
+
+  if (internalMatch) {
+    const existingHashes = internalMatch[1];
+    const charsToReplace = internalMatch[0].length;
+    const cleanTextBody = selectedText.slice(charsToReplace);
+
+    const newHeadingPrefix = existingHashes.length >= 6 ? "# " : "#" + existingHashes + " ";
+    const finalInsertedText = newHeadingPrefix + cleanTextBody;
+
+    view.dispatch({
+      changes: { from: from, to: to, insert: finalInsertedText },
+      selection: EditorSelection.range(from, from + finalInsertedText.length),
+      scrollIntoView: true,
+    });
+    return true;
+  }
+
+  // 2. NEW FIX: Check if hashes exist directly BEFORE the selection (e.g., # |Selection|)
+  const textBeforeSelection = line.text.slice(0, from - line.from);
+  const externalMatch = textBeforeSelection.match(/(#+)\s*$/);
+
+  if (externalMatch) {
+    const existingHashes = externalMatch[1];
+    const matchLength = externalMatch[0].length;
+    // Determine where the external hashes start on the line
+    const targetFrom = from - matchLength;
+
+    // Cycle condition: if 6, cycle back to 1. Otherwise, increment.
+    const newHeadingPrefix = existingHashes.length >= 6 ? "# " : "#" + existingHashes + " ";
+
+    view.dispatch({
+      // Replace from the start of the external hashes up to the end of your selection
+      changes: { from: targetFrom, to: to, insert: newHeadingPrefix + selectedText },
+      // Recalculate your selection bounds so it covers the modified text block perfectly
+      selection: EditorSelection.range(targetFrom, targetFrom + newHeadingPrefix.length + selectedText.length),
+      scrollIntoView: true,
+    });
+    return true;
+  }
+
+  // 3. Fallback: No hashes found inside or outside the selection -> Simply prepend "# "
+  const finalInsertedText = "# " + selectedText;
+  view.dispatch({
+    changes: { from: from, to: to, insert: finalInsertedText },
+    selection: EditorSelection.range(from, from + finalInsertedText.length),
+    scrollIntoView: true,
+  });
 
   return true;
 }
@@ -81,19 +187,21 @@ export function resolveIndex(index: number, docLength: number): number {
   return Math.min(index, docLength);
 }
 
-export function createDomEventHandlers(id: string, setIsEdit: (v: boolean) => void) {
+export function createDomEventHandlers(id: string, onBlur: () => void) {
   return EditorView.domEventHandlers({
     blur: (event: FocusEvent, view: EditorView) => {
       const relatedTarget = event.relatedTarget as HTMLElement | null;
-      log.debug("CM6:blur", id, relatedTarget);
+      log.debug("CM6:blur", id);
 
       // if (!document.hasFocus()) return; TODO: regain focus when document in view again
 
       if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
+        log.debug("CM6:blur relatedTarget", relatedTarget);
         event.preventDefault();
         if (relatedTarget.classList.contains("AddBlock")) {
           setTimeout(() => {
-            setIsEdit(false);
+            onBlur();
+            // setIsEdit(false);
           }, 200);
         } else if (relatedTarget.classList.contains("MoveBlockDown")) {
           requestAnimationFrame(() => {
@@ -116,10 +224,12 @@ export function createDomEventHandlers(id: string, setIsEdit: (v: boolean) => vo
         return true;
       }
 
-      if (useZustandStore.getState().selectedBlockId === id) {
-        useZustandStore.setState({ selectedBlockId: null, editorView: null });
-      }
-      setIsEdit(false);
+      onBlur();
+
+      // if (useZustandStore.getState().selectedBlockId === id) {
+      //   // useZustandStore.setState({ selectedBlockId: null, editorView: null });
+      //   setIsEdit(false);
+      // }
     },
 
     focus: (event: FocusEvent, view: EditorView) => {
@@ -259,10 +369,39 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       },
     },
     {
-      key: "Mod-b",
-      run: makeBold,
+      key: "Mod-h",
+      run: addHeading,
       preventDefault: true,
     },
+    {
+      key: "Mod-b",
+      run: (view) => {
+        return toggleInlineFormatting(view, "**");
+      },
+      preventDefault: true,
+    },
+    {
+      key: "Mod-i",
+      run: (view) => {
+        return toggleInlineFormatting(view, "_");
+      },
+      preventDefault: true,
+    },
+    {
+      key: "Mod-s",
+      run: (view) => {
+        return toggleInlineFormatting(view, "~~");
+      },
+      preventDefault: true,
+    },
+    {
+      key: "Mod-`",
+      run: (view) => {
+        return toggleInlineFormatting(view, "```\n");
+      },
+      preventDefault: true,
+    },
+
     ...defaultKeymap,
   ]);
 }

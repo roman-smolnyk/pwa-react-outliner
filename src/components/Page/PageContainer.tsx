@@ -7,7 +7,7 @@ import BlockPath from "../Block/BlockPath";
 import Page from "./Page";
 
 export default function PageContainer() {
-  log.debug("PageContainer");
+  // log.debug("PageContainer");
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
 

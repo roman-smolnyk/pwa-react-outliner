@@ -95,7 +95,7 @@ const BlockInner = memo(
     handleProps: any;
     // TODO: Add types
   }) {
-    log.debug("BlockInner", id);
+    // log.debug("BlockInner", id);
     const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
     if (isRoot) depth = 1;

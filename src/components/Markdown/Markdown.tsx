@@ -19,7 +19,7 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
       className="CopyCodeButton absolute top-1 right-1 px-2 p-0.5 z-1 rounded cursor-pointer
                 border border-gray-400 bg-background opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-500 ease-in-out
                 text-xs"
-      onClick={async (e) => {
+      onPointerDown={async (e) => {
         e.preventDefault();
         e.stopPropagation();
         await copyToClipboard(textToCopy);
