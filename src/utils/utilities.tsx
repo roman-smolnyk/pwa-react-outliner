@@ -99,7 +99,7 @@ export function flattenAndFilterYTree<T extends YBlocksMap | YExplorerMap>(
     //   } else if (value instanceof Y.Array) {
     //     item[key] = value.toArray();
     //   } else if (value && typeof (value as any).toJSON === "function") {
-    //     console.debug("WHYYYY???", key, value);
+    //     log.debug("WHYYYY???", key, value);
     //     item[key] = (value as any).toJSON();
     //   } else {
     //     item[key] = value;

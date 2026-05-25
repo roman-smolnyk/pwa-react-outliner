@@ -13,6 +13,7 @@ import {
   PencilIcon,
   PencilOffIcon,
   RedoIcon,
+  RefreshCwIcon,
   RotateCwIcon,
   SearchIcon,
   SunIcon,
@@ -25,7 +26,7 @@ import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { useTheme } from "../../hooks/theme";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
 import MainMenu from "../MainMenu/MainMenu";
 
@@ -57,37 +58,37 @@ export default function Header() {
       <div className="flex-1 flex min-w-0">
         <div className="mr-4 flex">
           {!isExplorerOpened && (
-            <Button
+            <IconedButton
               title="Open Explorer"
               onClick={() => {
                 useZustandStore.getState().expandExplorer();
               }}
             >
               <LucideIcon icon={<PanelLeftIcon />} />
-            </Button>
+            </IconedButton>
           )}
         </div>
 
         <div className="flex-1 min-w-0 overflow-x-auto flex">
           <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">
-            <Button
+            <IconedButton
               title="Undo"
               onClick={() => {
                 yjs.undoManager?.undo();
               }}
             >
               <LucideIcon icon={<UndoIcon />} />
-            </Button>
-            <Button
+            </IconedButton>
+            <IconedButton
               title="Redo"
               onClick={() => {
                 yjs.undoManager?.redo();
               }}
             >
               <LucideIcon icon={<RedoIcon />} />
-            </Button>
+            </IconedButton>
             {/* <div className="Spacer"></div> */}
-            <Button
+            <IconedButton
               title="Reload"
               onClick={(event) => {
                 event.currentTarget.classList.add("animate-spin");
@@ -95,26 +96,27 @@ export default function Header() {
               }}
             >
               <LucideIcon icon={<RotateCwIcon />} />
-            </Button>
+            </IconedButton>
           </div>
 
           <div className="Spacer flex-1 min-w-4" />
 
           <div className="RightIcons flex gap-4 sm:gap-2">
-            <Button
+            <IconedButton
               title={`WebSocket: ${webSocketConnectionStatus}`}
               onClick={() => {
                 toast(`WebSocket status: '${webSocketConnectionStatus}'`, { containerId: "toaster" });
               }}
             >
-              {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />}
+              {/* {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />} */}
+              {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<RefreshCwIcon className="animate-spin" />} />}
               {webSocketConnectionStatus === "connected" && <LucideIcon icon={<CloudCheckIcon />} />}
               {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
               {webSocketConnectionStatus === "disconnected" && <LucideIcon icon={<CloudAlertIcon />} />}
-              {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />}
-            </Button>
+              {/* {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />} */}
+            </IconedButton>
 
-            <Button
+            <IconedButton
               title={`Theme: ${theme}`}
               onClick={() => {
                 log.debug("theme", theme);
@@ -128,9 +130,9 @@ export default function Header() {
               }}
             >
               <LucideIcon icon={theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />} />
-            </Button>
+            </IconedButton>
 
-            <Button
+            <IconedButton
               title="Toggle checkboxes selection"
               className=""
               onClick={() => {
@@ -138,9 +140,9 @@ export default function Header() {
               }}
             >
               <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
-            </Button>
+            </IconedButton>
 
-            <Button
+            <IconedButton
               title="Cycle through content view modes: Source, Markdown, Live Preview."
               onClick={() => {
                 if (contentViewMode === "source") {
@@ -156,13 +158,13 @@ export default function Header() {
               <LucideIcon
                 icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
               />
-            </Button>
+            </IconedButton>
 
-            <Button title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>
+            <IconedButton title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>
               <LucideIcon icon={readOnly ? <PencilOffIcon /> : <PencilIcon />} />
-            </Button>
+            </IconedButton>
 
-            <Button
+            <IconedButton
               title="Search in page"
               className=""
               onClick={() => {
@@ -170,7 +172,7 @@ export default function Header() {
               }}
             >
               <LucideIcon icon={<SearchIcon />} />
-            </Button>
+            </IconedButton>
           </div>
         </div>
 

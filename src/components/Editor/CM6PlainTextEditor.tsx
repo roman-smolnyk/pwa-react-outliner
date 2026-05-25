@@ -5,13 +5,16 @@ import log from "loglevel";
 import { memo, useEffect, useMemo, useRef } from "react";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
+import useZustandStore from "../../store/useZustandStore";
 
-const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
+const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: (v: boolean) => void }) => {
   log.debug("CM6PlainTextEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
 
   useEffect(() => {
+    log.debug("CM6PlainTextEditor:useEffect");
+    if (!editorRef.current) return
     const ytext = yblock.get("content");
 
     const state = EditorState.create({
@@ -26,7 +29,10 @@ const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; cha
       ],
     });
 
-    const view = new EditorView({ state, parent: editorRef.current! });
+    const view = new EditorView({ state, parent: editorRef.current });
+
+    useZustandStore.setState({ selectedBlockId: id, editorView: view });
+    // setIsEdit(true);
 
     view.focus();
     view.dispatch({
@@ -39,6 +45,7 @@ const CM6PlainTextEditor = memo(({ id, charIndex, setIsEdit }: { id: string; cha
     ytext.observe(ytextObserver);
 
     return () => {
+      log.debug("CM6PlainTextEditor:useEffect:unmount");
       view.destroy();
       ytext.unobserve(ytextObserver);
     };

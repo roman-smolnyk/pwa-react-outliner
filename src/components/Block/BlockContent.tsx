@@ -1,4 +1,5 @@
 import { getItem } from "esm-treero-api";
+import log from "loglevel";
 import { useEffect, useMemo, useState } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
@@ -33,6 +34,8 @@ export default function BlockContent({ id }: { id: string }) {
 
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
   const content = yblock.get("content").toString();
+
+  // log.debug("BlockContent", id, { isEdit });
 
   return (
     <div className={`BlockContent w-full ${isEdit ? "bg-muted" : ""}`}>

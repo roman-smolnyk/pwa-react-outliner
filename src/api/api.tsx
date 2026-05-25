@@ -17,6 +17,7 @@ import {
   moveItemBefore,
   type YBlockMap,
 } from "esm-treero-api";
+import { debounce } from "lodash";
 import log from "loglevel";
 import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
@@ -31,14 +32,14 @@ export function generateRoomToken(): string {
 export async function login(webSocketServerUrl: string, roomToken: string) {
   log.debug(`login`, webSocketServerUrl, roomToken);
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
-  useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, isNewAccount: false });
+  useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: false });
 }
 
 export async function register(webSocketServerUrl: string) {
   log.debug(`register`, webSocketServerUrl);
   const newRoomToken = generateRoomToken();
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
-  useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, isNewAccount: true });
+  useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: true });
 }
 
 export async function logout() {
@@ -50,6 +51,45 @@ export async function clearAllData() {
   // await localPreferencesManager.clearNamespace();
   await localPreferencesManager.clear();
   await yjs.idbPersistence?.clearData();
+}
+
+export async function setWebSocketServer({
+  isWebSocketServerOn,
+  webSocketServerUrl,
+}: {
+  isWebSocketServerOn?: boolean;
+  webSocketServerUrl?: string;
+}) {
+  log.debug(`setWebSocket`, isWebSocketServerOn, webSocketServerUrl);
+  if (webSocketServerUrl !== undefined) {
+    await localPreferencesManager.set("webSocketServerUrl", webSocketServerUrl);
+    useZustandStore.setState({ webSocketServerUrl: webSocketServerUrl });
+    yjs.addWebsocketProvider(webSocketServerUrl, useZustandStore.getState().roomToken, { connect: useZustandStore.getState().isWebSocketServerOn });
+    listenWebSocketStatus();
+  }
+  if (isWebSocketServerOn !== undefined) {
+    await localPreferencesManager.set("isWebSocketServerOn", isWebSocketServerOn);
+    useZustandStore.setState({ isWebSocketServerOn: isWebSocketServerOn });
+    if (isWebSocketServerOn) {
+      yjs.wsProvider?.connect();
+    } else {
+      yjs.wsProvider?.disconnect();
+    }
+  }
+}
+export const debouncedSetWebSocketServer = debounce(setWebSocketServer, 500);
+
+export async function listenWebSocketStatus() {
+  yjs.wsProvider?.on("status", (e) => {
+    log.debug("WebsocketProvider status", e.status);
+    if (e.status === "connecting") {
+      useZustandStore.setState({ webSocketConnectionStatus: "connecting" });
+    } else if (e.status === "connected") {
+      useZustandStore.setState({ webSocketConnectionStatus: "connected" });
+    } else if (e.status === "disconnected") {
+      useZustandStore.setState({ webSocketConnectionStatus: "disconnected" });
+    }
+  });
 }
 
 export function selectBlock(id: string, caretCharIndex: number) {
@@ -147,13 +187,16 @@ export function handleBlockMoveUp(id: string) {
 }
 
 export function handleBlockMoveDown(id: string) {
+  log.debug("handleBlockMoveDown")
   if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
   const ysibling = getItemSibling(yjs.yblocks, id, 1);
   if (ysibling) {
-    moveItemAfter(yjs.ydoc, yjs.yblocks, id, ysibling.get("id"));
+    yjs.ydoc.transact(() => {
+      moveItemAfter(yjs.ydoc, yjs.yblocks, id, ysibling.get("id"));
+    });
   }
 }
 
@@ -275,12 +318,15 @@ export function handleBlockMoveBatch(parentId: string, indexInParent: number) {
   const sortedIds = flattenedItems.map((item) => item.id).filter((itemId) => checkedParentBlockIds.has(itemId));
 
   yjs.ydoc.transact(() => {
-    let index = indexInParent;
-    for (const id of sortedIds) {
-      moveItem(yjs.ydoc, yjs.yblocks, id, parentId, index);
-      index++;
+    let prevId = sortedIds[0];
+    if (prevId) {
+      moveItem(yjs.ydoc, yjs.yblocks, prevId, parentId, indexInParent);
+      for (const id of sortedIds.slice(1)) {
+        moveItemAfter(yjs.ydoc, yjs.yblocks, id, prevId);
+        prevId = id;
+      }
+      getItem(yjs.yblocks, parentId).set("collapsed", false);
     }
-    getItem(yjs.yblocks, parentId).set("collapsed", false);
   });
 }
 

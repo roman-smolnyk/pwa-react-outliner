@@ -7,7 +7,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
-import Button from "../Common/Button.tsx";
+import IconedButton from "../Common/IconedButton.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
@@ -31,7 +31,7 @@ function HandleButton({
   onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <Button
+    <IconedButton
       className="HandleButton [&_svg]:size-5! active:*:scale-100!"
       {...attributes}
       {...listeners}
@@ -50,7 +50,7 @@ function HandleButton({
           <FolderIcon />
         )}
       </LucideIcon>
-    </Button>
+    </IconedButton>
   );
 
   // return (

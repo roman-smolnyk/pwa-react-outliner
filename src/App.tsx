@@ -23,8 +23,10 @@ function App() {
   const isAuthorized = useZustandStore((s) => s.isAuthorized);
 
   useEffect(() => {
-    hydrateZustandStateWithPreferences();
-  }, []);
+    if (!isHydrated) {
+      hydrateZustandStateWithPreferences();
+    }
+  }, [isHydrated]);
 
   log.debug("isHydrated", isHydrated);
   if (!isHydrated) {
@@ -50,7 +52,7 @@ function App() {
             limit={3}
             style={{ top: 60 }}
             toastClassName={(context) => {
-              log.debug("context", context);
+              // log.debug("context", context);
               return `max-w-xs min-w-3xs min-h-0 
                       px-4 py-2.5 mb-2 mr-3 
                       bg-card text-card-foreground text-sm 

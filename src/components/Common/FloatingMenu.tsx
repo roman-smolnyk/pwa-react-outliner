@@ -1,7 +1,7 @@
 import { autoUpdate, flip, FloatingPortal, offset, shift, useClick, useDismiss, useFloating, useInteractions, useRole } from "@floating-ui/react";
 import type { Placement } from "@floating-ui/react-dom";
 import React, { useState } from "react";
-import Button from "./Button";
+import IconedButton from "./IconedButton";
 import LucideIcon from "./LucideIcon";
 import { EllipsisVerticalIcon } from "lucide-react";
 
@@ -36,9 +36,9 @@ export default function FloatingMenu({
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
   const defaultTrigger = (
-    <Button className={className} {...props}>
+    <IconedButton className={className} {...props}>
       <LucideIcon icon={<EllipsisVerticalIcon />} />
-    </Button>
+    </IconedButton>
   );
 
   const triggerToRender = trigger || defaultTrigger;

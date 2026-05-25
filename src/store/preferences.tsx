@@ -5,6 +5,7 @@ type StorageSchema = {
   roomToken: string;
   isAuthorized: boolean;
   rootBlockId: string;
+  isWebSocketServerOn: boolean;
   webSocketServerUrl: string;
   theme: "system" | "light" | "dark";
 };
@@ -13,6 +14,7 @@ const defaultValues: StorageSchema = {
   roomToken: "",
   isAuthorized: false,
   rootBlockId: "",
+  isWebSocketServerOn: true,
   webSocketServerUrl: WS_SERVER_URL,
   theme: "system",
 };

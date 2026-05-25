@@ -25,18 +25,24 @@ export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
       const debouncedUpdate = debounce(update, 500);
 
       function observerCallback(events: any) {
+        let shouldDebounce = false;
         for (const event of events) {
+          // log.debug("event", event);
           if (event.target instanceof Y.Text) {
-            // log.debug("event", event);
             if (useZustandStore.getState().selectedBlockId) {
-              debouncedUpdate();
-              // update();
+              shouldDebounce = true;
+              // debouncedUpdate();
             } else {
-              update();
+              // update();
             }
           } else {
-            update();
+            // update();
           }
+        }
+        if (shouldDebounce) {
+          debouncedUpdate();
+        } else {
+          update();
         }
       }
 

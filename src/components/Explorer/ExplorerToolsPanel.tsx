@@ -5,7 +5,7 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { handleCollectionAdd, handlePageAdd } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
@@ -29,46 +29,46 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
       <div className="flex-1 flex items-center">
         {/* Left icons */}
         <div className="mr-3 flex items-center gap-3 sm:gap-2">
-          <Button
+          <IconedButton
             onClick={() => {
               useZustandStore.getState().collapseExplorer();
               // explorerPanelRef.current?.collapse();
             }}
           >
             <LucideIcon icon={<PanelLeftCloseIcon />} />
-          </Button>
+          </IconedButton>
         </div>
 
         <div className="Spacer flex-1"></div>
 
         {/* Right icons */}
         <div className="flex items-center gap-3 sm:gap-2">
-          <Button
+          <IconedButton
             title="Add File"
             onClick={() => {
               handlePageAdd(getRootCollectionId(yjs.yaccount));
             }}
           >
             <LucideIcon icon={<FilePlusIcon />} />
-          </Button>
+          </IconedButton>
 
-          <Button
+          <IconedButton
             title="Add Folder"
             onClick={() => {
               handleCollectionAdd(getRootCollectionId(yjs.yaccount));
             }}
           >
             <LucideIcon icon={<FolderPlusIcon />} />
-          </Button>
+          </IconedButton>
 
-          <Button
+          <IconedButton
             title="Global Search"
             onClick={() => {
               useZustandStore.setState({ isGlobalSearchOpened: true });
             }}
           >
             <LucideIcon icon={<SearchIcon />} />
-          </Button>
+          </IconedButton>
         </div>
       </div>
       {isGlobalSearchOpened && createPortal(<GlobalSearch />, document.getElementById("root")!)}

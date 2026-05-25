@@ -3,7 +3,7 @@ import { syntaxTree } from "@codemirror/language";
 import { EditorSelection, EditorState, RangeSetBuilder } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, ViewUpdate, type DecorationSet } from "@codemirror/view";
 import { getItem } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { memo, useEffect, useMemo, useRef } from "react";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
@@ -107,7 +107,7 @@ const markdownTheme = EditorView.theme({
 
 // ─── component ───────────────────────────────────────────────────────────────
 
-const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: CallableFunction }) => {
+const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: (v: boolean) => void }) => {
   log.debug("CM6LivePreviewEditor", id, charIndex);
   const editorRef = useRef<HTMLDivElement>(null);
   const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);

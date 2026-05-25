@@ -11,6 +11,7 @@ import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
 import Spinner from "./Spinner";
+import { Settings } from "../Settings/Settings";
 
 function useSetupHotkeys() {
   useHotkeys(
@@ -129,6 +130,8 @@ export default function Main() {
           </div>
         </Panel>
       </Group>
+
+      <Settings />
 
       <Footer />
     </div>

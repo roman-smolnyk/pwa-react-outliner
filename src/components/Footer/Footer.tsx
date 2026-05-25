@@ -28,8 +28,9 @@ import {
   handleBlockOutdent,
 } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
+import { makeBold } from "../Editor/CM6Common";
 
 export default function Footer() {
   log.debug("Footer");
@@ -56,7 +57,7 @@ export default function Footer() {
                   overflow-x-auto
                   flex gap-4 sm:gap-2 items-center justify-start sm:justify-center"
       >
-        <Button
+        <IconedButton
           title="Add block"
           className="AddBlock"
           data-ignore-blur="true"
@@ -69,9 +70,9 @@ export default function Footer() {
         >
           {/* <SquarePlusIcon /> */}
           <LucideIcon icon={<DiamondPlusIcon />} />
-        </Button>
+        </IconedButton>
 
-        <Button
+        <IconedButton
           title="Outdent"
           data-ignore-blur="true"
           onClick={(e) => {
@@ -79,9 +80,9 @@ export default function Footer() {
           }}
         >
           <LucideIcon icon={<ArrowLeftToLineIcon />} />
-        </Button>
+        </IconedButton>
 
-        <Button
+        <IconedButton
           title="Indent"
           data-ignore-blur="true"
           onClick={(e) => {
@@ -89,9 +90,9 @@ export default function Footer() {
           }}
         >
           <LucideIcon icon={<ArrowRightToLineIcon />} />
-        </Button>
+        </IconedButton>
 
-        <Button
+        <IconedButton
           title="Move Up"
           data-ignore-blur="true"
           onClick={(e) => {
@@ -99,9 +100,9 @@ export default function Footer() {
           }}
         >
           <LucideIcon icon={<ArrowUpIcon />} />
-        </Button>
+        </IconedButton>
 
-        <Button
+        <IconedButton
           title="Move Down"
           className="MoveBlockDown"
           data-ignore-blur="true"
@@ -110,9 +111,9 @@ export default function Footer() {
           }}
         >
           <LucideIcon icon={<ArrowDownIcon />} />
-        </Button>
+        </IconedButton>
 
-        <Button
+        <IconedButton
           className="DeleteBlock"
           data-ignore-blur="true"
           onClick={(e) => {
@@ -129,52 +130,76 @@ export default function Footer() {
           }}
         >
           <LucideIcon icon={<Trash2Icon />} />
-        </Button>
+        </IconedButton>
 
         {/* <Button className="text-warning">
             <MoveIcon />
           </Button> */}
 
         {/* TODO: Increment existing `# ` on each click(cicle) -> `## ` */}
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<HeadingIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
-          <LucideIcon icon={<BoldIcon className="text-warning" />} />
-        </Button>
+        <IconedButton
+          className="MakeBold"
+          data-ignore-blur="true"
+          onPointerDown={(e) => {
+            log.debug("onPointerDown", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType !== "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              if (selectedBlockId && editorView) {
+                makeBold(editorView);
+              }
+            }
+          }}
+          onPointerUpCapture={(e) => {
+            log.debug("onPointerUpCapture", e.pointerType);
+            e.preventDefault();
+            if (e.pointerType === "touch") {
+              const { selectedBlockId, editorView } = useZustandStore.getState();
+              log.debug("onPointerUpCapture", selectedBlockId, editorView);
+              if (selectedBlockId && editorView) {
+                makeBold(editorView);
+              }
+            }
+          }}
+        >
+          <LucideIcon icon={<BoldIcon className="" />} />
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<ItalicIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<StrikethroughIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<Code2Icon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<BracketsIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<HighlighterIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<TableIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<QuoteIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
-        <Button>
+        <IconedButton>
           <LucideIcon icon={<SigmaIcon className="text-warning" />} />
-        </Button>
+        </IconedButton>
 
         {/* <Button className="text-warning">
             <LucideIcon icon={<CalendarDays />} />

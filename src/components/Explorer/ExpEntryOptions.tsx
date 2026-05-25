@@ -4,7 +4,7 @@ import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageD
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
 import LucideIcon from "../Common/LucideIcon";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 
 export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; type: number; setIsEdit: (v: boolean) => void }) {
   return (
@@ -13,9 +13,9 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
         // <button className="flex-none w-5 h-7 sm:w-4 sm:h-6 cursor-pointer flex items-center justify-center" type="button">
         //   <LucideIcon className="h-5! sm:h-4! [&>svg]:w-auto!" icon={<EllipsisVerticalIcon />} />
         // </button>
-        <Button className="ExpEntryOptions size-4!">
+        <IconedButton className="ExpEntryOptions size-4!">
           <LucideIcon className="size-auto!" icon={<EllipsisVerticalIcon />} />
-        </Button>
+        </IconedButton>
       }
     >
       <FloatingMenuButton

@@ -1,17 +1,16 @@
+import log from "loglevel";
 import {
   BoltIcon,
   CircleArrowUpIcon,
   CircleQuestionMarkIcon,
-  EllipsisVerticalIcon,
   HardDriveDownloadIcon,
   HardDriveUploadIcon,
   LogInIcon,
-  UserRoundIcon,
+  UserRoundIcon
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { copyToClipboard, hardPWAReload, logout } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
-import Button from "../Common/Button";
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
 import LucideIcon from "../Common/LucideIcon";
@@ -33,12 +32,14 @@ export default function MainMenu() {
         <div>Copy Token</div>
       </FloatingMenuButton>
       <FloatingMenuButton
-        className="Settings text-warning"
+        className="Settings "
         onClick={() => {
+          log.debug("isSettingsOpened", true);
+          useZustandStore.setState({ isSettingsOpened: true });
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<BoltIcon className="text-warning!"/>} />
+        <LucideIcon icon={<BoltIcon className="" />} />
         <div>Settings</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -47,7 +48,7 @@ export default function MainMenu() {
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<HardDriveDownloadIcon className="text-warning!"/>} />
+        <LucideIcon icon={<HardDriveDownloadIcon className="text-warning!" />} />
         <div>Download Backup</div>
       </FloatingMenuButton>
       <FloatingMenuButton
@@ -56,7 +57,7 @@ export default function MainMenu() {
           // setOpen(false);
         }}
       >
-        <LucideIcon icon={<HardDriveUploadIcon className="text-warning!"/>} />
+        <LucideIcon icon={<HardDriveUploadIcon className="text-warning!" />} />
         <div>Import Backup</div>
       </FloatingMenuButton>
 

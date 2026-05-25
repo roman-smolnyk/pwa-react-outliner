@@ -1,3 +1,4 @@
+import type { EditorView } from "@codemirror/view";
 import { create } from "zustand";
 import localPreferencesManager from "./preferences";
 
@@ -7,6 +8,7 @@ export interface useZustandStoreType {
   isAuthorized: boolean;
   isNewAccount: boolean;
   isDataLoaded: boolean;
+  isWebSocketServerOn: boolean;
   webSocketServerUrl: string;
   roomToken: string;
   rootBlockId: string;
@@ -20,13 +22,16 @@ export interface useZustandStoreType {
 
   isExplorerOpened: boolean;
   isGlobalSearchOpened: boolean;
+  isSettingsOpened: boolean;
   isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
 
   checkedBlockIds: Set<string>;
 
-  webSocketConnectionStatus: "connecting" | "connected" | "disconnected" | "turned off";
+  webSocketConnectionStatus: "connecting" | "connected" | "disconnected";
   viewportWidth: number;
+
+  editorView: EditorView | null;
 
   renderPageTicker: number;
   renderPage(): void;
@@ -42,6 +47,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isAuthorized: false,
   isNewAccount: false,
   isDataLoaded: false,
+  isWebSocketServerOn: true,
   webSocketServerUrl: "",
   roomToken: "",
   rootBlockId: "",
@@ -55,6 +61,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
 
   isExplorerOpened: true,
   isGlobalSearchOpened: false,
+  isSettingsOpened: false,
   isPageSearchActive: false,
   isChekboxSelectionActive: false,
 
@@ -62,6 +69,8 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
 
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,
+
+  editorView: null,
 
   renderPageTicker: 0,
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
@@ -75,6 +84,7 @@ export async function hydrateZustandStateWithPreferences() {
   useZustandStore.setState({
     isHydrated: true,
     isAuthorized: await localPreferencesManager.get("isAuthorized"),
+    isWebSocketServerOn: await localPreferencesManager.get("isWebSocketServerOn"),
     webSocketServerUrl: await localPreferencesManager.get("webSocketServerUrl"),
     roomToken: await localPreferencesManager.get("roomToken"),
     rootBlockId: await localPreferencesManager.get("rootBlockId"),

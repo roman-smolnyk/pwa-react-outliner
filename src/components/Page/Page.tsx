@@ -38,7 +38,7 @@ export default function Page({ rootId }: { rootId: string }) {
   const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
   const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
-  log.debug("checkedBlockIds", checkedBlockIds);
+  // log.debug("checkedBlockIds", checkedBlockIds);
 
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, !isPageSearchActive, activeId, renderPageTicker) as FlatBlocksT;
   // log.debug("flatItems", flatItems);
@@ -69,7 +69,7 @@ export default function Page({ rootId }: { rootId: string }) {
     // && event.active.id !== event.over.id
     if (event.active.id && event.over?.id && projected) {
       const parentId = projected.parentId ?? rootId;
-      console.debug("flatItems", flatItems);
+      // log.debug("flatItems", flatItems);
       const clonedItems = structuredClone(flatItems);
       const overIndex = clonedItems.findIndex(({ id }) => id === event.over?.id);
       const activeIndex = clonedItems.findIndex(({ id }) => id === event.active.id);

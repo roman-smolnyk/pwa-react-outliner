@@ -3,7 +3,7 @@ import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import Mark from "mark.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollIntoView } from "../../utils/utilities";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
 
@@ -79,7 +79,7 @@ export default function PageSearch() {
         <div className="Counter min-w-15 flex items-center justify-center">
           <div className="text-muted-foreground">{`${index}/${markElements?.length || 0}`}</div>
         </div>
-        <Button
+        <IconedButton
           onPointerDown={(e) => {
             e.preventDefault();
             if (index > 1) {
@@ -102,8 +102,8 @@ export default function PageSearch() {
           }}
         >
           <LucideIcon icon={<ArrowUpIcon />} />
-        </Button>
-        <Button
+        </IconedButton>
+        <IconedButton
           onPointerDown={(e) => {
             e.preventDefault();
             if (index < markElements?.length || 0) {
@@ -126,7 +126,7 @@ export default function PageSearch() {
           }}
         >
           <LucideIcon icon={<ArrowDownIcon />} />
-        </Button>
+        </IconedButton>
       </div>
     </div>
   );

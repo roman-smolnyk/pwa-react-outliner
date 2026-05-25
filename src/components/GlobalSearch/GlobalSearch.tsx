@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { handleBlockOpen } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
 
@@ -169,13 +169,13 @@ export default function GlobalSearch() {
       >
         <div className="flex items-center gap-2">
           <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
-          <Button
+          <IconedButton
             onClick={() => {
               useZustandStore.setState({ isGlobalSearchOpened: false });
             }}
           >
             <LucideIcon icon={<XIcon />} />
-          </Button>
+          </IconedButton>
         </div>
 
         <div className="mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">

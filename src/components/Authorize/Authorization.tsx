@@ -1,8 +1,10 @@
-import log from 'loglevel';
+import log from "loglevel";
 import { useState } from "react";
 import { login, register } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import Input from "../Common/Input";
+import PrimaryButton from "../Common/PrimaryButton";
+import SecondaryButton from "../Common/SecondaryButton";
 
 export default function Authorization() {
   log.debug("Authorization");
@@ -27,11 +29,9 @@ export default function Authorization() {
           <Input placeholder="Token" value={token} onChange={(e) => setToken(e.target.value)} />
         </div>
 
-        <div className="flex gap-2 sm:gap-4">
-          <button
-            type="button"
-            className="w-full bg-primary text-primary-foreground p-1 rounded cursor-pointer
-                      hover:scale-105 active:scale-100 transition-transform"
+        <div className="h-10 flex gap-2 sm:gap-4">
+          <PrimaryButton
+            className="w-full"
             onClick={async (_) => {
               // log.debug("Login", token);
               if (token) {
@@ -40,17 +40,15 @@ export default function Authorization() {
             }}
           >
             Login
-          </button>
-          <button
-            type="button"
-            className="w-full bg-primary text-primary-foreground p-2 rounded cursor-pointer
-                      hover:scale-105 active:scale-100 transition-transform"
+          </PrimaryButton>
+          <SecondaryButton
+            className="w-full"
             onClick={async (_) => {
               await register(webSocketServerUrl);
             }}
           >
             New Account
-          </button>
+          </SecondaryButton>
         </div>
       </div>
     </div>

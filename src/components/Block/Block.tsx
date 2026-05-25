@@ -3,12 +3,12 @@ import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { getItemDescendantIds } from "esm-treero-api";
 import log from "loglevel";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
 import useZustandStore from "../../store/useZustandStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
-import Button from "../Common/Button.tsx";
+import IconedButton from "../Common/IconedButton.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
@@ -28,7 +28,7 @@ function HandleButton({
   listeners: any;
 }) {
   return (
-    <Button
+    <IconedButton
       title={id}
       className="HandleButton size-5! mt-1 active:*:scale-100!"
       {...attributes}
@@ -49,7 +49,7 @@ function HandleButton({
       ) : (
         <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-primary" size={7} fill="none" />} />
       )}
-    </Button>
+    </IconedButton>
   );
 }
 
@@ -95,7 +95,7 @@ const BlockInner = memo(
     handleProps: any;
     // TODO: Add types
   }) {
-    // log.debug("BlockInner", id, isChecked);
+    log.debug("BlockInner", id);
     const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
     if (isRoot) depth = 1;
@@ -188,7 +188,7 @@ export default function Block({
     [setNodeRef],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!nodeRef.current) return;
     // log.debug("TRANSFORM", id);
     nodeRef.current.style.transform = DnDCSS.Translate.toString(transform) ?? "";

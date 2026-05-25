@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
-import Button from "../Common/Button";
+import IconedButton from "../Common/IconedButton";
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
 import LucideIcon from "../Common/LucideIcon";
@@ -48,9 +48,9 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   return (
     <FloatingMenu
       trigger={
-        <Button className="BlockOptions size-4! mt-1">
+        <IconedButton className="BlockOptions size-4! mt-1">
           <LucideIcon className="size-auto!" icon={<EllipsisVerticalIcon />} />
-        </Button>
+        </IconedButton>
       }
     >
       <FloatingMenuButton
