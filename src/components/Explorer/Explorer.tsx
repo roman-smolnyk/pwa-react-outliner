@@ -1,7 +1,7 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { getItem, getPageByBlockId, moveItem } from "esm-treero-api";
+import { getItem, getPageByBlockId, moveItem, type YExpEntryMap } from "esm-treero-api";
 import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
@@ -21,7 +21,10 @@ export default function Explorer({ rootId }: { rootId: string }) {
 
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
 
-  const ypage = useMemo(() => getPageByBlockId(yjs.ydoc, rootBlockId), [rootBlockId]);
+  let ypage: YExpEntryMap;
+  try {
+    ypage = getPageByBlockId(yjs.ydoc, rootBlockId);
+  } catch {}
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),

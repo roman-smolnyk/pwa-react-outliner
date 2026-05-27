@@ -1,7 +1,7 @@
 import { createNewAccount } from "esm-treero-api";
 import log from "loglevel";
 import { listenWebSocketStatus } from "./api/api.tsx";
-import { fillInMockupData } from "./etc/mockupData";
+import { fillInMockupData } from "./utils/mockupData.tsx";
 import useZustandStore from "./store/useZustandStore.tsx";
 import yjs from "./store/yjsManager";
 import { waitUntil } from "./utils/utilities.tsx";

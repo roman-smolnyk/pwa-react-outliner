@@ -1,6 +1,3 @@
-import { getItem } from "esm-treero-api";
-import log from 'loglevel';
-import { useMemo } from "react";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import BlockPath from "../Block/BlockPath";
@@ -11,13 +8,9 @@ export default function PageContainer() {
   const rootBlockId = useZustandStore((s) => s.rootBlockId);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
 
-  const yblock = useMemo(() => {
-    if (rootBlockId) {
-      return getItem(yjs.yblocks, rootBlockId);
-    }
-  }, [rootBlockId]);
+  const yblock = yjs.yblocks.get(rootBlockId);
 
-  if (!rootBlockId) {
+  if (!yblock) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <div className="text-xl">No document selected</div>
@@ -25,9 +18,6 @@ export default function PageContainer() {
     );
   }
 
-  if (!yblock) {
-    throw new Error(`yblock with it="${rootBlockId}" is missing`);
-  }
   const parentId = yblock.get("parent_id");
 
   // @container

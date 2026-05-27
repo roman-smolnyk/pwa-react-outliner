@@ -30,34 +30,34 @@ function useSetupHotkeys() {
     },
     // { enableOnContentEditable: true },
   );
-  // useHotkeys(
-  //   "ctrl+f",
-  //   (e) => {
-  //     log.warn("ctrl+f");
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     TreeRoAPI.useStore.setState((state) => {
-  //       return { documentSearchIsOpened: !state.documentSearchIsOpened };
-  //     });
-  //   },
-  //   {
-  //     enableOnFormTags: true, // This allows the hotkey to work while inside your search input
-  //   },
-  // );
-  // useHotkeys(
-  //   "ctrl+shift+f",
-  //   (e) => {
-  //     log.warn("ctrl+f");
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     TreeRoAPI.useStore.setState((state) => {
-  //       return { globalSearchIsOpened: !state.globalSearchIsOpened };
-  //     });
-  //   },
-  //   {
-  //     enableOnFormTags: true, // This allows the hotkey to work while inside your search input
-  //   },
-  // );
+  useHotkeys(
+    "ctrl+f, meta+f",
+    (e) => {
+      log.warn("ctrl+f");
+      e.preventDefault();
+      e.stopPropagation();
+      useZustandStore.setState((s) => {
+        return { isPageSearchActive: !s.isPageSearchActive };
+      });
+    },
+    {
+      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+    },
+  );
+  useHotkeys(
+    "ctrl+shift+f, meta+shift+f",
+    (e) => {
+      log.warn("ctrl+shift+f");
+      e.preventDefault();
+      e.stopPropagation();
+      useZustandStore.setState((s) => {
+        return { isGlobalSearchOpened: !s.isGlobalSearchOpened };
+      });
+    },
+    {
+      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
+    },
+  );
 }
 
 export default function Main() {
