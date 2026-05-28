@@ -17,7 +17,7 @@ import {
   moveItemBefore,
   type YBlockMap,
 } from "esm-treero-api";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import log from "loglevel";
 import { nanoid } from "nanoid";
 import localPreferencesManager from "../store/preferences";
@@ -187,7 +187,7 @@ export function handleBlockMoveUp(id: string) {
 }
 
 export function handleBlockMoveDown(id: string) {
-  log.debug("handleBlockMoveDown")
+  log.debug("handleBlockMoveDown");
   if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;

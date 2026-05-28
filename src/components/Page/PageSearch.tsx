@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import Mark from "mark.js";
 import { useCallback, useEffect, useRef, useState } from "react";

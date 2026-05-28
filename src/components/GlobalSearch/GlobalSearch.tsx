@@ -1,11 +1,12 @@
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import log from "loglevel";
 import { XIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { handleBlockOpen } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
+import { FloatingWindow } from "../Common/FloatingWindow";
 import IconedButton from "../Common/IconedButton";
 import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
@@ -66,7 +67,7 @@ function SearchResultEntry({ id, query }: { id: string; query: string }) {
 
   return (
     <div
-      className="border-b border-border px-1 py-1 hover:bg-accentcursor-pointer"
+      className="py-1 px-3 hover:bg-accent hover:text-accent-foreground cursor-pointer"
       onClick={async () => {
         useZustandStore.setState({ isGlobalSearchOpened: false });
         await handleBlockOpen(id);
@@ -117,6 +118,12 @@ export default function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  const isGlobalSearchOpened = useZustandStore((s) => s.isGlobalSearchOpened);
+
+  useEffect(() => {
+    setTimeout(() => refInput.current?.focus(), 250);
+  }, []);
+
   const debouncedCallback = useCallback(
     debounce((query: string) => {
       if (query.trim().length < 3) return;
@@ -147,45 +154,32 @@ export default function GlobalSearch() {
     return result;
   }, [debouncedQuery]);
 
-  useEffect(() => {
-    refInput.current?.focus();
-  }, []);
-
   return (
-    <div
-      className="GlobalSearch fixed inset-0 bg-black/40 z-100"
-      onClick={() => {
-        useZustandStore.setState({ isGlobalSearchOpened: false });
-      }}
-    >
-      <div
-        className="absolute top-15 left-1/2 -translate-x-1/2
-                   w-9/10 sm:w-3/4 min-w-80 max-w-230 
-                   h-6/7
-                   p-3
-                   rounded-lg text-popover-foreground bg-popover border border-border shadow-2xl
-                   flex flex-col"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
-      >
-        <div className="flex items-center gap-2">
-          <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
-          <IconedButton
-            onClick={() => {
-              useZustandStore.setState({ isGlobalSearchOpened: false });
-            }}
-          >
-            <LucideIcon icon={<XIcon />} />
-          </IconedButton>
+    <FloatingWindow isOpen={isGlobalSearchOpened} setIsOpen={() => useZustandStore.setState({ isGlobalSearchOpened: false })}>
+      {/* Header */}
+      <div className="p-3 border-b border-border flex items-center justify-between">
+        <div>
+          <h3>Global Search</h3>
         </div>
-
-        <div className="mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">
-          {searchResult.map((id) => (
-            <SearchResultEntry key={`SearchResultEntry-${id}`} id={id} query={debouncedQuery} />
-          ))}
-
-          {searchResult.length === 0 && <div className="px-1 py-2 text-sm">No results</div>}
-        </div>
+        <IconedButton onClick={() => useZustandStore.setState({ isGlobalSearchOpened: false })}>
+          <LucideIcon icon={<XIcon />} />
+        </IconedButton>
       </div>
-    </div>
+
+      <div className="px-3 pt-3">
+        <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
+      </div>
+
+      <div className="mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">
+        {searchResult.map((id) => (
+          <>
+            <SearchResultEntry key={`SearchResultEntry-${id}`} id={id} query={debouncedQuery} />
+            <hr className="m-0" />
+          </>
+        ))}
+
+        {searchResult.length === 0 && <div className="text-sm text-muted-foreground py-2 text-center">No results</div>}
+      </div>
+    </FloatingWindow>
   );
 }

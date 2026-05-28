@@ -5,12 +5,14 @@ import {
   ArrowRightToLineIcon,
   ArrowUpIcon,
   BoldIcon,
+  BracesIcon,
   BracketsIcon,
   Code2Icon,
   DiamondPlusIcon,
   HeadingIcon,
   HighlighterIcon,
   ItalicIcon,
+  ParenthesesIcon,
   QuoteIcon,
   SigmaIcon,
   StrikethroughIcon,
@@ -279,6 +281,14 @@ export default function Footer() {
 
         <IconedButton>
           <LucideIcon icon={<BracketsIcon className="text-warning" />} />
+        </IconedButton>
+
+        <IconedButton>
+          <LucideIcon icon={<ParenthesesIcon className="text-warning" />} />
+        </IconedButton>
+
+        <IconedButton>
+          <LucideIcon icon={<BracesIcon className="text-warning" />} />
         </IconedButton>
 
         <IconedButton>

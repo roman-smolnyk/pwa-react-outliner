@@ -1,12 +1,42 @@
 /// <reference types="vitest/config" />
-import { VitePWA } from "vite-plugin-pwa";
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import pkg from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/react-markdown") ||
+            id.includes("node_modules/react-syntax-highlighter") ||
+            id.includes("node_modules/remark") ||
+            id.includes("node_modules/rehype") ||
+            id.includes("node_modules/micromark") ||
+            id.includes("node_modules/mdast") ||
+            id.includes("node_modules/hast") ||
+            id.includes("node_modules/refractor")
+          ) {
+            return "markdown-vendor";
+          }
+          if (id.includes("node_modules/codemirror") || id.includes("node_modules/@codemirror")) {
+            return "codemirror-vendor";
+          }
+          if (id.includes("node_modules/katex")) {
+            return "katex-vendor";
+          }
+          if (id.includes("node_modules")) {
+            return "vendor";
+          }
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -64,6 +94,10 @@ export default defineConfig({
         suppressWarnings: true,
         type: "module",
       },
+    }),
+    visualizer({
+      open: true,
+      filename: "bundle-report.html",
     }),
   ],
   test: {

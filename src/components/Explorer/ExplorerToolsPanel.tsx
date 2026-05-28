@@ -8,6 +8,7 @@ import yjs from "../../store/yjsManager";
 import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
+import Commands from "../Commands/Commands";
 
 export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
@@ -72,6 +73,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
         </div>
       </div>
       {isGlobalSearchOpened && createPortal(<GlobalSearch />, document.getElementById("root")!)}
+      {/* {isGlobalSearchOpened && createPortal(<Commands />, document.getElementById("root")!)} */}
     </div>
   );
 }

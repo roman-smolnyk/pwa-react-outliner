@@ -1,5 +1,5 @@
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import log from "loglevel";
 import { useMemo, useRef, useSyncExternalStore } from "react";
 import * as Y from "yjs";
