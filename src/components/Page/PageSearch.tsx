@@ -17,24 +17,35 @@ export default function PageSearch() {
 
   const debouncedCallback = useCallback(
     debounce((query: string) => {
-      if (query.length < 2) return;
       const container = document.querySelector(".Page");
-      if (container) {
-        const instance = new Mark(container as HTMLElement);
-        instancerRef.current = instance;
+      if (!container) return;
 
+      const instance = new Mark(container as HTMLElement);
+      instancerRef.current = instance;
+
+      if (query.length < 2) {
         instance.unmark({
           done: () => {
-            instance.mark(query, {
-              done: () => {
-                setMarkElements(document.querySelectorAll("mark[data-markjs='true']"));
-              },
-              exclude: ["[data-no-mark]"],
-              className: "bg-warning px-0.5 rounded shadow",
-            });
+            setMarkElements([]);
+            setIndex(0);
           },
         });
+        return;
       }
+
+      instance.unmark({
+        done: () => {
+          instance.mark(query, {
+            done: () => {
+              const elements = document.querySelectorAll("mark[data-markjs='true']");
+              setMarkElements(elements);
+              setIndex(elements.length > 0 ? 1 : 0);
+            },
+            exclude: ["[data-no-mark]"],
+            className: "bg-warning px-0.5 rounded shadow transition-all duration-200", // Added transition
+          });
+        },
+      });
     }, 250),
     [],
   );
@@ -44,11 +55,31 @@ export default function PageSearch() {
     return () => {
       instancerRef.current?.unmark();
     };
-  }, [instancerRef, query]);
+  }, [query, debouncedCallback]);
+
+  // --- NEW: Handle Active Highlight Switching ---
+  useEffect(() => {
+    // 1. Remove the active styles from ALL mark elements first
+    markElements.forEach((el) => {
+      el.classList.remove("scale-105", "ring-2", "ring-ring");
+      // el.classList.add("bg-warning"); // Put back default background
+    });
+
+    // 2. Add the active styles ONLY to the current index item
+    if (index > 0 && markElements[index - 1]) {
+      const activeElement = markElements[index - 1];
+      // activeElement.classList.remove("bg-warning");
+
+      // Customize your active classes here (Tailwind example used below)
+      activeElement.classList.add("scale-105", "ring-2", "ring-foreground");
+    }
+  }, [index, markElements]);
 
   useEffect(() => {
     refInput.current?.focus();
   }, []);
+
+  const totalMatches = markElements?.length || 0;
 
   return (
     <div
@@ -63,66 +94,46 @@ export default function PageSearch() {
                   flex items-center gap-2"
       >
         <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
-        {/* <input
-          className="flex-1 px-2 py-1 min-w-0
-                    rounded border border-input focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-ring"
-          ref={refInput}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search..."
-          type="text"
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="none"
-          spellCheck="false"
-        /> */}
+
         <div className="Counter min-w-15 flex items-center justify-center">
-          <div className="text-muted-foreground">{`${index}/${markElements?.length || 0}`}</div>
+          <div className="text-muted-foreground">{`${index}/${totalMatches}`}</div>
         </div>
+
         <IconedButton
+          disabled={totalMatches === 0}
           onPointerDown={(e) => {
             e.preventDefault();
-            if (index > 1) {
-              const newIndex = index - 1;
-              const element = markElements[newIndex - 1];
-              const container = document.querySelector(".PageContainer");
-              if (element && container) {
-                scrollIntoView(element as HTMLElement, container as HTMLElement);
-              }
-              setIndex(newIndex);
-            } else {
-              const newIndex = markElements?.length || 0;
-              const element = markElements[newIndex - 1];
-              const container = document.querySelector(".PageContainer");
-              if (element && container) {
-                scrollIntoView(element as HTMLElement, container as HTMLElement);
-              }
-              setIndex(newIndex);
+            if (totalMatches === 0) return;
+
+            let newIndex = index - 1;
+            if (newIndex < 1) newIndex = totalMatches;
+
+            const element = markElements[newIndex - 1];
+            const container = document.querySelector(".PageContainer");
+            if (element && container) {
+              scrollIntoView(element as HTMLElement, container as HTMLElement);
             }
+            setIndex(newIndex);
           }}
         >
           <LucideIcon icon={<ArrowUpIcon />} />
         </IconedButton>
+
         <IconedButton
+          disabled={totalMatches === 0}
           onPointerDown={(e) => {
             e.preventDefault();
-            if (index < markElements?.length || 0) {
-              const newIndex = index + 1;
-              const element = markElements[newIndex - 1];
-              const container = document.querySelector(".PageContainer");
-              if (element && container) {
-                scrollIntoView(element as HTMLElement, container as HTMLElement);
-              }
-              setIndex(newIndex);
-            } else {
-              const newIndex = 1;
-              const element = markElements[newIndex - 1];
-              const container = document.querySelector(".PageContainer");
-              if (element && container) {
-                scrollIntoView(element as HTMLElement, container as HTMLElement);
-              }
-              setIndex(newIndex);
+            if (totalMatches === 0) return;
+
+            let newIndex = index + 1;
+            if (newIndex > totalMatches) newIndex = 1;
+
+            const element = markElements[newIndex - 1];
+            const container = document.querySelector(".PageContainer");
+            if (element && container) {
+              scrollIntoView(element as HTMLElement, container as HTMLElement);
             }
+            setIndex(newIndex);
           }}
         >
           <LucideIcon icon={<ArrowDownIcon />} />
