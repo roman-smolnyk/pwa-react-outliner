@@ -8,6 +8,7 @@ type StorageSchema = {
   isWebSocketServerOn: boolean;
   webSocketServerUrl: string;
   theme: "system" | "light" | "dark";
+  lockScreenPin: string;
 };
 
 const defaultValues: StorageSchema = {
@@ -17,6 +18,7 @@ const defaultValues: StorageSchema = {
   isWebSocketServerOn: true,
   webSocketServerUrl: WS_SERVER_URL,
   theme: "system",
+  lockScreenPin: "",
 };
 
 const localPreferencesManager = {

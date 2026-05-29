@@ -193,6 +193,8 @@ export function createDomEventHandlers(id: string, onBlur: () => void) {
       const relatedTarget = event.relatedTarget as HTMLElement | null;
       log.debug("CM6:blur", id);
 
+      log.debug("document.activeElement", document.activeElement);
+
       // if (!document.hasFocus()) return; TODO: regain focus when document in view again
 
       if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {

@@ -2,6 +2,7 @@ import { buildPagesAsMarkdownDocs } from "esm-treero-api";
 import * as Y from "yjs";
 import yjs from "../store/yjsManager";
 import JSZip from "jszip";
+import log from "loglevel";
 
 export function downloadExport() {
   const zip = new JSZip();
@@ -51,6 +52,6 @@ export async function importBackup(file: File) {
       window.location.replace(window.location.href);
     });
   } catch (error) {
-    console.error("Failed to restore backup:", error);
+    log.error("Failed to restore backup:", error);
   }
 }

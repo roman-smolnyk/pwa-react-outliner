@@ -6,21 +6,26 @@ import "./index.css";
 import log from "loglevel";
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
+import { LOG_LEVEL } from "../config";
 import treero from "./api/treero";
 import Authorization from "./components/Authorize/Authorization";
+import LockScreen from "./components/LockScreen/LockScreen";
+import { useAppLockout } from "./components/LockScreen/useAppLockout";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ThemeProvider } from "./hooks/theme";
 import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
-import { LOG_LEVEL } from "../config";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
   // log.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
   const isHydrated = useZustandStore((s) => s.isHydrated);
   const isAuthorized = useZustandStore((s) => s.isAuthorized);
+  const isLockScreenOpened = useZustandStore((s) => s.isLockScreenOpened);
+
+  useAppLockout();
 
   useEffect(() => {
     if (!isHydrated) {
@@ -39,7 +44,7 @@ function App() {
     <ThemeProvider>
       <ReadOnlyContextProvider>
         <ContentViewModeContextProvider>
-          {isAuthorized ? <Main /> : <Authorization />}
+          {isAuthorized ? isLockScreenOpened ? <LockScreen /> : <Main /> : <Authorization />}
           <PWABadge />
           <ToastContainer
             containerId="toaster"

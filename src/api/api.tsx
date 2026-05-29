@@ -348,3 +348,9 @@ function getCheckedParentBlockIds(): Set<string> {
 
   return new Set([...checkedBlockIds].filter((id) => !itemsToRemove.has(id)));
 }
+
+export async function lockScreen() {
+  const lockScreenPin = await localPreferencesManager.get("lockScreenPin");
+  if (!lockScreenPin) return;
+  useZustandStore.setState({ isLockScreenOpened: true });
+}

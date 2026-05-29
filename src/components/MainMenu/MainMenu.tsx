@@ -5,12 +5,13 @@ import {
   CircleQuestionMarkIcon,
   HardDriveDownloadIcon,
   HardDriveUploadIcon,
+  LockKeyholeIcon,
   LogInIcon,
   UserRoundIcon,
 } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "react-toastify";
-import { copyToClipboard, hardPWAReload, logout } from "../../api/api";
+import { copyToClipboard, hardPWAReload, lockScreen, logout } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import { downloadExport } from "../../utils/exportImport";
 import FloatingMenu from "../Common/FloatingMenu";
@@ -74,6 +75,16 @@ export default function MainMenu() {
         </FloatingMenuButton>
 
         <FloatingMenuButton
+          className="LockScreen"
+          onClick={() => {
+            lockScreen();
+          }}
+        >
+          <LucideIcon icon={<LockKeyholeIcon className="" />} />
+          <div>Lock Screen</div>
+        </FloatingMenuButton>
+
+        <FloatingMenuButton
           className="Update"
           onClick={async () => {
             // setOpen(false);
@@ -94,6 +105,7 @@ export default function MainMenu() {
           <LucideIcon icon={<CircleQuestionMarkIcon />} />
           <div>Help</div>
         </FloatingMenuButton>
+
         <hr className="m-1 border-gray-300" />
 
         <FloatingMenuButton
