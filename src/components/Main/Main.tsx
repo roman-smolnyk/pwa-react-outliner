@@ -12,6 +12,7 @@ import Header from "../Header/Header";
 import PageContainer from "../Page/PageContainer";
 import Spinner from "./Spinner";
 import { Settings } from "../Settings/Settings";
+import { toggleGlobalSearch, togglePageSearch } from "../../api/api";
 
 function useSetupHotkeys() {
   useHotkeys(
@@ -36,9 +37,7 @@ function useSetupHotkeys() {
       log.warn("ctrl+f");
       e.preventDefault();
       e.stopPropagation();
-      useZustandStore.setState((s) => {
-        return { isPageSearchActive: !s.isPageSearchActive };
-      });
+      togglePageSearch();
     },
     {
       enableOnFormTags: true, // This allows the hotkey to work while inside your search input
@@ -50,9 +49,7 @@ function useSetupHotkeys() {
       log.warn("ctrl+shift+f");
       e.preventDefault();
       e.stopPropagation();
-      useZustandStore.setState((s) => {
-        return { isGlobalSearchOpened: !s.isGlobalSearchOpened };
-      });
+      toggleGlobalSearch();
     },
     {
       enableOnFormTags: true, // This allows the hotkey to work while inside your search input

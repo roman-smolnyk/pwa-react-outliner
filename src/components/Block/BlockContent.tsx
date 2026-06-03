@@ -1,14 +1,10 @@
-import { getItem } from "esm-treero-api";
-import log from "loglevel";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { useTheme } from "../../hooks/theme";
 import useZustandStore from "../../store/useZustandStore";
-import yjs from "../../store/yjsManager";
 import { getCharIndexFromMouse } from "../../utils/utilities";
-import CM6LivePreviewEditor from "../Editor/CM6LivePreviewEditor";
-import CM6PlainTextEditor from "../Editor/CM6PlainTextEditor";
+import CM6Editor from "../Editor/CM6Editor";
 import Markdown from "../Markdown/Markdown";
 import PlainTextContent from "./PlainTextContent";
 
@@ -76,9 +72,9 @@ export default function BlockContent({ id, content }: { id: string; content: str
       ) : (
         <div className="BlockContent-edit">
           {["source", "markdown"].includes(contentViewMode) ? (
-            <CM6PlainTextEditor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+            <CM6Editor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
           ) : (
-            <CM6LivePreviewEditor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+            <CM6Editor id={id} charIndex={charIndex} setIsEdit={setIsEdit} livePreview />
           )}
         </div>
       )}

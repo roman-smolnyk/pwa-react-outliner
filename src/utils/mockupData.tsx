@@ -41,7 +41,7 @@ const data = [
   "", // empty line
   "Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. Long line text. ",
   "Loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
-  "**bold**\n_italic_\n~strike~\n==highlight==",
+  "**bold**\n_italic_\n~~strike~~\n==highlight==",
   "# Heading level 1\n## Heading level 2\n### Heading level 3\n#### Heading level 4\n##### Heading level 5\n###### Heading level 6",
   "Test newlines:\n2\n\n5\n\n\n\n\n",
   "Inline code `x = 12`",

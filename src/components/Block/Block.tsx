@@ -121,7 +121,7 @@ const BlockInner = memo(
                     }}
                     onPointerOver={(e) => {
                       if (e.ctrlKey && e.buttons === 1) {
-                        handleBlockCheckbox(id, !isChecked);
+                        if (!isChecked) handleBlockCheckbox(id, true);
                       }
                     }}
                     onChange={() => {}}

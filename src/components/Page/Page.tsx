@@ -14,6 +14,7 @@ import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
 import PageSearch from "./PageSearch.tsx";
 import { handleBlockMove, handleBlockMoveBatch } from "../../api/api.tsx";
+import ChekboxSelectionToolbar from "./ChekboxSelectionToolbar.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
 //   return {
@@ -37,6 +38,7 @@ export default function Page({ rootId }: { rootId: string }) {
 
   const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
   const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
+  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
   const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
   // log.debug("checkedBlockIds", checkedBlockIds);
 
@@ -91,6 +93,7 @@ export default function Page({ rootId }: { rootId: string }) {
   return (
     <div className="Page flex flex-col">
       {isPageSearchActive && createPortal(<PageSearch />, document.getElementById("root")!)}
+      {isChekboxSelectionActive && createPortal(<ChekboxSelectionToolbar />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection

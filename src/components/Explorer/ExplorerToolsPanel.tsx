@@ -2,7 +2,7 @@ import { getRootCollectionId } from "esm-treero-api";
 import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { handleCollectionAdd, handlePageAdd } from "../../api/api";
+import { handleCollectionAdd, handlePageAdd, toggleGlobalSearch } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import IconedButton from "../Common/IconedButton";
@@ -65,7 +65,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
           <IconedButton
             title="Global Search"
             onClick={() => {
-              useZustandStore.setState({ isGlobalSearchOpened: true });
+              toggleGlobalSearch();
             }}
           >
             <LucideIcon icon={<SearchIcon />} />

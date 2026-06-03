@@ -2,6 +2,7 @@ import { getItem, getItemDescendants, isRootItem } from "esm-treero-api";
 import {
   ArrowDownNarrowWideIcon,
   EllipsisVerticalIcon,
+  ForwardIcon,
   InboxIcon,
   LinkIcon,
   MinusIcon,
@@ -70,7 +71,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
             // setIsOpened(false);
           }}
         >
-          <LucideIcon icon={<MoveIcon className="text-warning!" />} />
+          <LucideIcon icon={<ForwardIcon className="text-warning!" />} />
           <div>Move to</div>
         </FloatingMenuButton>
       )}

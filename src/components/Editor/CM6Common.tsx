@@ -12,6 +12,8 @@ import {
   handleBlockOutdent,
   handleBlockSelectDown,
   handleBlockSelectUp,
+  toggleGlobalSearch,
+  togglePageSearch,
 } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
@@ -400,6 +402,22 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-`",
       run: (view) => {
         return toggleInlineFormatting(view, "```\n");
+      },
+      preventDefault: true,
+    },
+    {
+      key: "Mod-f",
+      run: (view) => {
+        togglePageSearch();
+        return true;
+      },
+      preventDefault: true,
+    },
+    {
+      key: "Mod-Shift-f",
+      run: (view) => {
+        toggleGlobalSearch();
+        return true;
       },
       preventDefault: true,
     },

@@ -29,6 +29,7 @@ import yjs from "../../store/yjsManager";
 import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
 import MainMenu from "../MainMenu/MainMenu";
+import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 
 export default function Header() {
   log.debug("Header");
@@ -136,7 +137,7 @@ export default function Header() {
               title="Toggle checkboxes selection"
               className=""
               onClick={() => {
-                useZustandStore.setState({ isChekboxSelectionActive: !isChekboxSelectionActive, checkedBlockIds: new Set() });
+                toggleCheckboxSelection();
               }}
             >
               <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
@@ -168,7 +169,7 @@ export default function Header() {
               title="Search in page"
               className=""
               onClick={() => {
-                useZustandStore.setState({ isPageSearchActive: !isPageSearchActive });
+                togglePageSearch();
               }}
             >
               <LucideIcon icon={<SearchIcon />} />

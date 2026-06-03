@@ -1,13 +1,8 @@
-import { markdown } from "@codemirror/lang-markdown";
+// src/components/Editor/CM6Editor.tsx
 import { syntaxTree } from "@codemirror/language";
-import { EditorSelection, EditorState, RangeSetBuilder } from "@codemirror/state";
-import { Decoration, EditorView, ViewPlugin, ViewUpdate, type DecorationSet } from "@codemirror/view";
-import { getItem } from "esm-treero-api";
-import log from "loglevel";
-import { memo, useEffect, useMemo, useRef } from "react";
-import useZustandStore from "../../store/useZustandStore";
-import yjs from "../../store/yjsManager";
-import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
+import { type EditorState, RangeSetBuilder } from "@codemirror/state";
+import type { DecorationSet, ViewUpdate } from "@codemirror/view";
+import { Decoration, EditorView, ViewPlugin } from "@codemirror/view";
 
 function cursorIn(state: EditorState, from: number, to: number) {
   for (const r of state.selection.ranges) {
@@ -72,7 +67,7 @@ function buildDecos(view: EditorView) {
   return builder.finish();
 }
 
-const livePreviewPlugin = ViewPlugin.fromClass(
+export const livePreviewPlugin = ViewPlugin.fromClass(
   class {
     decorations: DecorationSet;
     constructor(view: EditorView) {
@@ -87,7 +82,7 @@ const livePreviewPlugin = ViewPlugin.fromClass(
   { decorations: (v) => v.decorations },
 );
 
-const markdownTheme = EditorView.theme({
+export const markdownTheme = EditorView.theme({
   // ".md-bold": { fontWeight: "700" },
   // ".md-italic": { fontStyle: "italic" },
   // ".md-code": {
@@ -105,68 +100,3 @@ const markdownTheme = EditorView.theme({
   // ".md-h5": { fontSize: "1em" },
   // ".md-h6": { fontSize: "0.9em", color: "#6b7280" },
 });
-
-// ─── component ───────────────────────────────────────────────────────────────
-
-const CM6LivePreviewEditor = memo(({ id, charIndex, setIsEdit }: { id: string; charIndex: number; setIsEdit: (v: boolean) => void }) => {
-  log.debug("CM6LivePreviewEditor", id, charIndex);
-  const ref = useRef<HTMLDivElement>(null);
-  const isDestroyingRef = useRef(false);
-  const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
-
-  useEffect(() => {
-    log.debug("CM6LivePreviewEditor:useEffect");
-    isDestroyingRef.current = false;
-    if (!ref.current) return;
-
-    function onBlur() {
-      log.debug("onBlur isDestroyingRef.current", isDestroyingRef.current);
-      if (!isDestroyingRef.current) {
-        setIsEdit(false);
-      }
-    }
-    const ytext = yblock.get("content");
-
-    const state = EditorState.create({
-      doc: ytext.toString(),
-      extensions: [
-        sharedTheme,
-        createDomEventHandlers(id, onBlur),
-        createShortcutsKeymap(id, ytext),
-        createUpdateListener(ytext),
-        EditorView.lineWrapping,
-        markdown(),
-        livePreviewPlugin,
-        markdownTheme,
-      ],
-    });
-
-    const view = new EditorView({ state, parent: ref.current });
-
-    useZustandStore.setState({ selectedBlockId: id, editorView: view });
-
-    view.focus();
-    view.dispatch({
-      selection: EditorSelection.cursor(resolveIndex(charIndex, view.state.doc.length)),
-      scrollIntoView: true,
-    });
-    setTimeout(() => view.dispatch({ scrollIntoView: true }), 200);
-
-    const ytextObserver = createYtextObserver(view, ytext);
-    ytext.observe(ytextObserver);
-
-    return () => {
-      log.debug("CM6LivePreviewEditor:useEffect:unmount", id);
-      isDestroyingRef.current = true;
-      if (useZustandStore.getState().selectedBlockId === id) {
-        useZustandStore.setState({ selectedBlockId: null, editorView: null });
-      }
-      view.destroy();
-      ytext.unobserve(ytextObserver);
-    };
-  }, []);
-
-  return <div ref={ref} />;
-});
-
-export default CM6LivePreviewEditor;

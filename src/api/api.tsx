@@ -122,19 +122,16 @@ export function handleBlockAdd(id: string) {
 }
 
 export function handleBlockDelete(id: string) {
+  if (useZustandStore.getState().isChekboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
-  if (useZustandStore.getState().isChekboxSelectionActive) {
-    handleBlockDeleteBatch();
-  } else {
-    if (useZustandStore.getState().selectedBlockId) {
-      const ysibling = getItemSibling(yjs.yblocks, id, -1);
-      const yparent = getItemParent(yjs.yblocks, id);
-      selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
-    }
-    deleteBlock(yjs.ydoc, id);
+  if (useZustandStore.getState().selectedBlockId) {
+    const ysibling = getItemSibling(yjs.yblocks, id, -1);
+    const yparent = getItemParent(yjs.yblocks, id);
+    selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
   }
+  deleteBlock(yjs.ydoc, id);
 }
 
 export function handleBlockDeleteBatch() {
@@ -353,4 +350,16 @@ export async function lockScreen() {
   const lockScreenPin = await localPreferencesManager.get("lockScreenPin");
   if (!lockScreenPin) return;
   useZustandStore.setState({ isLockScreenOpened: true });
+}
+
+export async function togglePageSearch() {
+  useZustandStore.setState((s) => ({ isPageSearchActive: !s.isPageSearchActive, isChekboxSelectionActive: false }));
+}
+
+export async function toggleGlobalSearch() {
+  useZustandStore.setState((s) => ({ isGlobalSearchOpened: !s.isGlobalSearchOpened }));
+}
+
+export async function toggleCheckboxSelection() {
+  useZustandStore.setState((s) => ({ isChekboxSelectionActive: !s.isChekboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false }));
 }

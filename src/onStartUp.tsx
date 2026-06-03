@@ -5,6 +5,7 @@ import { fillInMockupData } from "./utils/mockupData.tsx";
 import useZustandStore from "./store/useZustandStore.tsx";
 import yjs from "./store/yjsManager";
 import { waitUntil } from "./utils/utilities.tsx";
+import { createWelcomeData } from "./utils/welcomeData.tsx";
 
 declare const __APP_VERSION__: string;
 
@@ -34,7 +35,8 @@ export default function onStartUp() {
         log.debug(`createNewAccount`);
         createNewAccount(yjs, __APP_VERSION__);
         // createWelcomeDocument();
-        await fillInMockupData(yjs);
+        // await fillInMockupData(yjs);
+        await createWelcomeData(yjs);
         useZustandStore.setState({ isNewAccount: false });
       }
 

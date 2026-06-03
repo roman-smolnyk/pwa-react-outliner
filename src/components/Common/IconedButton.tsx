@@ -21,6 +21,6 @@ const IconedButton = React.forwardRef<
     </button>
   );
 });
-IconedButton.displayName = "Button";
+IconedButton.displayName = "IconedButton";
 
 export default IconedButton;
