@@ -29,6 +29,7 @@ export interface useZustandStoreType {
   checkedBlockIds: Set<string>;
 
   isLockScreenOpened: boolean;
+  autoLockScreen: number;
 
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected";
   viewportWidth: number;
@@ -70,6 +71,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   checkedBlockIds: new Set(),
 
   isLockScreenOpened: false,
+  autoLockScreen: -1,
 
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,
@@ -93,6 +95,7 @@ export async function hydrateZustandStateWithPreferences() {
     roomToken: await localPreferencesManager.get("roomToken"),
     rootBlockId: await localPreferencesManager.get("rootBlockId"),
     isLockScreenOpened: !!(await localPreferencesManager.get("lockScreenPin")),
+    autoLockScreen: await localPreferencesManager.get("autoLockScreen"),
   });
 }
 

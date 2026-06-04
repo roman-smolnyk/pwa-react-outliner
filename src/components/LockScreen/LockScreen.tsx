@@ -9,6 +9,7 @@ export default function LockScreen() {
 
   const refInput = useRef<HTMLInputElement | null>(null);
   const [pin, setPin] = useState("");
+  const [attempt, setAttempt] = useState(1);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
   const isLockedOut = lockoutSeconds > 0;
@@ -23,10 +24,16 @@ export default function LockScreen() {
       if (!lockScreenPin || pin.length < lockScreenPin.length) return;
 
       if (pin === lockScreenPin) {
+        log.debug("LockScreen unlock");
         useZustandStore.setState({ isLockScreenOpened: false });
       } else {
-        // Trigger a 30-second lockout penalty on wrong PIN
-        setLockoutSeconds(30);
+        if (attempt >= 3) {
+          // Trigger a 30-second lockout penalty on wrong PIN
+          setLockoutSeconds(30);
+        } else {
+          setAttempt(attempt + 1);
+        }
+
         setPin("");
       }
     });

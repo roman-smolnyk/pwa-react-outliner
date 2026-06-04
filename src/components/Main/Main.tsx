@@ -75,6 +75,8 @@ export default function Main() {
 
   useSetupHotkeys();
 
+  log.debug("isDataLoaded", isDataLoaded);
+
   if (!isDataLoaded) {
     return <Spinner />;
   }

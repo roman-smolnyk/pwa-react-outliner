@@ -8,11 +8,23 @@ import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
 import SecondaryButton from "../Common/SecondaryButton";
 import ToggleSlider from "../Common/ToggleSlider";
+import { useEffect, useState } from "react";
+import localPreferencesManager from "../../store/preferences";
+import AutoLockDropdown from "./AutoLockDropdown";
 
 export function Settings() {
+  const [lockScreenPin, setLockScreenPin] = useState("");
+  const [isPinFocused, setIsPinFocused] = useState(false);
+
   const isSettingsOpened = useZustandStore((s) => s.isSettingsOpened);
   const isWebSocketServerOn = useZustandStore((s) => s.isWebSocketServerOn);
   const webSocketServerUrl = useZustandStore((s) => s.webSocketServerUrl);
+
+  useEffect(() => {
+    setTimeout(async () => {
+      setLockScreenPin(await localPreferencesManager.get("lockScreenPin"));
+    });
+  }, []);
 
   // log.debug("Settings:isWebSocketServerOn", isWebSocketServerOn);
 
@@ -28,7 +40,7 @@ export function Settings() {
         </IconedButton>
       </div>
 
-      <div className="px-3 pb-3 pt-5">
+      <div className="px-3 pb-3 pt-5 flex flex-col gap-10">
         <div className="flex flex-col gap-3">
           <h5>Synchronisation</h5>
           <hr className="m-0" />
@@ -49,6 +61,25 @@ export function Settings() {
               <SecondaryButton onClick={() => setWebSocketServer({ webSocketServerUrl: WS_SERVER_URL })}>Reset</SecondaryButton>
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h5>Lock Screen</h5>
+          <hr className="m-0" />
+          <p>Pin</p>
+          <Input
+            className="max-w-50"
+            value={lockScreenPin}
+            onChange={async (e) => {
+              setLockScreenPin(e.target.value);
+              localPreferencesManager.set("lockScreenPin", e.target.value);
+            }}
+            type={isPinFocused ? "text" : "password"}
+            onFocus={() => setIsPinFocused(true)}
+            onBlur={() => setIsPinFocused(false)}
+          />
+          <p>Auto-Lock Duration</p>
+          <AutoLockDropdown />
         </div>
       </div>
     </FloatingWindow>

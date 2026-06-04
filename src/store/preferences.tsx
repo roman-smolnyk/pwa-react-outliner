@@ -9,6 +9,7 @@ type StorageSchema = {
   webSocketServerUrl: string;
   theme: "system" | "light" | "dark";
   lockScreenPin: string;
+  autoLockScreen: number;
 };
 
 const defaultValues: StorageSchema = {
@@ -19,6 +20,7 @@ const defaultValues: StorageSchema = {
   webSocketServerUrl: WS_SERVER_URL,
   theme: "system",
   lockScreenPin: "",
+  autoLockScreen: -1,
 };
 
 const localPreferencesManager = {

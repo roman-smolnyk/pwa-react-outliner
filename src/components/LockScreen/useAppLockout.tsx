@@ -1,23 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import useZustandStore from "../../store/useZustandStore";
 import log from "loglevel";
-import localPreferencesManager from "../../store/preferences";
-
-const LOCKOUT_THRESHOLD = 2 * 60 * 1000;
 
 export function useAppLockout() {
   const lastActiveTime = useRef<number | null>(null);
-  const [isPinSet, setIsPinSet] = useState(false);
+
+  const autoLockScreen = useZustandStore((s) => s.autoLockScreen);
 
   useEffect(() => {
-    setTimeout(async () => {
-      setIsPinSet(!!(await localPreferencesManager.get("lockScreenPin")));
-    });
-  }, []);
-
-  useEffect(() => {
-    // If the user hasn't set up a PIN yet, don't run the listener
-    if (!isPinSet) return;
+    if (autoLockScreen === -1) return;
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -32,7 +23,7 @@ export function useAppLockout() {
 
           log.debug("handleVisibilityChange:timeElapsed", timeElapsed);
 
-          if (timeElapsed >= LOCKOUT_THRESHOLD) {
+          if (timeElapsed >= autoLockScreen) {
             // Re-trigger the lock screen in your Zustand store
             useZustandStore.setState({ isLockScreenOpened: true });
           }
@@ -47,5 +38,5 @@ export function useAppLockout() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isPinSet]);
+  }, [autoLockScreen]);
 }
