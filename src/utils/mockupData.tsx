@@ -1,6 +1,6 @@
 import type { YjsManager } from "esm-treero-api";
 import { createBlock, createCollection, createPage, insertItem } from "esm-treero-api";
-import log from 'loglevel';
+import log from "loglevel";
 import { handleBlockOpen } from "../api/api";
 
 export async function fillInMockupData(yjs: YjsManager) {

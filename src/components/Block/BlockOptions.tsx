@@ -19,6 +19,7 @@ import IconedButton from "../Common/IconedButton";
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
 import LucideIcon from "../Common/LucideIcon";
+import useZustandStore from "../../store/useZustandStore";
 
 // function MobileSheet({ open, onClose, children }) {
 //   return (
@@ -66,12 +67,12 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
       </FloatingMenuButton>
       {!isRoot && (
         <FloatingMenuButton
-          className="MoveTo text-warning"
+          className="MoveTo"
           onClick={() => {
-            // setIsOpened(false);
+            useZustandStore.setState({ isMoveToOpened: true, toMoveId: id });
           }}
         >
-          <LucideIcon icon={<ForwardIcon className="text-warning!" />} />
+          <LucideIcon icon={<ForwardIcon className="" />} />
           <div>Move to</div>
         </FloatingMenuButton>
       )}

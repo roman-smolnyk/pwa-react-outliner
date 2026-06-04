@@ -30,7 +30,6 @@ export function Settings() {
 
   return (
     <FloatingWindow isOpen={isSettingsOpened} setIsOpen={() => useZustandStore.setState({ isSettingsOpened: false })}>
-      {/* Header */}
       <div className="p-3 border-b border-border flex items-center justify-between">
         <div>
           <h3>Settings</h3>
@@ -71,8 +70,9 @@ export function Settings() {
             className="max-w-50"
             value={lockScreenPin}
             onChange={async (e) => {
-              setLockScreenPin(e.target.value);
-              localPreferencesManager.set("lockScreenPin", e.target.value);
+              const value = e.target.value.replace(/[^0-9]/g, "");
+              setLockScreenPin(value);
+              await localPreferencesManager.set("lockScreenPin", value);
             }}
             type={isPinFocused ? "text" : "password"}
             onFocus={() => setIsPinFocused(true)}

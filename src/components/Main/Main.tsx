@@ -13,6 +13,7 @@ import PageContainer from "../Page/PageContainer";
 import Spinner from "./Spinner";
 import { Settings } from "../Settings/Settings";
 import { toggleGlobalSearch, togglePageSearch } from "../../api/api";
+import { MoveTo } from "../MoveTo/MoveTo";
 
 function useSetupHotkeys() {
   useHotkeys(
@@ -131,6 +132,7 @@ export default function Main() {
       </Group>
 
       <Settings />
+      <MoveTo />
 
       <Footer />
     </div>

@@ -25,6 +25,7 @@ export interface useZustandStoreType {
   isSettingsOpened: boolean;
   isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
+  isMoveToOpened: boolean;
 
   checkedBlockIds: Set<string>;
 
@@ -35,6 +36,8 @@ export interface useZustandStoreType {
   viewportWidth: number;
 
   editorView: EditorView | null;
+
+  toMoveId: string | null;
 
   renderPageTicker: number;
   renderPage(): void;
@@ -67,6 +70,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isSettingsOpened: false,
   isPageSearchActive: false,
   isChekboxSelectionActive: false,
+  isMoveToOpened: false,
 
   checkedBlockIds: new Set(),
 
@@ -77,6 +81,8 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   viewportWidth: window.innerWidth,
 
   editorView: null,
+
+  toMoveId: null,
 
   renderPageTicker: 0,
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),

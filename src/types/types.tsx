@@ -37,29 +37,20 @@ export type FlatExplorerT = Array<FlatExpEntryT>;
 
 export interface PageT {
   id: string;
+  type: 1;
   parent_id: string;
+  title: string;
   root_id: string;
-}
-
-export interface FlatPageT extends PageT {
-  depth: number;
-  index: number;
 }
 
 export interface CollectionT {
   id: string;
+  type: 2;
   parent_id: string | null;
-  name: string;
+  title: string;
   collapsed: boolean;
   children: string[];
 }
-
-export interface FlatCollectionT extends CollectionT {
-  depth: number;
-  index: number;
-}
-
-// export type FlatExplorerT = Array<FlatPageT | FlatCollectionT>;
 
 export interface AccountT {
   id: string | undefined;

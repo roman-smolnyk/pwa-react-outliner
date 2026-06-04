@@ -26,6 +26,7 @@ export default function MainMenu() {
 
   return (
     <>
+      {/* Should be always persistent in DOM */}
       <ZipUploadInput ref={fileInputRef} />
       <FloatingMenu placement="bottom-end" title="Main Menu">
         <FloatingMenuButton

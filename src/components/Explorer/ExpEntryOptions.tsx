@@ -1,10 +1,12 @@
-import { COLLECTION_TYPE, PAGE_TYPE } from "esm-treero-api";
-import { EllipsisVerticalIcon, FilePlusIcon, FolderPlusIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
+import { COLLECTION_TYPE, getItem, getPage, PAGE_TYPE } from "esm-treero-api";
+import { EllipsisVerticalIcon, FilePlusIcon, FolderPlusIcon, ForwardIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
 import LucideIcon from "../Common/LucideIcon";
 import IconedButton from "../Common/IconedButton";
+import useZustandStore from "../../store/useZustandStore";
+import yjs from "../../store/yjsManager";
 
 export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; type: number; setIsEdit: (v: boolean) => void }) {
   return (
@@ -51,6 +53,19 @@ export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; t
             <div>New Folder</div>
           </FloatingMenuButton>
         </>
+      )}
+
+      {type === PAGE_TYPE && (
+        <FloatingMenuButton
+          className="MoveTo"
+          onClick={() => {
+            const ypage = getPage(yjs.ydoc, id);
+            useZustandStore.setState({ isMoveToOpened: true, toMoveId: ypage.get("id") });
+          }}
+        >
+          <LucideIcon icon={<ForwardIcon className="" />} />
+          <div>Move to</div>
+        </FloatingMenuButton>
       )}
 
       {/* <FloatingMenuItem
