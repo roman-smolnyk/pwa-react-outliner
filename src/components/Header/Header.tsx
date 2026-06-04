@@ -38,7 +38,6 @@ export default function Header() {
   const { theme, setTheme } = useTheme();
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
   const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
   const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 

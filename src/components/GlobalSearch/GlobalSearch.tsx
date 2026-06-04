@@ -1,9 +1,8 @@
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
 import debounce from "lodash/debounce";
-import log from "loglevel";
-import { XIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, CopyMinusIcon, CopyPlusIcon, FileTextIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { handleBlockOpen } from "../../api/api";
+import { handleBlockOpen, toggleGlobalSearch } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import { FloatingWindow } from "../Common/FloatingWindow";
@@ -11,104 +10,131 @@ import IconedButton from "../Common/IconedButton";
 import Input from "../Common/Input";
 import LucideIcon from "../Common/LucideIcon";
 
-function extractClips(text: string, query: string, offset = 30) {
-  const regex = new RegExp(query, "gi");
-  const clips: { text: string; match: string }[] = [];
+interface Clip {
+  text: string;
+  startIndex: number;
+  hasLeadingEllipsis: boolean;
+  hasTrailingEllipsis: boolean;
+}
 
-  let match: any = regex.exec(text);
-  while (match !== null) {
-    const start = Math.max(0, match.index - offset);
-    const end = Math.min(text.length, match.index + match[0].length + offset);
+interface BlockMatch {
+  id: string;
+  clips: Clip[];
+  content: string;
+  matchCount: number;
+}
 
-    clips.push({
-      text: text.slice(start, end),
-      match: match[0],
+interface PageGroup {
+  pageId: string;
+  pageTitle: string;
+  path: string[];
+  blocks: BlockMatch[];
+  totalMatches: number;
+}
+
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractClips(text: string, query: string, offset = 45): Clip[] {
+  const escaped = escapeRegex(query);
+  const regex = new RegExp(escaped, "gi");
+  const raw: { start: number; end: number }[] = [];
+
+  for (const m of text.matchAll(regex)) {
+    raw.push({
+      start: Math.max(0, m.index - offset),
+      end: Math.min(text.length, m.index + m[0].length + offset),
     });
-
-    match = regex.exec(text);
   }
 
-  // Merge overlapping clips
-  const merged: { text: string; match: string }[] = [];
-  for (const clip of clips) {
-    if (merged.length > 0 && text.indexOf(clip.text) <= text.indexOf(merged[merged.length - 1].text) + merged[merged.length - 1].text.length) {
-      // Extend previous clip
-      const prev = merged[merged.length - 1];
-      const newEnd = Math.max(text.indexOf(prev.text) + prev.text.length, text.indexOf(clip.text) + clip.text.length);
-      merged[merged.length - 1].text = text.slice(text.indexOf(prev.text), newEnd);
+  // Merge overlapping windows
+  const merged: { start: number; end: number }[] = [];
+  for (const r of raw) {
+    if (merged.length > 0 && r.start <= merged[merged.length - 1].end) {
+      merged[merged.length - 1].end = Math.max(merged[merged.length - 1].end, r.end);
     } else {
-      merged.push(clip);
+      merged.push({ ...r });
     }
   }
 
-  return merged;
+  return merged.map(({ start, end }) => ({
+    text: text.slice(start, end),
+    startIndex: start,
+    hasLeadingEllipsis: start > 0,
+    hasTrailingEllipsis: end < text.length,
+  }));
 }
 
-function SearchResultEntry({ id, query }: { id: string; query: string }) {
-  const yblock = getItem(yjs.yblocks, id);
-  let rootBlockId: string;
-  if (isRootItem(yjs.yblocks, id)) {
-    rootBlockId = yblock.get("id");
-  } else {
-    rootBlockId = getItemParent(yjs.yblocks, id).get("id");
-  }
-  const ypage = getPageByBlockId(yjs.ydoc, rootBlockId);
-  const yblocksArray = traverseItemPath(yjs.yblocks, id);
-  const yexpentryArray = traverseItemPath(yjs.yexplorer, ypage.get("id"));
+// Count actual regex matches in a string
+function countMatches(text: string, query: string): number {
+  const escaped = escapeRegex(query);
+  return (text.match(new RegExp(escaped, "gi")) ?? []).length;
+}
 
-  const path1 = yexpentryArray.map((a) => a.get("title")).slice(1);
-  const path2 = yblocksArray.map((a) => a.get("content").toString());
-
-  const path = [...path1, ...path2].map((s) => (s.length > 10 ? s.slice(0, 10) + "…" : s));
-  log.debug("path", path);
-
-  const content = yblock.get("content").toString();
-  const clips = extractClips(content, query, 40); // 40 chars left/right
+function MatchLine({ clip, query, onClick }: { clip: Clip; query: string; onClick: () => void }) {
+  const escaped = escapeRegex(query);
+  const splitRe = new RegExp(`(${escaped})`, "gi");
+  const parts = clip.text.split(splitRe);
 
   return (
-    <div
-      className="py-1 px-3 hover:bg-accent hover:text-accent-foreground cursor-pointer"
-      onClick={async () => {
-        useZustandStore.setState({ isGlobalSearchOpened: false });
-        await handleBlockOpen(id);
-        // requestAnimationFrame(() => {
-        //   setTimeout(() => {
-        //     const element = document.querySelector(`.Block[data-block-id="${id}"]`);
-        //     const container = document.querySelector(".PageContainer");
-        //     if (element && container) {
-        //       scrollIntoView(element as HTMLElement, container as HTMLElement);
-        //     }
-        //   }, 750);
-        // });
-      }}
-    >
-      <div className="">
-        {clips.length === 0 && <span>{content.slice(0, 80)}…</span>}
-
-        {clips.map((clip, i) => {
-          const regex = new RegExp(`(${query})`, "gi");
-          const parts = clip.text.split(regex);
-
-          return (
-            <span key={i}>
-              {i > 0 && <span className="text-muted-foreground"> … </span>}
-              {clip.text.startsWith(query) ? "" : "…"}
-              {parts.map((p, idx) =>
-                regex.test(p) ? (
-                  <span key={idx} className="bg-warning">
-                    {p}
-                  </span>
-                ) : (
-                  <span key={idx}>{p}</span>
-                ),
-              )}
-              {clip.text.endsWith(query) ? "" : "…"}
+    <div className="MatchLine group/line min-w-0 hover:bg-accent cursor-pointer flex items-baseline gap-0" onClick={onClick}>
+      <span className="flex-1 min-w-0 pl-8 pr-3 py-1 text-sm truncate">
+        {clip.hasLeadingEllipsis && <span className="mr-0.5 text-muted-foreground/40 select-none">…</span>}
+        {parts.map((part, idx) =>
+          idx % 2 === 1 ? (
+            <mark key={idx} className="px-0.5 bg-warning text-warning-foreground rounded-xs not-italic font-semibold">
+              {part}
+            </mark>
+          ) : (
+            <span key={idx} className="text-muted-foreground group-hover/line:text-foreground">
+              {part}
             </span>
-          );
-        })}
+          ),
+        )}
+        {clip.hasTrailingEllipsis && <span className="ml-0.5 text-muted-foreground/40 select-none">…</span>}
+      </span>
+    </div>
+  );
+}
+
+function PageGroupSection({ group, query, isCollapsed, onToggle }: { group: PageGroup; query: string; isCollapsed: boolean; onToggle: () => void }) {
+  return (
+    <div className="PageGroupSection">
+      {/* File header */}
+      <div
+        className="group/header sticky top-0 px-2 py-1 z-10 bg-background hover:bg-accent border-b border-border cursor-pointer flex items-center gap-1.5"
+        onClick={onToggle}
+      >
+        <span className="shrink-0 w-3 text-muted-foreground/60 flex items-center">
+          {isCollapsed ? <ChevronRightIcon size={12} /> : <ChevronDownIcon size={12} />}
+        </span>
+        <FileTextIcon size={13} className="shrink-0 text-muted-foreground" />
+        <span className="leading-none truncate flex-1 group-hover/header:text-foreground">{group.pageTitle}</span>
+        {group.path.length > 0 && <span className="text text-muted-foreground/50 truncate leading-none">{group.path.join(" / ")}</span>}
+        <span className="shrink-0 min-w-5 ml-1 px-1.5 py-1 tabular-nums text-xs text-center bg-accent text-accent-foreground rounded leading-none">
+          {group.totalMatches}
+        </span>
       </div>
 
-      <div className="text-sm text-muted-foreground">{path.join("/")}</div>
+      {/* Match lines */}
+      {!isCollapsed && (
+        <div className="pb-1">
+          {group.blocks.map((block) =>
+            block.clips.map((clip, i) => (
+              <MatchLine
+                key={`clip-${block.id}-${i}`}
+                clip={clip}
+                query={query}
+                onClick={async () => {
+                  toggleGlobalSearch();
+                  await handleBlockOpen(block.id);
+                }}
+              />
+            )),
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -117,68 +143,169 @@ export default function GlobalSearch() {
   const refInput = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [collapsedPages, setCollapsedPages] = useState<Set<string>>(new Set());
 
   const isGlobalSearchOpened = useZustandStore((s) => s.isGlobalSearchOpened);
 
+  const close = useCallback(() => {
+    useZustandStore.setState({ isGlobalSearchOpened: false });
+  }, []);
+
+  // Auto-focus on open
   useEffect(() => {
+    refInput.current?.focus();
     setTimeout(() => refInput.current?.focus(), 250);
   }, []);
 
   const debouncedCallback = useCallback(
-    debounce((query: string) => {
-      if (query.trim().length < 3) return;
-      setDebouncedQuery(query.trim().toLowerCase());
-    }, 800),
+    debounce((q: string) => {
+      if (q.trim().length < 3) {
+        setDebouncedQuery("");
+        return;
+      }
+      setDebouncedQuery(q.trim().toLowerCase());
+      setCollapsedPages(new Set()); // Expand all on new search
+    }, 500),
     [],
   );
 
   useEffect(() => {
     debouncedCallback(query);
-  }, [query]);
+  }, [query, debouncedCallback]);
 
-  const searchResult = useMemo(() => {
-    if (!debouncedQuery.trim()) return [];
+  const groupedResults: PageGroup[] = useMemo(() => {
+    if (!debouncedQuery) return [];
 
-    const result: string[] = [];
-    let index = 0;
+    const matchingIds: string[] = [];
     for (const yblock of yjs.yblocks.values()) {
       if (!yblock) continue;
       const content = yblock.get("content").toString();
       if (content.toLowerCase().includes(debouncedQuery)) {
-        result.push(yblock.get("id"));
-        index++;
+        matchingIds.push(yblock.get("id"));
       }
-      if (index >= 80) break; // Optimisation
+      // if (matchingIds.length >= 80) break;
     }
 
-    return result;
+    const pageMap = new Map<string, PageGroup>();
+
+    for (const id of matchingIds) {
+      const yblock = getItem(yjs.yblocks, id);
+      if (!yblock) continue;
+
+      const rootBlockId = isRootItem(yjs.yblocks, id) ? yblock.get("id") : getItemParent(yjs.yblocks, id).get("id");
+
+      const ypage = getPageByBlockId(yjs.ydoc, rootBlockId);
+      if (!ypage) continue;
+
+      const pageId = ypage.get("id");
+      const content = yblock.get("content").toString();
+      const clips = extractClips(content, debouncedQuery, 45);
+      const matchCount = countMatches(content, debouncedQuery);
+
+      if (!pageMap.has(pageId)) {
+        const explorerPath = traverseItemPath(yjs.yexplorer, pageId);
+        const path = explorerPath
+          .slice(1, -1) // drop root entry and the page itself
+          .map((a) => a.get("title") as string)
+          .filter(Boolean);
+
+        pageMap.set(pageId, {
+          pageId,
+          pageTitle: (ypage.get("title") as string) || "Untitled",
+          path,
+          blocks: [],
+          totalMatches: 0,
+        });
+      }
+
+      const group = pageMap.get(pageId)!;
+      group.blocks.push({ id, clips, content, matchCount });
+      group.totalMatches += matchCount;
+    }
+
+    return Array.from(pageMap.values());
   }, [debouncedQuery]);
 
+  const totalBlocks = groupedResults.reduce((s, g) => s + g.blocks.length, 0);
+  const totalMatches = groupedResults.reduce((s, g) => s + g.totalMatches, 0);
+
+  const togglePage = useCallback((pageId: string) => {
+    setCollapsedPages((prev) => {
+      const next = new Set(prev);
+      next.has(pageId) ? next.delete(pageId) : next.add(pageId);
+      return next;
+    });
+  }, []);
+
+  const collapseAll = useCallback(() => {
+    setCollapsedPages(new Set(groupedResults.map((g) => g.pageId)));
+  }, [groupedResults]);
+
+  const expandAll = useCallback(() => {
+    setCollapsedPages(new Set());
+  }, []);
+
+  const isAllCollapsed = groupedResults.length > 0 && collapsedPages.size === groupedResults.length;
+
   return (
-    <FloatingWindow isOpen={isGlobalSearchOpened} setIsOpen={() => useZustandStore.setState({ isGlobalSearchOpened: false })}>
-      {/* Header */}
-      <div className="p-3 border-b border-border flex items-center justify-between">
-        <div>
-          <h3>Global Search</h3>
+    <FloatingWindow isOpen={isGlobalSearchOpened} setIsOpen={close}>
+      <div className="GlobalSearch px-3 py-2 border-b border-border flex items-center justify-between gap-2">
+        <h3 className="">Global Search</h3>
+        <div className="ml-auto flex items-center gap-4 sm:gap-2">
+          {groupedResults.length > 0 && (
+            <IconedButton title={isAllCollapsed ? "Expand all" : "Collapse all"} onClick={isAllCollapsed ? expandAll : collapseAll}>
+              <LucideIcon icon={isAllCollapsed ? <CopyPlusIcon /> : <CopyMinusIcon />} />
+            </IconedButton>
+          )}
+          <IconedButton onClick={close}>
+            <LucideIcon icon={<XIcon />} />
+          </IconedButton>
         </div>
-        <IconedButton onClick={() => useZustandStore.setState({ isGlobalSearchOpened: false })}>
-          <LucideIcon icon={<XIcon />} />
-        </IconedButton>
       </div>
 
-      <div className="px-3 pt-3">
-        <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
+      <div className="px-3 pt-3 pb-2">
+        <Input ref={refInput} placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
 
-      <div className="mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">
-        {searchResult.map((id) => (
-          <>
-            <SearchResultEntry key={`SearchResultEntry-${id}`} id={id} query={debouncedQuery} />
-            <hr className="m-0" />
-          </>
+      {/* Status bar */}
+      <div className="h-5 px-3 pb-1.5 flex items-center">
+        {debouncedQuery ? (
+          groupedResults.length > 0 ? (
+            <span className="text-xs text-muted-foreground leading-none">
+              {totalMatches} match{totalMatches !== 1 ? "es" : ""} across {totalBlocks} block{totalBlocks !== 1 ? "s" : ""} in {groupedResults.length}{" "}
+              page{groupedResults.length !== 1 ? "s" : ""}
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground/60 leading-none">No results for &ldquo;{debouncedQuery}&rdquo;</span>
+          )
+        ) : query.trim().length > 0 && query.trim().length < 3 ? (
+          <span className="text-sm text-muted-foreground/60 leading-none">Type at least 3 characters…</span>
+        ) : null}
+      </div>
+
+      {/* Results */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden border-t border-border">
+        {groupedResults.map((group) => (
+          <PageGroupSection
+            key={group.pageId}
+            group={group}
+            query={debouncedQuery}
+            isCollapsed={collapsedPages.has(group.pageId)}
+            onToggle={() => togglePage(group.pageId)}
+          />
         ))}
 
-        {searchResult.length === 0 && <div className="text-sm text-muted-foreground py-2 text-center">No results</div>}
+        {debouncedQuery && groupedResults.length === 0 && (
+          <div className="py-10 text-center">
+            <p className="text-sm text-muted-foreground">No results</p>
+          </div>
+        )}
+
+        {!debouncedQuery && (
+          <div className="py-10 text-center">
+            <p className="text-sm text-muted-foreground/50">Start typing to search</p>
+          </div>
+        )}
       </div>
     </FloatingWindow>
   );

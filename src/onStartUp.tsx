@@ -34,9 +34,13 @@ export default function onStartUp() {
       if (isNewAccount) {
         log.debug(`createNewAccount`);
         createNewAccount(yjs, __APP_VERSION__);
-        // createWelcomeDocument();
-        // await fillInMockupData(yjs);
-        await createWelcomeData(yjs);
+
+        if (import.meta.env.DEV) {
+          await fillInMockupData(yjs);
+        } else {
+          await createWelcomeData(yjs);
+        }
+
         useZustandStore.setState({ isNewAccount: false });
       }
 
