@@ -6,7 +6,7 @@ export default function AutoLockDropdown() {
 
   return (
     <select
-      className="max-w-50 min-h-7 p-2 border border-border rounded bg-popover text-popover-foreground"
+      className="max-w-50 p-2 border border-border rounded bg-popover text-popover-foreground"
       value={autoLockScreen}
       onChange={async (e) => {
         const value = Number(e.target.value);

@@ -24,7 +24,6 @@ export function useAppLockout() {
           log.debug("handleVisibilityChange:timeElapsed", timeElapsed);
 
           if (timeElapsed >= autoLockScreen) {
-            // Re-trigger the lock screen in your Zustand store
             useZustandStore.setState({ isLockScreenOpened: true });
           }
         }

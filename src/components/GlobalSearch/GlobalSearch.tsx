@@ -83,7 +83,7 @@ function MatchLine({ clip, query, onClick }: { clip: Clip; query: string; onClic
         {clip.hasLeadingEllipsis && <span className="mr-0.5 text-muted-foreground/40 select-none">…</span>}
         {parts.map((part, idx) =>
           idx % 2 === 1 ? (
-            <mark key={idx} className="px-0.5 bg-warning text-warning-foreground rounded-xs not-italic font-semibold">
+            <mark key={idx} className="px-0.5 bg-warning text-warning-foreground rounded-xs">
               {part}
             </mark>
           ) : (
