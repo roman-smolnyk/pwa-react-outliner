@@ -7,8 +7,6 @@ import yjs from "./store/yjsManager";
 import { waitUntil } from "./utils/utilities.tsx";
 import { createWelcomeData } from "./utils/welcomeData.tsx";
 
-declare const __APP_VERSION__: string;
-
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp() {
   log.debug(`onStartUp`);
@@ -21,6 +19,7 @@ export default function onStartUp() {
     log.debug(`onStartUp startupPromise`);
 
     yjs.addIndexeddbPersistence();
+    // yjs.idbPersistence.on("synced", () => {})
     yjs.idbPersistence!.whenSynced.then(async () => {
       log.debug("persistence.whenSynced.then");
 
@@ -33,7 +32,7 @@ export default function onStartUp() {
 
       if (isNewAccount) {
         log.debug(`createNewAccount`);
-        createNewAccount(yjs, __APP_VERSION__);
+        createNewAccount(yjs);
 
         if (import.meta.env.DEV) {
           await fillInMockupData(yjs);

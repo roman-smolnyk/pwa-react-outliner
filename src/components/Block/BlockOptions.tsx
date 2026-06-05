@@ -6,20 +6,20 @@ import {
   InboxIcon,
   LinkIcon,
   MinusIcon,
-  MoveIcon,
   PlusIcon,
+  PrinterIcon,
   Trash2Icon,
   UploadIcon,
   ZoomInIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
+import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
-import IconedButton from "../Common/IconedButton";
 import FloatingMenu from "../Common/FloatingMenu";
 import FloatingMenuButton from "../Common/FloatingMenuButton";
+import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
-import useZustandStore from "../../store/useZustandStore";
 
 // function MobileSheet({ open, onClose, children }) {
 //   return (
@@ -125,6 +125,11 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
       >
         <LucideIcon icon={<UploadIcon className="text-warning!" />} />
         <div>Export</div>
+      </FloatingMenuButton>
+      {/* TODO: Move to the Export */}
+      <FloatingMenuButton className="Print text-warning!" onClick={async () => {}}>
+        <LucideIcon icon={<PrinterIcon className="text-warning!" />} />
+        <div>Print</div>
       </FloatingMenuButton>
       <FloatingMenuButton
         className="CopyLink"

@@ -57,20 +57,14 @@ export default function PageSearch() {
     };
   }, [query, debouncedCallback]);
 
-  // --- NEW: Handle Active Highlight Switching ---
   useEffect(() => {
-    // 1. Remove the active styles from ALL mark elements first
     markElements.forEach((el) => {
       el.classList.remove("scale-105", "ring-2", "ring-ring");
-      // el.classList.add("bg-warning"); // Put back default background
     });
 
-    // 2. Add the active styles ONLY to the current index item
     if (index > 0 && markElements[index - 1]) {
       const activeElement = markElements[index - 1];
-      // activeElement.classList.remove("bg-warning");
 
-      // Customize your active classes here (Tailwind example used below)
       activeElement.classList.add("scale-105", "ring-2", "ring-foreground");
     }
   }, [index, markElements]);
