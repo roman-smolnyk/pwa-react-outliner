@@ -15,8 +15,9 @@ import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
-import { ThemeProvider } from "./hooks/theme";
+import { ThemeProvider } from "./hooks/useTheme";
 import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
@@ -46,7 +47,8 @@ function App() {
         <ContentViewModeContextProvider>
           {isAuthorized ? isLockScreenOpened ? <LockScreen /> : <Main /> : <Authorization />}
           <PWABadge />
-          <ToastContainer
+          <Toaster className="top-15!" position="top-right" duration={3_000} />
+          {/* <ToastContainer
             containerId="toaster"
             position="top-right"
             autoClose={3_000}
@@ -69,7 +71,7 @@ function App() {
                       ${context?.type === "info" && "text-info"}
                       `;
             }}
-          />
+          /> */}
         </ContentViewModeContextProvider>
       </ReadOnlyContextProvider>
     </ThemeProvider>

@@ -12,6 +12,8 @@ import IconedButton from "../Common/IconedButton.tsx";
 import LucideIcon from "../Common/LucideIcon.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function HandleButton({
   id,
@@ -28,9 +30,11 @@ function HandleButton({
   listeners: any;
 }) {
   return (
-    <IconedButton
+    <Button
+      className=""
+      variant="bare"
+      size="micro"
       title={id}
-      className="HandleButton size-5! mt-1 active:*:scale-100!"
       {...attributes}
       {...listeners}
       onClick={() => {
@@ -42,14 +46,14 @@ function HandleButton({
     >
       {childrenLength > 0 ? (
         collapsed ? (
-          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<PlusCircleIcon size={12} strokeWidth={2.5} />} />
+          <PlusCircleIcon className="size-3" strokeWidth={2.5} />
         ) : (
-          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleMinusIcon size={12} strokeWidth={2.5} />} />
+          <CircleMinusIcon className="size-3" strokeWidth={2.5} />
         )
       ) : (
-        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-primary" size={7} fill="none" />} />
+        <CircleIcon className="fill-primary size-2" fill="none" />
       )}
-    </IconedButton>
+    </Button>
   );
 }
 
@@ -110,12 +114,11 @@ const BlockInner = memo(
             <DropIndicator />
           ) : (
             <>
-              {!isRoot && isChekboxSelectionActive && (
-                <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                  <input
-                    className="form-checkbox h-4 w-4"
-                    type="checkbox"
+              <div className="mt-0.5 flex items-center justify-center gap-1">
+                {!isRoot && isChekboxSelectionActive && (
+                  <Checkbox
                     checked={isChecked}
+                    onCheckedChange={() => {}}
                     onPointerDown={(e) => {
                       handleBlockCheckbox(id, !isChecked);
                     }}
@@ -124,20 +127,21 @@ const BlockInner = memo(
                         if (!isChecked) handleBlockCheckbox(id, true);
                       }
                     }}
-                    onChange={() => {}}
                   />
-                </div>
-              )}
-              {!isRoot && <HandleButton id={id} collapsed={collapsed} childrenLength={childrenLength} {...handleProps} />}
+                )}
+                {!isRoot && <HandleButton id={id} collapsed={collapsed} childrenLength={childrenLength} {...handleProps} />}
+              </div>
 
               {/* // ! ID */}
               {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-              <div className="flex-auto flex min-w-0">
+              <div className="min-w-0 flex-1 flex">
                 <BlockContent id={id} content={content} />
               </div>
 
-              <BlockOptions id={id} isRoot={isRoot} />
+              <div className="mt-0.5 flex items-center justify-center">
+                <BlockOptions id={id} isRoot={isRoot} />
+              </div>
             </>
           )}
         </div>

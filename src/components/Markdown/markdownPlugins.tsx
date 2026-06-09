@@ -1,7 +1,6 @@
 import type { Root, Text } from "mdast";
-import type { Node } from "unist";
+import type { Node, Parent } from "unist";
 import { visit } from "unist-util-visit";
-// import log from 'loglevel';
 // import { findAndReplace } from "mdast-util-find-and-replace";
 
 /*
@@ -10,8 +9,9 @@ rehypePlugins uses HAST (HTML AST)
 Under the hood mdast-util-to-hast used
 */
 
-interface Highlight extends Node {
-  type: "highlight";
+// Define a generic Custom Node structure to share between features
+interface CustomInlineNode extends Node {
+  type: string;
   data: {
     hName: string;
     hProperties?: Record<string, unknown>;
@@ -19,29 +19,49 @@ interface Highlight extends Node {
   };
 }
 
+// Extend the MDAST content maps cleanly
 declare module "mdast" {
   interface RootContentMap {
-    highlight: Highlight;
+    highlight: CustomInlineNode;
+    spoiler: CustomInlineNode;
   }
 }
 
-// Custom plugin to detect ==highlight==
-export function remarkHighlight() {
-  return (tree: Root) => {
-    visit(tree, "text", (node, index, parent) => {
-      if (!parent || typeof index !== "number") return;
-      const regex = /==(.+?)==/g;
-      const text = node.value;
-      const matches = [...text.matchAll(regex)];
-      if (matches.length > 0) {
-        const newNodes: (Text | Highlight)[] = [];
+/**
+ * Escape special regex characters like |, +, *, etc.
+ */
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * DRY Factory function to create custom inline markdown token matchers
+ */
+function createCustomMarkerPlugin(options: { marker: string; nodeType: string; className: string }) {
+  const { marker, nodeType, className } = options;
+  // Safely escape the marker (e.g. "||" becomes "\|\|")
+  const escapedMarker = escapeRegExp(marker);
+  const regex = new RegExp(`${escapedMarker}(.+?)${escapedMarker}`, "g");
+
+  return () => {
+    return (tree: Root) => {
+      // We typecast parent here to safely manipulate its children
+      visit(tree, "text", (node: Text, index, parent: Parent | undefined) => {
+        if (!parent || typeof index !== "number") return;
+
+        const text = node.value;
+        const matches = [...text.matchAll(regex)];
+
+        if (matches.length === 0) return;
+
+        const newNodes: (Text | CustomInlineNode)[] = [];
         let lastIndex = 0;
 
         matches.forEach((match) => {
           const [full, content] = match;
-          const start = match.index;
+          const start = match.index ?? 0;
 
-          // Normal text before highlight
+          // Add normal text preceding the match
           if (start > lastIndex) {
             newNodes.push({
               type: "text",
@@ -49,11 +69,12 @@ export function remarkHighlight() {
             });
           }
 
+          // Add our custom markdown node
           newNodes.push({
-            type: "highlight", // custom mdast node type
+            type: nodeType,
             data: {
-              hName: "span", // custom html tag
-              hProperties: { className: ["md-highlight"] }, // props for the element
+              hName: "span",
+              hProperties: { className: [className] },
               hChildren: [{ type: "text", value: content }],
             },
           });
@@ -61,19 +82,34 @@ export function remarkHighlight() {
           lastIndex = start + full.length;
         });
 
-        // Remaining text
-        if (lastIndex < node.value.length) {
+        // Add remaining trailing text
+        if (lastIndex < text.length) {
           newNodes.push({
             type: "text",
-            value: node.value.slice(lastIndex),
+            value: text.slice(lastIndex),
           });
         }
 
+        // Replace the old text node with our broken down fragments
         parent.children.splice(index, 1, ...newNodes);
-      }
-    });
+      });
+    };
   };
 }
+
+// ==highlight==
+export const remarkHighlight = createCustomMarkerPlugin({
+  marker: "==",
+  nodeType: "highlight",
+  className: "md-highlight",
+});
+
+// ||spoiler||
+export const remarkSpoiler = createCustomMarkerPlugin({
+  marker: "||",
+  nodeType: "spoiler",
+  className: "md-spoiler",
+});
 
 export function remarkPreserveNewlines() {
   return (tree: Root) => {

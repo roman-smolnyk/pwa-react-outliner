@@ -20,6 +20,7 @@ import {
 import debounce from "lodash/debounce";
 import log from "loglevel";
 import { nanoid } from "nanoid";
+import { toast } from "sonner";
 import localPreferencesManager from "../store/preferences";
 import useZustandStore from "../store/useZustandStore";
 import yjs from "../store/yjsManager";
@@ -253,6 +254,7 @@ export async function copyToClipboard(text: string) {
     // log.error(error);
     copyFallback(text);
   }
+  toast("Copied");
 }
 
 function copyFallback(text: string) {

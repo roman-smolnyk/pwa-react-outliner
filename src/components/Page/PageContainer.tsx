@@ -1,3 +1,4 @@
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
 import BlockPath from "../Block/BlockPath";
@@ -13,9 +14,15 @@ export default function PageContainer() {
 
   if (!yblock) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-xl">No document selected</div>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          {/* <EmptyMedia variant="icon">
+            <FileTextIcon />
+          </EmptyMedia> */}
+          <EmptyTitle>No Document Selected</EmptyTitle>
+          <EmptyDescription>Open document or create new.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 

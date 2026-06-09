@@ -1,5 +1,6 @@
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import log from "loglevel";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import useZustandStore from "../../store/useZustandStore";
@@ -10,6 +11,8 @@ import ExplorerToolsPanel from "./ExplorerToolsPanel";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   log.debug("ExplorerContainer");
+
+  const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
 
@@ -30,7 +33,26 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
     useZustandStore.setState({ explorerPanelAction: "" });
   }, [explorerAction, explorerPanelRef]);
 
+  useEffect(() => {
+    function observer() {
+      setExplorerLength(Array.from(yjs.yexplorer.keys()).length);
+    }
+    yjs.yexplorer.observe(observer);
+    return () => {
+      yjs.yexplorer.unobserve(observer);
+    };
+  });
+
   const rootId = yjs.yaccount.get("root_id")!;
+
+  const EmptyExplorer = () => (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>No Documents</EmptyTitle>
+        <EmptyDescription>Create new or sync</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
 
   return (
     <>
@@ -43,7 +65,7 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
           //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
           // }}
         >
-          <Explorer rootId={rootId} />
+          {explorerLength <= 1 ? <EmptyExplorer /> : <Explorer rootId={rootId} />}
           <div className="Spacer h-[50dvh]"></div>
         </div>
       </div>

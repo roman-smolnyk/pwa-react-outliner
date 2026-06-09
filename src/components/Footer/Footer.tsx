@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import yjs from "@/store/yjsManager";
 import log from "loglevel";
 import {
   ArrowDownIcon,
@@ -7,6 +9,7 @@ import {
   BoldIcon,
   BracesIcon,
   BracketsIcon,
+  CalendarDaysIcon,
   Code2Icon,
   DiamondPlusIcon,
   HeadingIcon,
@@ -14,11 +17,13 @@ import {
   ItalicIcon,
   ParenthesesIcon,
   QuoteIcon,
+  RedoIcon,
   SigmaIcon,
   StrikethroughIcon,
   TableIcon,
   // ZoomInIcon,
   Trash2Icon,
+  UndoIcon,
 } from "lucide-react";
 import {
   handleBlockAdd,
@@ -47,7 +52,8 @@ export default function Footer() {
     <div
       className="Footer fixed bottom-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
                 bg-sidebar text-sidebar-foreground border-t border-border
-                flex"
+                flex
+                md:hidden"
       style={{
         left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
         // boxShadow: "0px -1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
@@ -55,13 +61,37 @@ export default function Footer() {
       }}
     >
       <div
-        className="flex-1 min-w-0 pb-2 sm:pb-0
+        className="flex-1 min-w-0 pb-2 md:pb-0
                   overflow-x-auto
-                  flex gap-4 sm:gap-2 items-center justify-start sm:justify-center"
+                  flex gap-4 md:gap-2 items-center justify-start md:justify-center"
       >
-        <IconedButton
+        <Button
+          variant="bare"
+          size="tool"
+          title="Undo"
+          data-ignore-blur="true"
+          onClick={() => {
+            yjs.undoManager?.undo();
+          }}
+        >
+          <UndoIcon className="" />
+        </Button>
+        <Button
+          variant="bare"
+          size="tool"
+          title="Redo"
+          data-ignore-blur="true"
+          onClick={() => {
+            yjs.undoManager?.redo();
+          }}
+        >
+          <RedoIcon className="" />
+        </Button>
+
+        <Button
+          variant="bare"
+          size="tool"
           title="Add block"
-          className="AddBlock"
           data-ignore-blur="true"
           onClick={(e) => {
             log.debug("onClick", selectedBlockId);
@@ -70,9 +100,8 @@ export default function Footer() {
             }
           }}
         >
-          {/* <SquarePlusIcon /> */}
-          <LucideIcon icon={<DiamondPlusIcon />} />
-        </IconedButton>
+          <DiamondPlusIcon className="" />
+        </Button>
 
         <IconedButton
           title="Outdent"
@@ -305,6 +334,10 @@ export default function Footer() {
 
         <IconedButton>
           <LucideIcon icon={<SigmaIcon className="text-warning" />} />
+        </IconedButton>
+
+        <IconedButton>
+          <LucideIcon icon={<CalendarDaysIcon className="text-warning" />} />
         </IconedButton>
 
         {/* <Button className="text-warning">

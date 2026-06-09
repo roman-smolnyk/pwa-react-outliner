@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
 import Input from "../Common/Input";
 
-export default function TitleEdit({ id, title, setIsEdit }: { id: string; title: string; setIsEdit: (v: boolean) => void }) {
+export default function TitleEdit({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(title);
 
@@ -22,7 +22,7 @@ export default function TitleEdit({ id, title, setIsEdit }: { id: string; title:
       const yitem = getItem(yjs.yexplorer, id);
       yitem.set("title", value);
     }
-    setIsEdit(false);
+    setIsRename(false);
   }
 
   return (

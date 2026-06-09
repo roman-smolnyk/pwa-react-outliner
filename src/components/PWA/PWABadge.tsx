@@ -1,5 +1,5 @@
-import log from 'loglevel';
-import { toast } from "react-toastify";
+import log from "loglevel";
+import { toast } from "sonner";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 export default function PWABadge() {
@@ -32,7 +32,7 @@ export default function PWABadge() {
   }
 
   if (offlineReady && !needRefresh) {
-    toast("App ready to work offline", { containerId: "toaster" });
+    toast.info("App ready to work offline");
     return <div className="PWABadge"></div>;
   }
 

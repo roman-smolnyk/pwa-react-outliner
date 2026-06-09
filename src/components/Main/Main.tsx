@@ -3,17 +3,18 @@ import { useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle } from "react-resizable-panels";
 import { MOBILE_WIDTH } from "../../../config";
+import { toggleGlobalSearch, togglePageSearch } from "../../api/api";
 import onStartUp from "../../onStartUp";
 import useZustandStore from "../../store/useZustandStore";
 import yjs from "../../store/yjsManager";
+import Commands from "../Commands/Commands";
 import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
-import PageContainer from "../Page/PageContainer";
-import Spinner from "./Spinner";
-import { Settings } from "../Settings/Settings";
-import { toggleGlobalSearch, togglePageSearch } from "../../api/api";
 import { MoveTo } from "../MoveTo/MoveTo";
+import PageContainer from "../Page/PageContainer";
+import Settings from "../Settings/Settings";
+import LoadingScreen from "./LoadingScreen";
 
 function useSetupHotkeys() {
   useHotkeys(
@@ -79,7 +80,7 @@ export default function Main() {
   log.debug("isDataLoaded", isDataLoaded);
 
   if (!isDataLoaded) {
-    return <Spinner />;
+    return <LoadingScreen />;
   }
 
   return (
@@ -133,6 +134,7 @@ export default function Main() {
 
       <Settings />
       <MoveTo />
+      <Commands />
 
       <Footer />
     </div>

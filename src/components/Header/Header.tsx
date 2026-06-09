@@ -1,44 +1,31 @@
+import { Button } from "@/components/ui/button";
 import log from "loglevel";
 import {
-  CloudAlertIcon,
-  CloudCheckIcon,
-  CloudCogIcon,
   FileCodeIcon,
   FileImageIcon,
   FilePlayIcon,
   ListChecksIcon,
   ListIcon,
-  MoonIcon,
   PanelLeftIcon,
   PencilIcon,
   PencilOffIcon,
-  RedoIcon,
-  RefreshCwIcon,
-  RotateCwIcon,
   SearchIcon,
-  SunIcon,
-  SunMoonIcon,
-  UndoIcon,
+  SquareTerminalIcon,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { useTheme } from "../../hooks/theme";
 import useZustandStore from "../../store/useZustandStore";
-import yjs from "../../store/yjsManager";
 import IconedButton from "../Common/IconedButton";
 import LucideIcon from "../Common/LucideIcon";
 import MainMenu from "../MainMenu/MainMenu";
-import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 
 export default function Header() {
   log.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
-  const { theme, setTheme } = useTheme();
 
   const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
   const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
 
   return (
@@ -70,68 +57,11 @@ export default function Header() {
         </div>
 
         <div className="flex-1 min-w-0 overflow-x-auto flex">
-          <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">
-            <IconedButton
-              title="Undo"
-              onClick={() => {
-                yjs.undoManager?.undo();
-              }}
-            >
-              <LucideIcon icon={<UndoIcon />} />
-            </IconedButton>
-            <IconedButton
-              title="Redo"
-              onClick={() => {
-                yjs.undoManager?.redo();
-              }}
-            >
-              <LucideIcon icon={<RedoIcon />} />
-            </IconedButton>
-            {/* <div className="Spacer"></div> */}
-            <IconedButton
-              title="Reload"
-              onClick={(event) => {
-                event.currentTarget.classList.add("animate-spin");
-                window.location.replace(window.location.href);
-              }}
-            >
-              <LucideIcon icon={<RotateCwIcon />} />
-            </IconedButton>
-          </div>
+          <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">{/* <div className="Spacer"></div> */}</div>
 
           <div className="Spacer flex-1 min-w-4" />
 
-          <div className="RightIcons flex gap-4 sm:gap-2">
-            <IconedButton
-              title={`WebSocket: ${webSocketConnectionStatus}`}
-              onClick={() => {
-                toast(`WebSocket status: '${webSocketConnectionStatus}'`, { containerId: "toaster" });
-              }}
-            >
-              {/* {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />} */}
-              {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<RefreshCwIcon className="animate-spin" />} />}
-              {webSocketConnectionStatus === "connected" && <LucideIcon icon={<CloudCheckIcon />} />}
-              {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
-              {webSocketConnectionStatus === "disconnected" && <LucideIcon icon={<CloudAlertIcon />} />}
-              {/* {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />} */}
-            </IconedButton>
-
-            <IconedButton
-              title={`Theme: ${theme}`}
-              onClick={() => {
-                log.debug("theme", theme);
-                if (theme === "system") {
-                  setTheme("light");
-                } else if (theme === "light") {
-                  setTheme("dark");
-                } else if (theme === "dark") {
-                  setTheme("system");
-                }
-              }}
-            >
-              <LucideIcon icon={theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />} />
-            </IconedButton>
-
+          <div className="RightIcons flex items-center justify-center gap-4 sm:gap-2">
             <IconedButton
               title="Toggle checkboxes selection"
               className=""
@@ -165,18 +95,29 @@ export default function Header() {
             </IconedButton>
 
             <IconedButton
-              title="Search in page"
+              title="Open commands"
               className=""
+              onClick={() => {
+                useZustandStore.setState({ isCommandsOpened: true });
+              }}
+            >
+              <LucideIcon icon={<SquareTerminalIcon />} />
+            </IconedButton>
+
+            <Button
+              variant="bare"
+              size="tool"
+              title="Search in page"
               onClick={() => {
                 togglePageSearch();
               }}
             >
-              <LucideIcon icon={<SearchIcon />} />
-            </IconedButton>
+              <SearchIcon />
+            </Button>
           </div>
         </div>
 
-        <div className="ml-3 flex">
+        <div className="ml-3 flex items-center justify-center">
           <MainMenu />
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { useTheme } from "../../hooks/theme";
+import { useTheme } from "../../hooks/useTheme";
 import useZustandStore from "../../store/useZustandStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";
 import CM6Editor from "../Editor/CM6Editor";
@@ -34,10 +34,10 @@ export default function BlockContent({ id, content }: { id: string; content: str
   // log.debug("BlockContent", id, { isEdit });
 
   return (
-    <div className={`BlockContent w-full ${isEdit ? "bg-muted" : ""}`}>
+    <div className={`BlockContent w-full min-h-[calc((1rem*var(--leading-snug))+4px)] ${isEdit ? "bg-muted" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render block-content min-h-[1em] ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
+          className={`BlockContent-render block-content ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           // onClick={(e) => {
           //   if (readOnly) return;
           //   setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));

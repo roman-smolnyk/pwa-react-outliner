@@ -474,4 +474,5 @@ export const sharedTheme = EditorView.theme({
   "&.cm-focused": { outline: "none" },
   ".cm-line": { padding: "0" },
   ".cm-lineWrapping": { whiteSpace: "pre-wrap" },
+  ".cm-scroller": { lineHeight: "inherit" },
 });

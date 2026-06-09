@@ -1,87 +1,177 @@
-import { XIcon } from "lucide-react";
+import { debouncedSetWebSocketServer, setWebSocketServer } from "@/api/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { THEMES, useTheme } from "@/hooks/useTheme";
+import localPreferencesManager from "@/store/preferences";
+import useZustandStore from "@/store/useZustandStore";
+import { useEffect, useState, type ReactNode } from "react";
 import { WS_SERVER_URL } from "../../../config";
-import { debouncedSetWebSocketServer, setWebSocketServer } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
-import { FloatingWindow } from "../Common/FloatingWindow";
-import IconedButton from "../Common/IconedButton";
-import Input from "../Common/Input";
-import LucideIcon from "../Common/LucideIcon";
-import SecondaryButton from "../Common/SecondaryButton";
-import ToggleSlider from "../Common/ToggleSlider";
-import { useEffect, useState } from "react";
-import localPreferencesManager from "../../store/preferences";
-import AutoLockDropdown from "./AutoLockDropdown";
+import ResponsiveModal from "./ResponsiveModal";
 
-export function Settings() {
+const autoLockOptions = [
+  { label: "Never", value: -1 },
+  { label: "1 min", value: 60000 },
+  { label: "5 min", value: 300000 },
+  { label: "10 min", value: 600000 },
+  { label: "30 min", value: 1800000 },
+  { label: "1 hour", value: 3600000 },
+];
+
+export default function Settings() {
   const [lockScreenPin, setLockScreenPin] = useState("");
   const [isPinFocused, setIsPinFocused] = useState(false);
 
   const isSettingsOpened = useZustandStore((s) => s.isSettingsOpened);
   const isWebSocketServerOn = useZustandStore((s) => s.isWebSocketServerOn);
   const webSocketServerUrl = useZustandStore((s) => s.webSocketServerUrl);
+  const autoLockScreen = useZustandStore((s) => s.autoLockScreen);
 
+  const { theme, setTheme } = useTheme();
+
+  // Load the initial pin preference
   useEffect(() => {
     setTimeout(async () => {
-      setLockScreenPin(await localPreferencesManager.get("lockScreenPin"));
+      const savedPin = await localPreferencesManager.get("lockScreenPin");
+      if (savedPin) setLockScreenPin(savedPin);
     });
   }, []);
 
-  // log.debug("Settings:isWebSocketServerOn", isWebSocketServerOn);
+  const handleOpenChange = (open: boolean) => {
+    useZustandStore.setState({ isSettingsOpened: open });
+  };
+
+  const SectionTitle = ({ children }: { children: ReactNode }) => <h5 className="text-muted-foreground">{children}</h5>;
 
   return (
-    <FloatingWindow isOpen={isSettingsOpened} setIsOpen={() => useZustandStore.setState({ isSettingsOpened: false })}>
-      <div className="p-3 border-b border-border flex items-center justify-between">
-        <div>
-          <h3>Settings</h3>
-        </div>
-        <IconedButton onClick={() => useZustandStore.setState({ isSettingsOpened: false })}>
-          <LucideIcon icon={<XIcon />} />
-        </IconedButton>
-      </div>
+    <ResponsiveModal title="Settings" open={isSettingsOpened} onOpenChange={handleOpenChange}>
+      <ScrollArea className="h-[90dvh] md:h-[75dvh] pr-4">
+        <div className="flex flex-col gap-4">
+          <ItemGroup>
+            <SectionTitle>Appearance</SectionTitle>
+            <Separator />
+            <Item className="p-0">
+              <ItemContent>
+                <ItemTitle>Theme</ItemTitle>
+              </ItemContent>
+              <ItemActions>
+                <Select
+                  value={theme}
+                  items={THEMES}
+                  onValueChange={(value) => {
+                    if (value) setTheme(value);
+                  }}
+                >
+                  <SelectTrigger id="theme-select" className="w-full max-w-xs">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Themes</SelectLabel>
+                      {THEMES.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </ItemActions>
+            </Item>
+          </ItemGroup>
 
-      <div className="px-3 pb-3 pt-5 flex flex-col gap-10">
-        <div className="flex flex-col gap-3">
-          <h5>Synchronisation</h5>
-          <hr className="m-0" />
-          <div className="flex items-center gap-3">
-            <ToggleSlider checked={isWebSocketServerOn} onChange={(checked) => setWebSocketServer({ isWebSocketServerOn: checked })} />
-            <p>Sync</p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <p>Web Socket url</p>
-            <div className="flex gap-3">
-              <Input
-                value={webSocketServerUrl}
-                onChange={(e) => {
-                  useZustandStore.setState({ webSocketServerUrl: e.target.value });
-                  debouncedSetWebSocketServer({ webSocketServerUrl: e.target.value });
-                }}
-              />
-              <SecondaryButton onClick={() => setWebSocketServer({ webSocketServerUrl: WS_SERVER_URL })}>Reset</SecondaryButton>
+          <ItemGroup>
+            <SectionTitle>Synchronization</SectionTitle>
+            <Separator />
+            <Item className="p-0">
+              <ItemContent>
+                <ItemTitle>Enable Sync</ItemTitle>
+                <ItemDescription>Synchronize data between devices</ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Switch
+                  id="synchronization"
+                  checked={isWebSocketServerOn}
+                  onCheckedChange={(checked) => setWebSocketServer({ isWebSocketServerOn: checked })}
+                />
+              </ItemActions>
+            </Item>
+
+            <div className="mb-4 flex flex-col gap-4">
+              <Label htmlFor="ws-url">Web Socket URL</Label>
+              <div className="flex justify-between gap-4">
+                <Input
+                  id="ws-url"
+                  value={webSocketServerUrl}
+                  onChange={(e) => {
+                    useZustandStore.setState({ webSocketServerUrl: e.target.value });
+                    debouncedSetWebSocketServer({ webSocketServerUrl: e.target.value });
+                  }}
+                />
+                <Button variant="secondary" onClick={() => setWebSocketServer({ webSocketServerUrl: WS_SERVER_URL })}>
+                  Reset
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
+          </ItemGroup>
 
-        <div className="flex flex-col gap-3">
-          <h5>Lock Screen</h5>
-          <hr className="m-0" />
-          <p>Pin</p>
-          <Input
-            className="max-w-50"
-            value={lockScreenPin}
-            onChange={async (e) => {
-              const value = e.target.value.replace(/[^0-9]/g, "");
-              setLockScreenPin(value);
-              await localPreferencesManager.set("lockScreenPin", value);
-            }}
-            type={isPinFocused ? "text" : "password"}
-            onFocus={() => setIsPinFocused(true)}
-            onBlur={() => setIsPinFocused(false)}
-          />
-          <p>Auto-Lock Duration</p>
-          <AutoLockDropdown />
+          <ItemGroup>
+            <SectionTitle>Lock Screen</SectionTitle>
+            <Separator />
+            <div className="flex flex-col gap-4">
+              <Label htmlFor="lock-screen-pin">PIN</Label>
+              <Input
+                id="lock-screen-pin"
+                className="max-w-xs"
+                value={lockScreenPin}
+                onChange={async (e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  setLockScreenPin(value);
+                  await localPreferencesManager.set("lockScreenPin", value);
+                }}
+                type={isPinFocused ? "text" : "password"}
+                onFocus={() => setIsPinFocused(true)}
+                onBlur={() => setIsPinFocused(false)}
+                maxLength={6}
+                placeholder="••••"
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <Label htmlFor="lock-screen-timeout">Auto-Lock Duration</Label>
+              <Select
+                value={autoLockScreen}
+                items={autoLockOptions}
+                onValueChange={async (value) => {
+                  if (value === null) return;
+                  console.debug(typeof value);
+                  useZustandStore.setState({ autoLockScreen: value });
+                  await localPreferencesManager.set("autoLockScreen", value);
+                }}
+              >
+                <SelectTrigger id="lock-screen-timeout" className="w-full max-w-xs">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Duration</SelectLabel>
+                    {autoLockOptions.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </ItemGroup>
         </div>
-      </div>
-    </FloatingWindow>
+      </ScrollArea>
+    </ResponsiveModal>
   );
 }

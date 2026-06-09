@@ -26,6 +26,7 @@ export interface useZustandStoreType {
   isPageSearchActive: boolean;
   isChekboxSelectionActive: boolean;
   isMoveToOpened: boolean;
+  isCommandsOpened: boolean;
 
   checkedBlockIds: Set<string>;
 
@@ -71,6 +72,7 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   isPageSearchActive: false,
   isChekboxSelectionActive: false,
   isMoveToOpened: false,
+  isCommandsOpened: false,
 
   checkedBlockIds: new Set(),
 

@@ -1,22 +1,39 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useConfirm } from "@/hooks/useConfirm";
 import log from "loglevel";
 import {
   BoltIcon,
   CircleArrowUpIcon,
   CircleQuestionMarkIcon,
+  CloudAlertIcon,
+  CloudCheckIcon,
   HardDriveDownloadIcon,
   HardDriveUploadIcon,
   LockKeyholeIcon,
-  LogInIcon,
+  LogOutIcon,
+  MenuIcon,
+  MoonIcon,
+  RefreshCwIcon,
+  RotateCwIcon,
+  SunIcon,
+  SunMoonIcon,
   UserRoundIcon,
 } from "lucide-react";
 import { useRef } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { copyToClipboard, hardPWAReload, lockScreen, logout } from "../../api/api";
+import { useTheme } from "../../hooks/useTheme";
 import useZustandStore from "../../store/useZustandStore";
 import { downloadExport } from "../../utils/exportImport";
-import FloatingMenu from "../Common/FloatingMenu";
-import FloatingMenuButton from "../Common/FloatingMenuButton";
-import LucideIcon from "../Common/LucideIcon";
 import ZipUploadInput from "./UploadBackup";
 
 declare const __APP_VERSION__: string;
@@ -24,104 +41,167 @@ declare const __APP_VERSION__: string;
 export default function MainMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
+
+  const { theme, setTheme } = useTheme();
+  const [confirm, ConfirmationDialog] = useConfirm();
+
   return (
     <>
       {/* Should be always persistent in DOM */}
       <ZipUploadInput ref={fileInputRef} />
-      <FloatingMenu placement="bottom-end" title="Main Menu">
-        <FloatingMenuButton
-          className="CopyToken"
-          onClick={async () => {
-            // setOpen(false);
-            await copyToClipboard(useZustandStore.getState().roomToken as string);
-            toast("Copied", { containerId: "toaster" });
-          }}
-        >
-          <LucideIcon icon={<UserRoundIcon />} />
-          <div>Copy Token</div>
-        </FloatingMenuButton>
-        <FloatingMenuButton
-          className="Settings "
-          onClick={() => {
-            log.debug("isSettingsOpened", true);
-            useZustandStore.setState({ isSettingsOpened: true });
-            // setOpen(false);
-          }}
-        >
-          <LucideIcon icon={<BoltIcon className="" />} />
-          <div>Settings</div>
-        </FloatingMenuButton>
-        <FloatingMenuButton
-          className="DownloadBackup "
-          onClick={async () => {
-            downloadExport();
-            // setOpen(false);
-          }}
-        >
-          <LucideIcon icon={<HardDriveDownloadIcon className="" />} />
-          <div>Download Backup</div>
-        </FloatingMenuButton>
+      <ConfirmationDialog />
 
-        <FloatingMenuButton
-          className="ImportBackup "
-          onClick={() => {
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-              fileInputRef.current.click();
-            }
-          }}
-        >
-          <LucideIcon icon={<HardDriveUploadIcon className="" />} />
-          <div>Import Backup</div>
-        </FloatingMenuButton>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="bare" size="tool">
+              <MenuIcon />
+            </Button>
+          }
+        />
+        <DropdownMenuContent className="w-max" align="end">
+          <DropdownMenuGroup>
+            {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
 
-        <FloatingMenuButton
-          className="LockScreen"
-          onClick={() => {
-            lockScreen();
-          }}
-        >
-          <LucideIcon icon={<LockKeyholeIcon className="" />} />
-          <div>Lock Screen</div>
-        </FloatingMenuButton>
+            <div className="p-1 flex justify-between gap-4">
+              <Button
+                variant="outline"
+                title={`WebSocket status: ${webSocketConnectionStatus}`}
+                onClick={() => {
+                  toast.info(`WebSocket status: '${webSocketConnectionStatus}'`);
+                }}
+              >
+                {/* {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />} */}
+                {webSocketConnectionStatus === "connecting" && <RefreshCwIcon className="animate-spin" />}
+                {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
+                {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
+                {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
+                {/* {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />} */}
+              </Button>
+              <ToggleGroup
+                variant="outline"
+                value={[theme as string]}
+                spacing={0}
+                onValueChange={(values) => {
+                  const value = values[0] as any;
+                  if (value) setTheme(value);
+                }}
+              >
+                <ToggleGroupItem value="system" aria-label="System" title="System">
+                  <SunMoonIcon />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="light" aria-label="Light" title="Light">
+                  <SunIcon />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="dark" aria-label="Darke" title="Dark">
+                  <MoonIcon />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
 
-        <FloatingMenuButton
-          className="Update"
-          onClick={async () => {
-            // setOpen(false);
-            await hardPWAReload();
-          }}
-        >
-          <LucideIcon icon={<CircleArrowUpIcon />} />
-          <div>Update</div>
-        </FloatingMenuButton>
+            <DropdownMenuSeparator />
 
-        <FloatingMenuButton
-          className="Help"
-          onClick={() => {
-            // setOpen(false);
-            toast(`${__APP_VERSION__}`, { containerId: "toaster" });
-          }}
-        >
-          <LucideIcon icon={<CircleQuestionMarkIcon />} />
-          <div>Help</div>
-        </FloatingMenuButton>
+            <DropdownMenuItem
+              onClick={async () => {
+                await copyToClipboard(useZustandStore.getState().roomToken as string);
+                // toast("Copied", { containerId: "toaster" });
+              }}
+            >
+              <UserRoundIcon />
+              <span>Copy Token</span>
+            </DropdownMenuItem>
 
-        <hr className="m-1 border-gray-300" />
+            <DropdownMenuItem
+              onClick={() => {
+                log.debug("isSettingsOpened", true);
+                useZustandStore.setState({ isSettingsOpened: true });
+              }}
+            >
+              <BoltIcon />
+              <span>Settings</span>
+            </DropdownMenuItem>
 
-        <FloatingMenuButton
-          className="Exit text-error!"
-          onClick={() => {
-            // setOpen(false);
-            if (confirm("All data on this device will be wiped. Are you sure?")) {
-              logout();
-            }
-          }}
-        >
-          <LucideIcon icon={<LogInIcon className="text-error!" />} />
-          <div>Exit</div>
-        </FloatingMenuButton>
-      </FloatingMenu>
+            <DropdownMenuItem
+              onClick={async () => {
+                downloadExport();
+              }}
+            >
+              <HardDriveDownloadIcon />
+              <span>Download Backup</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                  fileInputRef.current.click();
+                }
+              }}
+            >
+              <HardDriveUploadIcon />
+              <span>Import Backup</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => {
+                lockScreen();
+              }}
+            >
+              <LockKeyholeIcon />
+              <span>Lock Screen</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={async () => {
+                await hardPWAReload();
+              }}
+            >
+              <CircleArrowUpIcon />
+              <span>Update</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => {
+                toast.info(`${__APP_VERSION__}`);
+              }}
+            >
+              <CircleQuestionMarkIcon />
+              <span>Help</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.currentTarget.classList.add("animate-spin");
+                window.location.replace(window.location.href);
+              }}
+            >
+              <RotateCwIcon />
+              <span>Refresh</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={async () => {
+                const isConfirmed = await confirm({
+                  title: "Logout?",
+                  description: "All data on this device will be wiped. Are you sure?",
+                });
+
+                if (isConfirmed) {
+                  logout();
+                }
+              }}
+            >
+              <LogOutIcon />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }

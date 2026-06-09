@@ -1,36 +1,58 @@
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { traverseItemPath } from "esm-treero-api";
 import log from "loglevel";
+import { Fragment } from "react/jsx-runtime";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
 
-export function BlockPathPart({ id, text }: { id: string; text: string }) {
-  return (
-    <div className="text-sm text-muted-foreground flex items-center">
-      <span
-        className="inline-block hover:underline cursor-pointer min-h-5 min-w-10 max-w-30 truncate"
-        onClick={async () => {
-          await handleBlockOpen(id);
-        }}
-      >
-        <PlainMarkdown>{text}</PlainMarkdown>
-      </span>
-      <span className="mx-1">/</span>
-    </div>
-  );
-}
-
 export default function BlockPath({ id }: { id: string }) {
-  // const yblocksArray = traverseBlockPath(yjs.ydoc, id);
   const yblocksArray = traverseItemPath(yjs.yblocks, id);
 
   log.debug("BlockPath", yblocksArray);
 
   return (
-    <div className="BlockPath mb-5 flex flex-wrap items-center">
-      {yblocksArray.map((item, idx) => {
-        return <BlockPathPart key={`BlockPathPart-${idx}`} id={item.get("id")} text={item.get("content").toString()} />;
-      })}
-    </div>
+    <Breadcrumb className="mb-5">
+      <BreadcrumbList className="">
+        {yblocksArray.map((item, idx) => {
+          const itemId = item.get("id");
+          const itemText = item.get("content").toString();
+          const isLast = idx === yblocksArray.length - 1;
+
+          return (
+            <Fragment key={`BlockPathPart-${itemId || idx}`}>
+              <BreadcrumbItem className="cursor-pointer">
+                {isLast ? (
+                  <BreadcrumbLink
+                    className="max-w-30 truncate"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleBlockOpen(itemId);
+                    }}
+                  >
+                    <PlainMarkdown>{itemText}</PlainMarkdown>
+                  </BreadcrumbLink>
+                  // <BreadcrumbPage className="max-w-30 truncate">
+                  //   <PlainMarkdown>{itemText}</PlainMarkdown>
+                  // </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    className="max-w-30 truncate"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleBlockOpen(itemId);
+                    }}
+                  >
+                    <PlainMarkdown>{itemText}</PlainMarkdown>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+
+              {!isLast && <BreadcrumbSeparator />}
+            </Fragment>
+          );
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }

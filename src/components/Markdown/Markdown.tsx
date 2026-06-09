@@ -3,14 +3,14 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 // import SyntaxHighlighter from "react-syntax-highlighter";
 import { prism, vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { toast } from "react-toastify";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { copyToClipboard } from "../../api/api";
-import { remarkHighlight } from "./markdownPlugins";
+import Spoiler from "../Common/Spoiler";
+import { remarkHighlight, remarkSpoiler } from "./markdownPlugins";
 
 function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
@@ -24,7 +24,6 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
           e.preventDefault();
           e.stopPropagation();
           await copyToClipboard(textToCopy);
-          toast("Copied", { containerId: "toaster" });
         }
       }}
       onPointerUp={async (e) => {
@@ -32,7 +31,6 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
           e.preventDefault();
           e.stopPropagation();
           await copyToClipboard(textToCopy);
-          toast("Copied", { containerId: "toaster" });
         }
       }}
     >
@@ -127,7 +125,7 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
 
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkBreaks, remarkMath, remarkHighlight]}
+      remarkPlugins={[remarkGfm, remarkBreaks, remarkMath, remarkHighlight, remarkSpoiler]}
       rehypePlugins={[rehypeRaw, rehypeKatex]}
       // fallback={<div>Rendering markdown…</div>}
       components={{
@@ -135,6 +133,8 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
           // log.debug("md-highlight", node, props);
           if (className?.includes("md-highlight")) {
             return <span {...props} className={`${className} bg-warning text-warning-foreground`} />;
+          } else if (className?.includes("md-spoiler")) {
+            return <Spoiler {...props}></Spoiler>;
           }
           return <span {...props} className={className} />;
         },
@@ -180,7 +180,8 @@ const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkThem
               </SyntaxHighlighter>
             </div>
           ) : (
-            <code className={`InlineCode text-md inline-block px-1 my-1 rounded text-error bg-muted`}>{children}</code>
+            // <Spoiler>{children}</Spoiler>
+            <code className={`InlineCode text-md inline-block px-1 rounded text-error bg-muted`}>{children}</code>
           );
         },
       }}

@@ -109,7 +109,7 @@ const ExpEntryInner = memo(
     handleProps: any;
   }) {
     // log.debug("ExpEntryInner", id);
-    const [isEdit, setIsEdit] = useState(false);
+    const [isRename, setIsRename] = useState(false);
 
     if (depth === 0) depth = 1;
 
@@ -145,8 +145,8 @@ const ExpEntryInner = memo(
               <HandleButton id={id} type={type} collapsed={collapsed} childrenLength={childrenLength} onClick={onClick} {...handleProps} />
 
               <div className="flex-1 min-w-0 flex">
-                {isEdit ? (
-                  <TitleEdit id={id} title={title} setIsEdit={setIsEdit} />
+                {isRename ? (
+                  <TitleEdit id={id} title={title} setIsRename={setIsRename} />
                 ) : (
                   <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
                     <Title title={title} />
@@ -154,7 +154,7 @@ const ExpEntryInner = memo(
                 )}
               </div>
 
-              <ExpEntryOptions id={id} type={type} setIsEdit={setIsEdit} />
+              <ExpEntryOptions id={id} type={type} setIsRename={setIsRename} />
             </>
           )}
         </div>

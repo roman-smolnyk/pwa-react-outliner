@@ -1,10 +1,10 @@
 import log from "loglevel";
-import { LoaderIcon } from "lucide-react";
 import { logout } from "../../api/api";
 import useZustandStore from "../../store/useZustandStore";
-import LucideIcon from "../Common/LucideIcon";
 
-export default function Spinner() {
+import { SpinnerCustom } from "@/components/ui/spinner";
+
+export default function LoadingScreen() {
   log.debug("Spinner");
 
   const loadingScreenInfo = useZustandStore((s) => s.loadingScreenInfo);
@@ -12,9 +12,7 @@ export default function Spinner() {
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center gap-5">
-      <LucideIcon className="size-13! animate-spin [animation-duration:2s]">
-        <LoaderIcon />
-      </LucideIcon>
+      <SpinnerCustom />
       {/* <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} /> */}
       <div className="px-10">{loadingScreenInfo}</div>
       {isLoadingScreenShowExit && (
