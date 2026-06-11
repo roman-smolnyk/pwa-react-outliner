@@ -15,7 +15,7 @@ import {
   toggleGlobalSearch,
   togglePageSearch,
 } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
 export function toggleInlineFormatting(view: EditorView, syntax: string): boolean {
@@ -258,7 +258,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
             annotations: CustomAnnotation.of("customundoredo"),
           });
         }
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -279,7 +279,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
             });
           } catch {}
         }
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -287,10 +287,10 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "ArrowUp",
       run: (view) => {
         if (view.state.selection.main.head === 0) {
-          handleBlockSelectUp(id, useZustandStore.getState().rootBlockId);
+          handleBlockSelectUp(id, useStore.getState().rootBlockId);
           return true;
         }
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return false;
       },
     },
@@ -298,10 +298,10 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "ArrowDown",
       run: (view) => {
         if (view.state.selection.main.head === view.state.doc.length) {
-          handleBlockSelectDown(id, useZustandStore.getState().rootBlockId);
+          handleBlockSelectDown(id, useStore.getState().rootBlockId);
           return true;
         }
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return false;
       },
     },
@@ -309,7 +309,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-Enter",
       run: () => {
         handleBlockAdd(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -318,7 +318,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       run: (view: EditorView) => {
         if (view.state.doc.length === 0) {
           handleBlockDelete(id);
-          useZustandStore.getState().renderPage();
+          useStore.getState().renderPage();
           return true;
         }
         return false;
@@ -328,7 +328,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-Backspace",
       run: () => {
         handleBlockDelete(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -336,7 +336,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-Delete",
       run: () => {
         handleBlockDelete(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -344,7 +344,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-ArrowRight",
       run: () => {
         handleBlockIndent(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -352,7 +352,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-ArrowLeft",
       run: () => {
         handleBlockOutdent(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -360,7 +360,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-ArrowUp",
       run: () => {
         handleBlockMoveUp(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },
@@ -368,7 +368,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
       key: "Mod-ArrowDown",
       run: () => {
         handleBlockMoveDown(id);
-        useZustandStore.getState().renderPage();
+        useStore.getState().renderPage();
         return true;
       },
     },

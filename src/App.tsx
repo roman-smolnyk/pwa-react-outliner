@@ -3,9 +3,11 @@ import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
 // import { Capacitor } from "@capacitor/core";
+// import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import log from "loglevel";
 import { useEffect } from "react";
-import { ToastContainer } from "react-toastify";
 import { LOG_LEVEL } from "../config";
 import treero from "./api/treero";
 import Authorization from "./components/Authorize/Authorization";
@@ -16,15 +18,14 @@ import PWABadge from "./components/PWA/PWABadge";
 import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ThemeProvider } from "./hooks/useTheme";
-import useZustandStore, { hydrateZustandStateWithPreferences } from "./store/useZustandStore";
-import { Toaster } from "@/components/ui/sonner";
+import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
   // log.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
-  const isHydrated = useZustandStore((s) => s.isHydrated);
-  const isAuthorized = useZustandStore((s) => s.isAuthorized);
-  const isLockScreenOpened = useZustandStore((s) => s.isLockScreenOpened);
+  const isHydrated = useStore((s) => s.isHydrated);
+  const isAuthorized = useStore((s) => s.isAuthorized);
+  const isLockScreenOpen = useStore((s) => s.isLockScreenOpen);
 
   useAppLockout();
 
@@ -45,10 +46,11 @@ function App() {
     <ThemeProvider>
       <ReadOnlyContextProvider>
         <ContentViewModeContextProvider>
-          {isAuthorized ? isLockScreenOpened ? <LockScreen /> : <Main /> : <Authorization />}
-          <PWABadge />
-          <Toaster className="top-15!" position="top-right" duration={3_000} />
-          {/* <ToastContainer
+          <TooltipProvider delay={500}>
+            {isAuthorized ? isLockScreenOpen ? <LockScreen /> : <Main /> : <Authorization />}
+            <PWABadge />
+            <Toaster className="top-15!" position="top-right" duration={3_000} />
+            {/* <ToastContainer
             containerId="toaster"
             position="top-right"
             autoClose={3_000}
@@ -72,6 +74,7 @@ function App() {
                       `;
             }}
           /> */}
+          </TooltipProvider>
         </ContentViewModeContextProvider>
       </ReadOnlyContextProvider>
     </ThemeProvider>

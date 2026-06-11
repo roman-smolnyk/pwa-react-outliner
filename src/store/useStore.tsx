@@ -2,7 +2,7 @@ import type { EditorView } from "@codemirror/view";
 import { create } from "zustand";
 import localPreferencesManager from "./preferences";
 
-export interface useZustandStoreType {
+export interface useStoreType {
   isHydrated: boolean;
 
   isAuthorized: boolean;
@@ -14,31 +14,31 @@ export interface useZustandStoreType {
   rootBlockId: string;
 
   loadingScreenInfo: string;
-  isLoadingScreenShowExit: boolean;
+  shouldShowLoadingScreenExit: boolean;
 
   selectedBlockId: string | null;
   focusBlockId: string | null;
   caretCharIndex: number;
 
-  isExplorerOpened: boolean;
-  isGlobalSearchOpened: boolean;
-  isSettingsOpened: boolean;
+  isExplorerOpen: boolean;
+  isGlobalSearchOpen: boolean;
+  isSettingsOpen: boolean;
   isPageSearchActive: boolean;
-  isChekboxSelectionActive: boolean;
-  isMoveToOpened: boolean;
-  isCommandsOpened: boolean;
+  isCheckboxSelectionActive: boolean;
+  isMoveToOpen: boolean;
+  isCommandsOpen: boolean;
 
   checkedBlockIds: Set<string>;
 
-  isLockScreenOpened: boolean;
-  autoLockScreen: number;
+  isLockScreenOpen: boolean;
+  autoLockTimeout: number;
 
   webSocketConnectionStatus: "connecting" | "connected" | "disconnected";
   viewportWidth: number;
 
   editorView: EditorView | null;
 
-  toMoveId: string | null;
+  itemIdToMove: string | null;
 
   renderPageTicker: number;
   renderPage(): void;
@@ -48,7 +48,7 @@ export interface useZustandStoreType {
   expandExplorer(): void;
 }
 
-const useZustandStore = create<useZustandStoreType>((set, get) => ({
+const useStore = create<useStoreType>((set, get) => ({
   isHydrated: false,
 
   isAuthorized: false,
@@ -60,31 +60,31 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
   rootBlockId: "",
 
   loadingScreenInfo: "Loading...",
-  isLoadingScreenShowExit: false,
+  shouldShowLoadingScreenExit: false,
 
   selectedBlockId: null,
   focusBlockId: null,
   caretCharIndex: 0,
 
-  isExplorerOpened: true,
-  isGlobalSearchOpened: false,
-  isSettingsOpened: false,
+  isExplorerOpen: true,
+  isGlobalSearchOpen: false,
+  isSettingsOpen: false,
   isPageSearchActive: false,
-  isChekboxSelectionActive: false,
-  isMoveToOpened: false,
-  isCommandsOpened: false,
+  isCheckboxSelectionActive: false,
+  isMoveToOpen: false,
+  isCommandsOpen: false,
 
   checkedBlockIds: new Set(),
 
-  isLockScreenOpened: false,
-  autoLockScreen: -1,
+  isLockScreenOpen: false,
+  autoLockTimeout: -1,
 
   webSocketConnectionStatus: "disconnected",
   viewportWidth: window.innerWidth,
 
   editorView: null,
 
-  toMoveId: null,
+  itemIdToMove: null,
 
   renderPageTicker: 0,
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
@@ -95,20 +95,20 @@ const useZustandStore = create<useZustandStoreType>((set, get) => ({
 }));
 
 export async function hydrateZustandStateWithPreferences() {
-  useZustandStore.setState({
+  useStore.setState({
     isHydrated: true,
     isAuthorized: await localPreferencesManager.get("isAuthorized"),
     isWebSocketServerOn: await localPreferencesManager.get("isWebSocketServerOn"),
     webSocketServerUrl: await localPreferencesManager.get("webSocketServerUrl"),
     roomToken: await localPreferencesManager.get("roomToken"),
     rootBlockId: await localPreferencesManager.get("rootBlockId"),
-    isLockScreenOpened: !!(await localPreferencesManager.get("lockScreenPin")),
-    autoLockScreen: await localPreferencesManager.get("autoLockScreen"),
+    isLockScreenOpen: !!(await localPreferencesManager.get("lockScreenPin")),
+    autoLockTimeout: await localPreferencesManager.get("autoLockScreen"),
   });
 }
 
 window.addEventListener("resize", () => {
-  useZustandStore.setState({ viewportWidth: window.innerWidth });
+  useStore.setState({ viewportWidth: window.innerWidth });
 });
 
-export default useZustandStore;
+export default useStore;

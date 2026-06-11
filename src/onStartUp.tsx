@@ -2,7 +2,7 @@ import { createNewAccount } from "esm-treero-api";
 import log from "loglevel";
 import { listenWebSocketStatus } from "./api/api.tsx";
 import { fillInMockupData } from "./utils/mockupData.tsx";
-import useZustandStore from "./store/useZustandStore.tsx";
+import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
 import { waitUntil } from "./utils/utilities.tsx";
 import { createWelcomeData } from "./utils/welcomeData.tsx";
@@ -23,7 +23,7 @@ export default function onStartUp() {
     yjs.idbPersistence!.whenSynced.then(async () => {
       log.debug("persistence.whenSynced.then");
 
-      const { roomToken, isNewAccount, isWebSocketServerOn, webSocketServerUrl } = useZustandStore.getState();
+      const { roomToken, isNewAccount, isWebSocketServerOn, webSocketServerUrl } = useStore.getState();
       log.debug(`isNewAccount`, isNewAccount);
 
       if (!roomToken) {
@@ -40,7 +40,7 @@ export default function onStartUp() {
           await createWelcomeData(yjs);
         }
 
-        useZustandStore.setState({ isNewAccount: false });
+        useStore.setState({ isNewAccount: false });
       }
 
       // yjs.undoManager!.clear();
@@ -53,19 +53,19 @@ export default function onStartUp() {
       const rootCollectionId = await waitUntil(() => yjs.yaccount.get("root_id"), 30 * 1000);
       if (!rootCollectionId) {
         if (isNewAccount) {
-          useZustandStore.setState({
+          useStore.setState({
             loadingScreenInfo: "Something went wrong.",
           });
         } else {
-          useZustandStore.setState({
+          useStore.setState({
             loadingScreenInfo: "Loading data from remote failed. Please make sure that your second device is online and you used valid token.",
           });
         }
-        useZustandStore.setState({ isLoadingScreenShowExit: true });
+        useStore.setState({ shouldShowLoadingScreenExit: true });
         return;
       }
 
-      useZustandStore.setState({ isDataLoaded: true });
+      useStore.setState({ isDataLoaded: true });
       log.debug("isDataLoaded", true);
 
       // const allRootTypes = Object.values(Yjs.ydoc.share);

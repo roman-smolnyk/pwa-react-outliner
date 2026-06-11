@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils";
 import log from "loglevel";
 import { useState } from "react";
 import { login, register } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 
 export default function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   log.debug("Login");
 
   const [token, setToken] = useState("");
-  const webSocketServerUrl = useZustandStore((s) => s.webSocketServerUrl);
+  const webSocketServerUrl = useStore((s) => s.webSocketServerUrl);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -30,7 +30,7 @@ export default function LoginForm({ className, ...props }: React.ComponentProps<
                   id="host"
                   placeholder="wss://..."
                   value={webSocketServerUrl}
-                  onChange={(e) => useZustandStore.setState({ webSocketServerUrl: e.target.value })}
+                  onChange={(e) => useStore.setState({ webSocketServerUrl: e.target.value })}
                 />
               </Field>
               <Field>

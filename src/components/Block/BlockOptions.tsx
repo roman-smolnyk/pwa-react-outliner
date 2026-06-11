@@ -29,12 +29,12 @@ import {
   ZoomInIcon,
 } from "lucide-react";
 import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 // import { Drawer } from "@/components/ui/drawer";
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   return (
     <DropdownMenu>
@@ -60,7 +60,7 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
           <DropdownMenuItem
             disabled={isChekboxSelectionActive}
             onClick={() => {
-              useZustandStore.setState({ isMoveToOpened: true, toMoveId: id });
+              useStore.setState({ isMoveToOpen: true, itemIdToMove: id });
             }}
           >
             <ForwardIcon />

@@ -3,7 +3,7 @@ import debounce from "lodash/debounce";
 import log from "loglevel";
 import { useMemo, useRef, useSyncExternalStore } from "react";
 import * as Y from "yjs";
-import useZustandStore from "../store/useZustandStore.tsx";
+import useStore from "../store/useStore.tsx";
 import { flattenAndFilterYTree } from "../utils/utilities.tsx";
 
 export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
@@ -29,7 +29,7 @@ export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
         for (const event of events) {
           // log.debug("event", event);
           if (event.target instanceof Y.Text) {
-            if (useZustandStore.getState().selectedBlockId) {
+            if (useStore.getState().selectedBlockId) {
               shouldDebounce = true;
               // debouncedUpdate();
             } else {

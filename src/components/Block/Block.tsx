@@ -1,19 +1,17 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS as DnDCSS } from "@dnd-kit/utilities";
-import { getItemDescendantIds } from "esm-treero-api";
-import log from "loglevel";
-import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import { INDENT } from "../../../config.tsx";
-import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
-import yjs from "../../store/yjsManager.tsx";
-import IconedButton from "../Common/IconedButton.tsx";
-import LucideIcon from "../Common/LucideIcon.tsx";
-import BlockContent from "./BlockContent.tsx";
-import { BlockOptions } from "./BlockOptions.tsx";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS as DnDCSS } from "@dnd-kit/utilities";
+import log from "loglevel";
+import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
+import { memo, useCallback, useLayoutEffect, useRef } from "react";
+import { INDENT } from "../../../config.tsx";
+import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
+import useStore from "../../store/useStore.tsx";
+import DropIndicator from "../Common/DropIndicator.tsx";
+import IndentGuides from "../Common/IndentGuide.tsx";
+import BlockContent from "./BlockContent.tsx";
+import { BlockOptions } from "./BlockOptions.tsx";
 
 function HandleButton({
   id,
@@ -57,24 +55,6 @@ function HandleButton({
   );
 }
 
-const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
-  if (depth <= 1) return null;
-
-  return (
-    <div className="absolute inset-y-0 left-0 pointer-events-none">
-      {Array.from({ length: depth - 1 }).map((_, i) => (
-        <div
-          key={`indent-guide-${id}-${i}`}
-          className="absolute top-0 bottom-0 w-px bg-border"
-          style={{
-            left: `${INDENT * i + INDENT / 2}px`,
-          }}
-        />
-      ))}
-    </div>
-  );
-});
-
 // ! Custom memo condition used
 const BlockInner = memo(
   function BlockInner({
@@ -102,7 +82,7 @@ const BlockInner = memo(
     // TODO: Add types
   }) {
     // log.debug("BlockInner", id);
-    const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+    const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
     if (isRoot) depth = 1;
 
@@ -226,14 +206,5 @@ export default function Block({
       setRefs={setRefs}
       handleProps={{ attributes, listeners }}
     />
-  );
-}
-
-function DropIndicator() {
-  return (
-    <div className="relative flex items-center w-full pl-2.5 pr-3">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-ring"></div>
-      <div className=" w-full h-1.5 rounded-full bg-ring"></div>
-    </div>
   );
 }

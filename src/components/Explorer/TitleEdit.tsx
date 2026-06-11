@@ -1,7 +1,7 @@
 import { getItem } from "esm-treero-api";
 import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
-import Input from "../Common/Input";
+import { Input } from "@/components/ui/input";
 
 export default function TitleEdit({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -27,7 +27,6 @@ export default function TitleEdit({ id, title, setIsRename }: { id: string; titl
 
   return (
     <Input
-      className="TitleEdit py-0.5!"
       placeholder="Title..."
       ref={ref}
       value={value}

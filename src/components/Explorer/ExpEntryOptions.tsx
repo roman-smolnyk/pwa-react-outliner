@@ -26,7 +26,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
 export default function ExpEntryOptions({ id, type, setIsRename }: { id: string; type: number; setIsRename: (v: boolean) => void }) {
@@ -41,7 +41,7 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
       />
       <DropdownMenuContent className="w-max">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} Options`}</DropdownMenuLabel>
+          <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DropdownMenuLabel>
 
           <DropdownMenuItem
             onClick={() => {
@@ -99,9 +99,9 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
             <DropdownMenuItem
               onClick={() => {
                 const ypage = getPage(yjs.ydoc, id);
-                useZustandStore.setState({
-                  isMoveToOpened: true,
-                  toMoveId: ypage.get("id"),
+                useStore.setState({
+                  isMoveToOpen: true,
+                  itemIdToMove: ypage.get("id"),
                 });
               }}
             >

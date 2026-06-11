@@ -1,14 +1,14 @@
 import log from "loglevel";
 import { logout } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 
 import { SpinnerCustom } from "@/components/ui/spinner";
 
 export default function LoadingScreen() {
   log.debug("Spinner");
 
-  const loadingScreenInfo = useZustandStore((s) => s.loadingScreenInfo);
-  const isLoadingScreenShowExit = useZustandStore((s) => s.isLoadingScreenShowExit);
+  const loadingScreenInfo = useStore((s) => s.loadingScreenInfo);
+  const isLoadingScreenShowExit = useStore((s) => s.shouldShowLoadingScreenExit);
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center gap-5">

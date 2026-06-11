@@ -1,14 +1,16 @@
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
 import debounce from "lodash/debounce";
-import { ChevronDownIcon, ChevronRightIcon, CopyMinusIcon, CopyPlusIcon, FileTextIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown, ChevronRight, FileText, FoldVertical, UnfoldVertical } from "lucide-react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { handleBlockOpen, toggleGlobalSearch } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import { FloatingWindow } from "../Common/FloatingWindow";
-import IconedButton from "../Common/IconedButton";
-import Input from "../Common/Input";
-import LucideIcon from "../Common/LucideIcon";
+import ResponsiveModal from "../Common/ResponsiveModal";
 
 interface Clip {
   text: string;
@@ -78,21 +80,25 @@ function MatchLine({ clip, query, onClick }: { clip: Clip; query: string; onClic
   const parts = clip.text.split(splitRe);
 
   return (
-    <div className="MatchLine group/line min-w-0 hover:bg-accent cursor-pointer flex items-baseline gap-0" onClick={onClick}>
-      <span className="flex-1 min-w-0 pl-8 pr-3 py-1 text-sm truncate">
-        {clip.hasLeadingEllipsis && <span className="mr-0.5 text-muted-foreground/40 select-none">…</span>}
+    <div
+      className="min-w-0 hover:bg-accent hover:text-accent-foreground rounded transition-colors cursor-pointer
+                flex items-baseline gap-0"
+      onClick={onClick}
+    >
+      <span className="flex-1 min-w-0 pl-8 pr-3 py-1.5 truncate">
+        {clip.hasLeadingEllipsis && <span className="mr-0.5 text-muted-foreground">…</span>}
         {parts.map((part, idx) =>
           idx % 2 === 1 ? (
-            <mark key={idx} className="px-0.5 bg-warning text-warning-foreground rounded-xs">
+            <mark key={idx} className="px-0.5 bg-warning text-warning-foreground rounded-xs font-medium">
               {part}
             </mark>
           ) : (
-            <span key={idx} className="text-muted-foreground group-hover/line:text-foreground">
+            <span key={idx} className="">
               {part}
             </span>
           ),
         )}
-        {clip.hasTrailingEllipsis && <span className="ml-0.5 text-muted-foreground/40 select-none">…</span>}
+        {clip.hasTrailingEllipsis && <span className="ml-0.5 text-muted-foreground">…</span>}
       </span>
     </div>
   );
@@ -100,42 +106,59 @@ function MatchLine({ clip, query, onClick }: { clip: Clip; query: string; onClic
 
 function PageGroupSection({ group, query, isCollapsed, onToggle }: { group: PageGroup; query: string; isCollapsed: boolean; onToggle: () => void }) {
   return (
-    <div className="PageGroupSection">
-      {/* File header */}
-      <div
-        className="group/header sticky top-0 px-2 py-1 z-10 bg-background hover:bg-accent border-b border-border cursor-pointer flex items-center gap-1.5"
-        onClick={onToggle}
-      >
-        <span className="shrink-0 w-3 text-muted-foreground/60 flex items-center">
-          {isCollapsed ? <ChevronRightIcon size={12} /> : <ChevronDownIcon size={12} />}
-        </span>
-        <FileTextIcon size={13} className="shrink-0 text-muted-foreground" />
-        <span className="leading-none truncate flex-1 group-hover/header:text-foreground">{group.pageTitle}</span>
-        {group.path.length > 0 && <span className="text text-muted-foreground/50 truncate leading-none">{group.path.join(" / ")}</span>}
-        <span className="shrink-0 min-w-5 ml-1 px-1.5 py-1 tabular-nums text-xs text-center bg-accent text-accent-foreground rounded leading-none">
-          {group.totalMatches}
-        </span>
-      </div>
+    <Collapsible open={!isCollapsed} onOpenChange={onToggle} className="w-full border-b border-border last:border-0">
+      <CollapsibleTrigger className="sticky top-0 w-full">
+        <div
+          className="px-2 py-2 z-10 bg-background hover:bg-accent hover:text-accent-foreground rounded
+                    cursor-pointer select-none transition-colors
+                    flex items-center gap-2"
+        >
+          <span className="shrink-0 size-4 text-muted-foreground flex items-center justify-center">
+            {isCollapsed ? <ChevronRight /> : <ChevronDown />}
+          </span>
+          <FileText className="shrink-0 size-4 text-muted-foreground" />
+          <p className="flex-1 truncate font-medium text-start">{group.pageTitle}</p>
+          <div className="max-w-1/3">
+            {group.path.length > 0 && (
+              <Breadcrumb>
+                <BreadcrumbList className="flex-nowrap overflow-hidden">
+                  {group.path.map((item, idx) => {
+                    return (
+                      <Fragment key={idx}>
+                        <BreadcrumbItem>
+                          <span className="max-w-20 truncate">{item}</span>
+                        </BreadcrumbItem>
 
-      {/* Match lines */}
-      {!isCollapsed && (
-        <div className="pb-1">
-          {group.blocks.map((block) =>
-            block.clips.map((clip, i) => (
-              <MatchLine
-                key={`clip-${block.id}-${i}`}
-                clip={clip}
-                query={query}
-                onClick={async () => {
-                  toggleGlobalSearch();
-                  await handleBlockOpen(block.id);
-                }}
-              />
-            )),
-          )}
+                        {group.path.length - 1 !== idx && <BreadcrumbSeparator />}
+                      </Fragment>
+                    );
+                  })}
+                </BreadcrumbList>
+              </Breadcrumb>
+            )}
+          </div>
+          <span className="shrink-0 min-w-5 h-5 px-1 tabular-nums text-xs font-semibold bg-secondary text-secondary-foreground rounded flex items-center justify-center ">
+            {group.totalMatches}
+          </span>
         </div>
-      )}
-    </div>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent className="">
+        {group.blocks.map((block) =>
+          block.clips.map((clip, i) => (
+            <MatchLine
+              key={`clip-${block.id}-${i}`}
+              clip={clip}
+              query={query}
+              onClick={async () => {
+                toggleGlobalSearch();
+                await handleBlockOpen(block.id);
+              }}
+            />
+          )),
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -145,16 +168,15 @@ export default function GlobalSearch() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [collapsedPages, setCollapsedPages] = useState<Set<string>>(new Set());
 
-  const isGlobalSearchOpened = useZustandStore((s) => s.isGlobalSearchOpened);
+  const isGlobalSearchOpen = useStore((s) => s.isGlobalSearchOpen);
 
-  const close = useCallback(() => {
-    useZustandStore.setState({ isGlobalSearchOpened: false });
+  const onOpenChange = useCallback(() => {
+    useStore.setState({ isGlobalSearchOpen: false });
   }, []);
 
-  // Auto-focus on open
+  // Auto-focus on entry
   useEffect(() => {
     refInput.current?.focus();
-    setTimeout(() => refInput.current?.focus(), 250);
   }, []);
 
   const debouncedCallback = useCallback(
@@ -183,7 +205,6 @@ export default function GlobalSearch() {
       if (content.toLowerCase().includes(debouncedQuery)) {
         matchingIds.push(yblock.get("id"));
       }
-      // if (matchingIds.length >= 80) break;
     }
 
     const pageMap = new Map<string, PageGroup>();
@@ -193,7 +214,6 @@ export default function GlobalSearch() {
       if (!yblock) continue;
 
       const rootBlockId = isRootItem(yjs.yblocks, id) ? yblock.get("id") : getItemParent(yjs.yblocks, id).get("id");
-
       const ypage = getPageByBlockId(yjs.ydoc, rootBlockId);
       if (!ypage) continue;
 
@@ -231,8 +251,13 @@ export default function GlobalSearch() {
 
   const togglePage = useCallback((pageId: string) => {
     setCollapsedPages((prev) => {
+      console.log("zebra");
       const next = new Set(prev);
-      next.has(pageId) ? next.delete(pageId) : next.add(pageId);
+      if (next.has(pageId)) {
+        next.delete(pageId);
+      } else {
+        next.add(pageId);
+      }
       return next;
     });
   }, []);
@@ -248,65 +273,61 @@ export default function GlobalSearch() {
   const isAllCollapsed = groupedResults.length > 0 && collapsedPages.size === groupedResults.length;
 
   return (
-    <FloatingWindow isOpen={isGlobalSearchOpened} setIsOpen={close}>
-      <div className="GlobalSearch px-3 py-2 border-b border-border flex items-center justify-between gap-2">
-        <h3 className="">Global Search</h3>
-        <div className="ml-auto flex items-center gap-4 sm:gap-2">
+    <ResponsiveModal title="Global Search" open={isGlobalSearchOpen} onOpenChange={onOpenChange}>
+      <div className="GlobalSearch min-h-0 flex flex-col gap-2">
+        <Input
+          ref={refInput}
+          placeholder="Search..."
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+          }}
+        />
+
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-muted-foreground">
+            {debouncedQuery && groupedResults.length > 0 && (
+              <span>
+                {totalMatches} match{totalMatches !== 1 ? "es" : ""} across {totalBlocks} block{totalBlocks !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
           {groupedResults.length > 0 && (
-            <IconedButton title={isAllCollapsed ? "Expand all" : "Collapse all"} onClick={isAllCollapsed ? expandAll : collapseAll}>
-              <LucideIcon icon={isAllCollapsed ? <CopyPlusIcon /> : <CopyMinusIcon />} />
-            </IconedButton>
+            <Button variant="ghost" onClick={isAllCollapsed ? expandAll : collapseAll}>
+              {isAllCollapsed ? (
+                <>
+                  <UnfoldVertical />
+                  Expand all
+                </>
+              ) : (
+                <>
+                  <FoldVertical />
+                  Collapse all
+                </>
+              )}
+            </Button>
           )}
-          <IconedButton onClick={close}>
-            <LucideIcon icon={<XIcon />} />
-          </IconedButton>
+        </div>
+
+        <Separator />
+
+        <div className="text-sm text-muted-foreground flex items-center justify-center">
+          {debouncedQuery ? groupedResults.length === 0 ? <p>No matches found</p> : null : <p>Type at least 3 characters to search globally</p>}
+        </div>
+
+        {/* Scrollable Container Wrapper */}
+        <div className="flex-1 overflow-y-auto overscroll-contain overflow-x-hidden">
+          {groupedResults.map((group) => (
+            <PageGroupSection
+              key={group.pageId}
+              group={group}
+              query={debouncedQuery}
+              isCollapsed={collapsedPages.has(group.pageId)}
+              onToggle={() => togglePage(group.pageId)}
+            />
+          ))}
         </div>
       </div>
-
-      <div className="px-3 pt-3 pb-2">
-        <Input ref={refInput} placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} />
-      </div>
-
-      {/* Status bar */}
-      <div className="h-5 px-3 pb-1.5 flex items-center">
-        {debouncedQuery ? (
-          groupedResults.length > 0 ? (
-            <span className="text-xs text-muted-foreground leading-none">
-              {totalMatches} match{totalMatches !== 1 ? "es" : ""} across {totalBlocks} block{totalBlocks !== 1 ? "s" : ""} in {groupedResults.length}{" "}
-              page{groupedResults.length !== 1 ? "s" : ""}
-            </span>
-          ) : (
-            <span className="text-sm text-muted-foreground/60 leading-none">No results for &ldquo;{debouncedQuery}&rdquo;</span>
-          )
-        ) : query.trim().length > 0 && query.trim().length < 3 ? (
-          <span className="text-sm text-muted-foreground/60 leading-none">Type at least 3 characters…</span>
-        ) : null}
-      </div>
-
-      {/* Results */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden border-t border-border">
-        {groupedResults.map((group) => (
-          <PageGroupSection
-            key={group.pageId}
-            group={group}
-            query={debouncedQuery}
-            isCollapsed={collapsedPages.has(group.pageId)}
-            onToggle={() => togglePage(group.pageId)}
-          />
-        ))}
-
-        {debouncedQuery && groupedResults.length === 0 && (
-          <div className="py-10 text-center">
-            <p className="text-sm text-muted-foreground">No results</p>
-          </div>
-        )}
-
-        {!debouncedQuery && (
-          <div className="py-10 text-center">
-            <p className="text-sm text-muted-foreground/50">Start typing to search</p>
-          </div>
-        )}
-      </div>
-    </FloatingWindow>
+    </ResponsiveModal>
   );
 }

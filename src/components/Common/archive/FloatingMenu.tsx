@@ -20,11 +20,11 @@ export default function FloatingMenu({
   className?: string;
 } & React.ComponentPropsWithoutRef<"button">) {
   // Combined inline here
-  const [isOpened, setIsOpened] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
-    open: isOpened,
-    onOpenChange: setIsOpened,
+    open: isOpen,
+    onOpenChange: setIsOpen,
     placement,
     middleware: [offset(offsetValue), flip(), shift()],
     whileElementsMounted: autoUpdate,
@@ -52,14 +52,14 @@ export default function FloatingMenu({
     <>
       {clonedTrigger}
 
-      {isOpened && (
+      {isOpen && (
         <FloatingPortal>
           <div
             className="FloatingMenu py-1 text-popover-foreground bg-popover border border-border rounded shadow-lg z-50 flex flex-col"
             style={floatingStyles}
             ref={refs.setFloating}
             {...getFloatingProps()}
-            onClick={() => setIsOpened(false)}
+            onClick={() => setIsOpen(false)}
           >
             {children}
           </div>

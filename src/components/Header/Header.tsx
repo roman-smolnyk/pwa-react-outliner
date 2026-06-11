@@ -15,9 +15,7 @@ import {
 import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import useZustandStore from "../../store/useZustandStore";
-import IconedButton from "../Common/IconedButton";
-import LucideIcon from "../Common/LucideIcon";
+import useStore from "../../store/useStore";
 import MainMenu from "../MainMenu/MainMenu";
 
 export default function Header() {
@@ -25,16 +23,16 @@ export default function Header() {
   const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
 
-  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
+      className="Header fixed top-0 right-0 min-w-0 min-h-10 px-4 z-10
       bg-sidebar text-sidebar-foreground border-b border-border
       flex"
       style={{
-        left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
+        left: `${isExplorerOpen ? "var(--explorer-width)" : "0px"}`,
         // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
         // clipPath: "inset(0px 0px -20px 0px)",
       }}
@@ -42,37 +40,41 @@ export default function Header() {
       {/* <div className="px-2 py-3 sm:py-1"> */}
       {/* Left icons */}
 
-      <div className="flex-1 flex min-w-0">
-        <div className="mr-4 flex">
-          {!isExplorerOpened && (
-            <IconedButton
+      <div className="flex-1 flex items-center justify-center min-w-0">
+        <div className="flex">
+          {!isExplorerOpen && (
+            <Button
+              variant="bare"
+              size="tool"
               title="Open Explorer"
               onClick={() => {
-                useZustandStore.getState().expandExplorer();
+                useStore.getState().expandExplorer();
               }}
             >
-              <LucideIcon icon={<PanelLeftIcon />} />
-            </IconedButton>
+              <PanelLeftIcon />
+            </Button>
           )}
         </div>
 
-        <div className="flex-1 min-w-0 overflow-x-auto flex">
-          <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">{/* <div className="Spacer"></div> */}</div>
-
+        <div className="flex-1 min-w-0 overflow-x-auto overscroll-contain flex">
           <div className="Spacer flex-1 min-w-4" />
 
-          <div className="RightIcons flex items-center justify-center gap-4 sm:gap-2">
-            <IconedButton
+          <div className="RightIcons flex">
+            <Button
+              variant="bare"
+              size="tool"
               title="Toggle checkboxes selection"
               className=""
               onClick={() => {
                 toggleCheckboxSelection();
               }}
             >
-              <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
-            </IconedButton>
+              {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
+            </Button>
 
-            <IconedButton
+            <Button
+              variant="bare"
+              size="tool"
               title="Cycle through content view modes: Source, Markdown, Live Preview."
               onClick={() => {
                 if (contentViewMode === "source") {
@@ -85,24 +87,30 @@ export default function Header() {
               }}
             >
               {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-              <LucideIcon
-                icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
-              />
-            </IconedButton>
+              {contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
+            </Button>
 
-            <IconedButton title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>
-              <LucideIcon icon={readOnly ? <PencilOffIcon /> : <PencilIcon />} />
-            </IconedButton>
-
-            <IconedButton
-              title="Open commands"
-              className=""
+            <Button
+              variant="bare"
+              size="tool"
+              title="Toggle Edit and View modes"
               onClick={() => {
-                useZustandStore.setState({ isCommandsOpened: true });
+                setReadOnly(!readOnly);
               }}
             >
-              <LucideIcon icon={<SquareTerminalIcon />} />
-            </IconedButton>
+              {readOnly ? <PencilOffIcon /> : <PencilIcon />}
+            </Button>
+
+            <Button
+              variant="bare"
+              size="tool"
+              title="Open commands"
+              onClick={() => {
+                useStore.setState({ isCommandsOpen: true });
+              }}
+            >
+              <SquareTerminalIcon />
+            </Button>
 
             <Button
               variant="bare"
@@ -114,12 +122,14 @@ export default function Header() {
             >
               <SearchIcon />
             </Button>
+
+            <MainMenu />
           </div>
         </div>
 
-        <div className="ml-3 flex items-center justify-center">
-          <MainMenu />
-        </div>
+        {/* <div className="flex items-center justify-center">
+          
+        </div> */}
       </div>
       {/* </div> */}
     </div>

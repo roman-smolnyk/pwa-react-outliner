@@ -3,34 +3,35 @@ import log from "loglevel";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import { isMobile } from "../../utils/utilities";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
   log.debug("ExplorerContainer");
 
   const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
 
-  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
 
   // Moved explorer panel actions here to prevent Main component rerender
-  const explorerAction = useZustandStore((s) => s.explorerPanelAction);
+  const explorerAction = useStore((s) => s.explorerPanelAction);
   useEffect(() => {
     if (!explorerPanelRef.current) return;
     if (explorerAction === "expand") {
       explorerPanelRef.current.expand();
-      useZustandStore.setState({ isExplorerOpened: true });
+      useStore.setState({ isExplorerOpen: true });
       if (isMobile()) {
-        useZustandStore.setState({ isPageSearchActive: false });
+        useStore.setState({ isPageSearchActive: false });
       }
     } else if (explorerAction === "collapse") {
       explorerPanelRef.current.collapse();
-      useZustandStore.setState({ isExplorerOpened: false });
+      useStore.setState({ isExplorerOpen: false });
     }
-    useZustandStore.setState({ explorerPanelAction: "" });
+    useStore.setState({ explorerPanelAction: "" });
   }, [explorerAction, explorerPanelRef]);
 
   useEffect(() => {
@@ -56,11 +57,10 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
 
   return (
     <>
-      <div className="ExplorerContainer flex-1 relative z-0 min-h-0 flex flex-col">
+      <div className="ExplorerContainer flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
         <ExplorerToolsPanel explorerPanelRef={explorerPanelRef} />
         <div
-          className="flex-1 pt-5
-                    bg-sidebar text-sidebar-foreground overflow-y-auto overscroll-y-contain"
+          className="flex-1 pt-5 overflow-y-auto overscroll-contain"
           // style={{
           //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
           // }}
@@ -69,13 +69,13 @@ export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelR
           <div className="Spacer h-[50dvh]"></div>
         </div>
       </div>
-      {isExplorerOpened &&
+      {isExplorerOpen &&
         isMobile() &&
         createPortal(
           <div
             className="ExplorerShadow fixed top-0 right-0 h-full w-[10dvw] bg-black/40 z-10"
             onClick={() => {
-              useZustandStore.setState({ explorerPanelAction: "collapse" });
+              useStore.setState({ explorerPanelAction: "collapse" });
             }}
           />,
           document.getElementById("root")!,

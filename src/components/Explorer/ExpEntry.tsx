@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
 import { COLLECTION_TYPE, getItem, PAGE_TYPE } from "esm-treero-api";
@@ -7,8 +8,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
-import IconedButton from "../Common/IconedButton.tsx";
-import LucideIcon from "../Common/LucideIcon.tsx";
+import DropIndicator from "../Common/DropIndicator.tsx";
+import IndentGuides from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleEdit from "./TitleEdit.tsx";
@@ -31,58 +32,21 @@ function HandleButton({
   onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <IconedButton
-      className="HandleButton [&_svg]:size-5! active:*:scale-100!"
-      {...attributes}
-      {...listeners}
-      onClick={(e) => type === COLLECTION_TYPE && onClick(e)}
-    >
-      <LucideIcon>
-        {type === PAGE_TYPE ? (
-          <FileTextIcon />
-        ) : childrenLength !== undefined && childrenLength > 0 ? (
-          collapsed ? (
-            <FolderInputIcon />
-          ) : (
-            <FolderDownIcon />
-          )
+    <Button className="" variant="ghost" size="icon-sm" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
+      {type === PAGE_TYPE ? (
+        <FileTextIcon />
+      ) : childrenLength !== undefined && childrenLength > 0 ? (
+        collapsed ? (
+          <FolderInputIcon />
         ) : (
-          <FolderIcon />
-        )}
-      </LucideIcon>
-    </IconedButton>
+          <FolderDownIcon />
+        )
+      ) : (
+        <FolderIcon />
+      )}
+    </Button>
   );
-
-  // return (
-  //   <Button className="size-5! active:*:scale-100!" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
-  //     <LucideIcon className="size-auto!">
-  //       {type === PAGE_TYPE ? (
-  //         <GripVerticalIcon />
-  //       ) : (
-  //         <ChevronRightIcon className={`transition-transform duration-200 ease-in-out ${!collapsed ? "rotate-90" : ""}`} />
-  //       )}
-  //     </LucideIcon>
-  //   </Button>
-  // );
 }
-
-const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
-  if (depth <= 1) return null;
-
-  return (
-    <div className="absolute inset-y-0 left-0 pointer-events-none">
-      {Array.from({ length: depth - 1 }).map((_, i) => (
-        <div
-          key={`indent-guide-${id}-${i}`}
-          className="absolute top-0 bottom-0 w-px bg-border"
-          style={{
-            left: `${INDENT * i + INDENT / 2}px`,
-          }}
-        />
-      ))}
-    </div>
-  );
-});
 
 const ExpEntryInner = memo(
   function ExpEntryInner({
@@ -228,14 +192,5 @@ export default function ExpEntry({
       setRefs={setRefs}
       handleProps={{ attributes, listeners }}
     />
-  );
-}
-
-function DropIndicator() {
-  return (
-    <div className="relative flex items-center w-full pl-2.5 pr-3 z-20">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-info"></div>
-      <div className=" w-full h-1.5 rounded-full bg-info"></div>
-    </div>
   );
 }

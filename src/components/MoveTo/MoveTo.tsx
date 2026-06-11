@@ -1,27 +1,25 @@
-import { getAllPages, getBlock, getPage, getPageByRootBlockId, isRootItem, mergePages } from "esm-treero-api";
-import { XIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { getAllPages, getBlock, getPage, mergePages } from "esm-treero-api";
 import { useMemo, useState } from "react";
-import useZustandStore from "../../store/useZustandStore";
+import { handleBlockMove, handleBlockOpen } from "../../api/api";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import type { PageT } from "../../types/types";
-import { FloatingWindow } from "../Common/FloatingWindow";
-import IconedButton from "../Common/IconedButton";
-import Input from "../Common/Input";
-import LucideIcon from "../Common/LucideIcon";
-import { handleBlockMove, handleBlockOpen } from "../../api/api";
+import ResponsiveModal from "../Common/ResponsiveModal";
 
-function Page({ page, onClose }: { page: PageT; onClose: () => void }) {
+function PageItem({ page, onClose }: { page: PageT; onClose: () => void }) {
   return (
     <div
       className="hover:bg-accent px-3 py-1"
       onClick={() => {
-        const { toMoveId } = useZustandStore.getState();
-        if (toMoveId) {
+        const { itemIdToMove } = useStore.getState();
+        if (itemIdToMove) {
           try {
-            const yblock = getBlock(yjs.ydoc, toMoveId);
+            const yblock = getBlock(yjs.ydoc, itemIdToMove);
             handleBlockMove(yblock.get("id"), page.root_id, -1);
           } catch {
-            const ypage = getPage(yjs.ydoc, toMoveId);
+            const ypage = getPage(yjs.ydoc, itemIdToMove);
             mergePages(yjs.ydoc, ypage.get("id"), page.id, -1);
             handleBlockOpen(page.root_id);
           }
@@ -37,56 +35,48 @@ function Page({ page, onClose }: { page: PageT; onClose: () => void }) {
 export function MoveTo() {
   const [query, setQuery] = useState("");
 
-  const isMoveToOpened = useZustandStore((s) => s.isMoveToOpened);
-  const toMoveId = useZustandStore((s) => s.toMoveId);
+  const isMoveToOpen = useStore((s) => s.isMoveToOpen);
+  const itemIdToMove = useStore((s) => s.itemIdToMove);
 
   const pages = useMemo(() => {
     const pages: PageT[] = [];
     for (const ypage of getAllPages(yjs.ydoc)) {
       if (query.trim().length) {
-        if (ypage.get("title").includes(query.trim().toLowerCase()) && ypage.get("id") !== toMoveId) {
+        if (ypage.get("title").includes(query.trim().toLowerCase()) && ypage.get("id") !== itemIdToMove) {
           pages.push(ypage.toJSON() as PageT);
         }
       } else {
-        if (ypage.get("id") !== toMoveId) {
+        if (ypage.get("id") !== itemIdToMove) {
           pages.push(ypage.toJSON() as PageT);
         }
       }
     }
     return pages;
-  }, [query, toMoveId]);
+  }, [query, itemIdToMove]);
 
   function onClose() {
-    useZustandStore.setState({ isMoveToOpened: false, toMoveId: null });
+    useStore.setState({ isMoveToOpen: false, itemIdToMove: null });
   }
 
   return (
-    <FloatingWindow isOpen={isMoveToOpened} setIsOpen={() => onClose()}>
-      <div className="p-3 border-b border-border flex items-center justify-between">
-        <div>
-          <h3>Move To</h3>
-        </div>
-        <IconedButton onClick={() => onClose()}>
-          <LucideIcon icon={<XIcon />} />
-        </IconedButton>
-      </div>
+    <ResponsiveModal title="Move To" open={isMoveToOpen} onOpenChange={onClose}>
+      <div className="min-h-0 flex flex-col gap-4">
+        <Input
+          placeholder="Document name"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+          }}
+        />
 
-      <div className="px-3 pb-3 pt-5 flex flex-col gap-3">
-        <div className="flex flex-col gap-3">
-          <Input
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-          />
+        <Separator />
+
+        <div className="flex flex-col overflow-x-auto overscroll-contain">
+          {pages.map((page, idx) => {
+            return <PageItem key={`moveto-${idx}`} page={page} onClose={onClose} />;
+          })}
         </div>
       </div>
-
-      <div className="flex flex-col overflow-x-auto">
-        {pages.map((page, idx) => {
-          return <Page key={`moveto-${idx}`} page={page} onClose={onClose} />;
-        })}
-      </div>
-    </FloatingWindow>
+    </ResponsiveModal>
   );
 }

@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockMove } from "../../api/api.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
+import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatBlocksT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
@@ -35,10 +35,10 @@ export default function Page({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
-  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
-  const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
+  const renderPageTicker = useStore((s) => s.renderPageTicker);
+  const isPageSearchActive = useStore((s) => s.isPageSearchActive);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+  const checkedBlockIds = useStore((s) => s.checkedBlockIds);
   // log.debug("checkedBlockIds", checkedBlockIds);
 
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, !isPageSearchActive, activeId, renderPageTicker) as FlatBlocksT;

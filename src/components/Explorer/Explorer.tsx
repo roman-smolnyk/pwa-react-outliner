@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
@@ -19,7 +19,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const rootBlockId = useZustandStore((s) => s.rootBlockId);
+  const rootBlockId = useStore((s) => s.rootBlockId);
 
   let ypage: YExpEntryMap;
   try {

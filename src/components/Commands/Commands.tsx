@@ -9,13 +9,13 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import useZustandStore from "@/store/useZustandStore";
+import useStore from "@/store/useStore";
 import { CalculatorIcon, CalendarIcon, CreditCardIcon, SettingsIcon, SmileIcon, UserIcon } from "lucide-react";
 
 export default function Commands() {
   // const [open, setOpen] = useState(false);
 
-  const isCommandsOpened = useZustandStore((s) => s.isCommandsOpened);
+  const isCommandsOpen = useStore((s) => s.isCommandsOpen);
 
   return (
     <div className="flex flex-col gap-4">
@@ -23,9 +23,9 @@ export default function Commands() {
         Open Menu
       </Button> */}
       <CommandDialog
-        open={isCommandsOpened}
+        open={isCommandsOpen}
         onOpenChange={() => {
-          useZustandStore.setState({ isCommandsOpened: false });
+          useStore.setState({ isCommandsOpen: false });
         }}
       >
         <Command>

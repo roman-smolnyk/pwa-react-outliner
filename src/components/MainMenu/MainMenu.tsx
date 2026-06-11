@@ -7,7 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Kbd } from "@/components/ui/kbd";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useConfirm } from "@/hooks/useConfirm";
 import log from "loglevel";
 import {
@@ -32,7 +34,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { copyToClipboard, hardPWAReload, lockScreen, logout } from "../../api/api";
 import { useTheme } from "../../hooks/useTheme";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import { downloadExport } from "../../utils/exportImport";
 import ZipUploadInput from "./UploadBackup";
 
@@ -41,7 +43,7 @@ declare const __APP_VERSION__: string;
 export default function MainMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
+  const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
 
   const { theme, setTheme } = useTheme();
   const [confirm, ConfirmationDialog] = useConfirm();
@@ -52,7 +54,7 @@ export default function MainMenu() {
       <ZipUploadInput ref={fileInputRef} />
       <ConfirmationDialog />
 
-      <DropdownMenu>
+      <DropdownMenu modal={true}>
         <DropdownMenuTrigger
           render={
             <Button variant="bare" size="tool">
@@ -60,25 +62,33 @@ export default function MainMenu() {
             </Button>
           }
         />
-        <DropdownMenuContent className="w-max" align="end">
+        <DropdownMenuContent className="w-max" align="end" sideOffset={2}>
           <DropdownMenuGroup>
             {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
 
             <div className="p-1 flex justify-between gap-4">
-              <Button
-                variant="outline"
-                title={`WebSocket status: ${webSocketConnectionStatus}`}
-                onClick={() => {
-                  toast.info(`WebSocket status: '${webSocketConnectionStatus}'`);
-                }}
-              >
-                {/* {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />} */}
-                {webSocketConnectionStatus === "connecting" && <RefreshCwIcon className="animate-spin" />}
-                {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
-                {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
-                {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
-                {/* {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />} */}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        toast.info(`Web Socket "${webSocketConnectionStatus}"`);
+                      }}
+                    >
+                      {/* {webSocketConnectionStatus === "connecting" && <CloudAlertIcon /> */}
+                      {webSocketConnectionStatus === "connecting" && <RefreshCwIcon className="animate-spin" />}
+                      {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
+                      {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
+                      {/* {webSocketConnectionStatus === "turned off" && <CloudCogIcon /> */}
+                    </Button>
+                  }
+                />
+                <TooltipContent side="left">
+                  Web Socket <Kbd>{webSocketConnectionStatus}</Kbd>
+                </TooltipContent>
+              </Tooltip>
+
               <ToggleGroup
                 variant="outline"
                 value={[theme as string]}
@@ -104,7 +114,7 @@ export default function MainMenu() {
 
             <DropdownMenuItem
               onClick={async () => {
-                await copyToClipboard(useZustandStore.getState().roomToken as string);
+                await copyToClipboard(useStore.getState().roomToken as string);
                 // toast("Copied", { containerId: "toaster" });
               }}
             >
@@ -114,8 +124,8 @@ export default function MainMenu() {
 
             <DropdownMenuItem
               onClick={() => {
-                log.debug("isSettingsOpened", true);
-                useZustandStore.setState({ isSettingsOpened: true });
+                log.debug("isSettingsOpen", true);
+                useStore.setState({ isSettingsOpen: true });
               }}
             >
               <BoltIcon />

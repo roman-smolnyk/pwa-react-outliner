@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import { useTheme } from "../../hooks/useTheme";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";
 import CM6Editor from "../Editor/CM6Editor";
 import Markdown from "../Markdown/Markdown";
@@ -17,14 +17,14 @@ export default function BlockContent({ id, content }: { id: string; content: str
   const { theme, setTheme } = useTheme();
   const isDarkTheme = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-  const focusBlockId = useZustandStore((s) => s.focusBlockId);
-  const caretCharIndex = useZustandStore((s) => s.caretCharIndex);
+  const focusBlockId = useStore((s) => s.focusBlockId);
+  const caretCharIndex = useStore((s) => s.caretCharIndex);
 
   useEffect(() => {
     if (focusBlockId === id) {
       setIsEdit(true);
       setCharIndex(caretCharIndex);
-      useZustandStore.setState({ focusBlockId: null, caretCharIndex: 0 });
+      useStore.setState({ focusBlockId: null, caretCharIndex: 0 });
     }
   }, [focusBlockId, id]);
 

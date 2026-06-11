@@ -1,14 +1,14 @@
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import BlockPath from "../Block/BlockPath";
 import Page from "./Page";
 
 export default function PageContainer() {
   // log.debug("PageContainer");
-  const rootBlockId = useZustandStore((s) => s.rootBlockId);
-  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+  const rootBlockId = useStore((s) => s.rootBlockId);
+  const isPageSearchActive = useStore((s) => s.isPageSearchActive);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   const yblock = yjs.yblocks.get(rootBlockId);
 
@@ -36,9 +36,9 @@ export default function PageContainer() {
   return (
     <div
       className="PageContainer flex-1 relative z-0 min-w-xs min-h-0 
-                flex flex-col overflow-y-auto overscroll-y-contain"
+                flex flex-col overflow-y-auto overscroll-contain"
     >
-      <div className={`flex-1 w-full md:w-3/4 max-w-3xl pl-3 pr-4 sm:px-5 mx-auto ${addSpace ? "pt-22" : "pt-12"}`}>
+      <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4  mx-auto ${addSpace ? "pt-22" : "pt-12"}`}>
         {parentId && <BlockPath id={rootBlockId} />}
         <Page rootId={rootBlockId} />
         <div className="Spacer h-[50dvh]"></div>

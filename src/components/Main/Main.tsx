@@ -5,7 +5,7 @@ import { Group, Panel, Separator, useDefaultLayout, type PanelImperativeHandle }
 import { MOBILE_WIDTH } from "../../../config";
 import { toggleGlobalSearch, togglePageSearch } from "../../api/api";
 import onStartUp from "../../onStartUp";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import Commands from "../Commands/Commands";
 import ExplorerContainer from "../Explorer/ExplorerContainer";
@@ -62,8 +62,8 @@ function useSetupHotkeys() {
 export default function Main() {
   log.debug("Main");
   const explorerPanelRef = useRef<PanelImperativeHandle>(null);
-  const isDataLoaded = useZustandStore((s) => s.isDataLoaded);
-  const viewportWidth = useZustandStore((s) => s.viewportWidth);
+  const isDataLoaded = useStore((s) => s.isDataLoaded);
+  const viewportWidth = useStore((s) => s.viewportWidth);
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "panelsLayout",
@@ -98,9 +98,9 @@ export default function Main() {
           collapsedSize={0}
           onResize={(size) => {
             if (size.inPixels > 0) {
-              useZustandStore.setState({ isExplorerOpened: true });
+              useStore.setState({ isExplorerOpen: true });
             } else {
-              useZustandStore.setState({ isExplorerOpened: false });
+              useStore.setState({ isExplorerOpen: false });
             }
 
             document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
@@ -125,9 +125,9 @@ export default function Main() {
         </Separator>
         <Panel id="PagePanel">
           <div className="h-dvh overflow-hidden flex flex-col">
-            <div className="Spacer min-h-12 sm:min-h-8"></div>
+            <div className="Spacer min-h-10"></div>
             <PageContainer />
-            <div className="Spacer min-h-12 sm:min-h-8"></div>
+            <div className="Spacer min-h-12"></div>
           </div>
         </Panel>
       </Group>
