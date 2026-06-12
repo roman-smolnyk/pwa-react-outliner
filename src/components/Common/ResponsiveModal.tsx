@@ -20,7 +20,7 @@ export default function ResponsiveModal({
 
   return isMobile ? (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-screen! max-w-none!">
+      <SheetContent side="right" className="data-[side=right]:w-full">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
         </SheetHeader>

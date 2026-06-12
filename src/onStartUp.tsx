@@ -36,6 +36,7 @@ export default function onStartUp() {
 
         if (import.meta.env.DEV) {
           await fillInMockupData(yjs);
+          // await createWelcomeData(yjs);
         } else {
           await createWelcomeData(yjs);
         }
