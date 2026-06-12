@@ -1,7 +1,7 @@
+import { BREAKPOINTS } from "@/lib/constants";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
 import * as Y from "yjs";
-import { MOBILE_WIDTH } from "../../config";
 
 type TreeItem = {
   id: string;
@@ -246,7 +246,7 @@ export function getCharIndexFromMouse(element: HTMLElement, x: number, y: number
 
 export function isMobile(): boolean {
   // return window.matchMedia(`(max-width: ${MOBILE_WIDTH}px)`).matches;
-  return window.innerWidth <= MOBILE_WIDTH;
+  return window.innerWidth <= BREAKPOINTS.md;
 }
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));

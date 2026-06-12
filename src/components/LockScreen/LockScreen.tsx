@@ -1,7 +1,7 @@
 import log from "loglevel";
 import { DeleteIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import localPreferencesManager from "../../store/preferences";
 
 export default function LockScreen() {
@@ -25,7 +25,7 @@ export default function LockScreen() {
 
       if (pin === lockScreenPin) {
         log.debug("LockScreen unlock");
-        useZustandStore.setState({ isLockScreenOpened: false });
+        useStore.setState({ isLockScreenOpen: false });
       } else {
         if (attempt >= 3) {
           // Trigger a 30-second lockout penalty on wrong PIN

@@ -1,63 +1,66 @@
+import { handleExplorerClose } from "@/api/api";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import log from "loglevel";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { PanelImperativeHandle } from "react-resizable-panels";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import { isMobile } from "../../utils/utilities";
 import Explorer from "./Explorer";
 import ExplorerToolsPanel from "./ExplorerToolsPanel";
 
-export default function ExplorerContainer({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
+export default function ExplorerContainer() {
   log.debug("ExplorerContainer");
+  const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
 
-  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
+  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
 
-  // Moved explorer panel actions here to prevent Main component rerender
-  const explorerAction = useZustandStore((s) => s.explorerPanelAction);
   useEffect(() => {
-    if (!explorerPanelRef.current) return;
-    if (explorerAction === "expand") {
-      explorerPanelRef.current.expand();
-      useZustandStore.setState({ isExplorerOpened: true });
-      if (isMobile()) {
-        useZustandStore.setState({ isPageSearchActive: false });
-      }
-    } else if (explorerAction === "collapse") {
-      explorerPanelRef.current.collapse();
-      useZustandStore.setState({ isExplorerOpened: false });
+    function observer() {
+      setExplorerLength(Array.from(yjs.yexplorer.keys()).length);
     }
-    useZustandStore.setState({ explorerPanelAction: "" });
-  }, [explorerAction, explorerPanelRef]);
+    yjs.yexplorer.observe(observer);
+    return () => {
+      yjs.yexplorer.unobserve(observer);
+    };
+  });
 
   const rootId = yjs.yaccount.get("root_id")!;
 
+  const EmptyExplorer = () => (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>No Documents</EmptyTitle>
+        <EmptyDescription>Create new or sync</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+
   return (
-    <>
-      <div className="ExplorerContainer flex-1 relative z-0 min-h-0 flex flex-col">
-        <ExplorerToolsPanel explorerPanelRef={explorerPanelRef} />
+    <div className="h-dvh overflow-hidden flex flex-col">
+      <div className="ExplorerContainer flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
+        <ExplorerToolsPanel />
         <div
-          className="flex-1 pt-5
-                    bg-sidebar text-sidebar-foreground overflow-y-auto overscroll-y-contain"
+          className="flex-1 pt-5 overflow-y-auto overscroll-contain"
           // style={{
           //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
           // }}
         >
-          <Explorer rootId={rootId} />
+          {explorerLength <= 1 ? <EmptyExplorer /> : <Explorer rootId={rootId} />}
           <div className="Spacer h-[50dvh]"></div>
         </div>
       </div>
-      {isExplorerOpened &&
+      {isExplorerOpen &&
         isMobile() &&
         createPortal(
           <div
             className="ExplorerShadow fixed top-0 right-0 h-full w-[10dvw] bg-black/40 z-10"
             onClick={() => {
-              useZustandStore.setState({ explorerPanelAction: "collapse" });
+              handleExplorerClose();
             }}
           />,
           document.getElementById("root")!,
         )}
-    </>
+    </div>
   );
 }

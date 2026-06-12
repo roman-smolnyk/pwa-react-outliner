@@ -1,15 +1,15 @@
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS as DnDCSS } from "@dnd-kit/utilities";
-import { getItemDescendantIds } from "esm-treero-api";
 import log from "loglevel";
 import { CircleIcon, CircleMinusIcon, PlusCircleIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { memo, useCallback, useLayoutEffect, useRef } from "react";
 import { INDENT } from "../../../config.tsx";
 import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
-import yjs from "../../store/yjsManager.tsx";
-import IconedButton from "../Common/IconedButton.tsx";
-import LucideIcon from "../Common/LucideIcon.tsx";
+import useStore from "../../store/useStore.tsx";
+import DropIndicator from "../Common/DropIndicator.tsx";
+import IndentGuides from "../Common/IndentGuide.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
 
@@ -28,9 +28,11 @@ function HandleButton({
   listeners: any;
 }) {
   return (
-    <IconedButton
+    <Button
+      className=""
+      variant="bare"
+      size="micro"
       title={id}
-      className="HandleButton size-5! mt-1 active:*:scale-100!"
       {...attributes}
       {...listeners}
       onClick={() => {
@@ -42,34 +44,16 @@ function HandleButton({
     >
       {childrenLength > 0 ? (
         collapsed ? (
-          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<PlusCircleIcon size={12} strokeWidth={2.5} />} />
+          <PlusCircleIcon className="size-3" strokeWidth={2.5} />
         ) : (
-          <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleMinusIcon size={12} strokeWidth={2.5} />} />
+          <CircleMinusIcon className="size-3" strokeWidth={2.5} />
         )
       ) : (
-        <LucideIcon className="size-auto! [&>svg]:w-auto! [&>svg]:h-auto!" icon={<CircleIcon className="fill-primary" size={7} fill="none" />} />
+        <CircleIcon className="fill-primary size-2" fill="none" />
       )}
-    </IconedButton>
+    </Button>
   );
 }
-
-const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
-  if (depth <= 1) return null;
-
-  return (
-    <div className="absolute inset-y-0 left-0 pointer-events-none">
-      {Array.from({ length: depth - 1 }).map((_, i) => (
-        <div
-          key={`indent-guide-${id}-${i}`}
-          className="absolute top-0 bottom-0 w-px bg-border"
-          style={{
-            left: `${INDENT * i + INDENT / 2}px`,
-          }}
-        />
-      ))}
-    </div>
-  );
-});
 
 // ! Custom memo condition used
 const BlockInner = memo(
@@ -98,7 +82,7 @@ const BlockInner = memo(
     // TODO: Add types
   }) {
     // log.debug("BlockInner", id);
-    const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+    const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
     if (isRoot) depth = 1;
 
@@ -110,12 +94,11 @@ const BlockInner = memo(
             <DropIndicator />
           ) : (
             <>
-              {!isRoot && isChekboxSelectionActive && (
-                <div className="min-h-5 min-w-5 cursor-pointer flex items-center justify-center">
-                  <input
-                    className="form-checkbox h-4 w-4"
-                    type="checkbox"
+              <div className="mt-0.5 flex items-center justify-center gap-1">
+                {!isRoot && isChekboxSelectionActive && (
+                  <Checkbox
                     checked={isChecked}
+                    onCheckedChange={() => {}}
                     onPointerDown={(e) => {
                       handleBlockCheckbox(id, !isChecked);
                     }}
@@ -124,20 +107,21 @@ const BlockInner = memo(
                         if (!isChecked) handleBlockCheckbox(id, true);
                       }
                     }}
-                    onChange={() => {}}
                   />
-                </div>
-              )}
-              {!isRoot && <HandleButton id={id} collapsed={collapsed} childrenLength={childrenLength} {...handleProps} />}
+                )}
+                {!isRoot && <HandleButton id={id} collapsed={collapsed} childrenLength={childrenLength} {...handleProps} />}
+              </div>
 
               {/* // ! ID */}
               {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
-              <div className="flex-auto flex min-w-0">
+              <div className="min-w-0 flex-1 flex">
                 <BlockContent id={id} content={content} />
               </div>
 
-              <BlockOptions id={id} isRoot={isRoot} />
+              <div className="mt-0.5 flex items-center justify-center">
+                <BlockOptions id={id} isRoot={isRoot} />
+              </div>
             </>
           )}
         </div>
@@ -222,14 +206,5 @@ export default function Block({
       setRefs={setRefs}
       handleProps={{ attributes, listeners }}
     />
-  );
-}
-
-function DropIndicator() {
-  return (
-    <div className="relative flex items-center w-full pl-2.5 pr-3">
-      <div className="absolute left-1.5 w-3 h-3 rounded-full bg-ring"></div>
-      <div className=" w-full h-1.5 rounded-full bg-ring"></div>
-    </div>
   );
 }

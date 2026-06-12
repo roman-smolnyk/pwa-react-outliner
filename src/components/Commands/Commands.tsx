@@ -1,101 +1,72 @@
-import { XIcon } from "lucide-react";
-import useZustandStore from "../../store/useZustandStore";
-import IconedButton from "../Common/IconedButton";
-import Input from "../Common/Input";
-import LucideIcon from "../Common/LucideIcon";
-import { useEffect, useRef, useState } from "react";
-
-const COMMANDS = [
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-  "First",
-  "Second",
-].sort((a, b) => a.localeCompare(b));
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+import useStore from "@/store/useStore";
+import { CalculatorIcon, CalendarIcon, CreditCardIcon, SettingsIcon, SmileIcon, UserIcon } from "lucide-react";
 
 export default function Commands() {
-  const refInput = useRef<HTMLInputElement | null>(null);
-  const [query, setQuery] = useState("");
+  // const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    refInput.current?.focus();
-  }, []);
-
-  const filteredCommands = COMMANDS.filter((a) => a.toLowerCase().includes(query.toLowerCase()));
+  const isCommandsOpen = useStore((s) => s.isCommandsOpen);
 
   return (
-    <div
-      className="GlobalSearch fixed inset-0 bg-black/40 z-100"
-      onClick={() => {
-        useZustandStore.setState({ isGlobalSearchOpened: false });
-      }}
-    >
-      <div
-        className="absolute top-15 left-1/2 -translate-x-1/2
-                   w-9/10 sm:w-3/4 min-w-80 max-w-160
-                   h-auto max-h-6/7
-                   rounded-lg text-popover-foreground bg-popover border border-border shadow-2xl
-                   flex flex-col"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
+    <div className="flex flex-col gap-4">
+      {/* <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
+        Open Menu
+      </Button> */}
+      <CommandDialog
+        open={isCommandsOpen}
+        onOpenChange={() => {
+          useStore.setState({ isCommandsOpen: false });
+        }}
       >
-        <div className="mx-3 mt-3 flex items-center gap-2 shrink-0">
-          <Input ref={refInput} placeholder="Search..." value={query} onChange={(e) => setQuery(e.target.value)} />
-          <IconedButton
-            onClick={() => {
-              useZustandStore.setState({ isGlobalSearchOpened: false });
-            }}
-          >
-            <LucideIcon icon={<XIcon />} />
-          </IconedButton>
-        </div>
-
-        <div className="min-h-0 mt-2 flex-1 overflow-y-auto overflow-x-hidden wrap-break-word">
-          {filteredCommands.length > 0 ? (
-            filteredCommands.map((command, i) => (
-              <div key={`command-${i}`} className="py-1 px-3 hover:bg-accent hover:text-accent-foreground cursor-pointer">
-                {command}
-              </div>
-            ))
-          ) : (
-            <div className="text-sm text-muted-foreground py-2 text-center">No commands found.</div>
-          )}
-        </div>
-      </div>
+        <Command>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Suggestions">
+              <CommandItem>
+                <CalendarIcon />
+                <span>Calendar</span>
+              </CommandItem>
+              <CommandItem>
+                <SmileIcon />
+                <span>Search Emoji</span>
+              </CommandItem>
+              <CommandItem>
+                <CalculatorIcon />
+                <span>Calculator</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Settings">
+              <CommandItem>
+                <UserIcon />
+                <span>Profile</span>
+                <CommandShortcut>⌘P</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <CreditCardIcon />
+                <span>Billing</span>
+                <CommandShortcut>⌘B</CommandShortcut>
+              </CommandItem>
+              <CommandItem>
+                <SettingsIcon />
+                <span>Settings</span>
+                <CommandShortcut>⌘S</CommandShortcut>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
     </div>
   );
 }

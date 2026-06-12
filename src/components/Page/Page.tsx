@@ -1,20 +1,19 @@
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
-import { getItem, moveItem } from "esm-treero-api";
 import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
+import { handleBlockMove } from "../../api/api.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import useZustandStore from "../../store/useZustandStore.tsx";
+import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
-import type { FlatBlocksT, FlatBlockT } from "../../types/types.tsx";
+import type { FlatBlocksT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
+import CheckboxSelectionToolbar from "./CheckboxSelectionToolbar.tsx";
 import PageSearch from "./PageSearch.tsx";
-import { handleBlockMove, handleBlockMoveBatch } from "../../api/api.tsx";
-import ChekboxSelectionToolbar from "./ChekboxSelectionToolbar.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
 //   return {
@@ -36,10 +35,10 @@ export default function Page({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const renderPageTicker = useZustandStore((s) => s.renderPageTicker);
-  const isPageSearchActive = useZustandStore((s) => s.isPageSearchActive);
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
-  const checkedBlockIds = useZustandStore((s) => s.checkedBlockIds);
+  const renderPageTicker = useStore((s) => s.renderPageTicker);
+  const isPageSearchActive = useStore((s) => s.isPageSearchActive);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+  const checkedBlockIds = useStore((s) => s.checkedBlockIds);
   // log.debug("checkedBlockIds", checkedBlockIds);
 
   const flatItems = useFlattenedTree(yjs.yblocks, rootId, !isPageSearchActive, activeId, renderPageTicker) as FlatBlocksT;
@@ -93,7 +92,7 @@ export default function Page({ rootId }: { rootId: string }) {
   return (
     <div className="Page flex flex-col">
       {isPageSearchActive && createPortal(<PageSearch />, document.getElementById("root")!)}
-      {isChekboxSelectionActive && createPortal(<ChekboxSelectionToolbar />, document.getElementById("root")!)}
+      {isChekboxSelectionActive && createPortal(<CheckboxSelectionToolbar />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection

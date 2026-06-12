@@ -1,53 +1,38 @@
+import { Button } from "@/components/ui/button";
 import log from "loglevel";
 import {
-  CloudAlertIcon,
-  CloudCheckIcon,
-  CloudCogIcon,
   FileCodeIcon,
   FileImageIcon,
   FilePlayIcon,
   ListChecksIcon,
   ListIcon,
-  MoonIcon,
   PanelLeftIcon,
   PencilIcon,
   PencilOffIcon,
-  RedoIcon,
-  RefreshCwIcon,
-  RotateCwIcon,
   SearchIcon,
-  SunIcon,
-  SunMoonIcon,
-  UndoIcon,
+  SquareTerminalIcon,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { useTheme } from "../../hooks/theme";
-import useZustandStore from "../../store/useZustandStore";
-import yjs from "../../store/yjsManager";
-import IconedButton from "../Common/IconedButton";
-import LucideIcon from "../Common/LucideIcon";
+import useStore from "../../store/useStore";
 import MainMenu from "../MainMenu/MainMenu";
-import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 
 export default function Header() {
   log.debug("Header");
   const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
-  const { theme, setTheme } = useTheme();
 
-  const isExplorerOpened = useZustandStore((s) => s.isExplorerOpened);
-  const webSocketConnectionStatus = useZustandStore((s) => s.webSocketConnectionStatus);
-  const isChekboxSelectionActive = useZustandStore((s) => s.isChekboxSelectionActive);
+  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-12 sm:min-h-8 px-4 sm:px-2 z-10
+      className="Header fixed top-0 right-0 min-w-0 min-h-10 px-4 z-10
       bg-sidebar text-sidebar-foreground border-b border-border
       flex"
       style={{
-        left: `${isExplorerOpened ? "var(--explorer-width)" : "0px"}`,
+        left: `${isExplorerOpen ? "var(--explorer-width)" : "0px"}`,
         // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
         // clipPath: "inset(0px 0px -20px 0px)",
       }}
@@ -55,94 +40,41 @@ export default function Header() {
       {/* <div className="px-2 py-3 sm:py-1"> */}
       {/* Left icons */}
 
-      <div className="flex-1 flex min-w-0">
-        <div className="mr-4 flex">
-          {!isExplorerOpened && (
-            <IconedButton
+      <div className="flex-1 flex items-center justify-center min-w-0">
+        <div className="flex">
+          {!isExplorerOpen && (
+            <Button
+              variant="bare"
+              size="tool"
               title="Open Explorer"
               onClick={() => {
-                useZustandStore.getState().expandExplorer();
+                handleExplorerOpen();
               }}
             >
-              <LucideIcon icon={<PanelLeftIcon />} />
-            </IconedButton>
+              <PanelLeftIcon />
+            </Button>
           )}
         </div>
 
-        <div className="flex-1 min-w-0 overflow-x-auto flex">
-          <div className="LeftIcons min-w-max flex gap-4 sm:gap-2">
-            <IconedButton
-              title="Undo"
-              onClick={() => {
-                yjs.undoManager?.undo();
-              }}
-            >
-              <LucideIcon icon={<UndoIcon />} />
-            </IconedButton>
-            <IconedButton
-              title="Redo"
-              onClick={() => {
-                yjs.undoManager?.redo();
-              }}
-            >
-              <LucideIcon icon={<RedoIcon />} />
-            </IconedButton>
-            {/* <div className="Spacer"></div> */}
-            <IconedButton
-              title="Reload"
-              onClick={(event) => {
-                event.currentTarget.classList.add("animate-spin");
-                window.location.replace(window.location.href);
-              }}
-            >
-              <LucideIcon icon={<RotateCwIcon />} />
-            </IconedButton>
-          </div>
-
+        <div className="flex-1 min-w-0 overflow-x-auto overscroll-contain flex">
           <div className="Spacer flex-1 min-w-4" />
 
-          <div className="RightIcons flex gap-4 sm:gap-2">
-            <IconedButton
-              title={`WebSocket: ${webSocketConnectionStatus}`}
-              onClick={() => {
-                toast(`WebSocket status: '${webSocketConnectionStatus}'`, { containerId: "toaster" });
-              }}
-            >
-              {/* {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<CloudAlertIcon />} />} */}
-              {webSocketConnectionStatus === "connecting" && <LucideIcon icon={<RefreshCwIcon className="animate-spin" />} />}
-              {webSocketConnectionStatus === "connected" && <LucideIcon icon={<CloudCheckIcon />} />}
-              {/* {webSocketConnectionStatus === "disconnected" && <LucideIcon className="animate-spin" icon={<RefreshCwIcon />} />} */}
-              {webSocketConnectionStatus === "disconnected" && <LucideIcon icon={<CloudAlertIcon />} />}
-              {/* {webSocketConnectionStatus === "turned off" && <LucideIcon icon={<CloudCogIcon />} />} */}
-            </IconedButton>
-
-            <IconedButton
-              title={`Theme: ${theme}`}
-              onClick={() => {
-                log.debug("theme", theme);
-                if (theme === "system") {
-                  setTheme("light");
-                } else if (theme === "light") {
-                  setTheme("dark");
-                } else if (theme === "dark") {
-                  setTheme("system");
-                }
-              }}
-            >
-              <LucideIcon icon={theme === "system" ? <SunMoonIcon /> : theme === "light" ? <SunIcon /> : <MoonIcon />} />
-            </IconedButton>
-
-            <IconedButton
+          <div className="RightIcons flex">
+            <Button
+              variant="bare"
+              size="tool"
               title="Toggle checkboxes selection"
               className=""
               onClick={() => {
                 toggleCheckboxSelection();
               }}
             >
-              <LucideIcon icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />} />
-            </IconedButton>
+              {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
+            </Button>
 
-            <IconedButton
+            <Button
+              variant="bare"
+              size="tool"
               title="Cycle through content view modes: Source, Markdown, Live Preview."
               onClick={() => {
                 if (contentViewMode === "source") {
@@ -155,30 +87,49 @@ export default function Header() {
               }}
             >
               {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-              <LucideIcon
-                icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
-              />
-            </IconedButton>
+              {contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
+            </Button>
 
-            <IconedButton title="Toggle Edit and View modes" onClick={() => setReadOnly(!readOnly)}>
-              <LucideIcon icon={readOnly ? <PencilOffIcon /> : <PencilIcon />} />
-            </IconedButton>
+            <Button
+              variant="bare"
+              size="tool"
+              title="Toggle Edit and View modes"
+              onClick={() => {
+                setReadOnly(!readOnly);
+              }}
+            >
+              {readOnly ? <PencilOffIcon /> : <PencilIcon />}
+            </Button>
 
-            <IconedButton
+            <Button
+              variant="bare"
+              size="tool"
+              title="Open commands"
+              onClick={() => {
+                useStore.setState({ isCommandsOpen: true });
+              }}
+            >
+              <SquareTerminalIcon />
+            </Button>
+
+            <Button
+              variant="bare"
+              size="tool"
               title="Search in page"
-              className=""
               onClick={() => {
                 togglePageSearch();
               }}
             >
-              <LucideIcon icon={<SearchIcon />} />
-            </IconedButton>
+              <SearchIcon />
+            </Button>
+
+            <MainMenu />
           </div>
         </div>
 
-        <div className="ml-3 flex">
-          <MainMenu />
-        </div>
+        {/* <div className="flex items-center justify-center">
+          
+        </div> */}
       </div>
       {/* </div> */}
     </div>

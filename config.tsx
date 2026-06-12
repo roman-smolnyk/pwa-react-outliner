@@ -4,7 +4,6 @@ import type { LogLevelNames } from "loglevel";
 // "https://y-websocket-server-t1tj.onrender.com"
 export const WS_SERVER_URL = "wss://y-websocket-server-t1tj.onrender.com";
 export const INDENT = 20;
-export const MOBILE_WIDTH = 640;
 
 let LOG_LEVEL: LogLevelNames;
 if (import.meta.env.DEV) {

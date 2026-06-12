@@ -1,6 +1,22 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getItem, getItemDescendants, isRootItem } from "esm-treero-api";
 import {
+  ArrowDownAZIcon,
   ArrowDownNarrowWideIcon,
+  ArrowDownZAIcon,
   EllipsisVerticalIcon,
   ForwardIcon,
   InboxIcon,
@@ -12,148 +28,124 @@ import {
   UploadIcon,
   ZoomInIcon,
 } from "lucide-react";
-import { toast } from "react-toastify";
 import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import FloatingMenu from "../Common/FloatingMenu";
-import FloatingMenuButton from "../Common/FloatingMenuButton";
-import IconedButton from "../Common/IconedButton";
-import LucideIcon from "../Common/LucideIcon";
-
-// function MobileSheet({ open, onClose, children }) {
-//   return (
-//     <>
-//       {/* Backdrop */}
-//       <div
-//         className={`fixed inset-0 bg-black/40 transition-opacity z-100 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-//         onClick={onClose}
-//       />
-
-//       {/* Sheet */}
-//       <div
-//         className={`
-//           fixed left-0 right-0 bottom-0
-//           bg-background rounded-t-xl shadow-xl
-//           transition-transform duration-300 z-100
-//           ${open ? "translate-y-0" : "translate-y-full"}
-//         `}
-//         style={{ maxHeight: "85vh" }}
-//       >
-//         <div className="p-4 overflow-y-auto max-h-[85vh]">{children}</div>
-//       </div>
-//     </>
-//   );
-// }
+// import { Drawer } from "@/components/ui/drawer";
 
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+
   return (
-    <FloatingMenu
-      trigger={
-        <IconedButton className="BlockOptions size-4! mt-1">
-          <LucideIcon className="size-auto!" icon={<EllipsisVerticalIcon />} />
-        </IconedButton>
-      }
-    >
-      <FloatingMenuButton
-        className="ZoomIn"
-        onClick={async () => {
-          // setIsOpened(false);
-          await handleBlockOpen(id);
-        }}
-      >
-        <LucideIcon icon={<ZoomInIcon />} />
-        <div>Zoom in</div>
-      </FloatingMenuButton>
-      {!isRoot && (
-        <FloatingMenuButton
-          className="MoveTo"
-          onClick={() => {
-            useZustandStore.setState({ isMoveToOpened: true, toMoveId: id });
-          }}
-        >
-          <LucideIcon icon={<ForwardIcon className="" />} />
-          <div>Move to</div>
-        </FloatingMenuButton>
-      )}
-      <FloatingMenuButton
-        className="ExpandAll "
-        onClick={() => {
-          if (!isRootItem(yjs.yblocks, id)) {
-            getItem(yjs.yblocks, id).set("collapsed", false);
-          }
-          for (const yitem of getItemDescendants(yjs.yblocks, id)) {
-            yitem.set("collapsed", false);
-          }
-        }}
-      >
-        <LucideIcon icon={<PlusIcon className="" />} />
-        <div>Expand All</div>
-      </FloatingMenuButton>
-      <FloatingMenuButton
-        className="CollapseAll "
-        onClick={() => {
-          if (!isRootItem(yjs.yblocks, id)) {
-            getItem(yjs.yblocks, id).set("collapsed", true);
-          }
-          for (const yitem of getItemDescendants(yjs.yblocks, id)) {
-            yitem.set("collapsed", true);
-          }
-        }}
-      >
-        <LucideIcon icon={<MinusIcon className="" />} />
-        <div>Collapse All</div>
-      </FloatingMenuButton>
-      <FloatingMenuButton className="Sort text-warning" onClick={() => {}}>
-        <LucideIcon icon={<ArrowDownNarrowWideIcon className="text-warning!" />} />
-        <div>Sort</div>
-      </FloatingMenuButton>
-      <FloatingMenuButton
-        className="SetAsInbox text-warning"
-        onClick={() => {
-          // setIsOpened(false);
-        }}
-      >
-        <LucideIcon icon={<InboxIcon className="text-warning!" />} />
-        <div>Set as Inbox</div>
-      </FloatingMenuButton>
-      <FloatingMenuButton
-        className="Export text-warning"
-        onClick={() => {
-          // setIsOpened(false);
-        }}
-      >
-        <LucideIcon icon={<UploadIcon className="text-warning!" />} />
-        <div>Export</div>
-      </FloatingMenuButton>
-      {/* TODO: Move to the Export */}
-      <FloatingMenuButton className="Print text-warning!" onClick={async () => {}}>
-        <LucideIcon icon={<PrinterIcon className="text-warning!" />} />
-        <div>Print</div>
-      </FloatingMenuButton>
-      <FloatingMenuButton
-        className="CopyLink"
-        onClick={async () => {
-          // setIsOpened(false);
-          await copyToClipboard(`${window.location.origin}/#${id}`);
-          toast("Copied", { containerId: "toaster" });
-        }}
-      >
-        <LucideIcon icon={<LinkIcon />} />
-        <div>Copy link</div>
-      </FloatingMenuButton>
-      {!isRoot && (
-        <FloatingMenuButton
-          className="Delete text-error!"
-          onClick={() => {
-            // setIsOpened(false);
-            handleBlockDelete(id);
-          }}
-        >
-          <LucideIcon icon={<Trash2Icon className="text-error!" />} />
-          <div>Delete</div>
-        </FloatingMenuButton>
-      )}
-    </FloatingMenu>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button className="" variant="bare" size="micro">
+            <EllipsisVerticalIcon className="" />
+          </Button>
+        }
+      ></DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Block options</DropdownMenuLabel>
+
+          <DropdownMenuItem
+            onClick={async () => {
+              await handleBlockOpen(id);
+            }}
+          >
+            <ZoomInIcon />
+            <span>Zoom in</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={isChekboxSelectionActive}
+            onClick={() => {
+              useStore.setState({ isMoveToOpen: true, itemIdToMove: id });
+            }}
+          >
+            <ForwardIcon />
+            <span>Move to</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              if (!isRootItem(yjs.yblocks, id)) {
+                getItem(yjs.yblocks, id).set("collapsed", false);
+              }
+              for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+                yitem.set("collapsed", false);
+              }
+            }}
+          >
+            <PlusIcon />
+            <span>Expand All</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              if (!isRootItem(yjs.yblocks, id)) {
+                getItem(yjs.yblocks, id).set("collapsed", true);
+              }
+              for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+                yitem.set("collapsed", true);
+              }
+            }}
+          >
+            <MinusIcon />
+            <span>Collapse All</span>
+          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <ArrowDownNarrowWideIcon />
+              <span>Sort</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem>
+                  <ArrowDownAZIcon />
+                  <span>Ascending</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <ArrowDownZAIcon />
+                  <span>Descending</span>
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+          <DropdownMenuItem>
+            <InboxIcon />
+            <span>Set as Inbox</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <UploadIcon />
+            <span>Export</span>
+          </DropdownMenuItem>
+          {/* TODO: Move to Export */}
+          <DropdownMenuItem>
+            <PrinterIcon />
+            <span>Print</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await copyToClipboard(`${window.location.origin}/#${id}`);
+            }}
+          >
+            <LinkIcon />
+            <span>Copy link</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant="destructive"
+            disabled={isChekboxSelectionActive}
+            onClick={() => {
+              handleBlockDelete(id);
+            }}
+          >
+            <Trash2Icon />
+            <span>Delete</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

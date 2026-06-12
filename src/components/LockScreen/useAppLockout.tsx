@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import log from "loglevel";
 
 export function useAppLockout() {
   const lastActiveTime = useRef<number | null>(null);
 
-  const autoLockScreen = useZustandStore((s) => s.autoLockScreen);
+  const autoLockScreen = useStore((s) => s.autoLockTimeout);
 
   useEffect(() => {
     if (autoLockScreen === -1) return;
@@ -24,7 +24,7 @@ export function useAppLockout() {
           log.debug("handleVisibilityChange:timeElapsed", timeElapsed);
 
           if (timeElapsed >= autoLockScreen) {
-            useZustandStore.setState({ isLockScreenOpened: true });
+            useStore.setState({ isLockScreenOpen: true });
           }
         }
         // Reset the tracker while they are actively using it

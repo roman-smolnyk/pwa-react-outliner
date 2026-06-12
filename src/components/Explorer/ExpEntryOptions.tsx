@@ -1,95 +1,141 @@
-import { COLLECTION_TYPE, getItem, getPage, PAGE_TYPE } from "esm-treero-api";
-import { EllipsisVerticalIcon, FilePlusIcon, FolderPlusIcon, ForwardIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { COLLECTION_TYPE, getPage, PAGE_TYPE } from "esm-treero-api";
+import {
+  ArrowDownAZIcon,
+  ArrowDownNarrowWideIcon,
+  ArrowDownZAIcon,
+  EllipsisVerticalIcon,
+  FilePlusIcon,
+  FolderPlusIcon,
+  ForwardIcon,
+  SquarePenIcon,
+  Trash2Icon,
+  UploadIcon,
+} from "lucide-react";
 import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
-import FloatingMenu from "../Common/FloatingMenu";
-import FloatingMenuButton from "../Common/FloatingMenuButton";
-import LucideIcon from "../Common/LucideIcon";
-import IconedButton from "../Common/IconedButton";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
-export default function ExpEntryOptions({ id, type, setIsEdit }: { id: string; type: number; setIsEdit: (v: boolean) => void }) {
+export default function ExpEntryOptions({ id, type, setIsRename }: { id: string; type: number; setIsRename: (v: boolean) => void }) {
   return (
-    <FloatingMenu
-      trigger={
-        // <button className="flex-none w-5 h-7 sm:w-4 sm:h-6 cursor-pointer flex items-center justify-center" type="button">
-        //   <LucideIcon className="h-5! sm:h-4! [&>svg]:w-auto!" icon={<EllipsisVerticalIcon />} />
-        // </button>
-        <IconedButton className="ExpEntryOptions size-4!">
-          <LucideIcon className="size-auto!" icon={<EllipsisVerticalIcon />} />
-        </IconedButton>
-      }
-    >
-      <FloatingMenuButton
-        className="Rename"
-        onClick={() => {
-          // setIsOpened(false);
-          setIsEdit(true);
-        }}
-      >
-        <LucideIcon icon={<SquarePenIcon />} />
-        <div>Rename</div>
-      </FloatingMenuButton>
-      {type === COLLECTION_TYPE && (
-        <>
-          <FloatingMenuButton
-            className="NewDocument"
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon-sm">
+            <EllipsisVerticalIcon />
+          </Button>
+        }
+      />
+      <DropdownMenuContent className="w-max">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DropdownMenuLabel>
+
+          <DropdownMenuItem
             onClick={() => {
-              // setIsOpened(false);
-              handlePageAdd(id);
+              setIsRename(true);
             }}
           >
-            <LucideIcon icon={<FilePlusIcon />} />
-            <div>New Document</div>
-          </FloatingMenuButton>
-          <FloatingMenuButton
-            className="New Folder"
-            onClick={() => {
-              // setIsOpened(false);
-              handleCollectionAdd(id);
-            }}
-          >
-            <LucideIcon icon={<FolderPlusIcon />} />
-            <div>New Folder</div>
-          </FloatingMenuButton>
-        </>
-      )}
+            <SquarePenIcon />
+            <span>Rename</span>
+          </DropdownMenuItem>
 
-      {type === PAGE_TYPE && (
-        <FloatingMenuButton
-          className="MoveTo"
-          onClick={() => {
-            const ypage = getPage(yjs.ydoc, id);
-            useZustandStore.setState({ isMoveToOpened: true, toMoveId: ypage.get("id") });
-          }}
-        >
-          <LucideIcon icon={<ForwardIcon className="" />} />
-          <div>Move to</div>
-        </FloatingMenuButton>
-      )}
+          {type === COLLECTION_TYPE && (
+            <>
+              <DropdownMenuItem
+                onClick={() => {
+                  handlePageAdd(id);
+                }}
+              >
+                <FilePlusIcon />
+                <span>New Document</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  handleCollectionAdd(id);
+                }}
+              >
+                <FolderPlusIcon />
+                <span>New Folder</span>
+              </DropdownMenuItem>
+            </>
+          )}
 
-      {/* <FloatingMenuItem
-              className=""
-              icon={<Share2Icon className="w-full h-full" />}
-              label="Share"
+          {type === COLLECTION_TYPE && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <ArrowDownNarrowWideIcon />
+                <span>Sort</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>
+                    <ArrowDownAZIcon />
+                    <span>Ascending</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <ArrowDownZAIcon />
+                    <span>Descending</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem></DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          )}
+
+          {type === PAGE_TYPE && (
+            <DropdownMenuItem
               onClick={() => {
-                setOpen(false);
+                const ypage = getPage(yjs.ydoc, id);
+                useStore.setState({
+                  isMoveToOpen: true,
+                  itemIdToMove: ypage.get("id"),
+                });
               }}
-            /> */}
-      <FloatingMenuButton
-        className="Delete text-error!"
-        onClick={() => {
-          // setIsOpened(false);
-          if (type === COLLECTION_TYPE) {
-            handleCollectionDelete(id);
-          } else if (type === PAGE_TYPE) {
-            handlePageDelete(id);
-          }
-        }}
-      >
-        <LucideIcon icon={<Trash2Icon className="text-error!" />} />
-        <div>Delete</div>
-      </FloatingMenuButton>
-    </FloatingMenu>
+            >
+              <ForwardIcon />
+              <span>Move to</span>
+            </DropdownMenuItem>
+          )}
+
+          {type === PAGE_TYPE && (
+            <DropdownMenuItem>
+              <UploadIcon />
+              <span>Export</span>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => {
+              if (type === COLLECTION_TYPE) {
+                handleCollectionDelete(id);
+              } else if (type === PAGE_TYPE) {
+                handlePageDelete(id);
+              }
+            }}
+          >
+            <Trash2Icon />
+            <span>Delete</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

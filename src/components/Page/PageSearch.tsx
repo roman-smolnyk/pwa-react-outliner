@@ -1,11 +1,12 @@
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import debounce from "lodash/debounce";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import Mark from "mark.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollIntoView } from "../../utils/utilities";
-import IconedButton from "../Common/IconedButton";
-import Input from "../Common/Input";
-import LucideIcon from "../Common/LucideIcon";
+import { Input } from "@/components/ui/input";
+import FloatingToolbar from "../Common/FloatingToolbar";
 
 export default function PageSearch() {
   const refInput = useRef<HTMLInputElement | null>(null);
@@ -76,63 +77,56 @@ export default function PageSearch() {
   const totalMatches = markElements?.length || 0;
 
   return (
-    <div
-      className="PageSearch fixed top-15 sm:top-11 right-0 flex items-center justify-center"
-      style={{
-        left: `var(--explorer-width)`,
-      }}
-    >
-      <div
-        className="min-w-xs max-w-xl w-full p-2 mx-5
-                  rounded-lg text-popover-foreground bg-popover border border-border
-                  flex items-center gap-2"
+    <FloatingToolbar>
+      <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
+
+      <div className="Counter min-w-15 text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>
+
+      <Button
+        variant="ghost"
+        size="icon-lg"
+        title="Previous"
+        disabled={totalMatches === 0}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          if (totalMatches === 0) return;
+
+          let newIndex = index - 1;
+          if (newIndex < 1) newIndex = totalMatches;
+
+          const element = markElements[newIndex - 1];
+          const container = document.querySelector(".PageContainer");
+          if (element && container) {
+            scrollIntoView(element as HTMLElement, container as HTMLElement);
+          }
+          setIndex(newIndex);
+        }}
       >
-        <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
+        <ArrowUpIcon />
+      </Button>
 
-        <div className="Counter min-w-15 flex items-center justify-center">
-          <div className="text-muted-foreground">{`${index}/${totalMatches}`}</div>
-        </div>
+      <Button
+        variant="ghost"
+        size="icon-lg"
+        title="Next"
+        disabled={totalMatches === 0}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          if (totalMatches === 0) return;
 
-        <IconedButton
-          disabled={totalMatches === 0}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            if (totalMatches === 0) return;
+          let newIndex = index + 1;
+          if (newIndex > totalMatches) newIndex = 1;
 
-            let newIndex = index - 1;
-            if (newIndex < 1) newIndex = totalMatches;
-
-            const element = markElements[newIndex - 1];
-            const container = document.querySelector(".PageContainer");
-            if (element && container) {
-              scrollIntoView(element as HTMLElement, container as HTMLElement);
-            }
-            setIndex(newIndex);
-          }}
-        >
-          <LucideIcon icon={<ArrowUpIcon />} />
-        </IconedButton>
-
-        <IconedButton
-          disabled={totalMatches === 0}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            if (totalMatches === 0) return;
-
-            let newIndex = index + 1;
-            if (newIndex > totalMatches) newIndex = 1;
-
-            const element = markElements[newIndex - 1];
-            const container = document.querySelector(".PageContainer");
-            if (element && container) {
-              scrollIntoView(element as HTMLElement, container as HTMLElement);
-            }
-            setIndex(newIndex);
-          }}
-        >
-          <LucideIcon icon={<ArrowDownIcon />} />
-        </IconedButton>
-      </div>
-    </div>
+          const element = markElements[newIndex - 1];
+          const container = document.querySelector(".PageContainer");
+          if (element && container) {
+            scrollIntoView(element as HTMLElement, container as HTMLElement);
+          }
+          setIndex(newIndex);
+        }}
+      >
+        <ArrowDownIcon />
+      </Button>
+    </FloatingToolbar>
   );
 }

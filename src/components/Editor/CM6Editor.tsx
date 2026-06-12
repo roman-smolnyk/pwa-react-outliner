@@ -5,7 +5,7 @@ import { EditorView } from "@codemirror/view";
 import { getItem } from "esm-treero-api";
 import log from "loglevel";
 import { memo, useEffect, useMemo, useRef } from "react";
-import useZustandStore from "../../store/useZustandStore";
+import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
 import { livePreviewPlugin, markdownTheme } from "./CM6LivePreview";
@@ -49,7 +49,7 @@ const CM6Editor = memo(
 
       const view = new EditorView({ state, parent: ref.current });
 
-      useZustandStore.setState({ selectedBlockId: id, editorView: view });
+      useStore.setState({ selectedBlockId: id, editorView: view });
 
       view.focus();
       view.dispatch({
@@ -64,8 +64,8 @@ const CM6Editor = memo(
       return () => {
         log.debug("CM6Editor:useEffect:unmount", id);
         isDestroyingRef.current = true;
-        if (useZustandStore.getState().selectedBlockId === id) {
-          useZustandStore.setState({ selectedBlockId: null, editorView: null });
+        if (useStore.getState().selectedBlockId === id) {
+          useStore.setState({ selectedBlockId: null, editorView: null });
         }
         view.destroy();
         ytext.unobserve(ytextObserver);

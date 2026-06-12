@@ -20,8 +20,9 @@ import {
 import debounce from "lodash/debounce";
 import log from "loglevel";
 import { nanoid } from "nanoid";
+import { toast } from "sonner";
 import localPreferencesManager from "../store/preferences";
-import useZustandStore from "../store/useZustandStore";
+import useStore from "../store/useStore";
 import yjs from "../store/yjsManager";
 import { flattenAndFilterYTree, isMobile } from "../utils/utilities";
 
@@ -32,14 +33,14 @@ export function generateRoomToken(): string {
 export async function login(webSocketServerUrl: string, roomToken: string) {
   log.debug(`login`, webSocketServerUrl, roomToken);
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
-  useZustandStore.setState({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: false });
+  useStore.setState({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: false });
 }
 
 export async function register(webSocketServerUrl: string) {
   log.debug(`register`, webSocketServerUrl);
   const newRoomToken = generateRoomToken();
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
-  useZustandStore.setState({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: true });
+  useStore.setState({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: true });
 }
 
 export async function logout() {
@@ -63,13 +64,13 @@ export async function setWebSocketServer({
   log.debug(`setWebSocket`, isWebSocketServerOn, webSocketServerUrl);
   if (webSocketServerUrl !== undefined) {
     await localPreferencesManager.set("webSocketServerUrl", webSocketServerUrl);
-    useZustandStore.setState({ webSocketServerUrl: webSocketServerUrl });
-    yjs.addWebsocketProvider(webSocketServerUrl, useZustandStore.getState().roomToken, { connect: useZustandStore.getState().isWebSocketServerOn });
+    useStore.setState({ webSocketServerUrl: webSocketServerUrl });
+    yjs.addWebsocketProvider(webSocketServerUrl, useStore.getState().roomToken, { connect: useStore.getState().isWebSocketServerOn });
     listenWebSocketStatus();
   }
   if (isWebSocketServerOn !== undefined) {
     await localPreferencesManager.set("isWebSocketServerOn", isWebSocketServerOn);
-    useZustandStore.setState({ isWebSocketServerOn: isWebSocketServerOn });
+    useStore.setState({ isWebSocketServerOn: isWebSocketServerOn });
     if (isWebSocketServerOn) {
       yjs.wsProvider?.connect();
     } else {
@@ -83,24 +84,24 @@ export async function listenWebSocketStatus() {
   yjs.wsProvider?.on("status", (e) => {
     log.debug("WebsocketProvider status", e.status);
     if (e.status === "connecting") {
-      useZustandStore.setState({ webSocketConnectionStatus: "connecting" });
+      useStore.setState({ webSocketConnectionStatus: "connecting" });
     } else if (e.status === "connected") {
-      useZustandStore.setState({ webSocketConnectionStatus: "connected" });
+      useStore.setState({ webSocketConnectionStatus: "connected" });
     } else if (e.status === "disconnected") {
-      useZustandStore.setState({ webSocketConnectionStatus: "disconnected" });
+      useStore.setState({ webSocketConnectionStatus: "disconnected" });
     }
   });
 }
 
 export function selectBlock(id: string, caretCharIndex: number) {
-  useZustandStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
+  useStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
 }
 
 export async function handleBlockOpen(id: string) {
   log.debug(`openBlock`, id);
-  useZustandStore.setState({ rootBlockId: id });
+  useStore.setState({ rootBlockId: id });
   if (isMobile()) {
-    useZustandStore.getState().collapseExplorer();
+    handleExplorerClose();
   }
   await localPreferencesManager.set("rootBlockId", id);
 }
@@ -111,7 +112,7 @@ export function handleBlockCollapseToggle(id: string) {
 }
 
 export function handleBlockAdd(id: string) {
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   let newYblock: YBlockMap;
   if (isRootItem(yjs.yblocks, id)) {
     newYblock = createInsertBlock(yjs.ydoc, "", id, 0);
@@ -122,11 +123,11 @@ export function handleBlockAdd(id: string) {
 }
 
 export function handleBlockDelete(id: string) {
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
-  if (useZustandStore.getState().selectedBlockId) {
+  if (useStore.getState().selectedBlockId) {
     const ysibling = getItemSibling(yjs.yblocks, id, -1);
     const yparent = getItemParent(yjs.yblocks, id);
     selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
@@ -144,11 +145,11 @@ export function handleBlockDeleteBatch() {
       deleteBlock(yjs.ydoc, id);
     }
   });
-  useZustandStore.setState({ checkedBlockIds: new Set() });
+  useStore.setState({ checkedBlockIds: new Set() });
 }
 
 export function handleBlockIndent(id: string) {
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -162,7 +163,7 @@ export function handleBlockIndent(id: string) {
 }
 
 export function handleBlockOutdent(id: string) {
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -173,7 +174,7 @@ export function handleBlockOutdent(id: string) {
 }
 
 export function handleBlockMoveUp(id: string) {
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -185,7 +186,7 @@ export function handleBlockMoveUp(id: string) {
 
 export function handleBlockMoveDown(id: string) {
   log.debug("handleBlockMoveDown");
-  if (useZustandStore.getState().isChekboxSelectionActive) return;
+  if (useStore.getState().isCheckboxSelectionActive) return;
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
@@ -253,6 +254,7 @@ export async function copyToClipboard(text: string) {
     // log.error(error);
     copyFallback(text);
   }
+  toast("Copied");
 }
 
 function copyFallback(text: string) {
@@ -282,22 +284,22 @@ export async function hardPWAReload() {
 }
 
 export function handleBlockCheckbox(id: string, checked: boolean) {
-  const { checkedBlockIds } = useZustandStore.getState();
+  const { checkedBlockIds } = useStore.getState();
   const yblock = getItem(yjs.yblocks, id);
   if (checkedBlockIds.has(yblock.get("parent_id") as string)) {
     return;
   }
   const descendantIds = getItemDescendantIds(yjs.yblocks, id);
   if (checked && !checkedBlockIds.has(id)) {
-    useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds, id, ...descendantIds]) });
+    useStore.setState({ checkedBlockIds: new Set([...checkedBlockIds, id, ...descendantIds]) });
   } else {
     [id, ...descendantIds].forEach((a) => checkedBlockIds.delete(a));
-    useZustandStore.setState({ checkedBlockIds: new Set([...checkedBlockIds]) });
+    useStore.setState({ checkedBlockIds: new Set([...checkedBlockIds]) });
   }
 }
 
 export function handleBlockMove(id: string, parentId: string, indexInParent: number) {
-  if (useZustandStore.getState().isChekboxSelectionActive) {
+  if (useStore.getState().isCheckboxSelectionActive) {
     handleBlockMoveBatch(parentId, indexInParent);
   } else {
     yjs.ydoc.transact(() => {
@@ -309,7 +311,7 @@ export function handleBlockMove(id: string, parentId: string, indexInParent: num
 
 export function handleBlockMoveBatch(parentId: string, indexInParent: number) {
   const checkedParentBlockIds = getCheckedParentBlockIds();
-  const flattenedItems = flattenAndFilterYTree(yjs.yblocks, useZustandStore.getState().rootBlockId, true);
+  const flattenedItems = flattenAndFilterYTree(yjs.yblocks, useStore.getState().rootBlockId, true);
 
   // const ids = new Set([id, ...checkedParentBlockIds]);
   const sortedIds = flattenedItems.map((item) => item.id).filter((itemId) => checkedParentBlockIds.has(itemId));
@@ -328,7 +330,7 @@ export function handleBlockMoveBatch(parentId: string, indexInParent: number) {
 }
 
 function getCheckedParentBlockIds(): Set<string> {
-  const { checkedBlockIds } = useZustandStore.getState();
+  const { checkedBlockIds } = useStore.getState();
 
   const itemsToRemove = new Set<string>();
   for (const itemId of checkedBlockIds) {
@@ -349,17 +351,30 @@ function getCheckedParentBlockIds(): Set<string> {
 export async function lockScreen() {
   const lockScreenPin = await localPreferencesManager.get("lockScreenPin");
   if (!lockScreenPin) return;
-  useZustandStore.setState({ isLockScreenOpened: true });
+  useStore.setState({ isLockScreenOpen: true });
 }
 
 export async function togglePageSearch() {
-  useZustandStore.setState((s) => ({ isPageSearchActive: !s.isPageSearchActive, isChekboxSelectionActive: false }));
+  useStore.setState((s) => ({ isPageSearchActive: !s.isPageSearchActive, isCheckboxSelectionActive: false }));
 }
 
 export async function toggleGlobalSearch() {
-  useZustandStore.setState((s) => ({ isGlobalSearchOpened: !s.isGlobalSearchOpened }));
+  useStore.setState((s) => ({ isGlobalSearchOpen: !s.isGlobalSearchOpen }));
 }
 
 export async function toggleCheckboxSelection() {
-  useZustandStore.setState((s) => ({ isChekboxSelectionActive: !s.isChekboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false }));
+  useStore.setState((s) => ({ isCheckboxSelectionActive: !s.isCheckboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false }));
+}
+
+export function handleExplorerOpen() {
+  useStore.getState().explorerPanel?.expand();
+  useStore.setState({ isExplorerOpen: true });
+  if (isMobile()) {
+    useStore.setState({ isPageSearchActive: false });
+  }
+}
+
+export function handleExplorerClose() {
+  useStore.getState().explorerPanel?.collapse();
+  useStore.setState({ isExplorerOpen: false });
 }
