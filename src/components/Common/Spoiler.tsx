@@ -25,8 +25,17 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       )}
       title={isRevealed ? undefined : "Click to reveal spoiler"}
       {...props}
-      onPointerDownCapture={async (e) => {
-        if (!isRevealed) {
+      onPointerDown={async (e) => {
+        if (e.pointerType !== "touch") {
+          e.preventDefault();
+          e.stopPropagation();
+
+          setIsRevealed(true);
+          await copyToClipboard(String(children));
+        }
+      }}
+      onPointerUp={async (e) => {
+        if (e.pointerType === "touch") {
           e.preventDefault();
           e.stopPropagation();
 

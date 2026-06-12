@@ -121,7 +121,7 @@ const blocks = {
   ooadyIo3p6NJsdPJVC9Ch: {
     id: "ooadyIo3p6NJsdPJVC9Ch",
     parent_id: "e9qKbmHfSIuuKHnpaa1Zs",
-    content: "**bold**\n_italic_\n~~strikethrough~~",
+    content: "**bold**\n_italic_\n~~strikethrough~~\n==highlight==\n||spoiler||",
     collapsed: false,
     children: [],
   },

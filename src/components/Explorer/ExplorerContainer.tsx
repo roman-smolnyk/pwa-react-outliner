@@ -50,7 +50,7 @@ export default function ExplorerContainer() {
           <div className="Spacer h-[50dvh]"></div>
         </div>
       </div>
-      {isExplorerOpen &&
+      {/* {isExplorerOpen &&
         isMobile() &&
         createPortal(
           <div
@@ -60,7 +60,7 @@ export default function ExplorerContainer() {
             }}
           />,
           document.getElementById("root")!,
-        )}
+        )} */}
     </div>
   );
 }

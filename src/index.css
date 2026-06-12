@@ -93,17 +93,17 @@
 
   h4,
   .md-h4 {
-    @apply text-lg font-semibold leading-none;
+    @apply text-lg font-semibold;
   }
 
   h5,
   .md-h5 {
-    @apply text-base font-semibold leading-none;
+    @apply text-base font-semibold;
   }
 
   h6,
   .md-h6 {
-    @apply text-sm font-semibold leading-none;
+    @apply text-sm font-semibold;
   }
 
   p {
