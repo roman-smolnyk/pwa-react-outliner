@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import useIsMobile from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +22,7 @@ export default function ResponsiveModal({
       <DialogContent
         className={
           isMobile
-            ? "fixed! top-0! left-0! translate-x-0! translate-y-0! w-screen! h-screen! max-w-none! rounded-none!"
+            ? "top-0 left-0 translate-x-0 translate-y-0 w-screen h-screen max-w-none rounded-none flex flex-col"
             : "min-w-2/3 h-5/6 flex flex-col"
         }
       >
