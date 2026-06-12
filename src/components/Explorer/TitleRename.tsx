@@ -27,6 +27,7 @@ export default function TitleRename({ id, title, setIsRename }: { id: string; ti
 
   return (
     <Input
+      className="TitleRename"
       placeholder="Title..."
       ref={ref}
       value={value}

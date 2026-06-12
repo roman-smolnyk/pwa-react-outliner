@@ -6,5 +6,5 @@ export default function PlainTextContent({ children }: { children: string }) {
     children += "\n";
   }
 
-  return <div className="whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
+  return <div className="PlainTextContent whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
 }

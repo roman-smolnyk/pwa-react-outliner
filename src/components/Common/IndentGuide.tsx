@@ -1,11 +1,11 @@
 import { INDENT } from "../../../config.tsx";
 import { memo } from "react";
 
-const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; depth: number }) {
+const IndentGuide = memo(function IndentGuide({ id, depth }: { id: string; depth: number }) {
   if (depth <= 1) return null;
 
   return (
-    <div className="absolute inset-y-0 left-0 pointer-events-none">
+    <div className="IndentGuide absolute inset-y-0 left-0 pointer-events-none">
       {Array.from({ length: depth - 1 }).map((_, i) => (
         <div
           key={`indent-guide-${id}-${i}`}
@@ -18,6 +18,6 @@ const IndentGuides = memo(function IndentGuides({ id, depth }: { id: string; dep
     </div>
   );
 });
-IndentGuides.displayName = "IndentGuides";
+IndentGuide.displayName = "IndentGuide";
 
-export default IndentGuides;
+export default IndentGuide;

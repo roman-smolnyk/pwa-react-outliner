@@ -57,7 +57,7 @@ export default function MainMenu() {
       <DropdownMenu modal={true}>
         <DropdownMenuTrigger
           render={
-            <Button variant="bare" size="tool">
+            <Button variant="bare" size="tool" className="MainMenu">
               <MenuIcon />
             </Button>
           }

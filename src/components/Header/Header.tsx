@@ -28,7 +28,7 @@ export default function Header() {
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-10 px-4 z-10
+      className="Header fixed top-0 right-0 min-w-0 min-h-10 px-2 z-10
       bg-sidebar text-sidebar-foreground border-b border-border
       flex"
       style={{

@@ -77,7 +77,7 @@ export default function PageSearchToolbar() {
   const totalMatches = markElements?.length || 0;
 
   return (
-    <FloatingToolbar>
+    <FloatingToolbar className="PageSearchToolbar">
       <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
 
       <div className="Counter text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>

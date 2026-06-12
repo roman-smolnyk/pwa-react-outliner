@@ -34,7 +34,7 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon-sm">
+          <Button variant="ghost" size="icon-sm" className="ExpEntryOptions">
             <EllipsisVerticalIcon />
           </Button>
         }

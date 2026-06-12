@@ -22,8 +22,8 @@ export default function ResponsiveModal({
       <DialogContent
         className={
           isMobile
-            ? "top-0 left-0 translate-x-0 translate-y-0 w-screen h-screen max-w-none rounded-none flex flex-col"
-            : "min-w-2/3 h-5/6 flex flex-col"
+            ? "ResponsiveModal top-0 left-0 translate-x-0 translate-y-0 w-screen h-screen max-w-none rounded-none flex flex-col"
+            : "ResponsiveModal min-w-2/3 h-5/6 flex flex-col"
         }
       >
         <DialogHeader>

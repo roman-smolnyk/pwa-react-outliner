@@ -9,7 +9,7 @@ import { INDENT } from "../../../config.tsx";
 import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
-import IndentGuides from "../Common/IndentGuide.tsx";
+import IndentGuide from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
 import TitleRename from "./TitleRename.tsx";
@@ -32,7 +32,14 @@ function HandleButton({
   onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <Button className="" variant="ghost" size="icon-sm" {...attributes} {...listeners} onClick={(e) => type === COLLECTION_TYPE && onClick(e)}>
+    <Button
+      className="HandleButton"
+      variant="ghost"
+      size="icon-sm"
+      {...attributes}
+      {...listeners}
+      onClick={(e) => type === COLLECTION_TYPE && onClick(e)}
+    >
       {type === PAGE_TYPE ? (
         <FileTextIcon />
       ) : childrenLength !== undefined && childrenLength > 0 ? (
@@ -92,7 +99,7 @@ const ExpEntryInner = memo(
 
     return (
       <div
-        className={`ExpEntry relative min-w-0 pr-3 ${
+        className={`ExpEntryInner relative min-w-0 pr-3 ${
           isSelected && !isActive
             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
             : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -100,7 +107,7 @@ const ExpEntryInner = memo(
         ref={setRefs}
         style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
       >
-        <IndentGuides id={id} depth={depth} />
+        <IndentGuide id={id} depth={depth} />
         <div className={`min-w-0 flex items-center justify-center`}>
           {isActive ? (
             <DropIndicator />

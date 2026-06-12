@@ -11,7 +11,7 @@ export default function LoadingScreen() {
   const isLoadingScreenShowExit = useStore((s) => s.shouldShowLoadingScreenExit);
 
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center gap-5">
+    <div className="LoadingScreen h-screen w-screen flex flex-col items-center justify-center gap-5">
       <SpinnerCustom />
       {/* <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} /> */}
       <div className="px-10">{loadingScreenInfo}</div>

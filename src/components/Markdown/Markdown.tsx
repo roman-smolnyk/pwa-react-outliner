@@ -90,7 +90,7 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
 
 function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
   // log.debug("CodeTag", { children, style, ...rest });
-  return <code className="PrismCodeTag">{children}</code>;
+  return <code className="CodeTag">{children}</code>;
 }
 
 const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkTheme: boolean }) => {

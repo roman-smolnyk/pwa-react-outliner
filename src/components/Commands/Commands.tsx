@@ -18,7 +18,7 @@ export default function Commands() {
   const isCommandsOpen = useStore((s) => s.isCommandsOpen);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="Commands flex flex-col gap-4">
       {/* <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
         Open Menu
       </Button> */}

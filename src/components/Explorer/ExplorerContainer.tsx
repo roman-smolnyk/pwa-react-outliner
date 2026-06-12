@@ -7,7 +7,7 @@ import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import { isMobile } from "../../utils/utilities";
 import Explorer from "./Explorer";
-import ExplorerToolsPanel from "./ExplorerToolsPanel";
+import ExplorerHeader from "./ExplorerHeader";
 
 export default function ExplorerContainer() {
   log.debug("ExplorerContainer");
@@ -37,9 +37,9 @@ export default function ExplorerContainer() {
   );
 
   return (
-    <div className="h-dvh overflow-hidden flex flex-col">
-      <div className="ExplorerContainer flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
-        <ExplorerToolsPanel />
+    <div className="ExplorerContainer h-dvh overflow-hidden flex flex-col">
+      <div className="flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
+        <ExplorerHeader />
         <div
           className="flex-1 pt-5 overflow-y-auto overscroll-contain"
           // style={{

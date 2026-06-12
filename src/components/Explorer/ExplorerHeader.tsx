@@ -8,13 +8,13 @@ import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
-export default function ExplorerToolsPanel() {
+export default function ExplorerHeader() {
   const isExplorerOpen = useStore((s) => s.isExplorerOpen);
   const isGlobalSearchOpen = useStore((s) => s.isGlobalSearchOpen);
 
   return (
     <div
-      className="ToolsPanel min-w-0 min-h-10 px-4
+      className="ExplorerHeader min-w-0 min-h-10 px-2
                 bg-sidebar text-sidebar-foreground border-b border-border
                 flex"
       style={{

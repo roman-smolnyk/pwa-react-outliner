@@ -9,7 +9,7 @@ import { INDENT } from "../../../config.tsx";
 import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.tsx";
 import useStore from "../../store/useStore.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
-import IndentGuides from "../Common/IndentGuide.tsx";
+import IndentGuide from "../Common/IndentGuide.tsx";
 import BlockContent from "./BlockContent.tsx";
 import { BlockOptions } from "./BlockOptions.tsx";
 
@@ -87,8 +87,13 @@ const BlockInner = memo(
     if (isRoot) depth = 1;
 
     return (
-      <div className={`Block relative ${isRoot ? "mb-5" : ""}`} ref={setRefs} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }} data-block-id={id}>
-        <IndentGuides id={id} depth={depth} />
+      <div
+        className={`BlockInner relative ${isRoot ? "mb-5" : ""}`}
+        ref={setRefs}
+        style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
+        data-block-id={id}
+      >
+        <IndentGuide id={id} depth={depth} />
         <div className={`flex items-start`}>
           {isActive ? (
             <DropIndicator />

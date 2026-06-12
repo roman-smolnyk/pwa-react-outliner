@@ -56,7 +56,7 @@ export default function LockScreen() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="LockScreen min-h-screen flex items-center justify-center p-4 bg-background">
       <div
         className="w-full max-w-sm p-7
                    rounded-xl bg-popover border border-border shadow-2xl

@@ -72,7 +72,7 @@ const CM6Editor = memo(
       };
     }, []);
 
-    return <div ref={ref} />;
+    return <div ref={ref} className="CM6Editor" />;
   },
 );
 CM6Editor.displayName = "CM6Editor";

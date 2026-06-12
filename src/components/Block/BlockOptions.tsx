@@ -40,8 +40,8 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button className="" variant="bare" size="micro">
-            <EllipsisVerticalIcon className="" />
+          <Button className="BlockOptions" variant="bare" size="micro">
+            <EllipsisVerticalIcon />
           </Button>
         }
       ></DropdownMenuTrigger>

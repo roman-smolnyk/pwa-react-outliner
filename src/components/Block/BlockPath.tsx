@@ -12,8 +12,8 @@ export default function BlockPath({ id }: { id: string }) {
   log.debug("BlockPath", yblocksArray);
 
   return (
-    <Breadcrumb className="mb-5">
-      <BreadcrumbList className="">
+    <Breadcrumb className="BlockPath mb-5">
+      <BreadcrumbList>
         {yblocksArray.map((item, idx) => {
           const itemId = item.get("id");
           const itemText = item.get("content").toString();

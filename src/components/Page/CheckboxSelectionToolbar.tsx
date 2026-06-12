@@ -5,7 +5,7 @@ import FloatingToolbar from "../Common/FloatingToolbar";
 
 export default function CheckboxSelectionToolbar() {
   return (
-    <FloatingToolbar>
+    <FloatingToolbar className="CheckboxSelectionToolbar">
       <Button variant="ghost" size="icon">
         <ForwardIcon />
       </Button>

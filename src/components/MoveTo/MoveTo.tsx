@@ -11,7 +11,7 @@ import ResponsiveModal from "../Common/ResponsiveModal";
 function PageItem({ page, onClose }: { page: PageT; onClose: () => void }) {
   return (
     <div
-      className="hover:bg-accent px-3 py-1"
+      className="PageItem hover:bg-accent px-3 py-1"
       onClick={() => {
         const { itemIdToMove } = useStore.getState();
         if (itemIdToMove) {
@@ -60,7 +60,7 @@ export function MoveTo() {
 
   return (
     <ResponsiveModal title="Move To" open={isMoveToOpen} onOpenChange={onClose}>
-      <div className="min-h-0 flex flex-col gap-4">
+      <div className="MoveTo min-h-0 flex flex-col gap-4">
         <Input
           placeholder="Document name"
           value={query}
