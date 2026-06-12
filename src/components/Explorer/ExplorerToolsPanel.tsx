@@ -3,16 +3,14 @@ import { getRootCollectionId } from "esm-treero-api";
 import { CopyMinusIcon, CopyPlusIcon, FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { handleCollectionAdd, handlePageAdd, toggleGlobalSearch } from "../../api/api";
+import { handleCollectionAdd, handleExplorerClose, handlePageAdd, toggleGlobalSearch } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
-export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanelRef: React.RefObject<PanelImperativeHandle | null> }) {
+export default function ExplorerToolsPanel() {
   const isExplorerOpen = useStore((s) => s.isExplorerOpen);
   const isGlobalSearchOpen = useStore((s) => s.isGlobalSearchOpen);
-
-  const isAllCollapsed = true;
 
   return (
     <div
@@ -25,7 +23,6 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
         // clipPath: "inset(0px 0px -20px 0px)",
       }}
     >
-
       <div className="flex-1 flex items-center">
         {/* Left icons */}
         <div className="mr-2 flex items-center gap-2">
@@ -33,8 +30,7 @@ export default function ExplorerToolsPanel({ explorerPanelRef }: { explorerPanel
             variant="bare"
             size="tool"
             onClick={() => {
-              useStore.getState().collapseExplorer();
-              // explorerPanelRef.current?.collapse();
+              handleExplorerClose();
             }}
           >
             <PanelLeftCloseIcon />

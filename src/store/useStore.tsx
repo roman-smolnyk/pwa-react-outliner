@@ -1,6 +1,8 @@
 import type { EditorView } from "@codemirror/view";
 import { create } from "zustand";
 import localPreferencesManager from "./preferences";
+import type { PanelImperativeHandle } from "react-resizable-panels";
+import { isMobile } from "@/utils/utilities";
 
 export interface useStoreType {
   isHydrated: boolean;
@@ -43,9 +45,7 @@ export interface useStoreType {
   renderPageTicker: number;
   renderPage(): void;
 
-  explorerPanelAction: "collapse" | "expand" | "";
-  collapseExplorer(): void;
-  expandExplorer(): void;
+  explorerPanel: PanelImperativeHandle | null;
 }
 
 const useStore = create<useStoreType>((set, get) => ({
@@ -89,9 +89,7 @@ const useStore = create<useStoreType>((set, get) => ({
   renderPageTicker: 0,
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
 
-  explorerPanelAction: "",
-  collapseExplorer: () => set({ explorerPanelAction: "collapse" }),
-  expandExplorer: () => set({ explorerPanelAction: "expand" }),
+  explorerPanel: null,
 }));
 
 export async function hydrateZustandStateWithPreferences() {

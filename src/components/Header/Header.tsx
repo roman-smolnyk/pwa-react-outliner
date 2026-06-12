@@ -12,7 +12,7 @@ import {
   SearchIcon,
   SquareTerminalIcon,
 } from "lucide-react";
-import { toggleCheckboxSelection, togglePageSearch } from "../../api/api";
+import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
@@ -48,7 +48,7 @@ export default function Header() {
               size="tool"
               title="Open Explorer"
               onClick={() => {
-                useStore.getState().expandExplorer();
+                handleExplorerOpen();
               }}
             >
               <PanelLeftIcon />

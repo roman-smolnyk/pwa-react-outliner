@@ -101,7 +101,7 @@ export async function handleBlockOpen(id: string) {
   log.debug(`openBlock`, id);
   useStore.setState({ rootBlockId: id });
   if (isMobile()) {
-    useStore.getState().collapseExplorer();
+    handleExplorerClose();
   }
   await localPreferencesManager.set("rootBlockId", id);
 }
@@ -364,4 +364,17 @@ export async function toggleGlobalSearch() {
 
 export async function toggleCheckboxSelection() {
   useStore.setState((s) => ({ isCheckboxSelectionActive: !s.isCheckboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false }));
+}
+
+export function handleExplorerOpen() {
+  useStore.getState().explorerPanel?.expand();
+  useStore.setState({ isExplorerOpen: true });
+  if (isMobile()) {
+    useStore.setState({ isPageSearchActive: false });
+  }
+}
+
+export function handleExplorerClose() {
+  useStore.getState().explorerPanel?.collapse();
+  useStore.setState({ isExplorerOpen: false });
 }

@@ -34,15 +34,19 @@ export default function PageContainer() {
   // @[800]:
   // @sm:
   return (
-    <div
-      className="PageContainer flex-1 relative z-0 min-w-xs min-h-0 
+    <div className="PageContainer h-dvh flex flex-col">
+      <div className="Spacer min-h-10"></div>{" "}
+      <div
+        className="flex-1 relative z-0 min-w-xs min-h-0 
                 flex flex-col overflow-y-auto overscroll-contain"
-    >
-      <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4  mx-auto ${addSpace ? "pt-22" : "pt-12"}`}>
-        {parentId && <BlockPath id={rootBlockId} />}
-        <Page rootId={rootBlockId} />
-        <div className="Spacer h-[50dvh]"></div>
+      >
+        <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4  mx-auto ${addSpace ? "pt-22" : "pt-12"}`}>
+          {parentId && <BlockPath id={rootBlockId} />}
+          <Page rootId={rootBlockId} />
+          <div className="Spacer h-[50dvh]"></div>
+        </div>
       </div>
+      <div className="Spacer min-h-10"></div>
     </div>
   );
 }
