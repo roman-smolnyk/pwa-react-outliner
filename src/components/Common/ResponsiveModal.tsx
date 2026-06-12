@@ -18,18 +18,15 @@ export default function ResponsiveModal({
 }) {
   const isMobile = useIsMobile();
 
-  return isMobile ? (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="data-[side=right]:w-full">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-        <div className={cn("flex-1 min-h-0 px-4 flex flex-col", className)}>{children}</div>
-      </SheetContent>
-    </Sheet>
-  ) : (
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-2/3 h-5/6 flex flex-col">
+      <DialogContent
+        className={
+          isMobile
+            ? "fixed! top-0! left-0! translate-x-0! translate-y-0! w-screen! h-screen! max-w-none! rounded-none!"
+            : "min-w-2/3 h-5/6 flex flex-col"
+        }
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
