@@ -14,13 +14,13 @@ export default function FloatingToolbar({
 }) {
   return (
     <div
-      className="FloatingToolbar fixed top-15 left-0 right-0 flex items-center"
+      className="FloatingToolbar fixed top-12 left-0 right-0 flex items-center"
       style={{
-        left: `var(--explorer-width)`,
+        left: "var(--explorer-width)",
       }}
     >
       <div className="w-max mx-auto">
-        <Card className={cn("p-2 flex flex-row items-center justify-center gap-1", className)}>{children}</Card>
+        <Card className={cn("p-2 max-w-[90dvw] flex flex-row items-center justify-center gap-1", className)}>{children}</Card>
       </div>
     </div>
   );

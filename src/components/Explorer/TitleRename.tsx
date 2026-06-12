@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
 import { Input } from "@/components/ui/input";
 
-export default function TitleEdit({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
+export default function TitleRename({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(title);
 
@@ -34,16 +34,5 @@ export default function TitleEdit({ id, title, setIsRename }: { id: string; titl
       onBlur={onBlur}
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
     />
-    // <input
-    //   className="TitleEdit w-full min-w-0 max-w-full py-1
-    //             rounded border border-input focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-ring"
-    //   style={{ padding: "0px 6px" }}
-    //   ref={ref}
-    //   type="text"
-    //   value={value}
-    //   onChange={(e) => setValue(e.target.value)}
-    //   onBlur={onBlur}
-    //   onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
-    // />
   );
 }

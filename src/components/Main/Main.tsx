@@ -78,10 +78,15 @@ export default function Main() {
     onStartUp();
   }, []);
 
+  useEffect(() => {
+    if (isMobile) {
+      document.documentElement.style.setProperty("--explorer-width", `0px`);
+    }
+  }, [isMobile]);
+
   useSetupHotkeys();
 
   log.debug("isDataLoaded", isDataLoaded);
-
   if (!isDataLoaded) {
     return <LoadingScreen />;
   }
@@ -94,14 +99,12 @@ export default function Main() {
         /* Mobile Layout: Full Page view + Explorer inside Sheet */
         <div className="h-dvh flex flex-col">
           <Sheet open={isExplorerOpen} onOpenChange={handleExplorerClose}>
-            <SheetContent side="left" showCloseButton={false}>
+            <SheetContent side="left" showCloseButton={false} className="text-base">
               <ExplorerContainer />
             </SheetContent>
           </Sheet>
 
-          <div className="Spacer min-h-10"></div>
           <PageContainer />
-          <div className="Spacer min-h-12"></div>
         </div>
       ) : (
         <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>

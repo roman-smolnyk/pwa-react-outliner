@@ -87,7 +87,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className={`Explorer relative z-0 flex flex-col gap-0`}>
+    <div className="Explorer relative z-0 flex flex-col gap-0">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection

@@ -13,7 +13,7 @@ import type { FlatBlocksT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.tsx";
 import Block from "../Block/Block.tsx";
 import CheckboxSelectionToolbar from "./CheckboxSelectionToolbar.tsx";
-import PageSearch from "./PageSearch.tsx";
+import PageSearchToolbar from "./PageSearchToolbar.tsx";
 
 // const adjustTranslate: Modifier = ({ transform }) => {
 //   return {
@@ -91,7 +91,7 @@ export default function Page({ rootId }: { rootId: string }) {
 
   return (
     <div className="Page flex flex-col">
-      {isPageSearchActive && createPortal(<PageSearch />, document.getElementById("root")!)}
+      {isPageSearchActive && createPortal(<PageSearchToolbar />, document.getElementById("root")!)}
       {isChekboxSelectionActive && createPortal(<CheckboxSelectionToolbar />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}

@@ -12,7 +12,7 @@ import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuides from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
 import Title from "./Title.tsx";
-import TitleEdit from "./TitleEdit.tsx";
+import TitleRename from "./TitleRename.tsx";
 
 function HandleButton({
   id,
@@ -94,8 +94,8 @@ const ExpEntryInner = memo(
       <div
         className={`ExpEntry relative min-w-0 pr-3 ${
           isSelected && !isActive
-            ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 sm:border-l-12 border-sidebar-accent"
-            : "border-l-16 sm:border-l-12 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
+            ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
+            : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
         }`}
         ref={setRefs}
         style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
@@ -110,7 +110,7 @@ const ExpEntryInner = memo(
 
               <div className="flex-1 min-w-0 flex">
                 {isRename ? (
-                  <TitleEdit id={id} title={title} setIsRename={setIsRename} />
+                  <TitleRename id={id} title={title} setIsRename={setIsRename} />
                 ) : (
                   <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
                     <Title title={title} />

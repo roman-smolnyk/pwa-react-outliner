@@ -41,7 +41,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 export default function Footer() {
   log.debug("Footer");
-  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
   const selectedBlockId = useStore((s) => s.selectedBlockId);
 
   return (
@@ -51,7 +50,7 @@ export default function Footer() {
                 flex
                 "
       style={{
-        left: `${isExplorerOpen ? "var(--explorer-width)" : "0px"}`,
+        left: "var(--explorer-width)",
         // boxShadow: "0px -1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
         // clipPath: "inset(-20px 0px 0px 0px)",
       }}

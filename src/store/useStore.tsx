@@ -1,8 +1,8 @@
+import { isMobile } from "@/utils/utilities";
 import type { EditorView } from "@codemirror/view";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 import { create } from "zustand";
 import localPreferencesManager from "./preferences";
-import type { PanelImperativeHandle } from "react-resizable-panels";
-import { isMobile } from "@/utils/utilities";
 
 export interface useStoreType {
   isHydrated: boolean;
@@ -66,7 +66,7 @@ const useStore = create<useStoreType>((set, get) => ({
   focusBlockId: null,
   caretCharIndex: 0,
 
-  isExplorerOpen: true,
+  isExplorerOpen: false,
   isGlobalSearchOpen: false,
   isSettingsOpen: false,
   isPageSearchActive: false,
@@ -102,6 +102,7 @@ export async function hydrateZustandStateWithPreferences() {
     rootBlockId: await localPreferencesManager.get("rootBlockId"),
     isLockScreenOpen: !!(await localPreferencesManager.get("lockScreenPin")),
     autoLockTimeout: await localPreferencesManager.get("autoLockScreen"),
+    isExplorerOpen: !isMobile(),
   });
 }
 

@@ -8,7 +8,7 @@ import { scrollIntoView } from "../../utils/utilities";
 import { Input } from "@/components/ui/input";
 import FloatingToolbar from "../Common/FloatingToolbar";
 
-export default function PageSearch() {
+export default function PageSearchToolbar() {
   const refInput = useRef<HTMLInputElement | null>(null);
   const instancerRef = useRef<Mark | null>(null);
 
@@ -80,11 +80,11 @@ export default function PageSearch() {
     <FloatingToolbar>
       <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
 
-      <div className="Counter min-w-15 text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>
+      <div className="Counter text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>
 
       <Button
         variant="ghost"
-        size="icon-lg"
+        size="icon"
         title="Previous"
         disabled={totalMatches === 0}
         onPointerDown={(e) => {
@@ -107,7 +107,7 @@ export default function PageSearch() {
 
       <Button
         variant="ghost"
-        size="icon-lg"
+        size="icon"
         title="Next"
         disabled={totalMatches === 0}
         onPointerDown={(e) => {

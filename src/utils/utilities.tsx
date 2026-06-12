@@ -246,7 +246,7 @@ export function getCharIndexFromMouse(element: HTMLElement, x: number, y: number
 
 export function isMobile(): boolean {
   // return window.matchMedia(`(max-width: ${MOBILE_WIDTH}px)`).matches;
-  return window.innerWidth <= BREAKPOINTS.md;
+  return window.innerWidth <= BREAKPOINTS.sm;
 }
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));

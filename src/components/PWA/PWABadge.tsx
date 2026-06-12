@@ -1,4 +1,5 @@
 import log from "loglevel";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
@@ -31,47 +32,27 @@ export default function PWABadge() {
     setNeedRefresh(false);
   }
 
-  if (offlineReady && !needRefresh) {
-    toast.info("App ready to work offline");
-    return <div className="PWABadge"></div>;
-  }
+  // useEffect(() => {
+  //   setOfflineReady(false);
+  //   setNeedRefresh(true);
+  // }, []);
 
-  return (
-    <div
-      className={`PWABadge absolute top-15 sm:top-11 left-1/2 -translate-x-1/2 min-w-50 p-4 z-100
-                bg-background border border-gray-300 rounded-lg shadow-2xl ${!offlineReady && !needRefresh ? "hidden" : ""}`}
-      role="alert"
-      aria-labelledby="toast-message"
-    >
-      {(offlineReady || needRefresh) && (
-        <div className="flex flex-col items-center justify-center text-center gap-3">
-          <div className="text-xl">
-            {offlineReady ? <span>App ready to work offline</span> : <span>New content available, click on reload button to update.</span>}
-          </div>
-          <div className="flex gap-4">
-            {needRefresh && (
-              <button
-                className="min-w-20 p-2 font-semibold bg-primary text-primary-foreground
-                          rounded shadow-md active:scale-90 transition"
-                type="button"
-                onClick={() => updateServiceWorker(true)}
-              >
-                Reload
-              </button>
-            )}
-            <button
-              className="min-w-20 p-2 font-semibold bg-primary text-primary-foreground
-                          rounded shadow-md active:scale-90 transition"
-              type="button"
-              onClick={() => close()}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  useEffect(() => {
+    if (offlineReady && !needRefresh) {
+      toast.info("App ready to work offline");
+    } else if (needRefresh) {
+      toast.info("New content available", {
+        description: "Click on reload button to update",
+        action: {
+          label: "Reload",
+          onClick: () => updateServiceWorker(true),
+        },
+        onDismiss: () => close(),
+      });
+    }
+  }, [offlineReady, needRefresh]);
+
+  return <div className="PWABadge"></div>;
 }
 
 /**

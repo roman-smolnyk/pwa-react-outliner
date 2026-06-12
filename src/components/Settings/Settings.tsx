@@ -168,25 +168,6 @@ export default function Settings() {
             </Select>
           </div>
         </ItemGroup>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
-        <div>Zebraaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
       </div>
     </ResponsiveModal>
   );

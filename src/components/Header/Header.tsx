@@ -32,7 +32,7 @@ export default function Header() {
       bg-sidebar text-sidebar-foreground border-b border-border
       flex"
       style={{
-        left: `${isExplorerOpen ? "var(--explorer-width)" : "0px"}`,
+        left: "var(--explorer-width)",
         // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
         // clipPath: "inset(0px 0px -20px 0px)",
       }}

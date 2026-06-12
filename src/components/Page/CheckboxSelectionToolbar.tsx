@@ -6,13 +6,13 @@ import FloatingToolbar from "../Common/FloatingToolbar";
 export default function CheckboxSelectionToolbar() {
   return (
     <FloatingToolbar>
-      <Button variant="ghost" size="icon-lg">
+      <Button variant="ghost" size="icon">
         <ForwardIcon />
       </Button>
 
       <Button
         variant="destructive"
-        size="icon-lg"
+        size="icon"
         onClick={() => {
           handleBlockDeleteBatch();
         }}
