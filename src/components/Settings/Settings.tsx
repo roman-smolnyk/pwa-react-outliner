@@ -49,7 +49,7 @@ export default function Settings() {
 
   return (
     <ResponsiveModal title="Settings" open={isSettingsOpen} onOpenChange={handleOpenChange}>
-      <div className="Settings flex-1 overflow-y-auto overscroll-contain pr-4 flex flex-col gap-4">
+      <div className="Settings flex-1 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-4">
         <ItemGroup>
           <SectionTitle>Appearance</SectionTitle>
           <Separator />
@@ -136,7 +136,7 @@ export default function Settings() {
               onFocus={() => setIsPinFocused(true)}
               onBlur={() => setIsPinFocused(false)}
               maxLength={6}
-              placeholder="••••"
+              // placeholder=""
             />
           </div>
 
