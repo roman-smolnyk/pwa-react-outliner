@@ -25,12 +25,14 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       )}
       title={isRevealed ? undefined : "Click to reveal spoiler"}
       {...props}
-      onPointerDown={async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      onPointerDown={(e) => {
+        if (!isRevealed) {
+          e.preventDefault();
+          e.stopPropagation();
 
-        setIsRevealed(true);
-        await copyToClipboard(String(children));
+          setIsRevealed(true);
+          copyToClipboard(String(children));
+        }
       }}
     >
       {children}
