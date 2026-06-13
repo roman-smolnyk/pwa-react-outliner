@@ -197,6 +197,11 @@ export function createDomEventHandlers(id: string, isDestroyingRef: RefObject<bo
       const relatedTarget = event.relatedTarget as HTMLElement | null;
       log.debug("CM6:blur", id, relatedTarget, document.activeElement);
 
+      // view.dispatch({
+      //   selection: view.state.selection,
+      //   scrollIntoView: true,
+      // });
+
       if (!isDestroyingRef.current) {
         requestAnimationFrame(() => {
           view.focus();
@@ -206,6 +211,8 @@ export function createDomEventHandlers(id: string, isDestroyingRef: RefObject<bo
           });
         });
       }
+
+      return true;
     },
 
     // focus: (event: FocusEvent, view: EditorView) => {
