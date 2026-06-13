@@ -25,30 +25,15 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       )}
       title={isRevealed ? undefined : "Click to reveal spoiler"}
       {...props}
-      onPointerDownCapture={(e) => {
+      onClick={async (e) => {
         if (!isRevealed) {
-          e.nativeEvent.stopImmediatePropagation();
           e.preventDefault();
           e.stopPropagation();
 
           setIsRevealed(true);
-          copyToClipboard(String(children));
+          await copyToClipboard(String(children));
         }
       }}
-      // onPointerUp={(e) => {
-      //   if (!isRevealed) {
-      //     e.nativeEvent.stopImmediatePropagation();
-      //     e.preventDefault();
-      //     e.stopPropagation();
-      //   }
-      // }}
-      // onClick={(e) => {
-      //   if (!isRevealed) {
-      //     e.nativeEvent.stopImmediatePropagation();
-      //     e.preventDefault();
-      //     e.stopPropagation();
-      //   }
-      // }}
     >
       {children}
     </span>

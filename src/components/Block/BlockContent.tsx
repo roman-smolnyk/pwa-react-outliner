@@ -1,4 +1,4 @@
-// import log from "loglevel";
+import log from "loglevel";
 import { memo } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
@@ -23,10 +23,12 @@ const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit 
         <div
           className={`BlockContent-render block-content ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           onPointerDown={(e) => {
+            log.debug("BlockContentInner:onPointerDown");
             if (readOnly) return;
             useStore.setState({ caretCharIndex: getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY) });
           }}
           onClick={(e) => {
+            log.debug("BlockContentInner:onClick");
             if (readOnly) return;
             useStore.setState({ activeBlockId: id });
           }}
