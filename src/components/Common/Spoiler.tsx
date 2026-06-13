@@ -25,7 +25,7 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       )}
       title={isRevealed ? undefined : "Click to reveal spoiler"}
       {...props}
-      onPointerDown={(e) => {
+      onPointerDownCapture={(e) => {
         if (!isRevealed) {
           e.nativeEvent.stopImmediatePropagation();
           e.preventDefault();
@@ -35,13 +35,20 @@ export default function Spoiler({ className = "", children, ...props }: Componen
           copyToClipboard(String(children));
         }
       }}
-      onClick={(e) => {
-        if (!isRevealed) {
-          e.nativeEvent.stopImmediatePropagation();
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }}
+      // onPointerUp={(e) => {
+      //   if (!isRevealed) {
+      //     e.nativeEvent.stopImmediatePropagation();
+      //     e.preventDefault();
+      //     e.stopPropagation();
+      //   }
+      // }}
+      // onClick={(e) => {
+      //   if (!isRevealed) {
+      //     e.nativeEvent.stopImmediatePropagation();
+      //     e.preventDefault();
+      //     e.stopPropagation();
+      //   }
+      // }}
     >
       {children}
     </span>

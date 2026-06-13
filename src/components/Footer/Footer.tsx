@@ -114,6 +114,7 @@ export default function Footer() {
           className="AddBlock"
           onClick={(e) => {
             if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
               handleBlockAdd(activeBlockId);
             }
           }}
@@ -127,6 +128,7 @@ export default function Footer() {
           title="Outdent"
           className="MoveBlockLeft"
           onClick={(e) => {
+            useStore.getState().inputFocusKeeperElement?.focus();
             if (activeBlockId) handleBlockOutdent(activeBlockId);
           }}
         >
@@ -139,6 +141,7 @@ export default function Footer() {
           title="Indent"
           className="MoveBlockRight"
           onClick={(e) => {
+            useStore.getState().inputFocusKeeperElement?.focus();
             if (activeBlockId) handleBlockIndent(activeBlockId);
           }}
         >
@@ -151,6 +154,7 @@ export default function Footer() {
           title="Move Up"
           className="MoveBlockUp"
           onClick={(e) => {
+            useStore.getState().inputFocusKeeperElement?.focus();
             if (activeBlockId) handleBlockMoveUp(activeBlockId);
           }}
         >
@@ -163,7 +167,7 @@ export default function Footer() {
           title="Move Down"
           className="MoveBlockDown"
           onClick={(e) => {
-            useStore.getState().inputElement?.focus();
+            useStore.getState().inputFocusKeeperElement?.focus();
             if (activeBlockId) handleBlockMoveDown(activeBlockId);
           }}
         >

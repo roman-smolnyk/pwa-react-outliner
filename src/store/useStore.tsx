@@ -46,7 +46,7 @@ export interface useStoreType {
 
   explorerPanel: PanelImperativeHandle | null;
   footerElement: HTMLElement | null;
-  inputElement: HTMLElement | null;
+  inputFocusKeeperElement: HTMLElement | null;
 }
 
 const useStore = create<useStoreType>((set, get) => ({
@@ -91,7 +91,7 @@ const useStore = create<useStoreType>((set, get) => ({
 
   explorerPanel: null,
   footerElement: null,
-  inputElement: null,
+  inputFocusKeeperElement: null,
 }));
 
 export async function hydrateZustandStateWithPreferences() {

@@ -16,6 +16,11 @@ import PageContainer from "../Page/PageContainer";
 import Settings from "../Settings/Settings";
 import LoadingScreen from "./LoadingScreen";
 
+function InputFocusKeeper() {
+  // Prevents on screen keyboard flickering between actions
+  return <input ref={(el) => useStore.setState({ inputFocusKeeperElement: el })} type="text" className="sr-only" tabIndex={-1} aria-hidden="true" />;
+}
+
 function useSetupHotkeys() {
   useHotkeys(
     "ctrl+z, meta+z",
@@ -152,7 +157,7 @@ export default function Main() {
 
       <Footer />
 
-      <input ref={(el) => useStore.setState({ inputElement: el })} type="text" className="sr-only" tabIndex={-1} aria-hidden="true" />
+      <InputFocusKeeper />
     </div>
   );
 }
