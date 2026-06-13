@@ -46,6 +46,7 @@ export interface useStoreType {
 
   explorerPanel: PanelImperativeHandle | null;
   footerElement: HTMLElement | null;
+  inputElement: HTMLElement | null;
 }
 
 const useStore = create<useStoreType>((set, get) => ({

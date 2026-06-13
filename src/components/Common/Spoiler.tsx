@@ -27,6 +27,7 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       {...props}
       onPointerDown={(e) => {
         if (!isRevealed) {
+          e.nativeEvent.stopImmediatePropagation();
           e.preventDefault();
           e.stopPropagation();
 
@@ -36,6 +37,7 @@ export default function Spoiler({ className = "", children, ...props }: Componen
       }}
       onClick={(e) => {
         if (!isRevealed) {
+          e.nativeEvent.stopImmediatePropagation();
           e.preventDefault();
           e.stopPropagation();
         }

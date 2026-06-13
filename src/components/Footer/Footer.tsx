@@ -163,6 +163,7 @@ export default function Footer() {
           title="Move Down"
           className="MoveBlockDown"
           onClick={(e) => {
+            useStore.getState().inputElement?.focus();
             if (activeBlockId) handleBlockMoveDown(activeBlockId);
           }}
         >

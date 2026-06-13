@@ -151,6 +151,8 @@ export default function Main() {
       <Commands />
 
       <Footer />
+
+      <input ref={(el) => useStore.setState({ inputElement: el })} type="text" className="sr-only" tabIndex={-1} aria-hidden="true" />
     </div>
   );
 }
