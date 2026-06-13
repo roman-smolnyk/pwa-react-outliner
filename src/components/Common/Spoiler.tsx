@@ -34,6 +34,12 @@ export default function Spoiler({ className = "", children, ...props }: Componen
           copyToClipboard(String(children));
         }
       }}
+      onClick={(e) => {
+        if (!isRevealed) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
     >
       {children}
     </span>
