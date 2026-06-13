@@ -14,7 +14,7 @@ export default function BlockContent({ id, content }: { id: string; content: str
   const [charIndex, setCharIndex] = useState(0);
   const { readOnly } = useReadOnly();
   const { contentViewMode } = useContentViewMode();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const isDarkTheme = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const focusBlockId = useStore((s) => s.focusBlockId);

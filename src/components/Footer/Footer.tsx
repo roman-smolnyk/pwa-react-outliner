@@ -101,7 +101,7 @@ export default function Footer() {
           variant="bare"
           size="tool"
           title="Add block"
-          data-ignore-blur="true"
+          // data-ignore-blur="true"
           onClick={(e) => {
             log.debug("onClick", selectedBlockId);
             if (selectedBlockId) {
