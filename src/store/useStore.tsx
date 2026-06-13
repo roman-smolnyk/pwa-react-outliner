@@ -91,6 +91,7 @@ const useStore = create<useStoreType>((set, get) => ({
 
   explorerPanel: null,
   footerElement: null,
+  inputElement: null,
 }));
 
 export async function hydrateZustandStateWithPreferences() {
