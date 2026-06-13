@@ -28,7 +28,6 @@ const sortingStrategy: SortingStrategy = (args) => {
   return verticalListSortingStrategy(args);
 };
 
-// const Page = memo(({ rootId }: { rootId: string }) => {
 export default function Page({ rootId }: { rootId: string }) {
   log.debug("Page");
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -134,4 +133,3 @@ export default function Page({ rootId }: { rootId: string }) {
     </div>
   );
 }
-// export default Page;

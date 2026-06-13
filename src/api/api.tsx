@@ -93,8 +93,18 @@ export async function listenWebSocketStatus() {
   });
 }
 
+export function handleUndo() {
+  yjs.undoManager?.undo();
+  useStore.getState().renderPage();
+}
+
+export function handleRedo() {
+  yjs.undoManager?.redo();
+  useStore.getState().renderPage();
+}
+
 export function selectBlock(id: string, caretCharIndex: number) {
-  useStore.setState({ focusBlockId: id, caretCharIndex: caretCharIndex });
+  useStore.setState({ activeBlockId: id, caretCharIndex: caretCharIndex });
 }
 
 export async function handleBlockOpen(id: string) {
@@ -127,7 +137,7 @@ export function handleBlockDelete(id: string) {
   if (isRootItem(yjs.yblocks, id)) {
     return;
   }
-  if (useStore.getState().selectedBlockId) {
+  if (useStore.getState().activeBlockId) {
     const ysibling = getItemSibling(yjs.yblocks, id, -1);
     const yparent = getItemParent(yjs.yblocks, id);
     selectBlock(ysibling ? ysibling.get("id") : yparent.get("id"), -1);
@@ -237,14 +247,6 @@ export function handlePageDelete(id: string) {
 
 export function handleCollectionDelete(id: string) {
   deleteCollection(yjs.ydoc, id);
-}
-
-export function handleUndo() {
-  yjs.undoManager?.undo();
-}
-
-export function handleRedo() {
-  yjs.undoManager?.redo();
 }
 
 export async function copyToClipboard(text: string) {

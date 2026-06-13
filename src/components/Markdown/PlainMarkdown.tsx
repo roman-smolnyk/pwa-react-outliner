@@ -1,7 +1,7 @@
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 
-const PlainMarkdown = memo(({ children }: { children: string }) => {
+const PlainMarkdown = memo(function PlainMarkdown({ children }: { children: string }) {
   return (
     <ReactMarkdown
       components={{

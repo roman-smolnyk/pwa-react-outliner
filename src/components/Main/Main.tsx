@@ -4,10 +4,9 @@ import log from "loglevel";
 import { useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
-import { handleExplorerClose, toggleGlobalSearch, togglePageSearch } from "../../api/api";
+import { handleExplorerClose, handleRedo, handleUndo, toggleGlobalSearch, togglePageSearch } from "../../api/api";
 import onStartUp from "../../onStartUp";
 import useStore from "../../store/useStore";
-import yjs from "../../store/yjsManager";
 import Commands from "../Commands/Commands";
 import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
@@ -22,7 +21,7 @@ function useSetupHotkeys() {
     "ctrl+z, meta+z",
     () => {
       log.warn("ctrl+z, meta+z");
-      yjs.undoManager?.undo();
+      handleUndo();
     },
     // { enableOnContentEditable: true },
   );
@@ -30,7 +29,7 @@ function useSetupHotkeys() {
     "ctrl+shift+z, meta+shift+z",
     () => {
       log.warn("ctrl+shift+z, meta+shift+z");
-      yjs.undoManager?.redo();
+      handleRedo();
     },
     // { enableOnContentEditable: true },
   );

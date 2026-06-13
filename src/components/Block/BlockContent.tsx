@@ -1,83 +1,56 @@
-import { useEffect, useState } from "react";
+// import log from "loglevel";
+import { memo } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
-import { useTheme } from "../../hooks/useTheme";
 import useStore from "../../store/useStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";
 import CM6Editor from "../Editor/CM6Editor";
 import Markdown from "../Markdown/Markdown";
 import PlainTextContent from "./PlainTextContent";
 
-export default function BlockContent({ id, content }: { id: string; content: string }) {
-  // log.debug("BlockContent");
-  const [isEdit, setIsEdit] = useState(false);
-  const [charIndex, setCharIndex] = useState(0);
+const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit }: { id: string; content: string; isEdit: boolean }) {
+  // log.debug("BlockContentInner");
+
   const { readOnly } = useReadOnly();
   const { contentViewMode } = useContentViewMode();
-  const { theme } = useTheme();
-  const isDarkTheme = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  // const isTouchscreen = useMediaQuery('(pointer: coarse)');
 
-  const focusBlockId = useStore((s) => s.focusBlockId);
-  const caretCharIndex = useStore((s) => s.caretCharIndex);
-
-  useEffect(() => {
-    if (focusBlockId === id) {
-      setIsEdit(true);
-      setCharIndex(caretCharIndex);
-      useStore.setState({ focusBlockId: null, caretCharIndex: 0 });
-    }
-  }, [focusBlockId, id]);
-
-  // const yblock = useMemo(() => getItem(yjs.yblocks, id), [id]);
-  // const content = yblock.get("content").toString();
-
-  // log.debug("BlockContent", id, { isEdit });
+  const { caretCharIndex } = useStore.getState();
 
   return (
     <div className={`BlockContent w-full min-h-[calc((1rem*var(--leading-snug))+4px)] ${isEdit ? "bg-muted" : ""}`}>
       {!isEdit ? (
         <div
           className={`BlockContent-render block-content ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
-          // onClick={(e) => {
-          //   if (readOnly) return;
-          //   setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-          //   setIsEdit(true);
-          // }}
           onPointerDown={(e) => {
-            // log.debug("onPointerDown");
             if (readOnly) return;
-            if (e.pointerType !== "touch") {
-              e.preventDefault();
-              e.stopPropagation();
-              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-              setIsEdit(true);
-            }
+            useStore.setState({ caretCharIndex: getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY) });
           }}
-          onPointerUp={(e) => {
+          onClick={(e) => {
             if (readOnly) return;
-            if (e.pointerType === "touch") {
-              e.preventDefault();
-              e.stopPropagation();
-              setCharIndex(getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY));
-              setIsEdit(true);
-            }
+            useStore.setState({ activeBlockId: id });
           }}
         >
-          {contentViewMode === "source" ? (
-            <PlainTextContent>{content ?? " "}</PlainTextContent>
-          ) : (
-            <Markdown isDarkTheme={isDarkTheme}>{content}</Markdown>
-          )}
+          {contentViewMode === "source" ? <PlainTextContent>{content ?? " "}</PlainTextContent> : <Markdown>{content ?? " "}</Markdown>}
         </div>
       ) : (
-        <div className="BlockContent-edit">
+        <div className="BlockContent-edit" data-id={id}>
           {["source", "markdown"].includes(contentViewMode) ? (
-            <CM6Editor id={id} charIndex={charIndex} setIsEdit={setIsEdit} />
+            <CM6Editor id={id} charIndex={caretCharIndex} />
           ) : (
-            <CM6Editor id={id} charIndex={charIndex} setIsEdit={setIsEdit} livePreview />
+            <CM6Editor id={id} charIndex={caretCharIndex} livePreview />
           )}
         </div>
       )}
     </div>
   );
+});
+BlockContentInner.displayName = "BlockContentInner";
+
+export default function BlockContent({ id, content }: { id: string; content: string }) {
+  // log.debug("BlockContent");
+
+  const activeBlockId = useStore((s) => s.activeBlockId);
+
+  return <BlockContentInner id={id} content={content} isEdit={activeBlockId === id} />;
 }

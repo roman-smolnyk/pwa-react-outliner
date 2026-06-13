@@ -2,6 +2,7 @@ import { defaultKeymap } from "@codemirror/commands";
 import { Annotation, EditorSelection } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import log from "loglevel";
+import type { RefObject } from "react";
 import type { Text as YText, YTextEvent, Transaction as YTransaction } from "yjs";
 import {
   handleBlockAdd,
@@ -12,11 +13,12 @@ import {
   handleBlockOutdent,
   handleBlockSelectDown,
   handleBlockSelectUp,
+  handleRedo,
+  handleUndo,
   toggleGlobalSearch,
   togglePageSearch,
 } from "../../api/api";
 import useStore from "../../store/useStore";
-import yjs from "../../store/yjsManager";
 
 export function toggleInlineFormatting(view: EditorView, syntax: string): boolean {
   log.debug(`toggleInlineFormatting: ${syntax}`);
@@ -189,58 +191,26 @@ export function resolveIndex(index: number, docLength: number): number {
   return Math.min(index, docLength);
 }
 
-export function createDomEventHandlers(id: string, onBlur: () => void) {
+export function createDomEventHandlers(id: string, isDestroyingRef: RefObject<boolean | null>) {
   return EditorView.domEventHandlers({
     blur: (event: FocusEvent, view: EditorView) => {
       const relatedTarget = event.relatedTarget as HTMLElement | null;
-      log.debug("CM6:blur", id);
+      log.debug("CM6:blur", id, relatedTarget, document.activeElement);
 
-      log.debug("document.activeElement", document.activeElement);
-
-      // if (!document.hasFocus()) return; TODO: regain focus when document in view again
-
-      if (relatedTarget instanceof HTMLElement && relatedTarget.dataset.ignoreBlur === "true") {
-        log.debug("CM6:blur relatedTarget", relatedTarget);
-        event.preventDefault();
-        if (relatedTarget.classList.contains("AddBlock")) {
-          setTimeout(() => {
-            onBlur();
-            // setIsEdit(false);
-          }, 200);
-        } else if (relatedTarget.classList.contains("MoveBlockDown")) {
-          requestAnimationFrame(() => {
-            view.focus();
-            view.dispatch({
-              selection: view.state.selection,
-              scrollIntoView: true,
-            });
+      if (!isDestroyingRef.current) {
+        requestAnimationFrame(() => {
+          view.focus();
+          view.dispatch({
+            selection: view.state.selection,
+            scrollIntoView: true,
           });
-        } else {
-          // MoveBlockDown and all other toolbar buttons: restore focus + cursor
-          requestAnimationFrame(() => {
-            view.focus();
-            view.dispatch({
-              selection: view.state.selection,
-              scrollIntoView: true,
-            });
-          });
-        }
-        return true;
+        });
       }
-
-      onBlur();
-
-      // if (useZustandStore.getState().selectedBlockId === id) {
-      //   // useZustandStore.setState({ selectedBlockId: null, editorView: null });
-      //   setIsEdit(false);
-      // }
     },
 
-    focus: (event: FocusEvent, view: EditorView) => {
-      log.debug("CM6:focus", id);
-      // useZustandStore.setState({ selectedBlockId: id, editorView: view });
-      // setIsEdit(true);
-    },
+    // focus: (event: FocusEvent, view: EditorView) => {
+    //   log.debug("CM6:focus", id);
+    // },
   });
 }
 
@@ -249,7 +219,7 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
     {
       key: "Mod-z",
       run: (view) => {
-        yjs.undoManager?.undo();
+        handleUndo();
         const text = ytext.toString();
         if (view.state.doc.toString() !== text) {
           view.dispatch({
@@ -258,14 +228,13 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
             annotations: CustomAnnotation.of("customundoredo"),
           });
         }
-        useStore.getState().renderPage();
         return true;
       },
     },
     {
       key: "Mod-Shift-z",
       run: (view) => {
-        yjs.undoManager?.redo();
+        handleRedo();
         const text = ytext.toString();
         if (view.state.doc.toString() !== text) {
           view.dispatch({
@@ -279,7 +248,6 @@ export function createShortcutsKeymap(id: string, ytext: YText | any) {
             });
           } catch {}
         }
-        useStore.getState().renderPage();
         return true;
       },
     },

@@ -29,7 +29,7 @@ export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
         for (const event of events) {
           // log.debug("event", event);
           if (event.target instanceof Y.Text) {
-            if (useStore.getState().selectedBlockId) {
+            if (useStore.getState().activeBlockId) {
               shouldDebounce = true;
               // debouncedUpdate();
             } else {

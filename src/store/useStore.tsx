@@ -18,8 +18,7 @@ export interface useStoreType {
   loadingScreenInfo: string;
   shouldShowLoadingScreenExit: boolean;
 
-  selectedBlockId: string | null;
-  focusBlockId: string | null;
+  activeBlockId: string | null;
   caretCharIndex: number;
 
   isExplorerOpen: boolean;
@@ -46,6 +45,7 @@ export interface useStoreType {
   renderPage(): void;
 
   explorerPanel: PanelImperativeHandle | null;
+  footerElement: HTMLElement | null;
 }
 
 const useStore = create<useStoreType>((set, get) => ({
@@ -62,8 +62,7 @@ const useStore = create<useStoreType>((set, get) => ({
   loadingScreenInfo: "Loading...",
   shouldShowLoadingScreenExit: false,
 
-  selectedBlockId: null,
-  focusBlockId: null,
+  activeBlockId: null,
   caretCharIndex: 0,
 
   isExplorerOpen: false,
@@ -90,6 +89,7 @@ const useStore = create<useStoreType>((set, get) => ({
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
 
   explorerPanel: null,
+  footerElement: null,
 }));
 
 export async function hydrateZustandStateWithPreferences() {

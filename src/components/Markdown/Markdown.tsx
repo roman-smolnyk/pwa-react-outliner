@@ -1,7 +1,7 @@
+import { useIsDarkTheme } from "@/hooks/useTheme";
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-// import SyntaxHighlighter from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"; // import SyntaxHighlighter from "react-syntax-highlighter";
 import { prism, vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
@@ -93,8 +93,9 @@ function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreEleme
   return <code className="CodeTag">{children}</code>;
 }
 
-const Markdown = memo(({ children, isDarkTheme }: { children: string; isDarkTheme: boolean }) => {
+const Markdown = memo(function Markdown({ children }: { children: string }) {
   // log.debug("Markdown", isDarkTheme);
+  const isDarkTheme = useIsDarkTheme();
 
   // const [text, setText] = useState("");
 
