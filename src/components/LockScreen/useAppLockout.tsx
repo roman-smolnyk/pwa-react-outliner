@@ -5,10 +5,10 @@ import log from "loglevel";
 export function useAppLockout() {
   const lastActiveTime = useRef<number | null>(null);
 
-  const autoLockScreen = useStore((s) => s.autoLockTimeout);
+  const autoLockTimeout = useStore((s) => s.autoLockTimeout);
 
   useEffect(() => {
-    if (autoLockScreen === -1) return;
+    if (autoLockTimeout === -1) return;
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -23,7 +23,7 @@ export function useAppLockout() {
 
           log.debug("handleVisibilityChange:timeElapsed", timeElapsed);
 
-          if (timeElapsed >= autoLockScreen) {
+          if (timeElapsed >= autoLockTimeout) {
             useStore.setState({ isLockScreenOpen: true });
           }
         }
@@ -37,5 +37,5 @@ export function useAppLockout() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [autoLockScreen]);
+  }, [autoLockTimeout]);
 }

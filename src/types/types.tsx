@@ -54,6 +54,7 @@ export interface CollectionT {
 
 export interface AccountT {
   id: string | undefined;
+  username: string | undefined;
   root_id: string | undefined;
   inbox_id: string | undefined;
   schemaVersion: number | undefined;

@@ -36,6 +36,11 @@ import yjs from "../../store/yjsManager";
 export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
   const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
+  const idToPrint = useStore((s) => s.idToPrint);
+  if (idToPrint) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -119,7 +124,11 @@ export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
             <span>Export</span>
           </DropdownMenuItem>
           {/* TODO: Move to Export */}
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              useStore.setState({ idToPrint: id });
+            }}
+          >
             <PrinterIcon />
             <span>Print</span>
           </DropdownMenuItem>

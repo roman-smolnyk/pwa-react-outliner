@@ -8,12 +8,14 @@ export interface useStoreType {
   isHydrated: boolean;
 
   isAuthorized: boolean;
+  isSignUp: boolean;
   isNewAccount: boolean;
   isDataLoaded: boolean;
   isWebSocketServerOn: boolean;
   webSocketServerUrl: string;
   roomToken: string;
   rootBlockId: string;
+  username: string;
 
   loadingScreenInfo: string;
   shouldShowLoadingScreenExit: boolean;
@@ -47,18 +49,22 @@ export interface useStoreType {
   explorerPanel: PanelImperativeHandle | null;
   footerElement: HTMLElement | null;
   inputFocusKeeperElement: HTMLElement | null;
+
+  idToPrint: string | null;
 }
 
 const useStore = create<useStoreType>((set, get) => ({
   isHydrated: false,
 
   isAuthorized: false,
+  isSignUp: false,
   isNewAccount: false,
   isDataLoaded: false,
   isWebSocketServerOn: true,
   webSocketServerUrl: "",
   roomToken: "",
   rootBlockId: "",
+  username: "",
 
   loadingScreenInfo: "Loading...",
   shouldShowLoadingScreenExit: false,
@@ -92,6 +98,8 @@ const useStore = create<useStoreType>((set, get) => ({
   explorerPanel: null,
   footerElement: null,
   inputFocusKeeperElement: null,
+
+  idToPrint: null,
 }));
 
 export async function hydrateZustandStateWithPreferences() {
@@ -103,7 +111,7 @@ export async function hydrateZustandStateWithPreferences() {
     roomToken: await localPreferencesManager.get("roomToken"),
     rootBlockId: await localPreferencesManager.get("rootBlockId"),
     isLockScreenOpen: !!(await localPreferencesManager.get("lockScreenPin")),
-    autoLockTimeout: await localPreferencesManager.get("autoLockScreen"),
+    autoLockTimeout: await localPreferencesManager.get("autoLockTimeout"),
     isExplorerOpen: !isMobile(),
   });
 }

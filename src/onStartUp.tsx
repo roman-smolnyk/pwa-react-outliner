@@ -1,9 +1,9 @@
 import { createNewAccount } from "esm-treero-api";
 import log from "loglevel";
 import { listenWebSocketStatus } from "./api/api.tsx";
-import { fillInMockupData } from "./utils/mockupData.tsx";
 import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
+import { fillInMockupData } from "./utils/mockupData.tsx";
 import { waitUntil } from "./utils/utilities.tsx";
 import { createWelcomeData } from "./utils/welcomeData.tsx";
 
@@ -16,14 +16,14 @@ export default function onStartUp() {
   }
 
   startupPromise = (async () => {
-    log.debug(`onStartUp startupPromise`);
+    log.debug(`onStartUp:startupPromise`);
 
     yjs.addIndexeddbPersistence();
     // yjs.idbPersistence.on("synced", () => {})
     yjs.idbPersistence!.whenSynced.then(async () => {
       log.debug("persistence.whenSynced.then");
 
-      const { roomToken, isNewAccount, isWebSocketServerOn, webSocketServerUrl } = useStore.getState();
+      const { roomToken, isNewAccount, isWebSocketServerOn, webSocketServerUrl, username } = useStore.getState();
       log.debug(`isNewAccount`, isNewAccount);
 
       if (!roomToken) {
@@ -32,7 +32,7 @@ export default function onStartUp() {
 
       if (isNewAccount) {
         log.debug(`createNewAccount`);
-        createNewAccount(yjs);
+        createNewAccount(yjs, username);
 
         if (import.meta.env.DEV) {
           await fillInMockupData(yjs);
@@ -66,7 +66,7 @@ export default function onStartUp() {
         return;
       }
 
-      useStore.setState({ isDataLoaded: true });
+      useStore.setState({ isDataLoaded: true, username: yjs.yaccount.get("username") as string });
       log.debug("isDataLoaded", true);
 
       // const allRootTypes = Object.values(Yjs.ydoc.share);

@@ -7,6 +7,7 @@ import {
   ArrowLeftToLineIcon,
   ArrowRightToLineIcon,
   ArrowUpIcon,
+  BadgeAlertIcon,
   BoldIcon,
   BracesIcon,
   BracketsIcon,
@@ -78,6 +79,9 @@ export default function Footer() {
                 size="tool"
                 className="Undo"
                 onClick={() => {
+                  if (activeBlockId) {
+                    useStore.getState().inputFocusKeeperElement?.focus();
+                  }
                   handleUndo();
                 }}
               >
@@ -101,6 +105,9 @@ export default function Footer() {
           title="Redo"
           className="Redo"
           onClick={() => {
+            if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+            }
             handleRedo();
           }}
         >
@@ -128,8 +135,10 @@ export default function Footer() {
           title="Outdent"
           className="MoveBlockLeft"
           onClick={(e) => {
-            useStore.getState().inputFocusKeeperElement?.focus();
-            if (activeBlockId) handleBlockOutdent(activeBlockId);
+            if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              handleBlockOutdent(activeBlockId);
+            }
           }}
         >
           <ArrowLeftToLineIcon />
@@ -141,8 +150,10 @@ export default function Footer() {
           title="Indent"
           className="MoveBlockRight"
           onClick={(e) => {
-            useStore.getState().inputFocusKeeperElement?.focus();
-            if (activeBlockId) handleBlockIndent(activeBlockId);
+            if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              handleBlockIndent(activeBlockId);
+            }
           }}
         >
           <ArrowRightToLineIcon />
@@ -154,8 +165,10 @@ export default function Footer() {
           title="Move Up"
           className="MoveBlockUp"
           onClick={(e) => {
-            useStore.getState().inputFocusKeeperElement?.focus();
-            if (activeBlockId) handleBlockMoveUp(activeBlockId);
+            if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              handleBlockMoveUp(activeBlockId);
+            }
           }}
         >
           <ArrowUpIcon />
@@ -167,8 +180,11 @@ export default function Footer() {
           title="Move Down"
           className="MoveBlockDown"
           onClick={(e) => {
-            useStore.getState().inputFocusKeeperElement?.focus();
-            if (activeBlockId) handleBlockMoveDown(activeBlockId);
+            if (activeBlockId) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+
+              handleBlockMoveDown(activeBlockId);
+            }
           }}
         >
           <ArrowDownIcon />
@@ -193,6 +209,7 @@ export default function Footer() {
           className="AddHeading"
           onClick={(e) => {
             if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
               addHeading(editorView);
             }
           }}
@@ -206,6 +223,7 @@ export default function Footer() {
           className="MakeBold"
           onClick={(e) => {
             if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "**");
             }
           }}
@@ -219,6 +237,7 @@ export default function Footer() {
           className="MakeItalic"
           onClick={(e) => {
             if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "_");
             }
           }}
@@ -232,6 +251,7 @@ export default function Footer() {
           className="MakeStrike"
           onClick={(e) => {
             if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "~~");
             }
           }}
@@ -245,30 +265,96 @@ export default function Footer() {
           className="MakeCode"
           onClick={(e) => {
             if (activeBlockId && editorView) {
-              toggleInlineFormatting(editorView, "```\n");
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, { open: "```\n", close: "\n```" });
             }
           }}
         >
           <Code2Icon />
         </Button>
 
-        <Button variant="bare" size="tool">
-          <BracketsIcon className="text-warning" />
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeSpoiler"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, "||");
+            }
+          }}
+        >
+          <BadgeAlertIcon />
         </Button>
 
-        <Button variant="bare" size="tool">
-          <ParenthesesIcon className="text-warning" />
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeHighlight"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, "==");
+            }
+          }}
+        >
+          <HighlighterIcon />
         </Button>
 
-        <Button variant="bare" size="tool">
-          <BracesIcon className="text-warning" />
-        </Button>
-        <Button variant="bare" size="tool">
-          <HighlighterIcon className="text-warning" />
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeBrackets"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, { open: "[", close: "]" });
+            }
+          }}
+        >
+          <BracketsIcon />
         </Button>
 
-        <Button variant="bare" size="tool">
-          <TableIcon className="text-warning" />
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeParentheses"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, { open: "(", close: ")" });
+            }
+          }}
+        >
+          <ParenthesesIcon />
+        </Button>
+
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeBraces"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, { open: "{", close: "}" });
+            }
+          }}
+        >
+          <BracesIcon />
+        </Button>
+
+        <Button
+          variant="bare"
+          size="tool"
+          className="MakeMath"
+          onClick={(e) => {
+            if (activeBlockId && editorView) {
+              useStore.getState().inputFocusKeeperElement?.focus();
+              toggleInlineFormatting(editorView, { open: "$$", close: "$$" });
+            }
+          }}
+        >
+          <SigmaIcon />
         </Button>
 
         <Button variant="bare" size="tool">
@@ -276,7 +362,7 @@ export default function Footer() {
         </Button>
 
         <Button variant="bare" size="tool">
-          <SigmaIcon className="text-warning" />
+          <TableIcon className="text-warning" />
         </Button>
 
         <Button variant="bare" size="tool">

@@ -20,23 +20,36 @@ import {
 } from "../../api/api";
 import useStore from "../../store/useStore";
 
-export function toggleInlineFormatting(view: EditorView, syntax: string): boolean {
-  log.debug(`toggleInlineFormatting: ${syntax}`);
+export interface FormattingOptions {
+  syntax?: string;
+  open?: string;
+  close?: string;
+}
+
+export function toggleInlineFormatting(view: EditorView, options: string | FormattingOptions): boolean {
+  const open = typeof options === "string" ? options : (options.open ?? options.syntax ?? "");
+  const close = typeof options === "string" ? options : (options.close ?? options.syntax ?? "");
+
+  if (!open && !close) return false;
+
+  log.debug(`toggleInlineFormatting: open='${open}', close='${close}'`);
+
   const { main } = view.state.selection;
-  const len = syntax.length;
+  const openLen = open.length;
+  const closeLen = close.length;
 
   // Case 1: No text selected
   if (main.empty) {
     const pos = main.from;
 
-    const leftChars = view.state.doc.sliceString(Math.max(0, pos - len), pos);
-    const rightChars = view.state.doc.sliceString(pos, Math.min(view.state.doc.length, pos + len));
+    const leftChars = view.state.doc.sliceString(Math.max(0, pos - openLen), pos);
+    const rightChars = view.state.doc.sliceString(pos, Math.min(view.state.doc.length, pos + closeLen));
 
     // If already wrapped in syntax (e.g., **|**), remove them
-    if (leftChars === syntax && rightChars === syntax) {
+    if (leftChars === open && rightChars === close) {
       view.dispatch({
-        changes: { from: pos - len, to: pos + len, insert: "" },
-        selection: EditorSelection.cursor(pos - len),
+        changes: { from: pos - openLen, to: pos + closeLen, insert: "" },
+        selection: EditorSelection.cursor(pos - openLen),
         scrollIntoView: true,
       });
       return true;
@@ -44,8 +57,8 @@ export function toggleInlineFormatting(view: EditorView, syntax: string): boolea
 
     // Default: Insert syntax twice (e.g., ****) and put cursor in the middle
     view.dispatch({
-      changes: { from: pos, insert: syntax + syntax },
-      selection: EditorSelection.cursor(pos + len),
+      changes: { from: pos, insert: open + close },
+      selection: EditorSelection.cursor(pos + openLen),
       scrollIntoView: true,
     });
     return true;
@@ -54,37 +67,36 @@ export function toggleInlineFormatting(view: EditorView, syntax: string): boolea
   // Case 2: Text is selected
   const { from, to } = main;
 
-  const leftChars = view.state.doc.sliceString(Math.max(0, from - len), from);
-  const rightChars = view.state.doc.sliceString(to, Math.min(view.state.doc.length, to + len));
+  const leftChars = view.state.doc.sliceString(Math.max(0, from - openLen), from);
+  const rightChars = view.state.doc.sliceString(to, Math.min(view.state.doc.length, to + closeLen));
 
-  const insideLeftChars = view.state.doc.sliceString(from, from + len);
-  const insideRightChars = view.state.doc.sliceString(to - len, to);
+  const insideLeftChars = view.state.doc.sliceString(from, from + openLen);
+  const insideRightChars = view.state.doc.sliceString(to - closeLen, to);
 
   // Scenario A: Selection is strictly INSIDE syntax -> **|text|**
-  if (leftChars === syntax && rightChars === syntax) {
+  if (leftChars === open && rightChars === close) {
     const selectedText = view.state.doc.sliceString(from, to);
     view.dispatch({
-      changes: { from: from - len, to: to + len, insert: selectedText },
-      selection: EditorSelection.range(from - len, to - len),
+      changes: { from: from - openLen, to: to + closeLen, insert: selectedText },
+      selection: EditorSelection.range(from - openLen, to - openLen),
       scrollIntoView: true,
     });
   }
   // Scenario B: Selection INCLUDES the syntax -> |**text**|
-  // Note: Selection must be long enough to actually contain the characters (len * 2)
-  else if (insideLeftChars === syntax && insideRightChars === syntax && to - from >= len * 2) {
-    const cleanText = view.state.doc.sliceString(from + len, to - len);
+  else if (insideLeftChars === open && insideRightChars === close && to - from >= openLen + closeLen) {
+    const cleanText = view.state.doc.sliceString(from + openLen, to - closeLen);
     view.dispatch({
       changes: { from: from, to: to, insert: cleanText },
-      selection: EditorSelection.range(from, to - len * 2),
+      selection: EditorSelection.range(from, to - (openLen + closeLen)),
       scrollIntoView: true,
     });
   }
-  // Scenario C: Text is not formatted yet -> Wrap it -> **text**
+  // Scenario C: Text is not formatted yet -> Wrap it ->
   else {
     const selectedText = view.state.doc.sliceString(from, to);
     view.dispatch({
-      changes: { from: from, to: to, insert: `${syntax}${selectedText}${syntax}` },
-      selection: EditorSelection.range(from, to + len * 2),
+      changes: { from: from, to: to, insert: `${open}${selectedText}${close}` },
+      selection: EditorSelection.range(from, to + openLen + closeLen),
       scrollIntoView: true,
     });
   }

@@ -27,6 +27,15 @@ function HandleButton({
   attributes: any;
   listeners: any;
 }) {
+  const idToPrint = useStore((s) => s.idToPrint);
+  if (idToPrint) {
+    return (
+      <Button className="" variant="bare" size="micro">
+        <CircleIcon className="fill-primary size-2" fill="none" />
+      </Button>
+    );
+  }
+
   return (
     <Button
       className=""

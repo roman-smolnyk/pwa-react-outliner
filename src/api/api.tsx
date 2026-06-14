@@ -36,16 +36,51 @@ export async function login(webSocketServerUrl: string, roomToken: string) {
   useStore.setState({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: false });
 }
 
-export async function register(webSocketServerUrl: string) {
-  log.debug(`register`, webSocketServerUrl);
+export async function signup(webSocketServerUrl: string, username: string) {
+  log.debug(`signup`, webSocketServerUrl, username);
   const newRoomToken = generateRoomToken();
   await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
-  useStore.setState({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: true });
+  useStore.setState({
+    isAuthorized: true,
+    roomToken: newRoomToken,
+    webSocketServerUrl: webSocketServerUrl,
+    isNewAccount: true,
+    username: username ?? "Username",
+  });
+}
+
+export async function refreshToken() {
+  log.debug(`refreshToken`);
+  const newRoomToken = generateRoomToken();
+  await localPreferencesManager.set("roomToken", newRoomToken);
+  useStore.setState({ roomToken: newRoomToken });
+  reload();
+}
+
+export async function reload() {
+  window.location.replace(window.location.href);
 }
 
 export async function logout() {
   await clearAllData();
-  window.location.replace(window.location.href);
+  reload();
+}
+
+export async function hardPWAReload() {
+  if (!navigator.onLine) return;
+
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((reg) => reg.unregister()));
+
+  const cacheKeys = await caches.keys();
+  await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("v", String(Date.now()));
+  setTimeout(() => {
+    window.location.replace(url);
+  }, 0);
+  // window.location.href = url.toString();
 }
 
 export async function clearAllData() {
@@ -268,23 +303,6 @@ function copyFallback(text: string) {
   document.body.removeChild(textarea);
 }
 
-export async function hardPWAReload() {
-  if (!navigator.onLine) return;
-
-  const registrations = await navigator.serviceWorker.getRegistrations();
-  await Promise.all(registrations.map((reg) => reg.unregister()));
-
-  const cacheKeys = await caches.keys();
-  await Promise.all(cacheKeys.map((key) => caches.delete(key)));
-
-  const url = new URL(window.location.href);
-  url.searchParams.set("v", String(Date.now()));
-  setTimeout(() => {
-    window.location.replace(url);
-  }, 0);
-  // window.location.href = url.toString();
-}
-
 export function handleBlockCheckbox(id: string, checked: boolean) {
   const { checkedBlockIds } = useStore.getState();
   const yblock = getItem(yjs.yblocks, id);
@@ -379,4 +397,9 @@ export function handleExplorerOpen() {
 export function handleExplorerClose() {
   useStore.getState().explorerPanel?.collapse();
   useStore.setState({ isExplorerOpen: false });
+}
+
+export function handleUsernameUpdate(username: string) {
+  yjs.yaccount.set("username", username);
+  useStore.setState({ username: username ?? "Username" });
 }

@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,11 +29,10 @@ import {
   RotateCwIcon,
   SunIcon,
   SunMoonIcon,
-  UserRoundIcon,
 } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
-import { copyToClipboard, hardPWAReload, lockScreen, logout } from "../../api/api";
+import { hardPWAReload, lockScreen, logout, reload } from "../../api/api";
 import { useTheme } from "../../hooks/useTheme";
 import useStore from "../../store/useStore";
 import { downloadExport } from "../../utils/exportImport";
@@ -44,6 +44,9 @@ export default function MainMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
+  const username = useStore((s) => s.username);
+
+  log.debug("MainMenu:username", username, webSocketConnectionStatus);
 
   const { theme, setTheme } = useTheme();
   const [confirm, ConfirmationDialog] = useConfirm();
@@ -65,6 +68,22 @@ export default function MainMenu() {
         <DropdownMenuContent className="w-max" align="end" sideOffset={2}>
           <DropdownMenuGroup>
             {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
+
+            <DropdownMenuItem
+              disabled
+              className="max-w-40"
+              onClick={() => {
+                useStore.setState({ isSettingsOpen: true });
+              }}
+            >
+              <Avatar size="sm">
+                <AvatarFallback>{username.length >= 2 ? username.slice(0, 2).toUpperCase() : "AA"}</AvatarFallback>
+              </Avatar>
+              {/* text-muted-foreground */}
+              <span className="text-sm truncate">{username}</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
 
             <div className="p-1 flex justify-between gap-4">
               <Tooltip>
@@ -112,7 +131,7 @@ export default function MainMenu() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={async () => {
                 await copyToClipboard(useStore.getState().roomToken as string);
                 // toast("Copied", { containerId: "toaster" });
@@ -120,7 +139,7 @@ export default function MainMenu() {
             >
               <UserRoundIcon />
               <span>Copy Token</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
 
             <DropdownMenuItem
               onClick={() => {
@@ -132,6 +151,7 @@ export default function MainMenu() {
               <span>Settings</span>
             </DropdownMenuItem>
 
+            {/* // TODO: Move to Settings */}
             <DropdownMenuItem
               onClick={async () => {
                 downloadExport();
@@ -187,7 +207,7 @@ export default function MainMenu() {
             <DropdownMenuItem
               onClick={(e) => {
                 e.currentTarget.classList.add("animate-spin");
-                window.location.replace(window.location.href);
+                reload();
               }}
             >
               <RotateCwIcon />

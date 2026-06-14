@@ -13,6 +13,7 @@ import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import { MoveTo } from "../MoveTo/MoveTo";
 import PageContainer from "../Page/PageContainer";
+import Printer from "../Page/Printer";
 import Settings from "../Settings/Settings";
 import LoadingScreen from "./LoadingScreen";
 
@@ -103,7 +104,7 @@ export default function Main() {
         /* Mobile Layout: Full Page view + Explorer inside Sheet */
         <div className="h-dvh flex flex-col">
           <Sheet open={isExplorerOpen} onOpenChange={handleExplorerClose}>
-            <SheetContent side="left" showCloseButton={false} className="text-base">
+            <SheetContent side="left" showCloseButton={false} className="data-[side=left]:w-6/7 text-base">
               <ExplorerContainer />
             </SheetContent>
           </Sheet>
@@ -158,6 +159,7 @@ export default function Main() {
       <Footer />
 
       <InputFocusKeeper />
+      <Printer />
     </div>
   );
 }
