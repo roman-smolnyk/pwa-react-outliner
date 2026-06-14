@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-import useIsMobile from "@/hooks/useIsMobile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import log from "loglevel";
 import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ export default function ExplorerContainer() {
   const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
 
   const username = useStore((s) => s.username);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     function observer() {
@@ -62,15 +61,27 @@ export default function ExplorerContainer() {
     <div className="ExplorerContainer h-dvh overflow-hidden flex flex-col">
       <div className="flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
         <ExplorerHeader />
-        <div
-          className="flex-1 pt-5 overflow-y-auto overscroll-contain"
-          // style={{
-          //   height: `calc(100dvh - 2.5rem)`, // example if header/footer 2.5rem each
-          // }}
-        >
-          {explorerLength <= 1 ? <EmptyExplorer /> : <Explorer rootId={rootId} />}
-          <div className="Spacer h-[50dvh]"></div>
-        </div>
+        <Tabs defaultValue="explorer" className="h-full min-h-0">
+          <div className="px-4 pt-2">
+            <TabsList className="w-full">
+              <TabsTrigger value="explorer">Explorer</TabsTrigger>
+              <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="explorer" className="min-h-0 pt-5 overflow-y-auto overscroll-contain">
+            {explorerLength <= 1 ? <EmptyExplorer /> : <Explorer rootId={rootId} />}
+            <div className="Spacer h-[40dvh]"></div>
+          </TabsContent>
+          <TabsContent value="bookmarks">
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>No Bookmarks</EmptyTitle>
+                <EmptyDescription>Coming soon...</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </TabsContent>
+        </Tabs>
 
         <div className="p-2">
           <ResponsiveDropdown Trigger={Trigger} menuItems={menuItems} />
