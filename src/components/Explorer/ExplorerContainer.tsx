@@ -1,13 +1,13 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import useIsMobile from "@/hooks/useIsMobile";
 import log from "loglevel";
-import { ChevronsUpDown, LogOutIcon } from "lucide-react";
+import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
+import ResponsiveDropdown from "../Common/ResponsiveDropdown";
 import Explorer from "./Explorer";
 import ExplorerHeader from "./ExplorerHeader";
 
@@ -39,6 +39,25 @@ export default function ExplorerContainer() {
     </Empty>
   );
 
+  const Trigger = ({ ...props }) => (
+    <Button variant="outline" size="lg" className="py-7 w-full " {...props}>
+      <Avatar>
+        <AvatarFallback>CN</AvatarFallback>
+      </Avatar>
+      <div className="flex-1 text-left text-sm leading-tight flex flex-col ">
+        <span className="truncate font-medium">{username}</span>
+        <span className="truncate text-xs text-muted-foreground">Account</span>
+      </div>
+      <ChevronsUpDownIcon className="ml-auto" />
+    </Button>
+  );
+
+  const menuItems = [
+    { label: "Profile", icon: UserIcon, onClick: () => console.log("Profile") },
+    { label: "Settings", icon: SettingsIcon, onClick: () => console.log("Settings") },
+    { label: "Log out", icon: LogOutIcon, onClick: () => console.log("Logout") },
+  ];
+
   return (
     <div className="ExplorerContainer h-dvh overflow-hidden flex flex-col">
       <div className="flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
@@ -54,38 +73,7 @@ export default function ExplorerContainer() {
         </div>
 
         <div className="p-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" size="lg" className="py-7 w-full">
-                  <Avatar className="">
-                    <AvatarFallback className="">CN</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 text-left text-sm leading-tight  flex flex-col">
-                    <span className="truncate font-medium">{username}</span>
-                    <span className="truncate text-xs">Account</span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent side={isMobile ? "bottom" : "right"} align="end" sideOffset={4} alignOffset={isMobile ? 0 : 50}>
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <LogOutIcon />
-                  Log out
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogOutIcon />
-                  Log out
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogOutIcon />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ResponsiveDropdown Trigger={Trigger} menuItems={menuItems} />
         </div>
       </div>
 

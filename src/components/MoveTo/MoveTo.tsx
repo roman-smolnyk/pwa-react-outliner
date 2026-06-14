@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getAllPages, getBlock, getPage, mergePages } from "esm-treero-api";
 import { useMemo, useState } from "react";
@@ -10,8 +11,10 @@ import ResponsiveModal from "../Common/ResponsiveModal";
 
 function PageItem({ page, onClose }: { page: PageT; onClose: () => void }) {
   return (
-    <div
-      className="PageItem hover:bg-accent px-3 py-1"
+    <Button
+      variant="ghost"
+      size="lg"
+      className="PageItem  justify-start"
       onClick={() => {
         const { itemIdToMove } = useStore.getState();
         if (itemIdToMove) {
@@ -28,7 +31,7 @@ function PageItem({ page, onClose }: { page: PageT; onClose: () => void }) {
       }}
     >
       {page.title}
-    </div>
+    </Button>
   );
 }
 
@@ -71,7 +74,7 @@ export function MoveTo() {
 
         <Separator />
 
-        <div className="flex flex-col overflow-x-auto overscroll-contain">
+        <div className="pr-1 flex flex-col overflow-x-auto overscroll-contain">
           {pages.map((page, idx) => {
             return <PageItem key={`moveto-${idx}`} page={page} onClose={onClose} />;
           })}

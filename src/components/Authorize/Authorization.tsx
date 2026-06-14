@@ -1,6 +1,6 @@
 import useStore from "@/store/useStore";
 import log from "loglevel";
-import LogInForm from "./LogInFormX";
+import LogInForm from "./LogInForm";
 import SignUpForm from "./SignUpForm";
 
 export default function Authorization() {

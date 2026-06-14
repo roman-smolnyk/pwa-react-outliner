@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { traverseItemPath } from "esm-treero-api";
 import log from "loglevel";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment } from "react";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
