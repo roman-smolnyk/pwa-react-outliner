@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -69,19 +70,13 @@ export default function MainMenu() {
           <DropdownMenuGroup>
             {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
 
-            <DropdownMenuItem
-              disabled
-              className="max-w-40"
-              onClick={() => {
-                useStore.setState({ isSettingsOpen: true });
-              }}
-            >
+            <DropdownMenuLabel className="max-w-40 flex items-center gap-2">
               <Avatar size="sm">
                 <AvatarFallback>{username.length >= 2 ? username.slice(0, 2).toUpperCase() : "AA"}</AvatarFallback>
               </Avatar>
               {/* text-muted-foreground */}
               <span className="text-sm truncate">{username}</span>
-            </DropdownMenuItem>
+            </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
 

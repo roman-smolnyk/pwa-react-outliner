@@ -1,11 +1,13 @@
-import { handleExplorerClose } from "@/api/api";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import useIsMobile from "@/hooks/useIsMobile";
 import log from "loglevel";
+import { ChevronsUpDown, LogOutIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import { isMobile } from "../../utils/utilities";
 import Explorer from "./Explorer";
 import ExplorerHeader from "./ExplorerHeader";
 
@@ -13,7 +15,8 @@ export default function ExplorerContainer() {
   log.debug("ExplorerContainer");
   const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
 
-  const isExplorerOpen = useStore((s) => s.isExplorerOpen);
+  const username = useStore((s) => s.username);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     function observer() {
@@ -49,7 +52,43 @@ export default function ExplorerContainer() {
           {explorerLength <= 1 ? <EmptyExplorer /> : <Explorer rootId={rootId} />}
           <div className="Spacer h-[50dvh]"></div>
         </div>
+
+        <div className="p-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="lg" className="py-7 w-full">
+                  <Avatar className="">
+                    <AvatarFallback className="">CN</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-left text-sm leading-tight  flex flex-col">
+                    <span className="truncate font-medium">{username}</span>
+                    <span className="truncate text-xs">Account</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent side={isMobile ? "bottom" : "right"} align="end" sideOffset={4} alignOffset={isMobile ? 0 : 50}>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <LogOutIcon />
+                  Log out
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOutIcon />
+                  Log out
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOutIcon />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+
       {/* {isExplorerOpen &&
         isMobile() &&
         createPortal(

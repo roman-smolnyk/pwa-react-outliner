@@ -88,7 +88,7 @@ export default function Settings() {
           useStore.setState({ isSettingsOpen: open });
         }}
       >
-        <div className="Settings pr-4 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-4">
+        <div className="Settings pr-4 pb-7 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-4">
           <ItemGroup>
             <SectionTitle>Account</SectionTitle>
             <Separator />
