@@ -8,7 +8,8 @@ import { memo, useEffect, useMemo, useRef, type RefObject } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import { createDomEventHandlers, createShortcutsKeymap, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
+import { createDomEventHandlers, createUpdateListener, createYtextObserver, resolveIndex, sharedTheme } from "./CM6Common";
+import { createHotkeysKeymap } from "./CM6Hotkeys";
 import { livePreviewPlugin, markdownTheme } from "./CM6LivePreview";
 
 const CM6Editor = memo(function CM6Editor({ id, charIndex, livePreview = false }: { id: string; charIndex: number; livePreview?: boolean }) {
@@ -48,7 +49,7 @@ const CM6Editor = memo(function CM6Editor({ id, charIndex, livePreview = false }
       extensions: [
         sharedTheme,
         createDomEventHandlers(id, isDestroyingRef),
-        createShortcutsKeymap(id, ytext),
+        createHotkeysKeymap(id, ytext),
         createUpdateListener(ytext),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({ spellcheck: "true" }),

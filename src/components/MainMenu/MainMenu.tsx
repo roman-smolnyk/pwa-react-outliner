@@ -24,7 +24,6 @@ import {
   HardDriveUploadIcon,
   LockKeyholeIcon,
   LogOutIcon,
-  MenuIcon,
   MoonIcon,
   RefreshCwIcon,
   RotateCwIcon,
@@ -41,7 +40,7 @@ import ZipUploadInput from "./UploadBackup";
 
 declare const __APP_VERSION__: string;
 
-export default function MainMenu() {
+export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
@@ -50,22 +49,15 @@ export default function MainMenu() {
   log.debug("MainMenu:username", username, webSocketConnectionStatus);
 
   const { theme, setTheme } = useTheme();
-  const [confirm, ConfirmationDialog] = useConfirm();
+  const confirm = useConfirm();
 
   return (
     <>
       {/* Should be always persistent in DOM */}
       <ZipUploadInput ref={fileInputRef} />
-      <ConfirmationDialog />
 
       <DropdownMenu modal={true}>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="bare" size="tool" className="MainMenu">
-              <MenuIcon />
-            </Button>
-          }
-        />
+        <DropdownMenuTrigger render={trigger} />
         <DropdownMenuContent className="w-max" align="end" sideOffset={2}>
           <DropdownMenuGroup>
             {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
@@ -211,12 +203,7 @@ export default function MainMenu() {
             <DropdownMenuItem
               variant="destructive"
               onClick={async () => {
-                const isConfirmed = await confirm({
-                  title: "Logout?",
-                  description: "All data on this device will be wiped. Are you sure?",
-                });
-
-                if (isConfirmed) {
+                if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
                   logout();
                 }
               }}

@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import log from "loglevel";
 import {
   FileCodeIcon,
@@ -6,16 +5,18 @@ import {
   FilePlayIcon,
   ListChecksIcon,
   ListIcon,
+  MenuIcon,
   PanelLeftIcon,
   PencilIcon,
   PencilOffIcon,
   SearchIcon,
-  SquareTerminalIcon,
+  TerminalIcon,
 } from "lucide-react";
 import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
+import Tool from "../Common/Tool";
 import MainMenu from "../MainMenu/MainMenu";
 
 export default function Header() {
@@ -43,16 +44,14 @@ export default function Header() {
       <div className="flex-1 flex items-center justify-center min-w-0">
         <div className="flex">
           {!isExplorerOpen && (
-            <Button
-              variant="bare"
-              size="tool"
-              title="Open Explorer"
+            <Tool
+              tooltip="Open Sidebar"
+              icon={<PanelLeftIcon />}
+              hotkey={["⌘", "B"]}
               onClick={() => {
                 handleExplorerOpen();
               }}
-            >
-              <PanelLeftIcon />
-            </Button>
+            />
           )}
         </div>
 
@@ -60,22 +59,18 @@ export default function Header() {
           <div className="Spacer flex-1 min-w-4" />
 
           <div className="RightIcons flex">
-            <Button
-              variant="bare"
-              size="tool"
-              title="Toggle checkboxes selection"
-              className=""
+            <Tool
+              tooltip="Toggle checkboxes selection"
+              icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
               onClick={() => {
                 toggleCheckboxSelection();
               }}
-            >
-              {isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
-            </Button>
+            />
 
-            <Button
-              variant="bare"
-              size="tool"
-              title="Cycle through content view modes: Source, Markdown, Live Preview."
+            {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
+            <Tool
+              tooltip="Cycle through content view modes: Source, Markdown, Live Preview."
+              icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
               onClick={() => {
                 if (contentViewMode === "source") {
                   setContentViewMode("markdown");
@@ -85,45 +80,35 @@ export default function Header() {
                   setContentViewMode("source");
                 }
               }}
-            >
-              {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-              {contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
-            </Button>
+            />
 
-            <Button
-              variant="bare"
-              size="tool"
-              title="Toggle Edit and View modes"
+            <Tool
+              tooltip="Toggle Edit and View modes"
+              icon={readOnly ? <PencilOffIcon /> : <PencilIcon />}
               onClick={() => {
                 setReadOnly(!readOnly);
               }}
-            >
-              {readOnly ? <PencilOffIcon /> : <PencilIcon />}
-            </Button>
+            />
 
-            <Button
-              variant="bare"
-              size="tool"
-              title="Open commands"
+            <Tool
+              tooltip="Open Command Palette"
+              icon={<TerminalIcon />}
+              hotkey={["⌘", "K"]}
               onClick={() => {
-                useStore.setState({ isCommandsOpen: true });
+                useStore.setState({ isCommandPaletteOpen: true });
               }}
-            >
-              <SquareTerminalIcon />
-            </Button>
+            />
 
-            <Button
-              variant="bare"
-              size="tool"
-              title="Search in page"
+            <Tool
+              tooltip="Search in page"
+              icon={<SearchIcon />}
+              hotkey={["⌘", "F"]}
               onClick={() => {
                 togglePageSearch();
               }}
-            >
-              <SearchIcon />
-            </Button>
+            />
 
-            <MainMenu />
+            <MainMenu trigger={<Tool tooltip="Open Main Menu" icon={<MenuIcon />} />} />
           </div>
         </div>
 

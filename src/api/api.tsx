@@ -383,11 +383,21 @@ export async function toggleGlobalSearch() {
 }
 
 export async function toggleCheckboxSelection() {
-  useStore.setState((s) => ({ isCheckboxSelectionActive: !s.isCheckboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false }));
+  useStore.setState((s) => {
+    return { isCheckboxSelectionActive: !s.isCheckboxSelectionActive, checkedBlockIds: new Set(), isPageSearchActive: false };
+  });
+}
+
+export async function toggleSettings() {
+  useStore.setState((s) => ({ isSettingsOpen: !s.isSettingsOpen }));
+}
+
+export async function toggleCommandPalette() {
+  useStore.setState((s) => ({ isCommandPaletteOpen: !s.isCommandPaletteOpen }));
 }
 
 export function handleExplorerOpen() {
-  useStore.getState().explorerPanel?.expand();
+  useStore.getState().sidebarPanel?.expand();
   useStore.setState({ isExplorerOpen: true });
   if (isMobile()) {
     useStore.setState({ isPageSearchActive: false });
@@ -395,8 +405,17 @@ export function handleExplorerOpen() {
 }
 
 export function handleExplorerClose() {
-  useStore.getState().explorerPanel?.collapse();
+  useStore.getState().sidebarPanel?.collapse();
   useStore.setState({ isExplorerOpen: false });
+}
+
+export async function handleExplorerToggle() {
+  const { isExplorerOpen } = useStore.getState();
+  if (isExplorerOpen) {
+    handleExplorerClose();
+  } else {
+    handleExplorerOpen();
+  }
 }
 
 export function handleUsernameUpdate(username: string) {

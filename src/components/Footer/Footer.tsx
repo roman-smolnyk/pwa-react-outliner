@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import log from "loglevel";
 import {
   ArrowDownIcon,
@@ -39,7 +36,8 @@ import {
   handleUndo,
 } from "../../api/api";
 import useStore from "../../store/useStore";
-import { addHeading, toggleInlineFormatting } from "../Editor/CM6Common";
+import Tool from "../Common/Tool";
+import { addHeading, toggleInlineFormatting } from "../Editor/CM6Hotkeys";
 
 export default function Footer() {
   log.debug("Footer");
@@ -71,303 +69,236 @@ export default function Footer() {
                   overflow-x-auto overscroll-contain
                   flex items-center justify-start"
       >
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="bare"
-                size="tool"
-                className="Undo"
-                onClick={() => {
-                  if (activeBlockId) {
-                    useStore.getState().inputFocusKeeperElement?.focus();
-                  }
-                  handleUndo();
-                }}
-              >
-                <UndoIcon />
-              </Button>
-            }
-          />
-          <TooltipContent>
-            Undo changes
-            <KbdGroup>
-              <Kbd>Ctrl</Kbd>
-              <span>+</span>
-              <Kbd>Z</Kbd>
-            </KbdGroup>
-          </TooltipContent>
-        </Tooltip>
-
-        <Button
-          variant="bare"
-          size="tool"
-          title="Redo"
-          className="Redo"
+        <Tool
+          tooltip="Undo changes"
+          icon={<UndoIcon />}
+          hotkey={["⌘", "Z"]}
           onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
             }
+            handleUndo();
+          }}
+        />
+
+        <Tool
+          tooltip="Redo changes"
+          icon={<RedoIcon />}
+          hotkey={["⌘", "Shift", "Z"]}
+          onClick={() => {
+            if (activeBlockId) useStore.getState().inputFocusKeeperElement?.focus();
             handleRedo();
           }}
-        >
-          <RedoIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          title="Add block"
-          className="AddBlock"
-          onClick={(e) => {
+        <Tool
+          tooltip="Add block"
+          icon={<DiamondPlusIcon />}
+          hotkey={["⌘", "Enter"]}
+          onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
               handleBlockAdd(activeBlockId);
             }
           }}
-        >
-          <DiamondPlusIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          title="Outdent"
-          className="MoveBlockLeft"
-          onClick={(e) => {
+        <Tool
+          tooltip="Outdent block"
+          icon={<ArrowLeftToLineIcon />}
+          hotkey={["⌘", "←"]}
+          onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
               handleBlockOutdent(activeBlockId);
             }
           }}
-        >
-          <ArrowLeftToLineIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          title="Indent"
-          className="MoveBlockRight"
-          onClick={(e) => {
+        <Tool
+          tooltip="Indent block"
+          icon={<ArrowRightToLineIcon />}
+          hotkey={["⌘", "→"]}
+          onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
               handleBlockIndent(activeBlockId);
             }
           }}
-        >
-          <ArrowRightToLineIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          title="Move Up"
-          className="MoveBlockUp"
-          onClick={(e) => {
+        <Tool
+          tooltip="Move block up"
+          icon={<ArrowUpIcon />}
+          hotkey={["⌘", "↑"]}
+          onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
               handleBlockMoveUp(activeBlockId);
             }
           }}
-        >
-          <ArrowUpIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          title="Move Down"
-          className="MoveBlockDown"
-          onClick={(e) => {
+        <Tool
+          tooltip="Move block down"
+          icon={<ArrowDownIcon />}
+          hotkey={["⌘", "↓"]}
+          onClick={() => {
             if (activeBlockId) {
               useStore.getState().inputFocusKeeperElement?.focus();
-
               handleBlockMoveDown(activeBlockId);
             }
           }}
-        >
-          <ArrowDownIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="DeleteBlock"
-          onClick={(e) => {
+        <Tool
+          tooltip="Delete block"
+          icon={<Trash2Icon />}
+          onClick={() => {
             if (activeBlockId) {
               handleBlockDelete(activeBlockId);
             }
           }}
-        >
-          <Trash2Icon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="AddHeading"
-          onClick={(e) => {
+        {/* --- Formatting Actions --- */}
+        <Tool
+          tooltip="Add heading"
+          icon={<HeadingIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               addHeading(editorView);
             }
           }}
-        >
-          <HeadingIcon className="" />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeBold"
-          onClick={(e) => {
+        <Tool
+          tooltip="Make text bold"
+          icon={<BoldIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "**");
             }
           }}
-        >
-          <BoldIcon className="" />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeItalic"
-          onClick={(e) => {
+        <Tool
+          tooltip="Make text italic"
+          icon={<ItalicIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "_");
             }
           }}
-        >
-          <ItalicIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeStrike"
-          onClick={(e) => {
+        <Tool
+          tooltip="Strikethrough text"
+          icon={<StrikethroughIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "~~");
             }
           }}
-        >
-          <StrikethroughIcon />
-        </Button>
-
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeCode"
-          onClick={(e) => {
+        />
+        <Tool
+          tooltip="Insert code block"
+          icon={<Code2Icon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, { open: "```\n", close: "\n```" });
             }
           }}
-        >
-          <Code2Icon />
-        </Button>
+        ></Tool>
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeSpoiler"
-          onClick={(e) => {
+        <Tool
+          tooltip="Add spoiler tag"
+          icon={<BadgeAlertIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "||");
             }
           }}
-        >
-          <BadgeAlertIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeHighlight"
-          onClick={(e) => {
+        <Tool
+          tooltip="Highlight text"
+          icon={<HighlighterIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, "==");
             }
           }}
-        >
-          <HighlighterIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeBrackets"
-          onClick={(e) => {
+        <Tool
+          tooltip="Wrap in brackets"
+          icon={<BracketsIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, { open: "[", close: "]" });
             }
           }}
-        >
-          <BracketsIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeParentheses"
-          onClick={(e) => {
+        <Tool
+          tooltip="Wrap in parentheses"
+          icon={<ParenthesesIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, { open: "(", close: ")" });
             }
           }}
-        >
-          <ParenthesesIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeBraces"
-          onClick={(e) => {
+        <Tool
+          tooltip="Wrap in braces"
+          icon={<BracesIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, { open: "{", close: "}" });
             }
           }}
-        >
-          <BracesIcon />
-        </Button>
+        />
 
-        <Button
-          variant="bare"
-          size="tool"
-          className="MakeMath"
-          onClick={(e) => {
+        <Tool
+          tooltip="Insert math formula"
+          icon={<SigmaIcon />}
+          onClick={() => {
             if (activeBlockId && editorView) {
               useStore.getState().inputFocusKeeperElement?.focus();
               toggleInlineFormatting(editorView, { open: "$$", close: "$$" });
             }
           }}
-        >
-          <SigmaIcon />
-        </Button>
+        />
 
-        <Button variant="bare" size="tool">
-          <QuoteIcon className="text-warning" />
-        </Button>
+        <Tool
+          tooltip="Insert quote"
+          icon={<QuoteIcon className="text-warning" />}
+          onClick={() => console.warn("Quote action not implemented yet.")}
+        />
 
-        <Button variant="bare" size="tool">
-          <TableIcon className="text-warning" />
-        </Button>
+        <Tool
+          tooltip="Insert table"
+          icon={<TableIcon className="text-warning" />}
+          onClick={() => console.warn("Table action not implemented yet.")}
+        />
 
-        <Button variant="bare" size="tool">
-          <CalendarDaysIcon className="text-warning" />
-        </Button>
+        <Tool
+          tooltip="Insert calendar event"
+          icon={<CalendarDaysIcon className="text-warning" />}
+          onClick={() => console.warn("Calendar action not implemented yet.")}
+        />
       </div>
     </div>
   );

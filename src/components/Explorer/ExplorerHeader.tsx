@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { getRootCollectionId } from "esm-treero-api";
-import { CopyMinusIcon, CopyPlusIcon, FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
+import { FilePlusIcon, FolderPlusIcon, PanelLeftCloseIcon, SearchIcon } from "lucide-react";
 import { createPortal } from "react-dom";
-import type { PanelImperativeHandle } from "react-resizable-panels";
 import { handleCollectionAdd, handleExplorerClose, handlePageAdd, toggleGlobalSearch } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
+import Tool from "../Common/Tool";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
 export default function ExplorerHeader() {
@@ -26,53 +25,44 @@ export default function ExplorerHeader() {
       <div className="flex-1 flex items-center">
         {/* Left icons */}
         <div className="mr-2 flex items-center gap-2">
-          <Button
-            variant="bare"
-            size="tool"
+          <Tool
+            tooltip="Close Sidebar"
+            icon={<PanelLeftCloseIcon />}
+            hotkey={["⌘", "B"]}
             onClick={() => {
               handleExplorerClose();
             }}
-          >
-            <PanelLeftCloseIcon />
-          </Button>
+          />
         </div>
 
         <div className="Spacer flex-1"></div>
 
         {/* Right icons */}
         <div className="flex items-center gap-0">
-          <Button
-            variant="bare"
-            size="tool"
-            title="Add File"
+          <Tool
+            tooltip="Add File"
+            icon={<FilePlusIcon />}
             onClick={() => {
               handlePageAdd(getRootCollectionId(yjs.yaccount));
             }}
-          >
-            <FilePlusIcon />
-          </Button>
+          />
 
-          <Button
-            variant="bare"
-            size="tool"
-            title="Add Folder"
+          <Tool
+            tooltip="Add Folder"
+            icon={<FolderPlusIcon />}
             onClick={() => {
               handleCollectionAdd(getRootCollectionId(yjs.yaccount));
             }}
-          >
-            <FolderPlusIcon />
-          </Button>
+          />
 
-          <Button
-            variant="bare"
-            size="tool"
-            title="Global Search"
+          <Tool
+            tooltip="Global Search"
+            icon={<SearchIcon />}
+            hotkey={["⌘", "Shift", "F"]}
             onClick={() => {
               toggleGlobalSearch();
             }}
-          >
-            <SearchIcon />
-          </Button>
+          />
         </div>
       </div>
       {isGlobalSearchOpen && createPortal(<GlobalSearch />, document.getElementById("root")!)}

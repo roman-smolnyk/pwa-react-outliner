@@ -1,14 +1,16 @@
+import { SpinnerCustom } from "@/components/ui/spinner";
+import { useConfirm } from "@/hooks/useConfirm";
 import log from "loglevel";
 import { logout } from "../../api/api";
 import useStore from "../../store/useStore";
-
-import { SpinnerCustom } from "@/components/ui/spinner";
 
 export default function LoadingScreen() {
   log.debug("Spinner");
 
   const loadingScreenInfo = useStore((s) => s.loadingScreenInfo);
   const isLoadingScreenShowExit = useStore((s) => s.shouldShowLoadingScreenExit);
+
+  const confirm = useConfirm();
 
   return (
     <div className="LoadingScreen h-screen w-screen flex flex-col items-center justify-center gap-5">
@@ -20,8 +22,8 @@ export default function LoadingScreen() {
           className="min-w-30 p-2 rounded cursor-pointer
                       hover:scale-105 active:scale-100 transition-transform"
           type="button"
-          onClick={() => {
-            if (confirm("All data on this device will be wiped. Are you sure?")) {
+          onClick={async () => {
+            if (await confirm("All data on this device will be wiped", "Are you sure?")) {
               logout();
             }
           }}

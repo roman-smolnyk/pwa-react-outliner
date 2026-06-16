@@ -1,7 +1,6 @@
 import { BREAKPOINTS } from "@/lib/constants";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
-import * as Y from "yjs";
 
 type TreeItem = {
   id: string;
@@ -49,17 +48,8 @@ export function flattenYTree<T extends YBlocksMap | YExplorerMap>(treeItems: T, 
     const item: any = {
       depth,
       index: result.length,
+      ...yitem.toJSON(),
     };
-
-    for (const [key, value] of yitem.entries()) {
-      if (value instanceof Y.Text) {
-        item[key] = value.toString();
-      } else if (value instanceof Y.Array) {
-        item[key] = value.toArray();
-      } else {
-        item[key] = value;
-      }
-    }
 
     result.push(item);
 
@@ -92,19 +82,6 @@ export function flattenAndFilterYTree<T extends YBlocksMap | YExplorerMap>(
       index: result.length,
       ...yitem.toJSON(),
     };
-
-    // for (const [key, value] of yitem.entries()) {
-    //   if (value instanceof Y.Text) {
-    //     item[key] = value.toString();
-    //   } else if (value instanceof Y.Array) {
-    //     item[key] = value.toArray();
-    //   } else if (value && typeof (value as any).toJSON === "function") {
-    //     log.debug("WHYYYY???", key, value);
-    //     item[key] = (value as any).toJSON();
-    //   } else {
-    //     item[key] = value;
-    //   }
-    // }
 
     result.push(item);
 

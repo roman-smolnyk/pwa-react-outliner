@@ -29,7 +29,7 @@ export interface useStoreType {
   isPageSearchActive: boolean;
   isCheckboxSelectionActive: boolean;
   isMoveToOpen: boolean;
-  isCommandsOpen: boolean;
+  isCommandPaletteOpen: boolean;
 
   checkedBlockIds: Set<string>;
 
@@ -46,7 +46,7 @@ export interface useStoreType {
   renderPageTicker: number;
   renderPage(): void;
 
-  explorerPanel: PanelImperativeHandle | null;
+  sidebarPanel: PanelImperativeHandle | null;
   footerElement: HTMLElement | null;
   inputFocusKeeperElement: HTMLElement | null;
 
@@ -78,7 +78,7 @@ const useStore = create<useStoreType>((set, get) => ({
   isPageSearchActive: false,
   isCheckboxSelectionActive: false,
   isMoveToOpen: false,
-  isCommandsOpen: false,
+  isCommandPaletteOpen: false,
 
   checkedBlockIds: new Set(),
 
@@ -95,7 +95,7 @@ const useStore = create<useStoreType>((set, get) => ({
   renderPageTicker: 0,
   renderPage: () => set((state) => ({ renderPageTicker: state.renderPageTicker + 1 })),
 
-  explorerPanel: null,
+  sidebarPanel: null,
   footerElement: null,
   inputFocusKeeperElement: null,
 

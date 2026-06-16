@@ -47,8 +47,8 @@ export default function SignUpForm({ className, ...props }: React.ComponentProps
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="host">Web socket host</FieldLabel>
-                    <Input {...field} id="host" placeholder="wss://..." aria-invalid={fieldState.invalid} />
+                    <FieldLabel htmlFor={field.name}>Web socket host</FieldLabel>
+                    <Input {...field} id={field.name} placeholder="wss://..." aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
@@ -59,8 +59,8 @@ export default function SignUpForm({ className, ...props }: React.ComponentProps
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="username">Username</FieldLabel>
-                    <Input {...field} id="username" placeholder="Username" aria-invalid={fieldState.invalid} />
+                    <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+                    <Input {...field} id={field.name} placeholder="Username" aria-invalid={fieldState.invalid} />
                     {fieldState.invalid ? (
                       <FieldError errors={[fieldState.error]} />
                     ) : (

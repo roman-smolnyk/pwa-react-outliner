@@ -1,13 +1,13 @@
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import useIsMobile from "@/hooks/useIsMobile";
+import useSetupHotkeys from "@/hooks/useSetupHotkeys";
 import log from "loglevel";
 import { useEffect } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
-import { handleExplorerClose, handleRedo, handleUndo, toggleGlobalSearch, togglePageSearch } from "../../api/api";
+import { handleExplorerClose } from "../../api/api";
 import onStartUp from "../../onStartUp";
 import useStore from "../../store/useStore";
-import Commands from "../Commands/Commands";
+import CommandPalette from "../CommandPalette/CommandPalette";
 import ExplorerContainer from "../Explorer/ExplorerContainer";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
@@ -17,52 +17,9 @@ import Printer from "../Page/Printer";
 import Settings from "../Settings/Settings";
 import LoadingScreen from "./LoadingScreen";
 
-function InputFocusKeeper() {
+function FocusKeeper() {
   // Prevents on screen keyboard flickering between actions
   return <input ref={(el) => useStore.setState({ inputFocusKeeperElement: el })} type="text" className="sr-only" tabIndex={-1} aria-hidden="true" />;
-}
-
-function useSetupHotkeys() {
-  useHotkeys(
-    "ctrl+z, meta+z",
-    () => {
-      log.warn("ctrl+z, meta+z");
-      handleUndo();
-    },
-    // { enableOnContentEditable: true },
-  );
-  useHotkeys(
-    "ctrl+shift+z, meta+shift+z",
-    () => {
-      log.warn("ctrl+shift+z, meta+shift+z");
-      handleRedo();
-    },
-    // { enableOnContentEditable: true },
-  );
-  useHotkeys(
-    "ctrl+f, meta+f",
-    (e) => {
-      log.warn("ctrl+f");
-      e.preventDefault();
-      e.stopPropagation();
-      togglePageSearch();
-    },
-    {
-      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
-    },
-  );
-  useHotkeys(
-    "ctrl+shift+f, meta+shift+f",
-    (e) => {
-      log.warn("ctrl+shift+f");
-      e.preventDefault();
-      e.stopPropagation();
-      toggleGlobalSearch();
-    },
-    {
-      enableOnFormTags: true, // This allows the hotkey to work while inside your search input
-    },
-  );
 }
 
 export default function Main() {
@@ -75,7 +32,7 @@ export default function Main() {
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: "panelsLayout",
-    panelIds: ["ExplorerPanel", "PagePanel"],
+    panelIds: ["SidebarPanel", "MainPanel"],
     storage: localStorage,
   });
 
@@ -114,8 +71,8 @@ export default function Main() {
       ) : (
         <Group defaultLayout={defaultLayout} onLayoutChanged={onLayoutChanged}>
           <Panel
-            id="ExplorerPanel"
-            panelRef={(ref) => useStore.setState({ explorerPanel: ref })}
+            id="SidebarPanel"
+            panelRef={(ref) => useStore.setState({ sidebarPanel: ref })}
             defaultSize={"100%"}
             minSize={isMobile ? "90%" : 200}
             maxSize={isMobile ? "90%" : "40%"}
@@ -146,7 +103,7 @@ export default function Main() {
           >
             <div className="w-1 h-full bg-border group-hover:bg-ring group-hover:w-1 transition-all duration-150 ease-in-out" />
           </Separator>
-          <Panel id="PagePanel">
+          <Panel id="MainPanel">
             <PageContainer />
           </Panel>
         </Group>
@@ -154,11 +111,11 @@ export default function Main() {
 
       <Settings />
       <MoveTo />
-      <Commands />
+      <CommandPalette />
 
       <Footer />
 
-      <InputFocusKeeper />
+      <FocusKeeper />
       <Printer />
     </div>
   );
