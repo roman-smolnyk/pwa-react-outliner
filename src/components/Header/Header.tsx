@@ -16,7 +16,7 @@ import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from ".
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
 import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
-import Tool from "../Common/Tool";
+import ToolButton from "../Common/ToolButton";
 import MainMenu from "../MainMenu/MainMenu";
 
 export default function Header() {
@@ -44,7 +44,7 @@ export default function Header() {
       <div className="flex-1 flex items-center justify-center min-w-0">
         <div className="flex">
           {!isExplorerOpen && (
-            <Tool
+            <ToolButton
               tooltip="Open Sidebar"
               icon={<PanelLeftIcon />}
               hotkey={["⌘", "B"]}
@@ -59,7 +59,7 @@ export default function Header() {
           <div className="Spacer flex-1 min-w-4" />
 
           <div className="RightIcons flex">
-            <Tool
+            <ToolButton
               tooltip="Toggle checkboxes selection"
               icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
               onClick={() => {
@@ -68,7 +68,7 @@ export default function Header() {
             />
 
             {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-            <Tool
+            <ToolButton
               tooltip="Cycle through content view modes: Source, Markdown, Live Preview."
               icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
               onClick={() => {
@@ -82,7 +82,7 @@ export default function Header() {
               }}
             />
 
-            <Tool
+            <ToolButton
               tooltip="Toggle Edit and View modes"
               icon={readOnly ? <PencilOffIcon /> : <PencilIcon />}
               onClick={() => {
@@ -90,7 +90,7 @@ export default function Header() {
               }}
             />
 
-            <Tool
+            <ToolButton
               tooltip="Open Command Palette"
               icon={<TerminalIcon />}
               hotkey={["⌘", "K"]}
@@ -99,7 +99,7 @@ export default function Header() {
               }}
             />
 
-            <Tool
+            <ToolButton
               tooltip="Search in page"
               icon={<SearchIcon />}
               hotkey={["⌘", "F"]}
@@ -108,7 +108,7 @@ export default function Header() {
               }}
             />
 
-            <MainMenu trigger={<Tool tooltip="Open Main Menu" icon={<MenuIcon />} />} />
+            <MainMenu trigger={<ToolButton tooltip="Open Main Menu" icon={<MenuIcon />} />} />
           </div>
         </div>
 

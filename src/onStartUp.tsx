@@ -4,7 +4,7 @@ import { listenWebSocketStatus } from "./api/api.tsx";
 import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
 import { fillInMockupData } from "./utils/mockupData.tsx";
-import { waitUntil } from "./utils/utilities.tsx";
+import { waitUntil } from "./utils/utilities.ts";
 import { createWelcomeData } from "./utils/welcomeData.tsx";
 
 let startupPromise: Promise<void> | null = null;

@@ -10,7 +10,7 @@ import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";
-import { getProjection } from "../../utils/utilities.tsx";
+import { getProjection } from "../../utils/utilities.ts";
 import ExpEntry from "./ExpEntry.tsx";
 
 export default function Explorer({ rootId }: { rootId: string }) {

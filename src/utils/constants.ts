@@ -1,4 +1,4 @@
-// src/lib/constants.ts
+// src/utils/constants.ts
 export const BREAKPOINTS = {
   sm: 640,
   md: 768,

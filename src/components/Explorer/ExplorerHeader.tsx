@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { handleCollectionAdd, handleExplorerClose, handlePageAdd, toggleGlobalSearch } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import Tool from "../Common/Tool";
+import ToolButton from "../Common/ToolButton";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
 export default function ExplorerHeader() {
@@ -25,7 +25,7 @@ export default function ExplorerHeader() {
       <div className="flex-1 flex items-center">
         {/* Left icons */}
         <div className="mr-2 flex items-center gap-2">
-          <Tool
+          <ToolButton
             tooltip="Close Sidebar"
             icon={<PanelLeftCloseIcon />}
             hotkey={["⌘", "B"]}
@@ -39,7 +39,7 @@ export default function ExplorerHeader() {
 
         {/* Right icons */}
         <div className="flex items-center gap-0">
-          <Tool
+          <ToolButton
             tooltip="Add File"
             icon={<FilePlusIcon />}
             onClick={() => {
@@ -47,7 +47,7 @@ export default function ExplorerHeader() {
             }}
           />
 
-          <Tool
+          <ToolButton
             tooltip="Add Folder"
             icon={<FolderPlusIcon />}
             onClick={() => {
@@ -55,7 +55,7 @@ export default function ExplorerHeader() {
             }}
           />
 
-          <Tool
+          <ToolButton
             tooltip="Global Search"
             icon={<SearchIcon />}
             hotkey={["⌘", "Shift", "F"]}

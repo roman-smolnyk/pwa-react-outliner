@@ -4,7 +4,7 @@ import log from "loglevel";
 import { useMemo, useRef, useSyncExternalStore } from "react";
 import * as Y from "yjs";
 import useStore from "../store/useStore.tsx";
-import { flattenAndFilterYTree } from "../utils/utilities.tsx";
+import { flattenAndFilterYTree } from "../utils/utilities.ts";
 
 export function useFlattenedTree<T extends YBlocksMap | YExplorerMap>(
   yitems: T,

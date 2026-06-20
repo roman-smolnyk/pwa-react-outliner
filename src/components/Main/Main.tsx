@@ -73,7 +73,7 @@ export default function Main() {
           <Panel
             id="SidebarPanel"
             panelRef={(ref) => useStore.setState({ sidebarPanel: ref })}
-            defaultSize={"100%"}
+            defaultSize={300}
             minSize={isMobile ? "90%" : 200}
             maxSize={isMobile ? "90%" : "40%"}
             collapsible

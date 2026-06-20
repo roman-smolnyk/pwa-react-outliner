@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from "@/lib/constants";
+import { BREAKPOINTS } from "@/utils/constants";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
 

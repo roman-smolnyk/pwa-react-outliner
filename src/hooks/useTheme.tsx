@@ -1,6 +1,6 @@
 "use client";
 import { createThemes } from "@wrksz/themes/client";
-import { useEffect, useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 
 export const THEMES = [
   { label: "System", value: "system" },
@@ -16,19 +16,10 @@ export const { ThemeProvider, useTheme, useThemeValue, useThemeEffect } = create
   enableColorScheme: false,
 });
 
-export function useIsDarkTheme() {
+export function useIsThemeDark() {
   const { theme } = useTheme();
 
-  const [isSystemDark, setIsSystemDark] = useState(() => window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const handler = (event: MediaQueryListEvent) => setIsSystemDark(event.matches);
-    mediaQuery.addEventListener("change", handler);
-
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
+  const isSystemDark = useMediaQuery("(prefers-color-scheme: dark)");
 
   return theme === "dark" || (theme === "system" && isSystemDark);
 }

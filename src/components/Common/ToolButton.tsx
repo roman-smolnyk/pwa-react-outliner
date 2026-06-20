@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import React from "react";
 
-export default function Tool({
+export default function ToolButton({
   tooltip,
   icon,
   hotkey,

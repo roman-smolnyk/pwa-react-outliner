@@ -36,7 +36,7 @@ import {
   handleUndo,
 } from "../../api/api";
 import useStore from "../../store/useStore";
-import Tool from "../Common/Tool";
+import ToolButton from "../Common/ToolButton";
 import { addHeading, toggleInlineFormatting } from "../Editor/CM6Hotkeys";
 
 export default function Footer() {
@@ -69,7 +69,7 @@ export default function Footer() {
                   overflow-x-auto overscroll-contain
                   flex items-center justify-start"
       >
-        <Tool
+        <ToolButton
           tooltip="Undo changes"
           icon={<UndoIcon />}
           hotkey={["⌘", "Z"]}
@@ -81,7 +81,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Redo changes"
           icon={<RedoIcon />}
           hotkey={["⌘", "Shift", "Z"]}
@@ -91,7 +91,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Add block"
           icon={<DiamondPlusIcon />}
           hotkey={["⌘", "Enter"]}
@@ -103,7 +103,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Outdent block"
           icon={<ArrowLeftToLineIcon />}
           hotkey={["⌘", "←"]}
@@ -115,7 +115,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Indent block"
           icon={<ArrowRightToLineIcon />}
           hotkey={["⌘", "→"]}
@@ -127,7 +127,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Move block up"
           icon={<ArrowUpIcon />}
           hotkey={["⌘", "↑"]}
@@ -139,7 +139,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Move block down"
           icon={<ArrowDownIcon />}
           hotkey={["⌘", "↓"]}
@@ -151,7 +151,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Delete block"
           icon={<Trash2Icon />}
           onClick={() => {
@@ -162,7 +162,7 @@ export default function Footer() {
         />
 
         {/* --- Formatting Actions --- */}
-        <Tool
+        <ToolButton
           tooltip="Add heading"
           icon={<HeadingIcon />}
           onClick={() => {
@@ -173,7 +173,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Make text bold"
           icon={<BoldIcon />}
           onClick={() => {
@@ -184,7 +184,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Make text italic"
           icon={<ItalicIcon />}
           onClick={() => {
@@ -195,7 +195,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Strikethrough text"
           icon={<StrikethroughIcon />}
           onClick={() => {
@@ -205,7 +205,7 @@ export default function Footer() {
             }
           }}
         />
-        <Tool
+        <ToolButton
           tooltip="Insert code block"
           icon={<Code2Icon />}
           onClick={() => {
@@ -214,9 +214,9 @@ export default function Footer() {
               toggleInlineFormatting(editorView, { open: "```\n", close: "\n```" });
             }
           }}
-        ></Tool>
+        ></ToolButton>
 
-        <Tool
+        <ToolButton
           tooltip="Add spoiler tag"
           icon={<BadgeAlertIcon />}
           onClick={() => {
@@ -227,7 +227,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Highlight text"
           icon={<HighlighterIcon />}
           onClick={() => {
@@ -238,7 +238,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Wrap in brackets"
           icon={<BracketsIcon />}
           onClick={() => {
@@ -249,7 +249,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Wrap in parentheses"
           icon={<ParenthesesIcon />}
           onClick={() => {
@@ -260,7 +260,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Wrap in braces"
           icon={<BracesIcon />}
           onClick={() => {
@@ -271,7 +271,7 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Insert math formula"
           icon={<SigmaIcon />}
           onClick={() => {
@@ -282,19 +282,19 @@ export default function Footer() {
           }}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Insert quote"
           icon={<QuoteIcon className="text-warning" />}
           onClick={() => console.warn("Quote action not implemented yet.")}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Insert table"
           icon={<TableIcon className="text-warning" />}
           onClick={() => console.warn("Table action not implemented yet.")}
         />
 
-        <Tool
+        <ToolButton
           tooltip="Insert calendar event"
           icon={<CalendarDaysIcon className="text-warning" />}
           onClick={() => console.warn("Calendar action not implemented yet.")}

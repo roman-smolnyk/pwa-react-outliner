@@ -10,7 +10,7 @@ import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatBlocksT } from "../../types/types.tsx";
-import { getProjection } from "../../utils/utilities.tsx";
+import { getProjection } from "../../utils/utilities.ts";
 import Block from "../Block/Block.tsx";
 import CheckboxSelectionToolbar from "./CheckboxSelectionToolbar.tsx";
 import PageSearchToolbar from "./PageSearchToolbar.tsx";

@@ -1,4 +1,4 @@
-import { useIsDarkTheme } from "@/hooks/useTheme";
+import { useIsThemeDark } from "@/hooks/useTheme";
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"; // import SyntaxHighlighter from "react-syntax-highlighter";
@@ -85,8 +85,8 @@ function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreEleme
 }
 
 const Markdown = memo(function Markdown({ children }: { children: string }) {
-  // log.debug("Markdown", isDarkTheme);
-  const isDarkTheme = useIsDarkTheme();
+  // log.debug("Markdown");
+  const isThemeDark = useIsThemeDark();
 
   // const [text, setText] = useState("");
 
@@ -166,7 +166,7 @@ const Markdown = memo(function Markdown({ children }: { children: string }) {
                 showLineNumbers={false}
                 showInlineLineNumbers={false}
                 // useInlineStyles={false}
-                style={isDarkTheme ? vscDarkPlus : prism}
+                style={isThemeDark ? vscDarkPlus : prism}
               >
                 {codeString}
               </SyntaxHighlighter>

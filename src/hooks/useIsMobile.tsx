@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from "@/lib/constants";
+import { BREAKPOINTS } from "@/utils/constants";
 import { useMediaQuery } from "usehooks-ts";
 
 export default function useIsMobile() {
