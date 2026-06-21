@@ -8,7 +8,7 @@ export default function PageContainer() {
   // log.debug("PageContainer");
   const rootBlockId = useStore((s) => s.rootBlockId);
   const isPageSearchActive = useStore((s) => s.isPageSearchActive);
-  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+  const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   const yblock = yjs.yblocks.get(rootBlockId);
 
@@ -26,7 +26,7 @@ export default function PageContainer() {
     );
   }
 
-  const addSpace = isPageSearchActive || isChekboxSelectionActive;
+  const addSpace = isPageSearchActive || isCheckboxSelectionActive;
 
   const parentId = yblock.get("parent_id");
 

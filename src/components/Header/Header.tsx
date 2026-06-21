@@ -50,7 +50,7 @@ export default function Header() {
               }}
             />
 
-            <PageMenu trigger={<ToolButton tooltip="Open Page Menu" icon={<MenuIcon />} />} />
+            <PageMenu />
           </div>
         </div>
 

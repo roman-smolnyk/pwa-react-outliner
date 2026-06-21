@@ -91,7 +91,7 @@ const BlockInner = memo(
     // TODO: Add types
   }) {
     // log.debug("BlockInner", id);
-    const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+    const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
     if (isRoot) depth = 1;
 
@@ -109,7 +109,7 @@ const BlockInner = memo(
           ) : (
             <>
               <div className="mt-0.5 flex items-center justify-center gap-1">
-                {!isRoot && isChekboxSelectionActive && (
+                {!isRoot && isCheckboxSelectionActive && (
                   <Checkbox
                     checked={isChecked}
                     onCheckedChange={() => {}}

@@ -10,6 +10,7 @@ export default function ToolButton({
   hotkey,
   className,
   onClick,
+  ...props
 }: {
   tooltip: string;
   icon: React.ReactNode;
@@ -21,7 +22,7 @@ export default function ToolButton({
     <Tooltip>
       <TooltipTrigger
         render={
-          <Button variant="bare" size="tool" className={cn("ToolButton", className)} onClick={onClick}>
+          <Button variant="bare" size="tool" className={cn("ToolButton", className)} onClick={onClick} {...props}>
             {icon}
           </Button>
         }

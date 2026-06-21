@@ -52,15 +52,15 @@ function handleDelete(id: string, type: number) {
 }
 
 function Mobile({
+  Trigger,
   id,
   type,
   setIsRename,
-  Trigger,
 }: {
+  Trigger: React.ComponentType<any>;
   id: string;
   type: number;
   setIsRename: (v: boolean) => void;
-  Trigger: React.ComponentType<any>;
 }) {
   return (
     <Drawer>
@@ -133,19 +133,6 @@ function Mobile({
                   </DrawerClose>
                 </CollapsibleContent>
               </Collapsible>
-
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg">
-                  <ArrowDownAZIcon />
-                  <span>Sort Ascending</span>
-                </Button>
-              </DrawerClose>
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg">
-                  <ArrowDownZAIcon />
-                  <span>Sort Descending</span>
-                </Button>
-              </DrawerClose>
             </>
           )}
 
@@ -182,15 +169,15 @@ function Mobile({
 }
 
 function Desktop({
+  Trigger,
   id,
   type,
   setIsRename,
-  Trigger,
 }: {
+  Trigger: React.ComponentType<any>;
   id: string;
   type: number;
   setIsRename: (v: boolean) => void;
-  Trigger: React.ComponentType<any>;
 }) {
   return (
     <DropdownMenu>
@@ -291,8 +278,8 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
   };
 
   return isMobile ? (
-    <Mobile id={id} type={type} setIsRename={setIsRename} Trigger={Trigger} />
+    <Mobile Trigger={Trigger} id={id} type={type} setIsRename={setIsRename} />
   ) : (
-    <Desktop id={id} type={type} setIsRename={setIsRename} Trigger={Trigger} />
+    <Desktop Trigger={Trigger} id={id} type={type} setIsRename={setIsRename} />
   );
 }

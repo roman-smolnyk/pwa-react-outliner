@@ -36,7 +36,7 @@ export default function Page({ rootId }: { rootId: string }) {
 
   const renderPageTicker = useStore((s) => s.renderPageTicker);
   const isPageSearchActive = useStore((s) => s.isPageSearchActive);
-  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
+  const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
   const checkedBlockIds = useStore((s) => s.checkedBlockIds);
   // log.debug("checkedBlockIds", checkedBlockIds);
 
@@ -91,7 +91,7 @@ export default function Page({ rootId }: { rootId: string }) {
   return (
     <div className="Page flex flex-col">
       {isPageSearchActive && createPortal(<PageSearchToolbar />, document.getElementById("root")!)}
-      {isChekboxSelectionActive && createPortal(<CheckboxSelectionToolbar />, document.getElementById("root")!)}
+      {isCheckboxSelectionActive && createPortal(<CheckboxSelectionToolbar />, document.getElementById("root")!)}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // rectIntersection
