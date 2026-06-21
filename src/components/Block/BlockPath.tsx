@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { traverseItemPath } from "esm-treero-api";
 import log from "loglevel";
-import { Fragment } from "react";
+import React from "react";
 import { handleBlockOpen } from "../../api/api";
 import yjs from "../../store/yjsManager";
 import PlainMarkdown from "../Markdown/PlainMarkdown";
@@ -20,7 +20,7 @@ export default function BlockPath({ id }: { id: string }) {
           const isLast = idx === yblocksArray.length - 1;
 
           return (
-            <Fragment key={`BlockPathPart-${itemId || idx}`}>
+            <React.Fragment key={`BlockPathPart-${itemId || idx}`}>
               <BreadcrumbItem className="cursor-pointer">
                 {isLast ? (
                   <BreadcrumbLink
@@ -49,7 +49,7 @@ export default function BlockPath({ id }: { id: string }) {
               </BreadcrumbItem>
 
               {!isLast && <BreadcrumbSeparator />}
-            </Fragment>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>

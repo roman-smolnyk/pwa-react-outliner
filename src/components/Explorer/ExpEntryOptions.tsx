@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +14,14 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+import useIsMobile from "@/hooks/useIsMobile";
 import { COLLECTION_TYPE, getPage, PAGE_TYPE } from "esm-treero-api";
 import {
   ArrowDownAZIcon,
   ArrowDownNarrowWideIcon,
   ArrowDownZAIcon,
+  ChevronDownIcon,
   EllipsisVerticalIcon,
   FilePlusIcon,
   FolderPlusIcon,
@@ -25,20 +30,172 @@ import {
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
+import React from "react";
 import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
-export default function ExpEntryOptions({ id, type, setIsRename }: { id: string; type: number; setIsRename: (v: boolean) => void }) {
+function handleMoveTo(id: string) {
+  const ypage = getPage(yjs.ydoc, id);
+  useStore.setState({
+    isMoveToOpen: true,
+    itemIdToMove: ypage.get("id"),
+  });
+}
+
+function handleDelete(id: string, type: number) {
+  if (type === COLLECTION_TYPE) {
+    handleCollectionDelete(id);
+  } else if (type === PAGE_TYPE) {
+    handlePageDelete(id);
+  }
+}
+
+function Mobile({
+  id,
+  type,
+  setIsRename,
+  Trigger,
+}: {
+  id: string;
+  type: number;
+  setIsRename: (v: boolean) => void;
+  Trigger: React.ComponentType<any>;
+}) {
+  return (
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Trigger />
+      </DrawerTrigger>
+      <DrawerContent>
+        {/* Accessibility header */}
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Drawer Title</DrawerTitle>
+          <DrawerDescription>Drawer Description</DrawerDescription>
+        </DrawerHeader>
+
+        <div className="p-2 flex flex-col gap-2">
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              onClick={() => {
+                requestAnimationFrame(() => {
+                  setTimeout(() => {
+                    setIsRename(true);
+                  }, 750);
+                });
+              }}
+            >
+              <SquarePenIcon />
+              <span>Rename</span>
+            </Button>
+          </DrawerClose>
+
+          {type === COLLECTION_TYPE && (
+            <>
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg" onClick={() => handlePageAdd(id)}>
+                  <FilePlusIcon />
+                  <span>New Document</span>
+                </Button>
+              </DrawerClose>
+
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg" onClick={() => handleCollectionAdd(id)}>
+                  <FolderPlusIcon />
+                  <span>New Folder</span>
+                </Button>
+              </DrawerClose>
+
+              <Collapsible>
+                <CollapsibleTrigger
+                  render={
+                    <Button variant="menuitem" size="lg">
+                      <ArrowDownNarrowWideIcon />
+                      <span>Sort</span>
+                      <ChevronDownIcon className="ml-auto group-data-panel-open/button:rotate-180" />
+                    </Button>
+                  }
+                />
+                <CollapsibleContent className="pl-6 flex flex-col gap-2">
+                  <DrawerClose asChild>
+                    <Button variant="menuitem" size="lg">
+                      <ArrowDownAZIcon />
+                      <span>Ascending</span>
+                    </Button>
+                  </DrawerClose>
+                  <DrawerClose asChild>
+                    <Button variant="menuitem" size="lg">
+                      <ArrowDownZAIcon />
+                      <span>Descending</span>
+                    </Button>
+                  </DrawerClose>
+                </CollapsibleContent>
+              </Collapsible>
+
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg">
+                  <ArrowDownAZIcon />
+                  <span>Sort Ascending</span>
+                </Button>
+              </DrawerClose>
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg">
+                  <ArrowDownZAIcon />
+                  <span>Sort Descending</span>
+                </Button>
+              </DrawerClose>
+            </>
+          )}
+
+          {type === PAGE_TYPE && (
+            <>
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg" onClick={() => handleMoveTo(id)}>
+                  <ForwardIcon />
+                  <span>Move to</span>
+                </Button>
+              </DrawerClose>
+
+              {/* Export */}
+              <DrawerClose asChild>
+                <Button variant="menuitem" size="lg">
+                  <UploadIcon />
+                  <span>Export</span>
+                </Button>
+              </DrawerClose>
+            </>
+          )}
+
+          <Separator />
+
+          <DrawerClose asChild>
+            <Button variant="menuitem" size="lg" className="text-destructive" onClick={() => handleDelete(id, type)}>
+              <Trash2Icon />
+              <span>Delete</span>
+            </Button>
+          </DrawerClose>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function Desktop({
+  id,
+  type,
+  setIsRename,
+  Trigger,
+}: {
+  id: string;
+  type: number;
+  setIsRename: (v: boolean) => void;
+  Trigger: React.ComponentType<any>;
+}) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-sm" className="ExpEntryOptions">
-            <EllipsisVerticalIcon />
-          </Button>
-        }
-      />
+      <DropdownMenuTrigger render={<Trigger />} />
       <DropdownMenuContent className="w-max">
         <DropdownMenuGroup>
           <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DropdownMenuLabel>
@@ -96,15 +253,7 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
           )}
 
           {type === PAGE_TYPE && (
-            <DropdownMenuItem
-              onClick={() => {
-                const ypage = getPage(yjs.ydoc, id);
-                useStore.setState({
-                  isMoveToOpen: true,
-                  itemIdToMove: ypage.get("id"),
-                });
-              }}
-            >
+            <DropdownMenuItem onClick={() => handleMoveTo(id)}>
               <ForwardIcon />
               <span>Move to</span>
             </DropdownMenuItem>
@@ -121,21 +270,30 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              if (type === COLLECTION_TYPE) {
-                handleCollectionDelete(id);
-              } else if (type === PAGE_TYPE) {
-                handlePageDelete(id);
-              }
-            }}
-          >
+          <DropdownMenuItem variant="destructive" onClick={() => handleDelete(id, type)}>
             <Trash2Icon />
             <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export default function ExpEntryOptions({ id, type, setIsRename }: { id: string; type: number; setIsRename: (v: boolean) => void }) {
+  const isMobile = useIsMobile();
+
+  const Trigger = ({ ...props }) => {
+    return (
+      <Button variant="ghost" size="icon-sm" {...props}>
+        <EllipsisVerticalIcon />
+      </Button>
+    );
+  };
+
+  return isMobile ? (
+    <Mobile id={id} type={type} setIsRename={setIsRename} Trigger={Trigger} />
+  ) : (
+    <Desktop id={id} type={type} setIsRename={setIsRename} Trigger={Trigger} />
   );
 }

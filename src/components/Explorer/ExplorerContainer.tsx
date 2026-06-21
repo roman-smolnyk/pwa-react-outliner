@@ -7,7 +7,7 @@ import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-r
 import { useEffect, useState } from "react";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import ResponsiveDropdown from "../Common/ResponsiveDropdown";
+import ResponsiveOptions from "../Common/ResponsiveOptions";
 import Explorer from "./Explorer";
 import ExplorerHeader from "./ExplorerHeader";
 
@@ -84,7 +84,7 @@ export default function ExplorerContainer() {
         </Tabs>
 
         <div className="p-2">
-          <ResponsiveDropdown Trigger={Trigger} menuItems={menuItems} />
+          <ResponsiveOptions Trigger={Trigger} menuItems={menuItems} />
         </div>
       </div>
 

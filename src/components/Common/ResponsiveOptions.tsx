@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Separator } from "@/components/ui/separator";
 import useIsMobile from "@/hooks/useIsMobile";
 import type { LucideIcon } from "lucide-react";
-import { Fragment } from "react";
+import React from "react";
 
 export interface MenuItem {
   label: string;
@@ -21,7 +21,7 @@ export default function ResponsiveDropdown({ menuItems, Trigger }: { menuItems: 
         <Trigger />
       </DrawerTrigger>
       <DrawerContent>
-        {/* Required by accesability */}
+        {/* Required by accessibility */}
         <DrawerHeader className="hidden">
           <DrawerTitle>Drawer Title</DrawerTitle>
           <DrawerDescription>Drawer Description</DrawerDescription>
@@ -30,13 +30,13 @@ export default function ResponsiveDropdown({ menuItems, Trigger }: { menuItems: 
           {menuItems.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <Fragment key={`ResponsiveDropdown-${idx}`}>
+              <React.Fragment key={`ResponsiveDropdown-${idx}`}>
                 <Button variant="ghost" size="lg" className="flex justify-start gap-3 w-full" onClick={item.onClick} type="button">
                   {Icon && <Icon />}
                   <span>{item.label}</span>
                 </Button>
                 {idx < menuItems.length - 1 && <Separator />}
-              </Fragment>
+              </React.Fragment>
             );
           })}
         </div>

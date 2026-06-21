@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { getItem, getItemParent, getPageByBlockId, isRootItem, traverseItemPath } from "esm-treero-api";
 import debounce from "lodash/debounce";
 import { ChevronDown, ChevronRight, FileText, FoldVertical, UnfoldVertical } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { handleBlockOpen, toggleGlobalSearch } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
@@ -124,13 +124,13 @@ function PageGroupSection({ group, query, isCollapsed, onToggle }: { group: Page
                 <BreadcrumbList className="flex-nowrap overflow-hidden">
                   {group.path.map((item, idx) => {
                     return (
-                      <Fragment key={idx}>
+                      <React.Fragment key={idx}>
                         <BreadcrumbItem>
                           <span className="max-w-20 truncate">{item}</span>
                         </BreadcrumbItem>
 
                         {group.path.length - 1 !== idx && <BreadcrumbSeparator />}
-                      </Fragment>
+                      </React.Fragment>
                     );
                   })}
                 </BreadcrumbList>

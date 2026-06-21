@@ -20,6 +20,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         bare: 
           "active:not-aria-[haspopup]:translate-y-0 border-none bg-transparent hover:bg-transparent rounded-none [&_svg:not([class*='size-'])]:size-full",
+        menuitem: 
+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50 flex justify-start gap-3 w-full",
       },
       size: {
         default:
