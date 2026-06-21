@@ -24,7 +24,7 @@ export default function Header() {
       {/* Left icons */}
 
       <div className="flex-1 flex items-center justify-center min-w-0">
-        <div className="pl-2 rounded-r-lg bg-sidebar pointer-events-auto flex">
+        <div className="rounded-r-lg bg-sidebar pointer-events-auto flex">
           {!isExplorerOpen && (
             <ToolButton
               tooltip="Open Sidebar"
@@ -40,7 +40,7 @@ export default function Header() {
         <div className="flex-1 min-w-0 overflow-x-auto overscroll-contain flex">
           <div className="Spacer flex-1 min-w-4" />
 
-          <div className="RightIcons pr-2 rounded-l-lg bg-sidebar pointer-events-auto  flex">
+          <div className="RightIcons rounded-l-lg bg-sidebar pointer-events-auto  flex">
             <ToolButton
               tooltip="Search in page"
               icon={<SearchIcon />}

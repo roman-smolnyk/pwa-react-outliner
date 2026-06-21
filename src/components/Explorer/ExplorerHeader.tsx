@@ -13,7 +13,7 @@ export default function ExplorerHeader() {
 
   return (
     <div
-      className="ExplorerHeader min-w-0 min-h-10 px-2
+      className="ExplorerHeader min-w-0 min-h-10
                 bg-sidebar text-sidebar-foreground 
                 flex"
       style={{
@@ -38,7 +38,7 @@ export default function ExplorerHeader() {
         <div className="Spacer flex-1"></div>
 
         {/* Right icons */}
-        <div className="flex items-center gap-0">
+        <div className="mr-4 flex items-center gap-0">
           <ToolButton
             tooltip="Add File"
             icon={<FilePlusIcon />}
