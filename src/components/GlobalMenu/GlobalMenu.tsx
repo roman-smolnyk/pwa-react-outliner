@@ -31,7 +31,7 @@ import {
 import React from "react";
 import { toast } from "sonner";
 import { hardPWAReload, lockScreen, logout, reload } from "../../api/api";
-import { useTheme } from "../../hooks/useTheme";
+import { useTheme, type Themes } from "../../hooks/useTheme";
 import useStore from "../../store/useStore";
 
 declare const __APP_VERSION__: string;
@@ -43,8 +43,8 @@ function Mobile({
   confirm,
 }: {
   Trigger: React.ComponentType<any>;
-  theme: "light" | "dark" | "system";
-  setTheme: (theme: string) => void;
+  theme: Themes | undefined;
+  setTheme: (theme: Themes) => void;
   confirm: (title: string, description: string) => Promise<boolean> | boolean;
 }) {
   return (
@@ -169,8 +169,8 @@ function Desktop({
   confirm,
 }: {
   Trigger: React.ComponentType<any>;
-  theme: "light" | "dark" | "system";
-  setTheme: (theme: string) => void;
+  theme: Themes | undefined;
+  setTheme: (theme: Themes) => void;
   confirm: (title: string, description: string) => Promise<boolean> | boolean;
 }) {
   return (

@@ -2,6 +2,8 @@
 import { createThemes } from "@wrksz/themes/client";
 import { useMediaQuery } from "usehooks-ts";
 
+export type Themes = "system" | "light" | "dark";
+
 export const THEMES = [
   { label: "System", value: "system" },
   { label: "Light", value: "light" },
