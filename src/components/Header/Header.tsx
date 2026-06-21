@@ -1,27 +1,13 @@
 import log from "loglevel";
-import {
-  FileCodeIcon,
-  FileImageIcon,
-  FilePlayIcon,
-  ListChecksIcon,
-  ListIcon,
-  MenuIcon,
-  PanelLeftIcon,
-  PencilIcon,
-  PencilOffIcon,
-  SearchIcon,
-  TerminalIcon,
-} from "lucide-react";
+import { FileCodeIcon, FileImageIcon, FilePlayIcon, ListChecksIcon, ListIcon, MenuIcon, PanelLeftIcon, SearchIcon, TerminalIcon } from "lucide-react";
 import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from "../../api/api";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
-import { useReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
 import ToolButton from "../Common/ToolButton";
 import MainMenu from "../MainMenu/MainMenu";
 
 export default function Header() {
   log.debug("Header");
-  const { readOnly, setReadOnly } = useReadOnly();
   const { contentViewMode, setContentViewMode } = useContentViewMode();
 
   const isExplorerOpen = useStore((s) => s.isExplorerOpen);
@@ -67,37 +53,7 @@ export default function Header() {
               }}
             />
 
-            {/* {plainTextView ? <BookTypeIcon /> : <BookImageIcon />} */}
-            <ToolButton
-              tooltip="Cycle through content view modes: Source, Markdown, Live Preview."
-              icon={contentViewMode === "source" ? <FileCodeIcon /> : contentViewMode === "markdown" ? <FileImageIcon /> : <FilePlayIcon />}
-              onClick={() => {
-                if (contentViewMode === "source") {
-                  setContentViewMode("markdown");
-                } else if (contentViewMode === "markdown") {
-                  setContentViewMode("livePreview");
-                } else if (contentViewMode === "livePreview") {
-                  setContentViewMode("source");
-                }
-              }}
-            />
 
-            <ToolButton
-              tooltip="Toggle Edit and View modes"
-              icon={readOnly ? <PencilOffIcon /> : <PencilIcon />}
-              onClick={() => {
-                setReadOnly(!readOnly);
-              }}
-            />
-
-            <ToolButton
-              tooltip="Open Command Palette"
-              icon={<TerminalIcon />}
-              hotkey={["⌘", "K"]}
-              onClick={() => {
-                useStore.setState({ isCommandPaletteOpen: true });
-              }}
-            />
 
             <ToolButton
               tooltip="Search in page"

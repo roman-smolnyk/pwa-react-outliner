@@ -79,6 +79,7 @@ function Mobile({
               variant="menuitem"
               size="lg"
               onClick={() => {
+                // Drawer steals focus
                 requestAnimationFrame(() => {
                   setTimeout(() => {
                     setIsRename(true);

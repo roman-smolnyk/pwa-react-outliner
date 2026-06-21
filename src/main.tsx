@@ -6,7 +6,7 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ErrorBoundary
+    {/* <ErrorBoundary
       fallbackRender={({ error, resetErrorBoundary }) => (
         <div className="flex flex-col gap-4" role="alert">
           <p>Something went wrong:</p>
@@ -26,8 +26,8 @@ createRoot(document.getElementById("root")!).render(
       onReset={() => {
         // Reset any state that may have caused the error
       }}
-    >
-      <App />
-    </ErrorBoundary>
+    > */}
+    <App />
+    {/* </ErrorBoundary> */}
   </StrictMode>,
 );

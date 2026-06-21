@@ -80,7 +80,7 @@ export default function PageSearchToolbar() {
     <FloatingToolbar className="PageSearchToolbar">
       <Input placeholder="Search..." ref={refInput} value={query} onChange={(e) => setQuery(e.target.value)} />
 
-      <div className="Counter text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>
+      <div className="Counter mx-1 text-muted-foreground flex items-center justify-center">{`${index}/${totalMatches}`}</div>
 
       <Button
         variant="ghost"

@@ -16,6 +16,7 @@ import PageContainer from "../Page/PageContainer";
 import Printer from "../Page/Printer";
 import Settings from "../Settings/Settings";
 import LoadingScreen from "./LoadingScreen";
+import ZipUploadInput from "../Settings/ZipUploadInput";
 
 function FocusKeeper() {
   // Prevents on screen keyboard flickering between actions

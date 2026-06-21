@@ -1,219 +1,172 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
+import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useConfirm } from "@/hooks/useConfirm";
-import log from "loglevel";
+import { useContentViewMode } from "@/contexts/PlainTextViewContext";
+import { useIsReadOnly } from "@/contexts/ReadOnlyContext";
 import {
-  BoltIcon,
-  CircleArrowUpIcon,
   CircleQuestionMarkIcon,
   CloudAlertIcon,
   CloudCheckIcon,
-  HardDriveDownloadIcon,
-  HardDriveUploadIcon,
-  LockKeyholeIcon,
-  LogOutIcon,
-  MoonIcon,
+  FileCodeIcon,
+  FileImageIcon,
+  FilePlayIcon,
+  PencilIcon,
+  PencilOffIcon,
   RefreshCwIcon,
-  RotateCwIcon,
-  SunIcon,
-  SunMoonIcon,
+  TerminalIcon,
 } from "lucide-react";
-import { useRef } from "react";
 import { toast } from "sonner";
-import { hardPWAReload, lockScreen, logout, reload } from "../../api/api";
-import { useTheme } from "../../hooks/useTheme";
 import useStore from "../../store/useStore";
-import { downloadExport } from "../../utils/exportImport";
-import ZipUploadInput from "./UploadBackup";
 
 declare const __APP_VERSION__: string;
 
 export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
-  const username = useStore((s) => s.username);
 
-  log.debug("MainMenu:username", username, webSocketConnectionStatus);
-
-  const { theme, setTheme } = useTheme();
-  const confirm = useConfirm();
+  const { contentViewMode, setContentViewMode } = useContentViewMode();
+  const { isReadOnly, setIsReadOnly } = useIsReadOnly();
 
   return (
-    <>
-      {/* Should be always persistent in DOM */}
-      <ZipUploadInput ref={fileInputRef} />
+    <DropdownMenu>
+      <DropdownMenuTrigger render={trigger} />
+      <DropdownMenuContent className="w-max" align="end" sideOffset={2}>
+        <DropdownMenuGroup>
+          <div className="p-1 flex justify-between gap-4">
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Toggle
+                    aria-label="Toggle bookmark"
+                    variant="outline"
+                    size="lg"
+                    pressed={isReadOnly}
+                    onPressedChange={() => {
+                      setIsReadOnly(!isReadOnly);
+                    }}
+                  >
+                    {isReadOnly ? <PencilOffIcon /> : <PencilIcon />}
+                  </Toggle>
+                }
+              />
+              <TooltipContent side="bottom">
+                <span>Edit/Read only mode</span>
+                <Kbd>E</Kbd>
+              </TooltipContent>
+            </Tooltip>
 
-      <DropdownMenu modal={true}>
-        <DropdownMenuTrigger render={trigger} />
-        <DropdownMenuContent className="w-max" align="end" sideOffset={2}>
-          <DropdownMenuGroup>
-            {/* <DropdownMenuLabel>Main Menu</DropdownMenuLabel> */}
-
-            <DropdownMenuLabel className="max-w-40 flex items-center gap-2">
-              <Avatar size="sm">
-                <AvatarFallback>{username.length >= 2 ? username.slice(0, 2).toUpperCase() : "AA"}</AvatarFallback>
-              </Avatar>
-              {/* text-muted-foreground */}
-              <span className="text-sm truncate">{username}</span>
-            </DropdownMenuLabel>
-
-            <DropdownMenuSeparator />
-
-            <div className="p-1 flex justify-between gap-4">
+            <ToggleGroup
+              variant="outline"
+              size="lg"
+              spacing={0}
+              value={[contentViewMode]}
+              onValueChange={(values) => {
+                const value = values[0] as any;
+                if (!value) return;
+                if (value === "markdown") {
+                  setContentViewMode("markdown");
+                } else if (value === "livePreview") {
+                  setContentViewMode("livePreview");
+                } else if (value === "source") {
+                  setContentViewMode("source");
+                }
+              }}
+            >
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        toast.info(`Web Socket "${webSocketConnectionStatus}"`);
-                      }}
-                    >
-                      {/* {webSocketConnectionStatus === "connecting" && <CloudAlertIcon /> */}
-                      {webSocketConnectionStatus === "connecting" && <RefreshCwIcon className="animate-spin" />}
-                      {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
-                      {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
-                      {/* {webSocketConnectionStatus === "turned off" && <CloudCogIcon /> */}
-                    </Button>
+                    <ToggleGroupItem value="markdown" aria-label="Markdown">
+                      <FileImageIcon />
+                    </ToggleGroupItem>
                   }
                 />
-                <TooltipContent side="left">
-                  Web Socket <Kbd>{webSocketConnectionStatus}</Kbd>
+                <TooltipContent side="bottom">
+                  <span>Markdown view mode</span>
                 </TooltipContent>
               </Tooltip>
-
-              <ToggleGroup
-                variant="outline"
-                value={[theme as string]}
-                spacing={0}
-                onValueChange={(values) => {
-                  const value = values[0] as any;
-                  if (value) setTheme(value);
-                }}
-              >
-                <ToggleGroupItem value="system" aria-label="System" title="System">
-                  <SunMoonIcon />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="light" aria-label="Light" title="Light">
-                  <SunIcon />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="dark" aria-label="Darke" title="Dark">
-                  <MoonIcon />
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-
-            <DropdownMenuSeparator />
-
-            {/* <DropdownMenuItem
-              onClick={async () => {
-                await copyToClipboard(useStore.getState().roomToken as string);
-                // toast("Copied", { containerId: "toaster" });
-              }}
-            >
-              <UserRoundIcon />
-              <span>Copy Token</span>
-            </DropdownMenuItem> */}
-
-            <DropdownMenuItem
-              onClick={() => {
-                log.debug("isSettingsOpen", true);
-                useStore.setState({ isSettingsOpen: true });
-              }}
-            >
-              <BoltIcon />
-              <span>Settings</span>
-            </DropdownMenuItem>
-
-            {/* // TODO: Move to Settings */}
-            <DropdownMenuItem
-              onClick={async () => {
-                downloadExport();
-              }}
-            >
-              <HardDriveDownloadIcon />
-              <span>Download Backup</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = "";
-                  fileInputRef.current.click();
-                }
-              }}
-            >
-              <HardDriveUploadIcon />
-              <span>Import Backup</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() => {
-                lockScreen();
-              }}
-            >
-              <LockKeyholeIcon />
-              <span>Lock Screen</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={async () => {
-                await hardPWAReload();
-              }}
-            >
-              <CircleArrowUpIcon />
-              <span>Update</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() => {
-                toast.info(`${__APP_VERSION__}`);
-              }}
-            >
-              <CircleQuestionMarkIcon />
-              <span>Help</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ToggleGroupItem value="livePreview" aria-label="Live Preview">
+                      <FilePlayIcon />
+                    </ToggleGroupItem>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  <span>Live Preview mode</span>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ToggleGroupItem value="source" aria-label="Source">
+                      <FileCodeIcon />
+                    </ToggleGroupItem>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  <span>Source view mode</span>
+                </TooltipContent>
+              </Tooltip>
+            </ToggleGroup>
+          </div>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.currentTarget.classList.add("animate-spin");
-                reload();
-              }}
-            >
-              <RotateCwIcon />
-              <span>Refresh</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={async () => {
-                if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
-                  logout();
-                }
-              }}
-            >
-              <LogOutIcon />
-              <span>Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          <div
+            className="w-full p-2 text-xs font-normal [&_svg]:size-4 flex justify-between gap-2"
+            onClick={() => {
+              toast.info(`Web Socket "${webSocketConnectionStatus}"`);
+            }}
+          >
+            <span className="">WS status:</span>
+            <div className="flex gap-2">
+              {/* {webSocketConnectionStatus === "connecting" && <CloudAlertIcon /> */}
+              {webSocketConnectionStatus === "connecting" && <RefreshCwIcon className="animate-spin" />}
+              {webSocketConnectionStatus === "connected" && <CloudCheckIcon />}
+              {webSocketConnectionStatus === "disconnected" && <CloudAlertIcon />}
+              {/* {webSocketConnectionStatus === "turned off" && <CloudCogIcon /> */}
+              <span className="capitalize">{webSocketConnectionStatus}</span>
+            </div>
+          </div>
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          {/* <DropdownMenuLabel>Page</DropdownMenuLabel> */}
+
+          <DropdownMenuItem
+            onClick={() => {
+              useStore.setState({ isCommandPaletteOpen: true });
+            }}
+          >
+            <TerminalIcon />
+            <span>Command Palette</span>
+            <DropdownMenuShortcut>⌘+K</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              toast.info(`${__APP_VERSION__}`);
+            }}
+          >
+            <CircleQuestionMarkIcon />
+            <span>Help</span>
+          </DropdownMenuItem>
+
+          {/* END */}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

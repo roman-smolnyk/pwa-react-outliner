@@ -1,21 +1,15 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import log from "loglevel";
-import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
-import ResponsiveOptions from "../Common/ResponsiveOptions";
+import GlobalMenu from "../GlobalMenu/GlobalMenu";
 import Explorer from "./Explorer";
 import ExplorerHeader from "./ExplorerHeader";
 
 export default function ExplorerContainer() {
   log.debug("ExplorerContainer");
   const [explorerLength, setExplorerLength] = useState(Array.from(yjs.yexplorer.keys()).length);
-
-  const username = useStore((s) => s.username);
 
   useEffect(() => {
     function observer() {
@@ -37,25 +31,6 @@ export default function ExplorerContainer() {
       </EmptyHeader>
     </Empty>
   );
-
-  const Trigger = ({ ...props }) => (
-    <Button variant="outline" size="lg" className="py-7 w-full " {...props}>
-      <Avatar>
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-      <div className="flex-1 text-left text-sm leading-tight flex flex-col ">
-        <span className="truncate font-medium">{username}</span>
-        <span className="truncate text-xs text-muted-foreground">Account</span>
-      </div>
-      <ChevronsUpDownIcon className="ml-auto" />
-    </Button>
-  );
-
-  const menuItems = [
-    { label: "Profile", icon: UserIcon, onClick: () => console.log("Profile") },
-    { label: "Settings", icon: SettingsIcon, onClick: () => console.log("Settings") },
-    { label: "Log out", icon: LogOutIcon, onClick: () => console.log("Logout") },
-  ];
 
   return (
     <div className="ExplorerContainer h-dvh overflow-hidden flex flex-col">
@@ -84,7 +59,7 @@ export default function ExplorerContainer() {
         </Tabs>
 
         <div className="p-2">
-          <ResponsiveOptions Trigger={Trigger} menuItems={menuItems} />
+          <GlobalMenu />
         </div>
       </div>
 

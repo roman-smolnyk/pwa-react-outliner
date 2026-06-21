@@ -1,7 +1,7 @@
 import log from "loglevel";
 import { memo } from "react";
 import { useContentViewMode } from "../../contexts/PlainTextViewContext";
-import { useReadOnly } from "../../contexts/ReadOnlyContext";
+import { useIsReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";
 import CM6Editor from "../Editor/CM6Editor";
@@ -11,7 +11,7 @@ import PlainTextContent from "./PlainTextContent";
 const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit }: { id: string; content: string; isEdit: boolean }) {
   // log.debug("BlockContentInner");
 
-  const { readOnly } = useReadOnly();
+  const { isReadOnly: readOnly } = useIsReadOnly();
   const { contentViewMode } = useContentViewMode();
   // const isTouchscreen = useMediaQuery('(pointer: coarse)');
 
