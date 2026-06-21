@@ -21,7 +21,7 @@ export default function ToolButton({
     <Tooltip>
       <TooltipTrigger
         render={
-          <Button variant="bare" size="tool" className={cn("Tool", className)} onClick={onClick}>
+          <Button variant="bare" size="tool" className={cn("ToolButton", className)} onClick={onClick}>
             {icon}
           </Button>
         }

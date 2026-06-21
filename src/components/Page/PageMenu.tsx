@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { toggleCheckboxSelection } from "@/api/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import {
   FileCodeIcon,
   FileImageIcon,
   FilePlayIcon,
+  ListChecksIcon,
   PencilIcon,
   PencilOffIcon,
   RefreshCwIcon,
@@ -31,8 +32,9 @@ import useStore from "../../store/useStore";
 
 declare const __APP_VERSION__: string;
 
-export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
+export default function PageMenu({ trigger }: { trigger: React.ReactElement }) {
   const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
+  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   const { contentViewMode, setContentViewMode } = useContentViewMode();
   const { isReadOnly, setIsReadOnly } = useIsReadOnly();
@@ -94,6 +96,7 @@ export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
                   <span>Markdown view mode</span>
                 </TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -106,6 +109,7 @@ export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
                   <span>Live Preview mode</span>
                 </TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -147,6 +151,16 @@ export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
           {/* <DropdownMenuLabel>Page</DropdownMenuLabel> */}
 
           <DropdownMenuItem
+            className={`${isChekboxSelectionActive ? "bg-muted border border-border" : ""}`}
+            onClick={() => {
+              toggleCheckboxSelection();
+            }}
+          >
+            {<ListChecksIcon />}
+            <span>Select multiple</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
             onClick={() => {
               useStore.setState({ isCommandPaletteOpen: true });
             }}
@@ -155,6 +169,7 @@ export default function MainMenu({ trigger }: { trigger: React.ReactElement }) {
             <span>Command Palette</span>
             <DropdownMenuShortcut>⌘+K</DropdownMenuShortcut>
           </DropdownMenuItem>
+
           <DropdownMenuItem
             onClick={() => {
               toast.info(`${__APP_VERSION__}`);

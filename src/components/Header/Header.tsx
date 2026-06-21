@@ -1,23 +1,19 @@
 import log from "loglevel";
-import { FileCodeIcon, FileImageIcon, FilePlayIcon, ListChecksIcon, ListIcon, MenuIcon, PanelLeftIcon, SearchIcon, TerminalIcon } from "lucide-react";
-import { handleExplorerOpen, toggleCheckboxSelection, togglePageSearch } from "../../api/api";
-import { useContentViewMode } from "../../contexts/PlainTextViewContext";
+import { MenuIcon, PanelLeftIcon, SearchIcon } from "lucide-react";
+import { handleExplorerOpen, togglePageSearch } from "../../api/api";
 import useStore from "../../store/useStore";
 import ToolButton from "../Common/ToolButton";
-import MainMenu from "../MainMenu/MainMenu";
+import PageMenu from "../Page/PageMenu";
 
 export default function Header() {
   log.debug("Header");
-  const { contentViewMode, setContentViewMode } = useContentViewMode();
-
   const isExplorerOpen = useStore((s) => s.isExplorerOpen);
-  const isChekboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-10 px-2 z-10
-      bg-sidebar text-sidebar-foreground 
-      flex"
+      className="Header fixed top-0 right-0 min-w-0 min-h-10 z-10
+      text-sidebar-foreground bg-transparent
+      pointer-events-none flex"
       style={{
         left: "var(--explorer-width)",
         // boxShadow: "0px 1px 5px 0px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8))",
@@ -28,7 +24,7 @@ export default function Header() {
       {/* Left icons */}
 
       <div className="flex-1 flex items-center justify-center min-w-0">
-        <div className="flex">
+        <div className="pl-2 rounded-r-lg bg-sidebar pointer-events-auto flex">
           {!isExplorerOpen && (
             <ToolButton
               tooltip="Open Sidebar"
@@ -44,17 +40,7 @@ export default function Header() {
         <div className="flex-1 min-w-0 overflow-x-auto overscroll-contain flex">
           <div className="Spacer flex-1 min-w-4" />
 
-          <div className="RightIcons flex">
-            <ToolButton
-              tooltip="Toggle checkboxes selection"
-              icon={isChekboxSelectionActive ? <ListIcon /> : <ListChecksIcon />}
-              onClick={() => {
-                toggleCheckboxSelection();
-              }}
-            />
-
-
-
+          <div className="RightIcons pr-2 rounded-l-lg bg-sidebar pointer-events-auto  flex">
             <ToolButton
               tooltip="Search in page"
               icon={<SearchIcon />}
@@ -64,7 +50,7 @@ export default function Header() {
               }}
             />
 
-            <MainMenu trigger={<ToolButton tooltip="Open Main Menu" icon={<MenuIcon />} />} />
+            <PageMenu trigger={<ToolButton tooltip="Open Page Menu" icon={<MenuIcon />} />} />
           </div>
         </div>
 
