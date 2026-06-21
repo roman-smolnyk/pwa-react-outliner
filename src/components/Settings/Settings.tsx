@@ -1,18 +1,17 @@
 import { copyToClipboard, debouncedSetWebSocketServer, handleUsernameUpdate, refreshToken, setWebSocketServer } from "@/api/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useConfirm } from "@/hooks/useConfirm";
 import { THEMES, useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import localPreferencesManager from "@/store/preferences";
 import useStore from "@/store/useStore";
-import { EyeIcon, EyeOffIcon, PencilIcon } from "lucide-react";
+import { ChevronLeftIcon, EyeIcon, EyeOffIcon, PencilIcon } from "lucide-react";
 import { forwardRef, useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { WS_SERVER_URL } from "../../../config";
@@ -40,14 +39,29 @@ const PasswordInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInput
         className="absolute right-0 top-0 h-full px-3 py-2"
         onClick={() => setShowPassword((prev) => !prev)}
       >
-        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+        {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
         <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
       </Button>
     </div>
   );
 });
+PasswordInput.displayName = "PasswordInput";
 
-const SectionTitle = ({ children }: { children: React.ReactNode }) => <h5 className="text-muted-foreground">{children}</h5>;
+function SettingsSection({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  return (
+    <Collapsible defaultOpen={defaultOpen}>
+      <CollapsibleTrigger
+        render={
+          <Button variant="ghost" size="lg" className="w-full bg-muted">
+            <span className="text-base font-semibold tracking-wide">{title}</span>
+            <ChevronLeftIcon className="ml-auto group-data-panel-open/button:-rotate-90" />
+          </Button>
+        }
+      />
+      <CollapsibleContent className="py-4 pl-4 pr-2 flex flex-col gap-4">{children}</CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 export default function Settings() {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -86,133 +100,132 @@ export default function Settings() {
         useStore.setState({ isSettingsOpen: open });
       }}
     >
-      <div className="Settings pr-4 pb-7 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-4">
-        <ItemGroup>
-          <SectionTitle>Account</SectionTitle>
-          <Separator />
-
-          <div className="flex flex-col gap-4">
-            {/* <Label htmlFor="username">Username</Label> */}
-            <div className="flex items-center">
-              <Avatar className="mr-4">
-                <AvatarFallback>{username.length >= 2 ? username.slice(0, 2).toUpperCase() : "AA"}</AvatarFallback>
-              </Avatar>
-              {isUsernameEdit ? (
-                <Input
-                  id="username"
-                  className="max-w-3xs"
-                  ref={usernameRef}
-                  value={username}
-                  onChange={(e) => {
-                    handleUsernameUpdate(e.target.value);
-                  }}
-                  onBlur={() => {
+      <div className="Settings flex-1 pr-4 pb-7 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-3">
+        <SettingsSection title="Account">
+          <div className="flex items-center gap-2">
+            <Avatar size="lg" className="">
+              <AvatarFallback>{username.length >= 2 ? username.slice(0, 2).toUpperCase() : "AA"}</AvatarFallback>
+            </Avatar>
+            {isUsernameEdit ? (
+              <Input
+                id="username"
+                className="max-w-3xs font-semibold"
+                ref={usernameRef}
+                value={username}
+                onChange={(e) => {
+                  handleUsernameUpdate(e.target.value);
+                }}
+                onBlur={() => {
+                  setIsUsernameEdit(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
                     setIsUsernameEdit(false);
-                  }}
-                />
-              ) : (
-                <h4>{username}</h4>
-              )}
+                  }
+                }}
+              />
+            ) : (
+              <div className="ml-2 font-semibold">{username}</div>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setIsUsernameEdit(true);
+                requestAnimationFrame(() => {
+                  usernameRef.current?.focus();
+                });
+              }}
+              aria-label="Edit username"
+            >
+              <PencilIcon />
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="token" className="text-muted-foreground">
+              Access Token
+            </Label>
+            <div className="flex items-center gap-2">
+              <PasswordInput id="token" className="text-xs" value={roomToken} disabled />
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setIsUsernameEdit(true);
-                  requestAnimationFrame(() => {
-                    usernameRef.current?.focus();
-                  });
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await copyToClipboard(useStore.getState().roomToken as string);
                 }}
               >
-                <PencilIcon />
+                Copy
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const isConfirmed = await confirm(
+                    "Refresh account token?",
+                    "You will need to log in again on your other devices. App will be reloaded.",
+                  );
+                  if (isConfirmed) {
+                    refreshToken();
+                  }
+                }}
+              >
+                Refresh
               </Button>
             </div>
           </div>
+        </SettingsSection>
 
-          <div className="mb-4 flex flex-col gap-4">
-            <Label htmlFor="token">Access Token</Label>
-            <div className="flex justify-between gap-4">
-              <PasswordInput id="token" value={roomToken} disabled />
-              <div className="flex gap-2">
-                <Button
-                  variant="secondary"
-                  onClick={async () => {
-                    await copyToClipboard(useStore.getState().roomToken as string);
-                  }}
-                >
-                  Copy
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={async () => {
-                    const isConfirmed = await confirm(
-                      "Refresh account token?",
-                      "You will need to log in again on your other devices. App will be reloaded.",
-                    );
-                    if (isConfirmed) {
-                      refreshToken();
-                    }
-                  }}
-                >
-                  Refresh
-                </Button>
-              </div>
-            </div>
+        <SettingsSection title="Appearance">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="theme-select" className="text-muted-foreground">
+              Theme
+            </Label>
+            <Select
+              value={theme}
+              items={THEMES}
+              onValueChange={(value) => {
+                if (value) setTheme(value);
+              }}
+            >
+              <SelectTrigger id="theme-select" className="w-full max-w-xs">
+                <SelectValue placeholder="Select theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Themes</SelectLabel>
+                  {THEMES.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-        </ItemGroup>
+        </SettingsSection>
 
-        <ItemGroup>
-          <SectionTitle>Appearance</SectionTitle>
-          <Separator />
-          <Item className="p-0">
-            <ItemContent>
-              <ItemTitle>Theme</ItemTitle>
-            </ItemContent>
-            <ItemActions>
-              <Select
-                value={theme}
-                items={THEMES}
-                onValueChange={(value) => {
-                  if (value) setTheme(value);
-                }}
-              >
-                <SelectTrigger id="theme-select" className="w-full max-w-xs">
-                  <SelectValue placeholder="Select theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Themes</SelectLabel>
-                    {THEMES.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </ItemActions>
-          </Item>
-        </ItemGroup>
+        <SettingsSection title="Synchronization">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="synchronization" className="text-base cursor-pointer">
+                Enable Sync
+              </Label>
+              <div className="text-sm text-muted-foreground">Synchronize data between devices</div>
+            </div>
+            <Switch
+              className="cursor-pointer"
+              id="synchronization"
+              checked={isWebSocketServerOn}
+              onCheckedChange={(checked) => setWebSocketServer({ isWebSocketServerOn: checked })}
+            />
+          </div>
 
-        <ItemGroup>
-          <SectionTitle>Synchronization</SectionTitle>
-          <Separator />
-          <Item className="p-0">
-            <ItemContent>
-              <ItemTitle>Enable Sync</ItemTitle>
-              <ItemDescription>Synchronize data between devices</ItemDescription>
-            </ItemContent>
-            <ItemActions>
-              <Switch
-                id="synchronization"
-                checked={isWebSocketServerOn}
-                onCheckedChange={(checked) => setWebSocketServer({ isWebSocketServerOn: checked })}
-              />
-            </ItemActions>
-          </Item>
-
-          <div className="mb-4 flex flex-col gap-4">
-            <Label htmlFor="ws-url">Web Socket URL</Label>
-            <div className="flex justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ws-url" className="text-muted-foreground">
+              Web Socket URL
+            </Label>
+            <div className="flex items-center gap-2">
               <Input
                 id="ws-url"
                 value={webSocketServerUrl}
@@ -221,21 +234,21 @@ export default function Settings() {
                   debouncedSetWebSocketServer({ webSocketServerUrl: e.target.value });
                 }}
               />
-              <Button variant="secondary" onClick={() => setWebSocketServer({ webSocketServerUrl: WS_SERVER_URL })}>
+              <Button variant="outline" size="sm" onClick={() => setWebSocketServer({ webSocketServerUrl: WS_SERVER_URL })}>
                 Reset
               </Button>
             </div>
           </div>
-        </ItemGroup>
+        </SettingsSection>
 
-        <ItemGroup>
-          <SectionTitle>Lock Screen</SectionTitle>
-          <Separator />
-          <div className="flex flex-col gap-4">
-            <Label htmlFor="lock-screen-pin">PIN</Label>
+        <SettingsSection title="Lock Screen">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="lock-screen-pin" className="text-muted-foreground">
+              PIN
+            </Label>
             <Input
               id="lock-screen-pin"
-              className="max-w-xs"
+              className="max-w-xs tracking-widest"
               value={lockScreenPin}
               onChange={async (e) => {
                 const value = e.target.value.replace(/[^0-9]/g, "");
@@ -250,19 +263,20 @@ export default function Settings() {
             />
           </div>
 
-          <div className="flex flex-col gap-4">
-            <Label htmlFor="lock-screen-timeout">Auto-Lock Duration</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="auto-lock-timeout" className="text-muted-foreground">
+              Auto-Lock Timeout
+            </Label>
             <Select
               value={autoLockTimeout}
               items={autoLockOptions}
               onValueChange={async (value) => {
                 if (value === null) return;
-                console.debug(typeof value);
                 useStore.setState({ autoLockTimeout: value });
                 await localPreferencesManager.set("autoLockTimeout", value);
               }}
             >
-              <SelectTrigger id="lock-screen-timeout" className="w-full max-w-xs">
+              <SelectTrigger id="auto-lock-timeout" className="w-full max-w-xs">
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent>
@@ -277,7 +291,7 @@ export default function Settings() {
               </SelectContent>
             </Select>
           </div>
-        </ItemGroup>
+        </SettingsSection>
       </div>
     </ResponsiveModal>
   );

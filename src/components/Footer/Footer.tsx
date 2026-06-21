@@ -52,7 +52,7 @@ export default function Footer() {
   return (
     <div
       className="Footer fixed bottom-0 right-0 min-w-0 min-h-12 px-2 z-10
-                bg-sidebar text-sidebar-foreground border-t border-border
+                bg-sidebar text-sidebar-foreground
                 flex
                 "
       style={{

@@ -14,7 +14,7 @@ export default function ExplorerHeader() {
   return (
     <div
       className="ExplorerHeader min-w-0 min-h-10 px-2
-                bg-sidebar text-sidebar-foreground border-b border-border
+                bg-sidebar text-sidebar-foreground 
                 flex"
       style={{
         width: `${isExplorerOpen ? "var(--sidebar-width)" : "0px"}`,

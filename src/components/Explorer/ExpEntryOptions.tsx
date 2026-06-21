@@ -69,9 +69,8 @@ function Mobile({
       </DrawerTrigger>
       <DrawerContent>
         {/* Accessibility header */}
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Drawer Title</DrawerTitle>
-          <DrawerDescription>Drawer Description</DrawerDescription>
+        <DrawerHeader>
+          <DrawerTitle>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DrawerTitle>
         </DrawerHeader>
 
         <div className="p-2 flex flex-col gap-2">
@@ -111,7 +110,7 @@ function Mobile({
               <Collapsible>
                 <CollapsibleTrigger
                   render={
-                    <Button variant="menuitem" size="lg">
+                    <Button variant="ghost" size="lg" className="w-full">
                       <ArrowDownNarrowWideIcon />
                       <span>Sort</span>
                       <ChevronDownIcon className="ml-auto group-data-panel-open/button:rotate-180" />
@@ -158,7 +157,6 @@ function Mobile({
                 </Button>
               </DrawerClose>
 
-              {/* Export */}
               <DrawerClose asChild>
                 <Button variant="menuitem" size="lg">
                   <UploadIcon />
