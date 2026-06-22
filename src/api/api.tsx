@@ -515,7 +515,6 @@ export function handleBookmarkRemove(id: string) {
   const ybookmarks = getBookmarks(yjs.ydoc);
 
   const index = ybookmarks.toArray().indexOf(id);
-
   if (index !== -1) {
     ybookmarks.delete(index, 1);
   }

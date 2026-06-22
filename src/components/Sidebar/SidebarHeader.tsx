@@ -7,13 +7,13 @@ import yjs from "../../store/yjsManager";
 import ToolButton from "../Common/ToolButton";
 import GlobalSearch from "../GlobalSearch/GlobalSearch";
 
-export default function ExplorerHeader() {
+export default function SidebarHeader() {
   const isExplorerOpen = useStore((s) => s.isExplorerOpen);
   const isGlobalSearchOpen = useStore((s) => s.isGlobalSearchOpen);
 
   return (
     <div
-      className="ExplorerHeader min-w-0 min-h-10
+      className="SidebarHeader min-w-0 min-h-10
                 bg-sidebar text-sidebar-foreground 
                 flex"
       style={{

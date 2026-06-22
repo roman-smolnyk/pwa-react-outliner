@@ -8,7 +8,7 @@ import { handleExplorerClose } from "../../api/api";
 import onStartUp from "../../onStartUp";
 import useStore from "../../store/useStore";
 import CommandPalette from "../CommandPalette/CommandPalette";
-import ExplorerContainer from "../Explorer/ExplorerContainer";
+import Sidebar from "../Sidebar/Sidebar";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import { MoveTo } from "../MoveTo/MoveTo";
@@ -63,7 +63,7 @@ export default function Main() {
         <div className="h-dvh flex flex-col">
           <Sheet open={isExplorerOpen} onOpenChange={handleExplorerClose}>
             <SheetContent side="left" showCloseButton={false} className="data-[side=left]:w-6/7 text-base">
-              <ExplorerContainer />
+              <Sidebar />
             </SheetContent>
           </Sheet>
 
@@ -89,7 +89,7 @@ export default function Main() {
               document.documentElement.style.setProperty("--explorer-width", `${size.inPixels}px`);
             }}
           >
-            <ExplorerContainer />
+            <Sidebar />
           </Panel>
           <Separator
             className="relative w-2 group cursor-col-resize z-20

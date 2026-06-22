@@ -11,7 +11,7 @@ import yjs from "../../store/yjsManager.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuide from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
-import { Title, TitleRename } from "./Title.tsx";
+import { ExpEntryTitle, ExpEntryTitleRename } from "./ExpEntryTitle.tsx";
 
 function HandleButton({
   id,
@@ -119,10 +119,10 @@ const ExpEntryInner = memo(
 
               <div className="flex-1 min-w-0 flex">
                 {isRename ? (
-                  <TitleRename id={id} title={title} setIsRename={setIsRename} />
+                  <ExpEntryTitleRename id={id} title={title} setIsRename={setIsRename} />
                 ) : (
                   <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
-                    <Title title={title} />
+                    <ExpEntryTitle title={title} />
                   </div>
                 )}
               </div>

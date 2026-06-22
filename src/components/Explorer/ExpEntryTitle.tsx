@@ -3,11 +3,11 @@ import { getItem } from "esm-treero-api";
 import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
 
-export function Title({ title }: { title: string }) {
-  return <div className="Title w-full py-1 select-none truncate">{title}</div>;
+export function ExpEntryTitle({ title }: { title: string }) {
+  return <div className="ExpEntryTitle w-full py-1 select-none truncate">{title}</div>;
 }
 
-export function TitleRename({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
+export function ExpEntryTitleRename({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(title);
 
@@ -31,7 +31,7 @@ export function TitleRename({ id, title, setIsRename }: { id: string; title: str
 
   return (
     <Input
-      className="TitleRename"
+      className="ExpEntryTitleRename"
       placeholder="Title..."
       ref={ref}
       value={value}

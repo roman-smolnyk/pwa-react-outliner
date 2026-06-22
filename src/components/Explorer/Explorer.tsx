@@ -1,3 +1,4 @@
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import useActiveYPage from "@/hooks/useActiveYPage.tsx";
 import useBookmarks from "@/hooks/useBookmarks.tsx";
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
@@ -13,6 +14,17 @@ import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.ts";
 import ExpEntry from "./ExpEntry.tsx";
+
+function EmptyExplorer() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>No Documents</EmptyTitle>
+        <EmptyDescription>Create new or sync</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
 
 export default function Explorer({ rootId }: { rootId: string }) {
   log.debug("Explorer");
@@ -95,6 +107,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
         // autoScroll={false}
       >
         <SortableContext items={flatItemIds} strategy={verticalListSortingStrategy}>
+          {flatItems.length === 0 && <EmptyExplorer />}
           {flatItems.map((item) => {
             return (
               <ExpEntry
