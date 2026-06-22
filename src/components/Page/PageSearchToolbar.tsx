@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import debounce from "lodash/debounce";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import Mark from "mark.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollIntoView } from "../../utils/utilities";
-import { Input } from "@/components/ui/input";
 import FloatingToolbar from "../Common/FloatingToolbar";
 
 export default function PageSearchToolbar() {
@@ -95,7 +94,7 @@ export default function PageSearchToolbar() {
           if (newIndex < 1) newIndex = totalMatches;
 
           const element = markElements[newIndex - 1];
-          const container = document.querySelector(".PageContainer");
+          const container = document.querySelector(".PageContainer-scroll");
           if (element && container) {
             scrollIntoView(element as HTMLElement, container as HTMLElement);
           }
@@ -118,7 +117,7 @@ export default function PageSearchToolbar() {
           if (newIndex > totalMatches) newIndex = 1;
 
           const element = markElements[newIndex - 1];
-          const container = document.querySelector(".PageContainer");
+          const container = document.querySelector(".PageContainer-scroll");
           if (element && container) {
             scrollIntoView(element as HTMLElement, container as HTMLElement);
           }

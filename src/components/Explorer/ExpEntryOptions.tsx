@@ -31,7 +31,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 import React from "react";
-import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete } from "../../api/api";
+import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete, handleSortCollectionChildren } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
@@ -120,13 +120,13 @@ function Mobile({
                 />
                 <CollapsibleContent className="pl-6 flex flex-col gap-2">
                   <DrawerClose asChild>
-                    <Button variant="menuitem" size="lg">
+                    <Button variant="menuitem" size="lg" onClick={() => handleSortCollectionChildren(id)}>
                       <ArrowDownAZIcon />
                       <span>Ascending</span>
                     </Button>
                   </DrawerClose>
                   <DrawerClose asChild>
-                    <Button variant="menuitem" size="lg">
+                    <Button variant="menuitem" size="lg" onClick={() => handleSortCollectionChildren(id, { descending: true })}>
                       <ArrowDownZAIcon />
                       <span>Descending</span>
                     </Button>
@@ -224,11 +224,11 @@ function Desktop({
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSortCollectionChildren(id)}>
                     <ArrowDownAZIcon />
                     <span>Ascending</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSortCollectionChildren(id, { descending: true })}>
                     <ArrowDownZAIcon />
                     <span>Descending</span>
                   </DropdownMenuItem>

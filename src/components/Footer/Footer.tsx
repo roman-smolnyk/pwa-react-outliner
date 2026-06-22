@@ -11,6 +11,7 @@ import {
   CalendarDaysIcon,
   Code2Icon,
   DiamondPlusIcon,
+  FormIcon,
   HeadingIcon,
   HighlighterIcon,
   ItalicIcon,
@@ -298,6 +299,12 @@ export default function Footer() {
           tooltip="Insert calendar event"
           icon={<CalendarDaysIcon className="text-warning" />}
           onClick={() => console.warn("Calendar action not implemented yet.")}
+        />
+
+        <ToolButton
+          tooltip="Insert Template"
+          icon={<FormIcon className="text-warning" />}
+          onClick={() => console.warn("Templates action not implemented yet.")}
         />
       </div>
     </div>

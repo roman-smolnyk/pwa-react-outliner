@@ -34,7 +34,7 @@ import {
   ZoomInIcon,
 } from "lucide-react";
 import React from "react";
-import { copyToClipboard, handleBlockDelete, handleBlockOpen } from "../../api/api";
+import { copyToClipboard, handleBlockDelete, handleBlockOpen, handleSetAsInbox, handleSortBlockChildren } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
@@ -113,13 +113,13 @@ function Mobile({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Com
             />
             <CollapsibleContent className="pl-6 flex flex-col gap-2">
               <DrawerClose asChild>
-                <Button variant="menuitem" size="lg">
+                <Button variant="menuitem" size="lg" onClick={() => handleSortBlockChildren(id)}>
                   <ArrowDownAZIcon />
                   <span>Ascending</span>
                 </Button>
               </DrawerClose>
               <DrawerClose asChild>
-                <Button variant="menuitem" size="lg">
+                <Button variant="menuitem" size="lg" onClick={() => handleSortBlockChildren(id, { descending: true })}>
                   <ArrowDownZAIcon />
                   <span>Descending</span>
                 </Button>
@@ -128,7 +128,7 @@ function Mobile({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Com
           </Collapsible>
 
           <DrawerClose asChild>
-            <Button variant="menuitem" size="lg">
+            <Button variant="menuitem" size="lg" onClick={() => handleSetAsInbox(id)}>
               <InboxIcon />
               <span>Set as Inbox</span>
             </Button>
@@ -210,11 +210,11 @@ function Desktop({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Co
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSortBlockChildren(id)}>
                   <ArrowDownAZIcon />
                   <span>Ascending</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSortBlockChildren(id, { descending: true })}>
                   <ArrowDownZAIcon />
                   <span>Descending</span>
                 </DropdownMenuItem>
@@ -222,12 +222,12 @@ function Desktop({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Co
             </DropdownMenuPortal>
           </DropdownMenuSub>
 
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleSetAsInbox(id)}>
             <InboxIcon />
             <span>Set as Inbox</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem>
+          <DropdownMenuItem className="text-warning">
             <UploadIcon />
             <span>Export</span>
           </DropdownMenuItem>

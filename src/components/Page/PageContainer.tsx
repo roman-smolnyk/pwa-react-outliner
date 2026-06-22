@@ -30,17 +30,14 @@ export default function PageContainer() {
 
   const parentId = yblock.get("parent_id");
 
-  // @container
-  // @[800]:
-  // @sm:
   return (
     <div className="PageContainer h-dvh flex flex-col">
       {/* <div className="Spacer min-h-10"></div> */}
       <div
-        className="flex-1 relative z-0 min-w-xs min-h-0 
+        className="PageContainer-scroll flex-1 relative z-0 min-w-xs min-h-0 
                 flex flex-col overflow-y-auto overscroll-contain"
       >
-        <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4 mx-auto ${addSpace ? "pt-17" : "pt-12"}`}>
+        <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4 mx-auto ${addSpace ? "pt-30" : "pt-20"}`}>
           {parentId && <BlockPath id={rootBlockId} />}
           <Page rootId={rootBlockId} />
           <div className="Spacer h-[50dvh]"></div>

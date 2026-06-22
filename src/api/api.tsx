@@ -7,6 +7,8 @@ import {
   deleteBlock,
   deleteCollection,
   deletePage,
+  getBlock,
+  getCollection,
   getItem,
   getItemDescendantIds,
   getItemParent,
@@ -421,4 +423,77 @@ export async function handleExplorerToggle() {
 export function handleUsernameUpdate(username: string) {
   yjs.yaccount.set("username", username);
   useStore.setState({ username: username ?? "Username" });
+}
+
+export function handleSetAsInbox(id: string) {
+  const yblock = getBlock(yjs.ydoc, id);
+  yjs.yaccount.set("inbox_id", yblock.get("id"));
+}
+
+export function handleSortBlockChildren(id: string, options: { descending?: boolean; caseSensitive?: boolean } = {}): void {
+  const yblock = getBlock(yjs.ydoc, id);
+  const ychildren = yblock.get("children");
+
+  if (!ychildren || ychildren.length <= 1) return;
+
+  const childItems = ychildren.toArray().map((childId: string) => {
+    const childBlock = getBlock(yjs.ydoc, childId);
+    const content = childBlock.get("content").toString();
+    return { id: childId, content };
+  });
+
+  childItems.sort((a, b) => {
+    let strA = a.content;
+    let strB = b.content;
+
+    if (options.caseSensitive === false) {
+      strA = strA.toLowerCase();
+      strB = strB.toLowerCase();
+    }
+
+    const comparison = strA.localeCompare(strB, undefined, { numeric: true, sensitivity: "base" });
+    return options.descending ? -comparison : comparison;
+  });
+
+  yjs.ydoc.transact(() => {
+    // Clear out the current array order
+    ychildren.delete(0, ychildren.length);
+    // Re-insert the items in their newly sorted order
+    const sortedIds = childItems.map((item) => item.id);
+    ychildren.insert(0, sortedIds);
+  });
+}
+
+export function handleSortCollectionChildren(id: string, options: { descending?: boolean; caseSensitive?: boolean } = {}): void {
+  const ycollection = getCollection(yjs.ydoc, id);
+  const ychildren = ycollection.get("children");
+
+  if (!ychildren || ychildren.length <= 1) return;
+
+  const childItems = ychildren.toArray().map((childId: string) => {
+    const childEntry = getItem(yjs.yexplorer, childId);
+    const title = childEntry.get("title");
+    return { id: childId, title };
+  });
+
+  childItems.sort((a, b) => {
+    let titleA = a.title;
+    let titleB = b.title;
+
+    if (options.caseSensitive === false) {
+      titleA = titleA.toLowerCase();
+      titleB = titleB.toLowerCase();
+    }
+
+    const comparison = titleA.localeCompare(titleB, undefined, { numeric: true, sensitivity: "base" });
+    return options.descending ? -comparison : comparison;
+  });
+
+  yjs.ydoc.transact(() => {
+    // Clear the current children list
+    ychildren.delete(0, ychildren.length);
+    // Insert them back in alphabetical/natural order
+    const sortedIds = childItems.map((item) => item.id);
+    ychildren.insert(0, sortedIds);
+  });
 }
