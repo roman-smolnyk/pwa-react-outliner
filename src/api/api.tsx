@@ -8,11 +8,13 @@ import {
   deleteCollection,
   deletePage,
   getBlock,
+  getBookmarks,
   getCollection,
   getItem,
   getItemDescendantIds,
   getItemParent,
   getItemSibling,
+  getPage,
   isRootItem,
   moveItem,
   moveItemAfter,
@@ -496,4 +498,25 @@ export function handleSortCollectionChildren(id: string, options: { descending?:
     const sortedIds = childItems.map((item) => item.id);
     ychildren.insert(0, sortedIds);
   });
+}
+
+export function isBookmarked(id: string) {
+  const ybookmarks = getBookmarks(yjs.ydoc);
+  return ybookmarks.toArray().includes(id);
+}
+
+export function handleBookmarkAdd(id: string) {
+  const ypage = getPage(yjs.ydoc, id);
+  const ybookmarks = getBookmarks(yjs.ydoc);
+  ybookmarks.insert(ybookmarks.length, [ypage.get("id")]);
+}
+
+export function handleBookmarkRemove(id: string) {
+  const ybookmarks = getBookmarks(yjs.ydoc);
+
+  const index = ybookmarks.toArray().indexOf(id);
+
+  if (index !== -1) {
+    ybookmarks.delete(index, 1);
+  }
 }

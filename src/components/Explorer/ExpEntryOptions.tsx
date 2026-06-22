@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,8 @@ import {
   ArrowDownAZIcon,
   ArrowDownNarrowWideIcon,
   ArrowDownZAIcon,
+  BookmarkIcon,
+  BookmarkOffIcon,
   ChevronDownIcon,
   EllipsisVerticalIcon,
   FilePlusIcon,
@@ -31,7 +33,15 @@ import {
   UploadIcon,
 } from "lucide-react";
 import React from "react";
-import { handleCollectionAdd, handleCollectionDelete, handlePageAdd, handlePageDelete, handleSortCollectionChildren } from "../../api/api";
+import {
+  handleBookmarkAdd,
+  handleBookmarkRemove,
+  handleCollectionAdd,
+  handleCollectionDelete,
+  handlePageAdd,
+  handlePageDelete,
+  handleSortCollectionChildren,
+} from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
 
@@ -55,11 +65,13 @@ function Mobile({
   Trigger,
   id,
   type,
+  isBookmarked,
   setIsRename,
 }: {
   Trigger: React.ComponentType<any>;
   id: string;
   type: number;
+  isBookmarked: boolean;
   setIsRename: (v: boolean) => void;
 }) {
   return (
@@ -146,6 +158,23 @@ function Mobile({
               </DrawerClose>
 
               <DrawerClose asChild>
+                <Button
+                  variant="menuitem"
+                  size="lg"
+                  onClick={() => {
+                    if (isBookmarked) {
+                      handleBookmarkRemove(id);
+                    } else {
+                      handleBookmarkAdd(id);
+                    }
+                  }}
+                >
+                  {isBookmarked ? <BookmarkOffIcon /> : <BookmarkIcon />}
+                  {isBookmarked ? <span>Unbookmark</span> : <span>Bookmark</span>}
+                </Button>
+              </DrawerClose>
+
+              <DrawerClose asChild>
                 <Button variant="menuitem" size="lg">
                   <UploadIcon />
                   <span>Export</span>
@@ -172,11 +201,13 @@ function Desktop({
   Trigger,
   id,
   type,
+  isBookmarked,
   setIsRename,
 }: {
   Trigger: React.ComponentType<any>;
   id: string;
   type: number;
+  isBookmarked: boolean;
   setIsRename: (v: boolean) => void;
 }) {
   return (
@@ -213,43 +244,54 @@ function Desktop({
                 <FolderPlusIcon />
                 <span>New Folder</span>
               </DropdownMenuItem>
+
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <ArrowDownNarrowWideIcon />
+                  <span>Sort</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => handleSortCollectionChildren(id)}>
+                      <ArrowDownAZIcon />
+                      <span>Ascending</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleSortCollectionChildren(id, { descending: true })}>
+                      <ArrowDownZAIcon />
+                      <span>Descending</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem></DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </>
           )}
 
-          {type === COLLECTION_TYPE && (
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <ArrowDownNarrowWideIcon />
-                <span>Sort</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handleSortCollectionChildren(id)}>
-                    <ArrowDownAZIcon />
-                    <span>Ascending</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortCollectionChildren(id, { descending: true })}>
-                    <ArrowDownZAIcon />
-                    <span>Descending</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem></DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-          )}
-
           {type === PAGE_TYPE && (
-            <DropdownMenuItem onClick={() => handleMoveTo(id)}>
-              <ForwardIcon />
-              <span>Move to</span>
-            </DropdownMenuItem>
-          )}
+            <>
+              <DropdownMenuItem onClick={() => handleMoveTo(id)}>
+                <ForwardIcon />
+                <span>Move to</span>
+              </DropdownMenuItem>
 
-          {type === PAGE_TYPE && (
-            <DropdownMenuItem>
-              <UploadIcon />
-              <span>Export</span>
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  if (isBookmarked) {
+                    handleBookmarkRemove(id);
+                  } else {
+                    handleBookmarkAdd(id);
+                  }
+                }}
+              >
+                {isBookmarked ? <BookmarkOffIcon /> : <BookmarkIcon />}
+                {isBookmarked ? <span>Unbookmark</span> : <span>Bookmark</span>}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <UploadIcon />
+                <span>Export</span>
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuGroup>
 
@@ -266,7 +308,17 @@ function Desktop({
   );
 }
 
-export default function ExpEntryOptions({ id, type, setIsRename }: { id: string; type: number; setIsRename: (v: boolean) => void }) {
+export default function ExpEntryOptions({
+  id,
+  type,
+  isBookmarked,
+  setIsRename,
+}: {
+  id: string;
+  isBookmarked: boolean;
+  type: number;
+  setIsRename: (v: boolean) => void;
+}) {
   const isMobile = useIsMobile();
 
   const Trigger = ({ ...props }) => {
@@ -278,8 +330,8 @@ export default function ExpEntryOptions({ id, type, setIsRename }: { id: string;
   };
 
   return isMobile ? (
-    <Mobile Trigger={Trigger} id={id} type={type} setIsRename={setIsRename} />
+    <Mobile Trigger={Trigger} id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
   ) : (
-    <Desktop Trigger={Trigger} id={id} type={type} setIsRename={setIsRename} />
+    <Desktop Trigger={Trigger} id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
   );
 }

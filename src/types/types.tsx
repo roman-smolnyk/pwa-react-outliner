@@ -57,5 +57,6 @@ export interface AccountT {
   username: string | undefined;
   root_id: string | undefined;
   inbox_id: string | undefined;
+  bookmarks: string[] | undefined;
   schemaVersion: number | undefined;
 }

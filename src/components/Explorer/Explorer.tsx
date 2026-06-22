@@ -1,13 +1,14 @@
+import useActiveYPage from "@/hooks/useActiveYPage.tsx";
+import useBookmarks from "@/hooks/useBookmarks.tsx";
 import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { getItem, getPageByBlockId, moveItem, type YExpEntryMap } from "esm-treero-api";
+import { getItem, moveItem } from "esm-treero-api";
 import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { INDENT } from "../../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
-import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.ts";
@@ -19,12 +20,9 @@ export default function Explorer({ rootId }: { rootId: string }) {
   const [overId, setOverId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
-  const rootBlockId = useStore((s) => s.rootBlockId);
+  const bookmarks = useBookmarks();
 
-  let ypage: YExpEntryMap;
-  try {
-    ypage = getPageByBlockId(yjs.ydoc, rootBlockId);
-  } catch {}
+  const activeYPage = useActiveYPage();
 
   const sensors = useSensors(
     // useSensor(PointerSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -108,7 +106,8 @@ export default function Explorer({ rootId }: { rootId: string }) {
                 childrenLength={item.children ? item.children.length : undefined}
                 depth={item.id === activeId && projected ? projected.depth : item.depth}
                 isActive={item.id === activeId}
-                isSelected={item.id === ypage?.get("id")}
+                isSelected={item.id === activeYPage?.get("id")}
+                isBookmarked={bookmarks.includes(item.id)}
               />
             );
           })}

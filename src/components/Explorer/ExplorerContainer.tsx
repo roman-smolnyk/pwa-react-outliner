@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import log from "loglevel";
 import { useEffect, useState } from "react";
 import yjs from "../../store/yjsManager";
+import Bookmarks from "../Bookmarks/Bookmarks";
 import GlobalMenu from "../GlobalMenu/GlobalMenu";
 import Explorer from "./Explorer";
 import ExplorerHeader from "./ExplorerHeader";
@@ -49,12 +50,7 @@ export default function ExplorerContainer() {
             <div className="Spacer h-[40dvh]"></div>
           </TabsContent>
           <TabsContent value="bookmarks">
-            <Empty>
-              <EmptyHeader>
-                <EmptyTitle>No Bookmarks</EmptyTitle>
-                <EmptyDescription>Coming soon...</EmptyDescription>
-              </EmptyHeader>
-            </Empty>
+            <Bookmarks />
           </TabsContent>
         </Tabs>
 

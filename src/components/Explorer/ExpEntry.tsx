@@ -11,8 +11,7 @@ import yjs from "../../store/yjsManager.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuide from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
-import Title from "./Title.tsx";
-import TitleRename from "./TitleRename.tsx";
+import { Title, TitleRename } from "./Title.tsx";
 
 function HandleButton({
   id,
@@ -55,6 +54,7 @@ function HandleButton({
   );
 }
 
+// ! Custom memo condition
 const ExpEntryInner = memo(
   function ExpEntryInner({
     id,
@@ -65,6 +65,7 @@ const ExpEntryInner = memo(
     depth,
     isActive,
     isSelected,
+    isBookmarked,
     setRefs,
     handleProps,
   }: {
@@ -76,6 +77,7 @@ const ExpEntryInner = memo(
     depth: number;
     isActive: boolean;
     isSelected: boolean;
+    isBookmarked: boolean;
     setRefs: any;
     handleProps: any;
   }) {
@@ -125,7 +127,7 @@ const ExpEntryInner = memo(
                 )}
               </div>
 
-              <ExpEntryOptions id={id} type={type} setIsRename={setIsRename} />
+              <ExpEntryOptions id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
             </>
           )}
         </div>
@@ -142,6 +144,7 @@ const ExpEntryInner = memo(
       prev.depth === next.depth &&
       prev.isActive === next.isActive &&
       prev.isSelected === next.isSelected &&
+      prev.isBookmarked === next.isBookmarked &&
       prev.setRefs === next.setRefs
       // prev.handleProps === next.handleProps // Muted just like in Block to prevent inline object rerenders
     );
@@ -158,6 +161,7 @@ export default function ExpEntry({
   depth,
   isActive,
   isSelected,
+  isBookmarked,
 }: {
   id: string;
   type: number;
@@ -167,6 +171,7 @@ export default function ExpEntry({
   depth: number;
   isActive: boolean;
   isSelected: boolean;
+  isBookmarked: boolean;
 }) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -196,6 +201,7 @@ export default function ExpEntry({
       depth={depth}
       isActive={isActive}
       isSelected={isSelected}
+      isBookmarked={isBookmarked}
       setRefs={setRefs}
       handleProps={{ attributes, listeners }}
     />
