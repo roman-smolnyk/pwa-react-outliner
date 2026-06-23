@@ -10,7 +10,9 @@ if (import.meta.env.DEV) {
   log.setLevel("debug");
   LOG_LEVEL = "debug";
 } else {
-  log.setLevel("warn");
-  LOG_LEVEL = "warn";
+  // log.setLevel("warn");
+  // LOG_LEVEL = "warn";
+  log.setLevel("debug");
+  LOG_LEVEL = "debug";
 }
 export { LOG_LEVEL };
