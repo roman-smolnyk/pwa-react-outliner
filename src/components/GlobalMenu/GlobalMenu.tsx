@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
-import { hardPWAReload, lockScreen, logout, reload } from "../../api/api";
+import { handleLogout, handlePWAUpdate, handleReload, lockScreen } from "../../api/api";
 import { useTheme, type Themes } from "../../hooks/useTheme";
 import useStore from "../../store/useStore";
 
@@ -118,7 +118,7 @@ function Mobile({
               size="lg"
               onClick={(e) => {
                 e.currentTarget.classList.add("animate-spin");
-                reload();
+                handleReload();
               }}
             >
               <RotateCwIcon />
@@ -146,7 +146,7 @@ function Mobile({
               variant="menuitem"
               size="lg"
               onClick={async () => {
-                await hardPWAReload();
+                await handlePWAUpdate();
               }}
             >
               <CircleArrowUpIcon />
@@ -161,7 +161,7 @@ function Mobile({
               className="text-destructive justify-start"
               onClick={async () => {
                 if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
-                  logout();
+                  handleLogout();
                 }
               }}
             >
@@ -269,7 +269,7 @@ function Desktop({
             <DropdownMenuItem
               onClick={(e) => {
                 e.currentTarget.classList.add("animate-spin");
-                reload();
+                handleReload();
               }}
             >
               <RotateCwIcon />
@@ -291,7 +291,7 @@ function Desktop({
 
           <DropdownMenuItem
             onClick={async () => {
-              await hardPWAReload();
+              await handlePWAUpdate();
             }}
           >
             <CircleArrowUpIcon />
@@ -302,7 +302,7 @@ function Desktop({
             variant="destructive"
             onClick={async () => {
               if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
-                logout();
+                handleLogout();
               }
             }}
           >

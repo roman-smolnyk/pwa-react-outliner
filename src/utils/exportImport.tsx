@@ -1,9 +1,9 @@
+import { handleReload } from "@/api/api";
 import { buildPagesAsMarkdownDocs } from "esm-treero-api";
-import * as Y from "yjs";
-import yjs from "../store/yjsManager";
 import JSZip from "jszip";
 import log from "loglevel";
-import { reload } from "@/api/api";
+import * as Y from "yjs";
+import yjs from "../store/yjsManager";
 
 export function downloadExport() {
   const zip = new JSZip();
@@ -50,7 +50,7 @@ export async function importBackup(file: File) {
     await yjs.applyBackup(updateArray);
 
     yjs.idbPersistence?.whenSynced.then(() => {
-      reload();
+      handleReload();
     });
   } catch (error) {
     log.error("Failed to restore backup:", error);

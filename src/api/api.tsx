@@ -58,19 +58,19 @@ export async function refreshToken() {
   const newRoomToken = generateRoomToken();
   await localPreferencesManager.set("roomToken", newRoomToken);
   useStore.setState({ roomToken: newRoomToken });
-  reload();
+  handleReload();
 }
 
-export async function reload() {
+export function handleReload() {
   window.location.replace(window.location.href);
 }
 
-export async function logout() {
+export async function handleLogout() {
   await clearAllData();
-  reload();
+  handleReload();
 }
 
-export async function hardPWAReload() {
+export async function handlePWAUpdate() {
   if (!navigator.onLine) return;
 
   const registrations = await navigator.serviceWorker.getRegistrations();

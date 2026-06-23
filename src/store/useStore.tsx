@@ -17,8 +17,7 @@ export interface useStoreType {
   rootBlockId: string;
   username: string;
 
-  loadingScreenInfo: string;
-  shouldShowLoadingScreenExit: boolean;
+  loadingScreenMessage: string;
 
   activeBlockId: string | null;
   caretCharIndex: number;
@@ -66,8 +65,7 @@ const useStore = create<useStoreType>((set, get) => ({
   rootBlockId: "",
   username: "",
 
-  loadingScreenInfo: "Loading...",
-  shouldShowLoadingScreenExit: false,
+  loadingScreenMessage: "",
 
   activeBlockId: null,
   caretCharIndex: 0,

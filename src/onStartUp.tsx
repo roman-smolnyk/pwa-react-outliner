@@ -5,7 +5,6 @@ import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
 import { fillInMockupData } from "./utils/mockupData.tsx";
 import { waitUntil } from "./utils/utilities.ts";
-import { createWelcomeData } from "./utils/welcomeData.tsx";
 
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp() {
@@ -53,19 +52,24 @@ export default function onStartUp() {
       yjs.addWebsocketProvider(webSocketServerUrl, roomToken, { connect: isWebSocketServerOn });
       listenWebSocketStatus();
 
+      // useStore.setState({
+      //   loadingScreenMessage: "TEST",
+      // });
+      // await sleep(50_000);
+      // const rootCollectionId = null;
+
       log.debug("onStartUp:waitUntil rootCollectionId");
       const rootCollectionId = await waitUntil(() => yjs.yaccount.get("root_id"), 30 * 1000);
       if (!rootCollectionId) {
         if (isNewAccount) {
           useStore.setState({
-            loadingScreenInfo: "Something went wrong.",
+            loadingScreenMessage: "Something went wrong.",
           });
         } else {
           useStore.setState({
-            loadingScreenInfo: "Loading data from remote failed. Please make sure that your second device is online and you used valid token.",
+            loadingScreenMessage: "Loading data from remote failed. Please make sure that your second device is online and you used valid token.",
           });
         }
-        useStore.setState({ shouldShowLoadingScreenExit: true });
         return;
       }
 
