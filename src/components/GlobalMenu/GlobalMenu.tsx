@@ -55,7 +55,7 @@ function Mobile({
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         {/* Accessibility header */}
         <DrawerHeader className="hidden">
           <DrawerTitle>Menu</DrawerTitle>
@@ -117,7 +117,7 @@ function Mobile({
               variant="menuitem"
               size="lg"
               onClick={(e) => {
-                e.currentTarget.classList.add("animate-spin");
+                e.currentTarget.firstChild?.classList.add("animate-spin");
                 handleReload();
               }}
             >
@@ -268,7 +268,7 @@ function Desktop({
           <DropdownMenuGroup>
             <DropdownMenuItem
               onClick={(e) => {
-                e.currentTarget.classList.add("animate-spin");
+                e.currentTarget.firstChild?.classList.add("animate-spin");
                 handleReload();
               }}
             >

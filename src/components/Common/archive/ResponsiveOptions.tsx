@@ -20,7 +20,7 @@ export default function ResponsiveDropdown({ menuItems, Trigger }: { menuItems: 
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         {/* Required by accessibility */}
         <DrawerHeader className="hidden">
           <DrawerTitle>Drawer Title</DrawerTitle>

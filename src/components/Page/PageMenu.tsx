@@ -59,7 +59,7 @@ function Mobile({
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DrawerHeader className="hidden">
           <DrawerTitle>Page Menu</DrawerTitle>
         </DrawerHeader>

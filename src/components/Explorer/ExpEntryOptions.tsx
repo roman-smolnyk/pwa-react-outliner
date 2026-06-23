@@ -79,7 +79,7 @@ function Mobile({
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         {/* Accessibility header */}
         <DrawerHeader>
           <DrawerTitle>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DrawerTitle>
@@ -87,18 +87,7 @@ function Mobile({
 
         <div className="p-2 flex flex-col gap-2">
           <DrawerClose asChild>
-            <Button
-              variant="menuitem"
-              size="lg"
-              onClick={() => {
-                // Drawer steals focus
-                requestAnimationFrame(() => {
-                  setTimeout(() => {
-                    setIsRename(true);
-                  }, 750);
-                });
-              }}
-            >
+            <Button variant="menuitem" size="lg" onClick={() => setIsRename(true)}>
               <SquarePenIcon />
               <span>Rename</span>
             </Button>
@@ -217,11 +206,7 @@ function Desktop({
         <DropdownMenuGroup>
           <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DropdownMenuLabel>
 
-          <DropdownMenuItem
-            onClick={() => {
-              setIsRename(true);
-            }}
-          >
+          <DropdownMenuItem onClick={() => setIsRename(true)}>
             <SquarePenIcon />
             <span>Rename</span>
           </DropdownMenuItem>

@@ -62,7 +62,7 @@ function Mobile({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Com
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DrawerHeader>
           <DrawerTitle>Block options</DrawerTitle>
         </DrawerHeader>

@@ -19,7 +19,7 @@ function Mobile({ Trigger, id }: { Trigger: React.ComponentType<any>; id: string
       <DrawerTrigger asChild>
         <Trigger />
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
         {/* Accessibility header */}
         <DrawerHeader>
           <DrawerTitle>Bookmark options</DrawerTitle>
