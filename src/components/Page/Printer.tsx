@@ -13,46 +13,45 @@ export default function Printer() {
     const iframe = ref.current;
     if (!idToPrint || !iframe) return;
 
-    iframe.srcdoc = `
-      <html>
-        <head><title>Print Document</title></head>
-        <body></body>
-      </html>
-    `;
+    let stylesHtml = "";
+    document.querySelectorAll(`style, link[rel="stylesheet"]`).forEach((style) => {
+      stylesHtml += style.outerHTML;
+    });
 
-    iframe.onload = async () => {
-      const contentDocument = iframe.contentDocument;
-      if (!contentDocument?.body) return;
-
-      const head = contentDocument.head;
-      const body = contentDocument.body;
-
-      // Copy styles over so Tailwind / CSS works
-      document.querySelectorAll('style, link[rel="stylesheet"]').forEach((style) => {
-        console.debug("style", style);
-        head.appendChild(style.cloneNode(true));
-      });
-
-      const element = document.querySelector(`[data-block-id="${idToPrint}"]`);
-      if (element) {
-        body.appendChild(contentDocument.importNode(element, true));
+    let contentHtml = "";
+    const mainElement = document.querySelector(`[data-block-id="${idToPrint}"]`);
+    if (mainElement) {
+      contentHtml += mainElement.outerHTML;
+    }
+    for (const id of getItemDescendantIds(yjs.yblocks, idToPrint)) {
+      const descendantElement = document.querySelector(`[data-block-id="${id}"]`);
+      if (descendantElement) {
+        contentHtml += descendantElement.outerHTML;
       }
+    }
 
-      for (const id of getItemDescendantIds(yjs.yblocks, idToPrint)) {
-        const element = document.querySelector(`[data-block-id="${id}"]`);
-        if (element) {
-          body.appendChild(contentDocument.importNode(element, true));
-        }
-      }
-
-      iframe.contentWindow?.focus();
-
-      // Wait for Chromium to parse and load styles inside the iframe context
-      setTimeout(() => {
+    iframe.addEventListener(
+      "load",
+      () => {
+        iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
         useStore.setState({ idToPrint: null });
-      }, 5000);
-    };
+      },
+      { once: true },
+    );
+
+    iframe.srcdoc = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Print Document</title>
+          ${stylesHtml}
+        </head>
+        <body>
+          ${contentHtml}
+        </body>
+      </html>
+    `;
   }, [idToPrint]);
 
   return <iframe className="Printer hidden" ref={ref} title="Printer" />;
