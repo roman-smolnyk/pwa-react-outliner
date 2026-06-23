@@ -51,7 +51,7 @@ export default function Printer() {
       setTimeout(() => {
         iframe.contentWindow?.print();
         useStore.setState({ idToPrint: null });
-      }, 3000);
+      }, 5000);
     };
   }, [idToPrint]);
 
