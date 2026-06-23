@@ -293,7 +293,7 @@ function Desktop({
   );
 }
 
-export default function ExpEntryOptions({
+export default function ExplorerItemMenu({
   id,
   type,
   isBookmarked,

@@ -3,7 +3,7 @@ import { getItem } from "esm-treero-api";
 import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
 
-export default function ExpEntryTitle({
+export default function ExplorerItemTitle({
   id,
   title,
   isRename,

@@ -256,7 +256,7 @@ function Desktop({ Trigger, id, isCheckboxSelectionActive }: { Trigger: React.Co
   );
 }
 
-export function BlockOptions({ id, isRoot }: { id: string; isRoot: boolean }) {
+export function BlockMenu({ id, isRoot }: { id: string; isRoot: boolean }) {
   const isMobile = useIsMobile();
   const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
   const idToPrint = useStore((s) => s.idToPrint);

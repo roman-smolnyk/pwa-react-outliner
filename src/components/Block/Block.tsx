@@ -10,8 +10,8 @@ import { handleBlockCheckbox, handleBlockCollapseToggle } from "../../api/api.ts
 import useStore from "../../store/useStore.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuide from "../Common/IndentGuide.tsx";
-import BlockContent from "./BlockContent.tsx";
-import { BlockOptions } from "./BlockOptions.tsx";
+import BlockContentOuter from "./BlockContent.tsx";
+import { BlockMenu } from "./BlockMenu.tsx";
 
 function HandleButton({
   id,
@@ -65,8 +65,8 @@ function HandleButton({
 }
 
 // ! Custom memo condition used
-const BlockInner = memo(
-  function BlockInner({
+const Block = memo(
+  function Block({
     id,
     content,
     collapsed,
@@ -90,18 +90,13 @@ const BlockInner = memo(
     handleProps: any;
     // TODO: Add types
   }) {
-    // log.debug("BlockInner", id);
+    // log.debug("Block", id);
     const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
 
     if (isRoot) depth = 1;
 
     return (
-      <div
-        className={`BlockInner relative ${isRoot ? "mb-5" : ""}`}
-        ref={setRefs}
-        style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
-        data-block-id={id}
-      >
+      <div className={`Block relative ${isRoot ? "mb-5" : ""}`} ref={setRefs} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }} data-block-id={id}>
         <IndentGuide id={id} depth={depth} />
         <div className={`flex items-start`}>
           {isActive ? (
@@ -130,11 +125,11 @@ const BlockInner = memo(
               {/* <div className="text-xs min-w-10">{id.slice(0, 5)}</div> */}
 
               <div className="min-w-0 flex-1 flex">
-                <BlockContent id={id} content={content} />
+                <BlockContentOuter id={id} content={content} />
               </div>
 
               <div className="mt-0.5 flex items-center justify-center">
-                <BlockOptions id={id} isRoot={isRoot} />
+                <BlockMenu id={id} isRoot={isRoot} />
               </div>
             </>
           )}
@@ -157,9 +152,9 @@ const BlockInner = memo(
     );
   },
 );
-BlockInner.displayName = "BlockInner";
+Block.displayName = "Block";
 
-export default function Block({
+export default function SortableBlock({
   id,
   content,
   collapsed,
@@ -208,7 +203,7 @@ export default function Block({
   // }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);
 
   return (
-    <BlockInner
+    <Block
       id={id}
       content={content}
       collapsed={collapsed}

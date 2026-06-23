@@ -1,12 +1,12 @@
+import { handleBlockOpenViaPageId } from "@/api/api";
 import { Button } from "@/components/ui/button";
 import { BookmarkIcon } from "lucide-react";
-import BookmarkOptions from "./BookmarkOptions";
-import { handleBlockOpenViaPageId } from "@/api/api";
+import BookmarkMenu from "./BookmarkMenu";
 
 export default function Bookmark({ id, title, isSelected }: { id: string; title: string; isSelected: boolean }) {
   return (
     <div
-      className={`ExpEntryInner relative min-w-0 pr-3 ${
+      className={`Bookmark relative min-w-0 pr-3 ${
         isSelected
           ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
           : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -23,7 +23,7 @@ export default function Bookmark({ id, title, isSelected }: { id: string; title:
           </div>
         </div>
 
-        <BookmarkOptions id={id} />
+        <BookmarkMenu id={id} />
       </div>
     </div>
   );

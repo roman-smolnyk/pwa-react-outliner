@@ -56,7 +56,7 @@ function Desktop({ Trigger, id }: { Trigger: React.ComponentType<any>; id: strin
   );
 }
 
-export default function BookmarkOptions({ id }: { id: string }) {
+export default function BookmarkMenu({ id }: { id: string }) {
   const isMobile = useIsMobile();
 
   const Trigger = ({ ...props }) => {

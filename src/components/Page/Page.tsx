@@ -11,7 +11,7 @@ import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatBlocksT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.ts";
-import Block from "../Block/Block.tsx";
+import SortableBlock from "../Block/Block.tsx";
 import CheckboxSelectionToolbar from "./CheckboxSelectionToolbar.tsx";
 import PageSearchToolbar from "./PageSearchToolbar.tsx";
 
@@ -103,7 +103,7 @@ export default function Page({ rootId }: { rootId: string }) {
         <SortableContext items={flatItemIds} strategy={sortingStrategy}>
           {flatItems.map((item) => {
             return (
-              <Block
+              <SortableBlock
                 key={item.id}
                 id={item.id}
                 content={item.content}

@@ -10,8 +10,8 @@ import { handleBlockOpen } from "../../api/api.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuide from "../Common/IndentGuide.tsx";
-import ExpEntryOptions from "./ExpEntryOptions.tsx";
-import ExpEntryTitle from "./ExpEntryTitle.tsx";
+import ExplorerItemMenu from "./ExplorerItemMenu.tsx";
+import ExplorerItemTitle from "./ExplorerItemTitle.tsx";
 
 function HandleButton({
   id,
@@ -55,8 +55,8 @@ function HandleButton({
 }
 
 // ! Custom memo condition
-const ExpEntryInner = memo(
-  function ExpEntryInner({
+const ExplorerItem = memo(
+  function ExplorerItem({
     id,
     type,
     title,
@@ -81,7 +81,7 @@ const ExpEntryInner = memo(
     setRefs: any;
     handleProps: any;
   }) {
-    // log.debug("ExpEntryInner", id);
+    // log.debug("ExplorerItem", id);
     const [isRename, setIsRename] = useState(false);
 
     if (depth === 0) depth = 1;
@@ -101,7 +101,7 @@ const ExpEntryInner = memo(
 
     return (
       <div
-        className={`ExpEntryInner relative min-w-0 pr-3 ${
+        className={`ExplorerItem relative min-w-0 pr-3 ${
           isSelected && !isActive
             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
             : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -119,10 +119,10 @@ const ExpEntryInner = memo(
               <HandleButton id={id} type={type} collapsed={collapsed} childrenLength={childrenLength} onClick={onClick} {...handleProps} />
 
               <div className="flex-1 min-w-0 flex">
-                <ExpEntryTitle id={id} title={title} isRename={isRename} setIsRename={setIsRename} onClick={onClick} />
+                <ExplorerItemTitle id={id} title={title} isRename={isRename} setIsRename={setIsRename} onClick={onClick} />
               </div>
 
-              <ExpEntryOptions id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
+              <ExplorerItemMenu id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
             </>
           )}
         </div>
@@ -145,9 +145,9 @@ const ExpEntryInner = memo(
     );
   },
 );
-ExpEntryInner.displayName = "ExpEntryInner";
+ExplorerItem.displayName = "ExplorerItem";
 
-export default function ExpEntry({
+export default function SortableExplorerItem({
   id,
   type,
   title,
@@ -187,7 +187,7 @@ export default function ExpEntry({
   }, [transform?.x, transform?.y, transform?.scaleX, transform?.scaleY, transition]);
 
   return (
-    <ExpEntryInner
+    <ExplorerItem
       id={id}
       type={type}
       title={title}

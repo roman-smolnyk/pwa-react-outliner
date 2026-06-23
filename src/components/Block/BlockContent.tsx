@@ -6,10 +6,17 @@ import useStore from "../../store/useStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";
 import CM6Editor from "../Editor/CM6Editor";
 import Markdown from "../Markdown/Markdown";
-import PlainTextContent from "./PlainTextContent";
 
-const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit }: { id: string; content: string; isEdit: boolean }) {
-  // log.debug("BlockContentInner");
+export function PlainTextContent({ children }: { children: string }) {
+  if (children.endsWith("\n")) {
+    children += "\n";
+  }
+
+  return <div className="PlainTextContent whitespace-pre-wrap wrap-break-word leading-tight">{children}</div>;
+}
+
+const BlockContent = memo(function BlockContent({ id, content, isEdit }: { id: string; content: string; isEdit: boolean }) {
+  // log.debug("BlockContent");
 
   const { isReadOnly: readOnly } = useIsReadOnly();
   const { contentViewMode } = useContentViewMode();
@@ -23,12 +30,12 @@ const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit 
         <div
           className={`BlockContent-render block-content ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           onPointerDown={(e) => {
-            log.debug("BlockContentInner:onPointerDown");
+            log.debug("BlockContent:onPointerDown");
             if (readOnly) return;
             useStore.setState({ caretCharIndex: getCharIndexFromMouse(e.currentTarget, e.clientX, e.clientY) });
           }}
           onClick={(e) => {
-            log.debug("BlockContentInner:onClick");
+            log.debug("BlockContent:onClick");
             if (readOnly) return;
             useStore.setState({ activeBlockId: id });
           }}
@@ -47,12 +54,12 @@ const BlockContentInner = memo(function BlockContentInner({ id, content, isEdit 
     </div>
   );
 });
-BlockContentInner.displayName = "BlockContentInner";
+BlockContent.displayName = "BlockContent";
 
-export default function BlockContent({ id, content }: { id: string; content: string }) {
+export default function BlockContentOuter({ id, content }: { id: string; content: string }) {
   // log.debug("BlockContent");
 
   const activeBlockId = useStore((s) => s.activeBlockId);
 
-  return <BlockContentInner id={id} content={content} isEdit={activeBlockId === id} />;
+  return <BlockContent id={id} content={content} isEdit={activeBlockId === id} />;
 }

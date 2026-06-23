@@ -13,7 +13,7 @@ import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";
 import { getProjection } from "../../utils/utilities.ts";
-import ExpEntry from "./ExpEntry.tsx";
+import SortableExplorerItem from "./ExplorerItem.tsx";
 
 function EmptyExplorer() {
   return (
@@ -110,7 +110,7 @@ export default function Explorer({ rootId }: { rootId: string }) {
           {flatItems.length === 0 && <EmptyExplorer />}
           {flatItems.map((item) => {
             return (
-              <ExpEntry
+              <SortableExplorerItem
                 key={item.id}
                 id={item.id}
                 type={item.type}
