@@ -39,7 +39,8 @@ export default function onStartUp() {
           await fillInMockupData(yjs);
           // await createWelcomeData(yjs);
         } else {
-          await createWelcomeData(yjs);
+          await fillInMockupData(yjs);
+          // await createWelcomeData(yjs);
         }
 
         useStore.setState({ isNewAccount: false });
