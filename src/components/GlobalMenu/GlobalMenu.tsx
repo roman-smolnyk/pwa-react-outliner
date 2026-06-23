@@ -99,66 +99,83 @@ function Mobile({
             </Button>
           </DrawerClose>
 
-          <Button
-            variant="menuitem"
-            size="lg"
-            onClick={() => {
-              lockScreen();
-            }}
-          >
-            <LockKeyholeIcon />
-            <span>Lock Screen</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              onClick={() => {
+                lockScreen();
+              }}
+            >
+              <LockKeyholeIcon />
+              <span>Lock Screen</span>
+            </Button>
+          </DrawerClose>
 
-          <Button
-            variant="menuitem"
-            size="lg"
-            onClick={(e) => {
-              e.currentTarget.classList.add("animate-spin");
-              reload();
-            }}
-          >
-            <RotateCwIcon />
-            <span>Refresh</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              onClick={(e) => {
+                e.currentTarget.classList.add("animate-spin");
+                reload();
+              }}
+            >
+              <RotateCwIcon />
+              <span>Refresh</span>
+            </Button>
+          </DrawerClose>
 
-          <Button
-            variant="menuitem"
-            size="lg"
-            onClick={() => {
-              toast.info(`${__APP_VERSION__}`);
-            }}
-          >
-            <CircleQuestionMarkIcon />
-            <span>Help</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              onClick={() => {
+                toast.info(`${__APP_VERSION__}`);
+              }}
+            >
+              <CircleQuestionMarkIcon />
+              <span>Help</span>
+            </Button>
+          </DrawerClose>
 
           <Separator />
 
-          <Button
-            variant="menuitem"
-            size="lg"
-            onClick={async () => {
-              await hardPWAReload();
-            }}
-          >
-            <CircleArrowUpIcon />
-            <span>Update {version ? (version !== __APP_VERSION__ ? `(${version})` : "") : ""}</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              onClick={async () => {
+                await hardPWAReload();
+              }}
+            >
+              <CircleArrowUpIcon />
+              <span>Update {version ? (version !== __APP_VERSION__ ? `(${version})` : "") : ""}</span>
+            </Button>
+          </DrawerClose>
 
-          <Button
-            variant="menuitem"
-            size="lg"
-            className="text-destructive justify-start"
-            onClick={async () => {
-              if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
-                logout();
-              }
-            }}
-          >
-            <LogOutIcon />
-            <span>Logout</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="menuitem"
+              size="lg"
+              className="text-destructive justify-start"
+              onClick={async () => {
+                if (await confirm("Logout?", "All data on this device will be wiped. Are you sure?")) {
+                  logout();
+                }
+              }}
+            >
+              <LogOutIcon />
+              <span>Logout</span>
+            </Button>
+          </DrawerClose>
+
+          <DrawerClose asChild>
+            <Button variant="menuitem" disabled>
+              <span className="text-xs">{`v${__APP_VERSION__}`}</span>
+            </Button>
+          </DrawerClose>
+          {/*  */}
         </div>
       </DrawerContent>
     </Drawer>
@@ -291,6 +308,10 @@ function Desktop({
           >
             <LogOutIcon />
             <span>Logout</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem disabled>
+            <span className="text-xs">{`v${__APP_VERSION__}`}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

@@ -155,6 +155,11 @@ export async function handleBlockOpen(id: string) {
   await localPreferencesManager.set("rootBlockId", id);
 }
 
+export async function handleBlockOpenViaPageId(id: string) {
+  const ypage = getPage(yjs.ydoc, id);
+  await handleBlockOpen(ypage.get("root_id") as string);
+}
+
 export function handleBlockCollapseToggle(id: string) {
   const yblock = getItem(yjs.yblocks, id);
   yblock.set("collapsed", !yblock.get("collapsed"));

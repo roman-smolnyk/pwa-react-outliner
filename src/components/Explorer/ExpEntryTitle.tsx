@@ -3,11 +3,19 @@ import { getItem } from "esm-treero-api";
 import { useEffect, useRef, useState } from "react";
 import yjs from "../../store/yjsManager";
 
-export function ExpEntryTitle({ title }: { title: string }) {
-  return <div className="ExpEntryTitle w-full py-1 select-none truncate">{title}</div>;
-}
-
-export function ExpEntryTitleRename({ id, title, setIsRename }: { id: string; title: string; setIsRename: (v: boolean) => void }) {
+export default function ExpEntryTitle({
+  id,
+  title,
+  isRename,
+  setIsRename,
+  onClick,
+}: {
+  id: string;
+  title: string;
+  isRename: boolean;
+  setIsRename: (v: boolean) => void;
+  onClick: (event: React.PointerEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => void;
+}) {
   const ref = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(title);
 
@@ -18,7 +26,7 @@ export function ExpEntryTitleRename({ id, title, setIsRename }: { id: string; ti
     input.select();
     // place cursor at the beginning
     // input.setSelectionRange(0, 0);
-  }, []);
+  }, [isRename]);
 
   function onBlur(event: React.FocusEvent<HTMLInputElement>) {
     const value = event.target.value;
@@ -29,7 +37,7 @@ export function ExpEntryTitleRename({ id, title, setIsRename }: { id: string; ti
     setIsRename(false);
   }
 
-  return (
+  return isRename ? (
     <Input
       className="ExpEntryTitleRename"
       placeholder="Title..."
@@ -39,5 +47,9 @@ export function ExpEntryTitleRename({ id, title, setIsRename }: { id: string; ti
       onBlur={onBlur}
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
     />
+  ) : (
+    <div className="ExpEntryTitle w-full min-w-0 pl-1 py-1 cursor-pointer select-none truncate" onClick={onClick}>
+      {title}
+    </div>
   );
 }

@@ -11,7 +11,7 @@ import yjs from "../../store/yjsManager.tsx";
 import DropIndicator from "../Common/DropIndicator.tsx";
 import IndentGuide from "../Common/IndentGuide.tsx";
 import ExpEntryOptions from "./ExpEntryOptions.tsx";
-import { ExpEntryTitle, ExpEntryTitleRename } from "./ExpEntryTitle.tsx";
+import ExpEntryTitle from "./ExpEntryTitle.tsx";
 
 function HandleButton({
   id,
@@ -28,13 +28,13 @@ function HandleButton({
   childrenLength?: number;
   attributes: any;
   listeners: any;
-  onClick: (event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => void;
+  onClick: (event: React.PointerEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => void;
 }) {
   return (
     <Button
-      className="HandleButton"
-      variant="ghost"
-      size="icon-sm"
+      variant="bare"
+      // size="icon"
+      className="HandleButton size-6 p-0.5"
       {...attributes}
       {...listeners}
       onClick={(e) => type === COLLECTION_TYPE && onClick(e)}
@@ -88,7 +88,7 @@ const ExpEntryInner = memo(
 
     const yitem = useMemo(() => getItem(yjs.yexplorer, id), [id]);
 
-    async function onClick(e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement | HTMLDivElement>) {
+    async function onClick(e: React.PointerEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
       log.debug("onClick", type);
       e.preventDefault();
       if (type === PAGE_TYPE) {
@@ -105,7 +105,8 @@ const ExpEntryInner = memo(
           isSelected && !isActive
             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
             : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"
-        }`}
+        }
+          ${isActive ? "z-9999" : ""}`}
         ref={setRefs}
         style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
       >
@@ -118,13 +119,7 @@ const ExpEntryInner = memo(
               <HandleButton id={id} type={type} collapsed={collapsed} childrenLength={childrenLength} onClick={onClick} {...handleProps} />
 
               <div className="flex-1 min-w-0 flex">
-                {isRename ? (
-                  <ExpEntryTitleRename id={id} title={title} setIsRename={setIsRename} />
-                ) : (
-                  <div className="w-full min-w-0 flex cursor-pointer" onClick={onClick}>
-                    <ExpEntryTitle title={title} />
-                  </div>
-                )}
+                <ExpEntryTitle id={id} title={title} isRename={isRename} setIsRename={setIsRename} onClick={onClick} />
               </div>
 
               <ExpEntryOptions id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />

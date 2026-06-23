@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { BookmarkIcon } from "lucide-react";
 import BookmarkOptions from "./BookmarkOptions";
+import { handleBlockOpenViaPageId } from "@/api/api";
 
 export default function Bookmark({ id, title, isSelected }: { id: string; title: string; isSelected: boolean }) {
   return (
@@ -12,13 +13,13 @@ export default function Bookmark({ id, title, isSelected }: { id: string; title:
       }`}
     >
       <div className={`min-w-0 flex items-center justify-center`}>
-        <Button variant="ghost" size="icon-sm" className="">
+        <Button variant="bare" className="size-6 p-0.5">
           <BookmarkIcon className="fill-primary" />
         </Button>
 
         <div className="flex-1 min-w-0 flex">
-          <div className="w-full min-w-0 flex cursor-pointer" onClick={() => {}}>
-            <div className="Title w-full py-1 select-none truncate">{title}</div>
+          <div className="Title w-full min-w-0 pl-1 py-1 cursor-pointer select-none truncate" onClick={() => handleBlockOpenViaPageId(id)}>
+            {title}
           </div>
         </div>
 
