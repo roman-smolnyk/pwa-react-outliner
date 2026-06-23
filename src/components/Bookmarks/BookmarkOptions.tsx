@@ -22,7 +22,7 @@ function Mobile({ Trigger, id }: { Trigger: React.ComponentType<any>; id: string
       <DrawerContent>
         {/* Accessibility header */}
         <DrawerHeader>
-          <DrawerTitle>Bookmarks options</DrawerTitle>
+          <DrawerTitle>Bookmark options</DrawerTitle>
         </DrawerHeader>
 
         <div className="p-2 flex flex-col gap-2">
@@ -44,7 +44,7 @@ function Desktop({ Trigger, id }: { Trigger: React.ComponentType<any>; id: strin
       <DropdownMenuTrigger render={<Trigger />} />
       <DropdownMenuContent className="w-max">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Bookmarks options</DropdownMenuLabel>
+          <DropdownMenuLabel>Bookmark options</DropdownMenuLabel>
 
           <DropdownMenuItem onClick={() => handleBookmarkRemove(id)}>
             <BookmarkOffIcon />

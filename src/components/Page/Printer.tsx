@@ -22,10 +22,9 @@ export default function Printer() {
 
     iframe.onload = () => {
       const iframeDoc = iframe.contentDocument;
-      if (!iframeDoc) return;
+      if (!iframeDoc || !iframeDoc.body) return;
 
       const body = iframeDoc.body;
-      if (!body) return;
 
       // Copy styles over so Tailwind / CSS works
       document.querySelectorAll('style, link[rel="stylesheet"]').forEach((style) => {
@@ -34,22 +33,39 @@ export default function Printer() {
 
       const element = document.querySelector(`[data-block-id="${idToPrint}"]`);
       if (element) {
-        const clonedNode = iframeDoc.importNode(element, true);
-        body.appendChild(clonedNode);
+        body.appendChild(iframeDoc.importNode(element, true));
       }
 
       for (const id of getItemDescendantIds(yjs.yblocks, idToPrint)) {
         const element = document.querySelector(`[data-block-id="${id}"]`);
         if (element) {
-          const clonedNode = iframeDoc.importNode(element, true);
-          body.appendChild(clonedNode);
+          body.appendChild(iframeDoc.importNode(element, true));
         }
       }
 
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
+      // CRITICAL FIX: Wait for Chromium to parse and load the fonts inside the iframe context
+      if (iframe.contentWindow) {
+        iframe.contentWindow.focus();
 
-      useStore.setState({ idToPrint: null });
+        // Check if the fonts ready API is available in the iframe's document
+        if (iframeDoc.fonts?.ready) {
+          console.debug("iframeDoc.fonts?.ready");
+          iframeDoc.fonts.ready.then(() => {
+            // A tiny timeout gives Chromium an extra frame to paint the list styles correctly
+            setTimeout(() => {
+              iframe.contentWindow?.print();
+              useStore.setState({ idToPrint: null });
+            }, 100);
+          });
+        } else {
+          console.debug("iframeDoc.fonts?.ready ELSE");
+          // Fallback for older browsers
+          setTimeout(() => {
+            iframe.contentWindow?.print();
+            useStore.setState({ idToPrint: null });
+          }, 100);
+        }
+      }
     };
   }, [idToPrint]);
 

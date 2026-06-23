@@ -14,7 +14,7 @@ export default function Bookmark({ id, title, isSelected }: { id: string; title:
     >
       <div className={`min-w-0 flex items-center justify-center`}>
         <Button variant="bare" className="size-6 p-0.5">
-          <BookmarkIcon className="fill-primary" />
+          <BookmarkIcon className="" />
         </Button>
 
         <div className="flex-1 min-w-0 flex">
