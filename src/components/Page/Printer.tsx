@@ -1,7 +1,7 @@
+import yjs from "@/store/yjsManager";
+import { getItemDescendantIds } from "esm-treero-api";
 import { useEffect, useRef } from "react";
 import useStore from "../../store/useStore";
-import { getItemDescendantIds } from "esm-treero-api";
-import yjs from "@/store/yjsManager";
 
 export default function Printer() {
   const ref = useRef<HTMLIFrameElement>(null);
@@ -21,25 +21,26 @@ export default function Printer() {
     `;
 
     iframe.onload = () => {
-      const iframeDoc = iframe.contentDocument;
-      if (!iframeDoc || !iframeDoc.body) return;
+      const contentDocument = iframe.contentDocument;
+      if (!contentDocument?.body) return;
 
-      const body = iframeDoc.body;
+      const head = contentDocument.head;
+      const body = contentDocument.body;
 
       // Copy styles over so Tailwind / CSS works
       document.querySelectorAll('style, link[rel="stylesheet"]').forEach((style) => {
-        iframeDoc.head.appendChild(style.cloneNode(true));
+        head.appendChild(style.cloneNode(true));
       });
 
       const element = document.querySelector(`[data-block-id="${idToPrint}"]`);
       if (element) {
-        body.appendChild(iframeDoc.importNode(element, true));
+        body.appendChild(contentDocument.importNode(element, true));
       }
 
       for (const id of getItemDescendantIds(yjs.yblocks, idToPrint)) {
         const element = document.querySelector(`[data-block-id="${id}"]`);
         if (element) {
-          body.appendChild(iframeDoc.importNode(element, true));
+          body.appendChild(contentDocument.importNode(element, true));
         }
       }
 
