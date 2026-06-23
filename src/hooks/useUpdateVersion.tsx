@@ -9,11 +9,11 @@ export default function useUpdateVersion() {
         if (!navigator.onLine) return;
 
         try {
-          // Add cache-busting param
-          const url = new URL("/version.json", window.location.origin);
-          url.searchParams.set("v", String(Date.now()));
+          // const url = new URL("/version.json", window.location.origin);
+          // url.searchParams.set("v", String(Date.now()));
+          // url.toString()
 
-          const response = await fetch(url.toString());
+          const response = await fetch("/version.json");
           const data = await response.json();
 
           console.debug("useUpdateVersion:fetch", data);

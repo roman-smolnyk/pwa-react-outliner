@@ -143,7 +143,7 @@ function Mobile({
             }}
           >
             <CircleArrowUpIcon />
-            <span>Update</span>
+            <span>Update {version ? (version !== __APP_VERSION__ ? `(${version})` : "") : ""}</span>
           </Button>
 
           <Button
@@ -279,7 +279,7 @@ function Desktop({
             }}
           >
             <CircleArrowUpIcon />
-            <span>Update {version ? (version === __APP_VERSION__ ? "" : `(${version})`) : ""}</span>
+            <span>Update {version ? (version !== __APP_VERSION__ ? `(${version})` : "") : ""}</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem
