@@ -1,6 +1,6 @@
 import { createNewAccount } from "esm-treero-api";
 import log from "loglevel";
-import { listenWebSocketStatus } from "./api/api.tsx";
+import { listenWebSocketStatus, setWebSocketServer } from "./api/api.tsx";
 import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
 import { fillInMockupData } from "./utils/mockupData.tsx";
@@ -23,7 +23,7 @@ export default function onStartUp() {
     yjs.idbPersistence!.whenSynced.then(async () => {
       log.debug("persistence.whenSynced.then");
 
-      const { roomToken, isNewAccount, isWebSocketServerOn, webSocketServerUrl, username } = useStore.getState();
+      const { roomToken, isNewAccount, webSocketServerUrl, username } = useStore.getState();
       log.debug(`isNewAccount`, isNewAccount);
 
       if (!roomToken) {
@@ -33,6 +33,7 @@ export default function onStartUp() {
       if (isNewAccount) {
         log.debug(`createNewAccount`);
         createNewAccount(yjs, username);
+        await setWebSocketServer({ isWebSocketServerOn: false });
 
         if (import.meta.env.DEV) {
           await fillInMockupData(yjs);
@@ -47,6 +48,7 @@ export default function onStartUp() {
       // yjs.undoManager!.clear();
       yjs.addUndoManager();
 
+      const { isWebSocketServerOn } = useStore.getState();
       yjs.addWebsocketProvider(webSocketServerUrl, roomToken, { connect: isWebSocketServerOn });
       listenWebSocketStatus();
 

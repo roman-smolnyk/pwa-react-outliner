@@ -15,6 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useConfirm } from "@/hooks/useConfirm";
 import useIsMobile from "@/hooks/useIsMobile";
+import useUpdateVersion from "@/hooks/useUpdateVersion";
 import log from "loglevel";
 import {
   BoltIcon,
@@ -41,11 +42,13 @@ function Mobile({
   theme,
   setTheme,
   confirm,
+  version,
 }: {
   Trigger: React.ComponentType<any>;
   theme: Themes | undefined;
   setTheme: (theme: Themes) => void;
   confirm: (title: string, description: string) => Promise<boolean> | boolean;
+  version: string;
 }) {
   return (
     <Drawer>
@@ -167,12 +170,15 @@ function Desktop({
   theme,
   setTheme,
   confirm,
+  version,
 }: {
   Trigger: React.ComponentType<any>;
   theme: Themes | undefined;
   setTheme: (theme: Themes) => void;
   confirm: (title: string, description: string) => Promise<boolean> | boolean;
+  version: string;
 }) {
+  console.debug("GlobalMenu:version", version, __APP_VERSION__);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Trigger />} />
@@ -273,7 +279,7 @@ function Desktop({
             }}
           >
             <CircleArrowUpIcon />
-            <span>Update</span>
+            <span>Update {version ? (version === __APP_VERSION__ ? "" : `(${version})`) : ""}</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -298,7 +304,10 @@ export default function GlobalMenu() {
 
   const isMobile = useIsMobile();
   const { theme, setTheme } = useTheme();
+
   const confirm = useConfirm();
+
+  const version = useUpdateVersion();
 
   const Trigger = ({ ...props }) => (
     <Button variant="outline" size="lg" className="py-7 w-full " {...props}>
@@ -314,8 +323,8 @@ export default function GlobalMenu() {
   );
 
   return isMobile ? (
-    <Mobile Trigger={Trigger} theme={theme} setTheme={setTheme} confirm={confirm} />
+    <Mobile Trigger={Trigger} theme={theme} setTheme={setTheme} confirm={confirm} version={version} />
   ) : (
-    <Desktop Trigger={Trigger} theme={theme} setTheme={setTheme} confirm={confirm} />
+    <Desktop Trigger={Trigger} theme={theme} setTheme={setTheme} confirm={confirm} version={version} />
   );
 }

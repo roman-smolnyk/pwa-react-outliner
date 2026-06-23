@@ -42,7 +42,7 @@ export default function SignUpForm({ className, ...props }: React.ComponentProps
         <CardContent>
           <form id="signup-form" onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Controller
+              {/* <Controller
                 name="webSocketServerUrl"
                 control={form.control}
                 render={({ field, fieldState }) => (
@@ -52,7 +52,7 @@ export default function SignUpForm({ className, ...props }: React.ComponentProps
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
-              />
+              /> */}
 
               <Controller
                 name="username"
