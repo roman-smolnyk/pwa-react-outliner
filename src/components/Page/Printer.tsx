@@ -43,29 +43,13 @@ export default function Printer() {
         }
       }
 
-      // CRITICAL FIX: Wait for Chromium to parse and load the fonts inside the iframe context
-      if (iframe.contentWindow) {
-        iframe.contentWindow.focus();
+      iframe.contentWindow?.focus();
 
-        // Check if the fonts ready API is available in the iframe's document
-        if (iframeDoc.fonts?.ready) {
-          console.debug("iframeDoc.fonts?.ready");
-          iframeDoc.fonts.ready.then(() => {
-            // A tiny timeout gives Chromium an extra frame to paint the list styles correctly
-            setTimeout(() => {
-              iframe.contentWindow?.print();
-              useStore.setState({ idToPrint: null });
-            }, 100);
-          });
-        } else {
-          console.debug("iframeDoc.fonts?.ready ELSE");
-          // Fallback for older browsers
-          setTimeout(() => {
-            iframe.contentWindow?.print();
-            useStore.setState({ idToPrint: null });
-          }, 100);
-        }
-      }
+      // Wait for Chromium to parse and load styles inside the iframe context
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        useStore.setState({ idToPrint: null });
+      }, 500);
     };
   }, [idToPrint]);
 
