@@ -178,7 +178,6 @@ function Desktop({
   confirm: (title: string, description: string) => Promise<boolean> | boolean;
   version: string;
 }) {
-  console.debug("GlobalMenu:version", version, __APP_VERSION__);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Trigger />} />

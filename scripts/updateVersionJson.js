@@ -10,4 +10,4 @@ const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
 data.version = pkg.version;
 fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-console.log(`Updated data.json with version ${pkg.version}`);
+console.log(`Updated version.json with version ${pkg.version}`);

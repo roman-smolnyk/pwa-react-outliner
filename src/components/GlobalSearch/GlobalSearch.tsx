@@ -251,7 +251,6 @@ export default function GlobalSearch() {
 
   const togglePage = useCallback((pageId: string) => {
     setCollapsedPages((prev) => {
-      console.log("zebra");
       const next = new Set(prev);
       if (next.has(pageId)) {
         next.delete(pageId);

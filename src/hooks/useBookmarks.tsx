@@ -10,7 +10,6 @@ export default function useBookmarks() {
     setBookmarks(ybookmarks.toArray());
 
     function observer() {
-      console.debug("Explorer:observer", ybookmarks.toArray());
       setBookmarks(ybookmarks.toArray());
     }
     ybookmarks.observe(observer);

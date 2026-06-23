@@ -27,7 +27,6 @@ const CM6Editor = memo(function CM6Editor({ id, charIndex, livePreview = false }
     [ref as RefObject<HTMLElement>, footerRef as RefObject<HTMLElement>],
     (e) => {
       const target = e.target as HTMLElement;
-      console.log("!!!!! OUTSIDE", e.target);
       if (!isDestroyingRef.current && target.dataset?.id !== id) {
         useStore.setState({ activeBlockId: null });
       }

@@ -1,30 +1,37 @@
+import log from "loglevel";
 import { useEffect, useState } from "react";
 
+declare const __APP_VERSION__: string;
+
 export default function useUpdateVersion() {
-  const [updateVersion, setUpdateVersion] = useState<string>("");
+  const [version, setVersion] = useState<string>("");
 
   useEffect(() => {
+    async function fetchVersion() {
+      if (!navigator.onLine) return;
+
+      try {
+        // const url = new URL("/version.json", window.location.origin);
+        // url.searchParams.set("v", String(Date.now()));
+        // url.toString()
+
+        const response = await fetch("/version.json");
+        const data = await response.json();
+
+        // log.debug("useUpdateVersion:fetch", data);
+
+        setVersion(data.version);
+      } catch (error) {
+        // log.error(error);
+      }
+    }
+
+    fetchVersion();
+
     const intervalId = setInterval(
-      async () => {
-        if (!navigator.onLine) return;
-
-        try {
-          // const url = new URL("/version.json", window.location.origin);
-          // url.searchParams.set("v", String(Date.now()));
-          // url.toString()
-
-          const response = await fetch("/version.json");
-          const data = await response.json();
-
-          console.debug("useUpdateVersion:fetch", data);
-
-          setUpdateVersion(data.version);
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      // 5 * 60 * 1000,
-      5_000,
+      fetchVersion,
+      5 * 60 * 1000,
+      // 5_000,
     );
 
     return () => {
@@ -32,5 +39,9 @@ export default function useUpdateVersion() {
     };
   }, []);
 
-  return updateVersion;
+  if (version !== __APP_VERSION__) {
+    log.info(`New App version available: (${__APP_VERSION__}) => (${version})`);
+  }
+
+  return version;
 }

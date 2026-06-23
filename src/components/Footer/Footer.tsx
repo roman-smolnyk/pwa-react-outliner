@@ -286,25 +286,25 @@ export default function Footer() {
         <ToolButton
           tooltip="Insert quote"
           icon={<QuoteIcon className="text-warning" />}
-          onClick={() => console.warn("Quote action not implemented yet.")}
+          onClick={() => log.warn("Quote action not implemented yet.")}
         />
 
         <ToolButton
           tooltip="Insert table"
           icon={<TableIcon className="text-warning" />}
-          onClick={() => console.warn("Table action not implemented yet.")}
+          onClick={() => log.warn("Table action not implemented yet.")}
         />
 
         <ToolButton
           tooltip="Insert calendar event"
           icon={<CalendarDaysIcon className="text-warning" />}
-          onClick={() => console.warn("Calendar action not implemented yet.")}
+          onClick={() => log.warn("Calendar action not implemented yet.")}
         />
 
         <ToolButton
           tooltip="Insert Template"
           icon={<FormIcon className="text-warning" />}
-          onClick={() => console.warn("Templates action not implemented yet.")}
+          onClick={() => log.warn("Templates action not implemented yet.")}
         />
       </div>
     </div>

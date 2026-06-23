@@ -9,7 +9,7 @@ export default function Printer() {
   const idToPrint = useStore((s) => s.idToPrint);
 
   useEffect(() => {
-    console.debug("PRINTER", idToPrint);
+    // log.debug("Printer:useEffect", idToPrint);
     const iframe = ref.current;
     if (!idToPrint || !iframe) return;
 

@@ -7,7 +7,7 @@ export default function Spoiler({ className = "", children, ...props }: Componen
 
   useEffect(() => {
     if (isRevealed) {
-      console.debug("Spoiler:useEffect");
+      // log.debug("Spoiler:useEffect");
       const timeoutId = setTimeout(() => setIsRevealed(false), 30 * 1000);
 
       return () => {
