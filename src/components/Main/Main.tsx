@@ -1,5 +1,5 @@
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import useIsMobile from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/contexts/IsMobileContext";
 import useSetupHotkeys from "@/hooks/useSetupHotkeys";
 import log from "loglevel";
 import { useEffect } from "react";
@@ -8,15 +8,14 @@ import { handleExplorerClose } from "../../api/api";
 import onStartUp from "../../onStartUp";
 import useStore from "../../store/useStore";
 import CommandPalette from "../CommandPalette/CommandPalette";
-import Sidebar from "../Sidebar/Sidebar";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import { MoveTo } from "../MoveTo/MoveTo";
 import PageContainer from "../Page/PageContainer";
 import Printer from "../Page/Printer";
 import Settings from "../Settings/Settings";
+import Sidebar from "../Sidebar/Sidebar";
 import LoadingScreen from "./LoadingScreen";
-import ZipUploadInput from "../Settings/ZipUploadInput";
 
 function FocusKeeper() {
   // Prevents on screen keyboard flickering between actions

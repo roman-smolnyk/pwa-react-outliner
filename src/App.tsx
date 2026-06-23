@@ -14,10 +14,11 @@ import LockScreen from "./components/LockScreen/LockScreen";
 import { useAppLockout } from "./components/LockScreen/useAppLockout";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
-import { ContentViewModeContextProvider } from "./contexts/PlainTextViewContext";
+import { ContentViewModeContextProvider } from "./contexts/ContentViewModeContext";
+import { IsMobileProvider } from "./contexts/IsMobileContext";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
-import { ConfirmationProvider } from "./hooks/useConfirm";
-import { ThemeProvider } from "./hooks/useTheme";
+import { ConfirmationProvider } from "./contexts/ConfirmationContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
 
 function App() {
@@ -44,17 +45,19 @@ function App() {
 
   return (
     <ThemeProvider>
-      <ReadOnlyContextProvider>
-        <ContentViewModeContextProvider>
-          <TooltipProvider delay={500}>
-            <ConfirmationProvider>
-              {isAuthorized ? isLockScreenOpen ? <LockScreen /> : <Main /> : <Authorization />}
-              <PWABadge />
-              <Toaster className="top-15!" position="top-right" duration={3_000} />
-            </ConfirmationProvider>
-          </TooltipProvider>
-        </ContentViewModeContextProvider>
-      </ReadOnlyContextProvider>
+      <IsMobileProvider>
+        <ReadOnlyContextProvider>
+          <ContentViewModeContextProvider>
+            <TooltipProvider delay={500}>
+              <ConfirmationProvider>
+                {isAuthorized ? isLockScreenOpen ? <LockScreen /> : <Main /> : <Authorization />}
+                <PWABadge />
+                <Toaster className="top-15!" position="top-right" duration={3_000} />
+              </ConfirmationProvider>
+            </TooltipProvider>
+          </ContentViewModeContextProvider>
+        </ReadOnlyContextProvider>
+      </IsMobileProvider>
     </ThemeProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { useIsThemeDark } from "@/hooks/useTheme";
+import { useIsThemeDark } from "@/contexts/ThemeContext";
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"; // import SyntaxHighlighter from "react-syntax-highlighter";

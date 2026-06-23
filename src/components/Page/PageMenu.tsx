@@ -14,9 +14,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useContentViewMode } from "@/contexts/PlainTextViewContext";
+import { useContentViewMode } from "@/contexts/ContentViewModeContext";
+import { useIsMobile } from "@/contexts/IsMobileContext";
 import { useIsReadOnly } from "@/contexts/ReadOnlyContext";
-import useIsMobile from "@/hooks/useIsMobile";
 import {
   CircleQuestionMarkIcon,
   CloudAlertIcon,

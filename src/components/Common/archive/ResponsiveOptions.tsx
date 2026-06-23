@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import useIsMobile from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/contexts/IsMobileContext";
 import type { LucideIcon } from "lucide-react";
 import React from "react";
 

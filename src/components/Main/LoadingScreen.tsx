@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { SpinnerCustom } from "@/components/ui/spinner";
-import { useConfirm } from "@/hooks/useConfirm";
+import { useConfirm } from "@/contexts/ConfirmationContext";
 import log from "loglevel";
 import { handleLogout, handlePWAUpdate, handleReload } from "../../api/api";
 import useStore from "../../store/useStore";

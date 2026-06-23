@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { memo } from "react";
-import { useContentViewMode } from "../../contexts/PlainTextViewContext";
+import { useContentViewMode } from "../../contexts/ContentViewModeContext";
 import { useIsReadOnly } from "../../contexts/ReadOnlyContext";
 import useStore from "../../store/useStore";
 import { getCharIndexFromMouse } from "../../utils/utilities";

@@ -13,8 +13,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useConfirm } from "@/hooks/useConfirm";
-import useIsMobile from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/contexts/IsMobileContext";
+import { useConfirm } from "@/contexts/ConfirmationContext";
 import useUpdateVersion from "@/hooks/useUpdateVersion";
 import log from "loglevel";
 import {
@@ -32,7 +32,7 @@ import {
 import React from "react";
 import { toast } from "sonner";
 import { handleLogout, handlePWAUpdate, handleReload, lockScreen } from "../../api/api";
-import { useTheme, type Themes } from "../../hooks/useTheme";
+import { useTheme, type Themes } from "../../contexts/ThemeContext";
 import useStore from "../../store/useStore";
 
 declare const __APP_VERSION__: string;

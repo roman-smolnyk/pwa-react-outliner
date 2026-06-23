@@ -1,4 +1,3 @@
-import { createContext, useContext, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,10 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-type ConfirmationContextType = (title: string, description?: string) => Promise<boolean>;
-
-const ConfirmationContext = createContext<ConfirmationContextType | null>(null);
+import { useState } from "react";
 
 type StateProps = {
   resolve: (value: boolean) => void;
@@ -20,18 +16,18 @@ type StateProps = {
   description: string;
 } | null;
 
-export function ConfirmationProvider({ children }: { children: React.ReactNode }) {
+export function useConfirm() {
   const [state, setState] = useState<StateProps>(null);
 
-  function confirm(title: string, description?: string) {
+  const confirm = (title: string, description: string) => {
     return new Promise<boolean>((resolve) => {
       setState({
         resolve,
         title,
-        description: description ?? "",
+        description,
       });
     });
-  }
+  };
 
   const handleCancel = () => {
     state?.resolve(false);
@@ -45,35 +41,26 @@ export function ConfirmationProvider({ children }: { children: React.ReactNode }
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      // Gracefully resolve false if user clicks backdrop or presses Esc
       state?.resolve(false);
       setState(null);
     }
   };
 
-  return (
-    <ConfirmationContext.Provider value={confirm}>
-      {children}
-
-      <AlertDialog open={state !== null} onOpenChange={handleOpenChange}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{state?.title}</AlertDialogTitle>
-            <AlertDialogDescription>{state?.description}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </ConfirmationContext.Provider>
+  const ConfirmationDialog = () => (
+    <AlertDialog open={state !== null} onOpenChange={handleOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{state?.title}</AlertDialogTitle>
+          <AlertDialogDescription>{state?.description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
-}
 
-export function useConfirm() {
-  const context = useContext(ConfirmationContext);
-  if (!context) {
-    throw new Error("useConfirm must be used within a ConfirmationProvider");
-  }
-  return context;
+  return [confirm, ConfirmationDialog] as const;
 }

@@ -1,53 +1,27 @@
-import log from 'loglevel';
-import { createContext, useContext, useEffect, useState } from "react";
-import localPreferencesManager from "../store/preferences";
+"use client";
+import { createThemes } from "@wrksz/themes/client";
+import { useMediaQuery } from "usehooks-ts";
 
-type ThemeContextState = {
-  theme: "system" | "light" | "dark";
-  setTheme: (v: "system" | "light" | "dark") => void;
-};
+export type Themes = "system" | "light" | "dark";
 
-const ThemeContext = createContext<ThemeContextState | null>(null);
+export const THEMES = [
+  { label: "System", value: "system" },
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+];
 
-export function ThemeContextProvider({ children }: { children: React.ReactNode }) {
-  log.debug("ThemeContextProvider");
-  const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
+export const { ThemeProvider, useTheme, useThemeValue, useThemeEffect } = createThemes({
+  themes: ["light", "dark"] as const,
+  defaultTheme: "system",
+  storage: "localStorage",
+  attribute: "class",
+  enableColorScheme: false,
+});
 
-  useEffect(() => {
-    localPreferencesManager.get("theme").then((theme) => {
-      setTheme(theme);
-    });
-  }, []);
+export function useIsThemeDark() {
+  const { theme } = useTheme();
 
-  useEffect(() => {
-    function applyTheme() {
-      const root = window.document.documentElement;
-      //   const root = document.getElementById("root")!;
-      const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      if (isDark) {
-        root.setAttribute("data-theme", "dark");
-        root.classList.add("dark");
-      } else {
-        root.removeAttribute("data-theme");
-        root.classList.remove("dark");
-      }
-    }
+  const isSystemDark = useMediaQuery("(prefers-color-scheme: dark)");
 
-    applyTheme();
-    localPreferencesManager.set("theme", theme);
-
-    if (theme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      mediaQuery.addEventListener("change", applyTheme);
-      return () => mediaQuery.removeEventListener("change", applyTheme);
-    }
-  }, [theme]);
-
-  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
-}
-
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("ThemeContext must be used inside ThemeContextProvider");
-  return ctx;
+  return theme === "dark" || (theme === "system" && isSystemDark);
 }

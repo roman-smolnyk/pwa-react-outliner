@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import useIsMobile from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/contexts/IsMobileContext";
 import { getItem, getItemDescendants, isRootItem } from "esm-treero-api";
 import {
   ArrowDownAZIcon,

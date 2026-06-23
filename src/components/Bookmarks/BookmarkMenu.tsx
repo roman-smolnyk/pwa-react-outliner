@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useIsMobile from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/contexts/IsMobileContext";
 import { BookmarkOffIcon, EllipsisVerticalIcon } from "lucide-react";
 import React from "react";
 import { handleBookmarkRemove } from "../../api/api";
