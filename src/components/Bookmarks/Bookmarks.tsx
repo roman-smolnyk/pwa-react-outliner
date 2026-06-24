@@ -14,7 +14,7 @@ export default function Bookmarks() {
       <Empty>
         <EmptyHeader>
           <EmptyTitle>No Bookmarks</EmptyTitle>
-          <EmptyDescription>Add bookmarks via page options</EmptyDescription>
+          <EmptyDescription>Add Bookmark via Document menu</EmptyDescription>
         </EmptyHeader>
       </Empty>
     );

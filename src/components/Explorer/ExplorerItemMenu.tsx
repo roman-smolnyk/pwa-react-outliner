@@ -1,21 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import { useIsMobile } from "@/contexts/IsMobileContext";
 import { COLLECTION_TYPE, getPage, PAGE_TYPE } from "esm-treero-api";
 import {
   ArrowDownAZIcon,
@@ -23,7 +6,6 @@ import {
   ArrowDownZAIcon,
   BookmarkIcon,
   BookmarkOffIcon,
-  ChevronDownIcon,
   EllipsisVerticalIcon,
   FilePlusIcon,
   FolderPlusIcon,
@@ -32,7 +14,6 @@ import {
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
-import React from "react";
 import {
   handleBookmarkAdd,
   handleBookmarkRemove,
@@ -44,6 +25,7 @@ import {
 } from "../../api/api";
 import useStore from "../../store/useStore";
 import yjs from "../../store/yjsManager";
+import { AdaptiveMenu, AdaptiveMenuItem, AdaptiveMenuSeparator, AdaptiveMenuSub } from "../Common/AdaptiveMenu/AdaptiveMenu"; // Adjust this import path as needed
 
 function handleMoveTo(id: string) {
   const ypage = getPage(yjs.ydoc, id);
@@ -61,238 +43,6 @@ function handleDelete(id: string, type: number) {
   }
 }
 
-function Mobile({
-  Trigger,
-  id,
-  type,
-  isBookmarked,
-  setIsRename,
-}: {
-  Trigger: React.ComponentType<any>;
-  id: string;
-  type: number;
-  isBookmarked: boolean;
-  setIsRename: (v: boolean) => void;
-}) {
-  return (
-    <Drawer>
-      <DrawerTrigger asChild>
-        <Trigger />
-      </DrawerTrigger>
-      <DrawerContent onCloseAutoFocus={(e) => e.preventDefault()}>
-        {/* Accessibility header */}
-        <DrawerHeader>
-          <DrawerTitle>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DrawerTitle>
-        </DrawerHeader>
-
-        <div className="p-2 flex flex-col gap-2">
-          <DrawerClose asChild>
-            <Button variant="menuitem" size="lg" onClick={() => setIsRename(true)}>
-              <SquarePenIcon />
-              <span>Rename</span>
-            </Button>
-          </DrawerClose>
-
-          {type === COLLECTION_TYPE && (
-            <>
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg" onClick={() => handlePageAdd(id)}>
-                  <FilePlusIcon />
-                  <span>New Document</span>
-                </Button>
-              </DrawerClose>
-
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg" onClick={() => handleCollectionAdd(id)}>
-                  <FolderPlusIcon />
-                  <span>New Folder</span>
-                </Button>
-              </DrawerClose>
-
-              <Collapsible>
-                <CollapsibleTrigger
-                  render={
-                    <Button variant="ghost" size="lg" className="w-full">
-                      <ArrowDownNarrowWideIcon />
-                      <span>Sort</span>
-                      <ChevronDownIcon className="ml-auto group-data-panel-open/button:rotate-180" />
-                    </Button>
-                  }
-                />
-                <CollapsibleContent className="pl-6 flex flex-col gap-2">
-                  <DrawerClose asChild>
-                    <Button variant="menuitem" size="lg" onClick={() => handleSortCollectionChildren(id)}>
-                      <ArrowDownAZIcon />
-                      <span>Ascending</span>
-                    </Button>
-                  </DrawerClose>
-                  <DrawerClose asChild>
-                    <Button variant="menuitem" size="lg" onClick={() => handleSortCollectionChildren(id, { descending: true })}>
-                      <ArrowDownZAIcon />
-                      <span>Descending</span>
-                    </Button>
-                  </DrawerClose>
-                </CollapsibleContent>
-              </Collapsible>
-            </>
-          )}
-
-          {type === PAGE_TYPE && (
-            <>
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg" onClick={() => handleMoveTo(id)}>
-                  <ForwardIcon />
-                  <span>Move to</span>
-                </Button>
-              </DrawerClose>
-
-              <DrawerClose asChild>
-                <Button
-                  variant="menuitem"
-                  size="lg"
-                  onClick={() => {
-                    if (isBookmarked) {
-                      handleBookmarkRemove(id);
-                    } else {
-                      handleBookmarkAdd(id);
-                    }
-                  }}
-                >
-                  {isBookmarked ? <BookmarkOffIcon /> : <BookmarkIcon />}
-                  {isBookmarked ? <span>Unbookmark</span> : <span>Bookmark</span>}
-                </Button>
-              </DrawerClose>
-
-              <DrawerClose asChild>
-                <Button variant="menuitem" size="lg">
-                  <UploadIcon />
-                  <span>Export</span>
-                </Button>
-              </DrawerClose>
-            </>
-          )}
-
-          <Separator />
-
-          <DrawerClose asChild>
-            <Button variant="menuitem" size="lg" className="text-destructive" onClick={() => handleDelete(id, type)}>
-              <Trash2Icon />
-              <span>Delete</span>
-            </Button>
-          </DrawerClose>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
-}
-
-function Desktop({
-  Trigger,
-  id,
-  type,
-  isBookmarked,
-  setIsRename,
-}: {
-  Trigger: React.ComponentType<any>;
-  id: string;
-  type: number;
-  isBookmarked: boolean;
-  setIsRename: (v: boolean) => void;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Trigger />} />
-      <DropdownMenuContent className="w-max">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>{`${type === PAGE_TYPE ? "Document" : "Folder"} options`}</DropdownMenuLabel>
-
-          <DropdownMenuItem onClick={() => setIsRename(true)}>
-            <SquarePenIcon />
-            <span>Rename</span>
-          </DropdownMenuItem>
-
-          {type === COLLECTION_TYPE && (
-            <>
-              <DropdownMenuItem
-                onClick={() => {
-                  handlePageAdd(id);
-                }}
-              >
-                <FilePlusIcon />
-                <span>New Document</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  handleCollectionAdd(id);
-                }}
-              >
-                <FolderPlusIcon />
-                <span>New Folder</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <ArrowDownNarrowWideIcon />
-                  <span>Sort</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => handleSortCollectionChildren(id)}>
-                      <ArrowDownAZIcon />
-                      <span>Ascending</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleSortCollectionChildren(id, { descending: true })}>
-                      <ArrowDownZAIcon />
-                      <span>Descending</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem></DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            </>
-          )}
-
-          {type === PAGE_TYPE && (
-            <>
-              <DropdownMenuItem onClick={() => handleMoveTo(id)}>
-                <ForwardIcon />
-                <span>Move to</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => {
-                  if (isBookmarked) {
-                    handleBookmarkRemove(id);
-                  } else {
-                    handleBookmarkAdd(id);
-                  }
-                }}
-              >
-                {isBookmarked ? <BookmarkOffIcon /> : <BookmarkIcon />}
-                {isBookmarked ? <span>Unbookmark</span> : <span>Bookmark</span>}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem>
-                <UploadIcon />
-                <span>Export</span>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onClick={() => handleDelete(id, type)}>
-            <Trash2Icon />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 export default function ExplorerItemMenu({
   id,
   type,
@@ -300,23 +50,90 @@ export default function ExplorerItemMenu({
   setIsRename,
 }: {
   id: string;
-  isBookmarked: boolean;
   type: number;
+  isBookmarked: boolean;
   setIsRename: (v: boolean) => void;
 }) {
-  const isMobile = useIsMobile();
+  // log.debug("ExplorerItemMenu")
+  const Trigger = ({ ...props }) => (
+    <Button variant="ghost" size="icon-sm" {...props}>
+      <EllipsisVerticalIcon />
+    </Button>
+  );
 
-  const Trigger = ({ ...props }) => {
-    return (
-      <Button variant="ghost" size="icon-sm" {...props}>
-        <EllipsisVerticalIcon />
-      </Button>
-    );
-  };
+  return (
+    <AdaptiveMenu Trigger={Trigger} label={`${type === PAGE_TYPE ? "Document" : "Folder"} menu`} className="sm:w-max">
+      <AdaptiveMenuItem onClick={() => setIsRename(true)}>
+        <SquarePenIcon />
+        <span>Rename</span>
+      </AdaptiveMenuItem>
 
-  return isMobile ? (
-    <Mobile Trigger={Trigger} id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
-  ) : (
-    <Desktop Trigger={Trigger} id={id} type={type} isBookmarked={isBookmarked} setIsRename={setIsRename} />
+      {type === COLLECTION_TYPE && (
+        <>
+          <AdaptiveMenuItem onClick={() => handlePageAdd(id)}>
+            <FilePlusIcon />
+            <span>New Document</span>
+          </AdaptiveMenuItem>
+
+          <AdaptiveMenuItem onClick={() => handleCollectionAdd(id)}>
+            <FolderPlusIcon />
+            <span>New Folder</span>
+          </AdaptiveMenuItem>
+
+          <AdaptiveMenuSub
+            item={
+              <>
+                <ArrowDownNarrowWideIcon />
+                <span>Sort</span>
+              </>
+            }
+          >
+            <AdaptiveMenuItem onClick={() => handleSortCollectionChildren(id)}>
+              <ArrowDownAZIcon />
+              <span>Ascending</span>
+            </AdaptiveMenuItem>
+            <AdaptiveMenuItem onClick={() => handleSortCollectionChildren(id, { descending: true })}>
+              <ArrowDownZAIcon />
+              <span>Descending</span>
+            </AdaptiveMenuItem>
+          </AdaptiveMenuSub>
+        </>
+      )}
+
+      {/* Document conditional features */}
+      {type === PAGE_TYPE && (
+        <>
+          <AdaptiveMenuItem onClick={() => handleMoveTo(id)}>
+            <ForwardIcon />
+            <span>Move to</span>
+          </AdaptiveMenuItem>
+
+          <AdaptiveMenuItem
+            onClick={() => {
+              if (isBookmarked) {
+                handleBookmarkRemove(id);
+              } else {
+                handleBookmarkAdd(id);
+              }
+            }}
+          >
+            {isBookmarked ? <BookmarkOffIcon /> : <BookmarkIcon />}
+            <span>{isBookmarked ? "Unbookmark" : "Bookmark"}</span>
+          </AdaptiveMenuItem>
+
+          <AdaptiveMenuItem>
+            <UploadIcon />
+            <span>Export</span>
+          </AdaptiveMenuItem>
+        </>
+      )}
+
+      <AdaptiveMenuSeparator />
+
+      <AdaptiveMenuItem destructive onClick={() => handleDelete(id, type)}>
+        <Trash2Icon />
+        <span>Delete</span>
+      </AdaptiveMenuItem>
+    </AdaptiveMenu>
   );
 }

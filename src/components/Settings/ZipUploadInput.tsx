@@ -3,7 +3,8 @@ import React from "react";
 import { toast } from "react-toastify";
 import { importBackup } from "../../utils/exportImport";
 
-const ZipUploadInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ ...props }, ref) => {
+export default function ZipUploadInput({ ...props }) {
+  // log.debug("ZipUploadInput")
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     log.debug("handleFileChange");
     const file = event.target.files?.[0];
@@ -21,12 +22,9 @@ const ZipUploadInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttribu
     <input
       className="ZipUploadInput hidden"
       type="file"
-      ref={ref}
       onChange={handleFileChange}
       accept=".zip,application/zip,application/x-zip-compressed"
       {...props}
     />
   );
-});
-
-export default ZipUploadInput;
+}

@@ -16,7 +16,7 @@ const toggleVariants = cva(
           "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xl: "h-15 min-w-15 px-3 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 [&_svg:not([class*='size-'])]:size-6",
+        adaptive: "h-15 min-w-15 px-3 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 [&_svg:not([class*='size-'])]:size-6 sm:h-9 sm:min-w-9 sm:px-2.5 sm:has-data-[icon=inline-end]:pr-2 sm:has-data-[icon=inline-start]:pl-2 sm:[&_svg:not([class*='size-'])]:size-4",
       },
     },
     defaultVariants: {

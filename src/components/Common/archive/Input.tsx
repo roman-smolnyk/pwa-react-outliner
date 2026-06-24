@@ -1,5 +1,6 @@
 import React from "react";
 
+// React.forwardRef is redundunt
 const Input = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & {

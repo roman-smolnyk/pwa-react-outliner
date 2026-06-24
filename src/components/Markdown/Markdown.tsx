@@ -30,8 +30,8 @@ function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   );
 }
 
-function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
-  // log.debug("PreTag", { children, style, ...rest });
+function PreTag({ children, style, ...props }: React.ComponentProps<"pre">) {
+  // log.debug("PreTag", { children, style, ...props });
   const { color, background, textAlign, whiteSpace, wordSpacing, wordBreak, overflowWrap, tabSize, hyphens, overflow } = style!;
   return (
     <pre
@@ -79,8 +79,8 @@ function PreTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElemen
   );
 }
 
-function CodeTag({ children, style, ...rest }: React.HTMLAttributes<HTMLPreElement>) {
-  // log.debug("CodeTag", { children, style, ...rest });
+function CodeTag({ children, style, ...props }: React.ComponentProps<"code">) {
+  // log.debug("CodeTag", { children, style, ...props });
   return <code className="CodeTag">{children}</code>;
 }
 
@@ -136,7 +136,6 @@ const Markdown = memo(function Markdown({ children }: { children: string }) {
           return <input {...rest} checked={!!checked} readOnly />;
         },
         code(props) {
-          // ...rest
           const { children, className } = props;
           // log.info("className", className);
           // log.info("children", children);

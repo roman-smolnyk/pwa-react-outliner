@@ -1,5 +1,6 @@
 import React from "react";
 
+// React.forwardRef is redundunt
 const SecondaryButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {

@@ -12,6 +12,7 @@ import {
   getCollection,
   getItem,
   getItemDescendantIds,
+  getItemDescendants,
   getItemParent,
   getItemSibling,
   getPage,
@@ -356,6 +357,32 @@ export function handleBlockMoveBatch(parentId: string, indexInParent: number) {
       getItem(yjs.yblocks, parentId).set("collapsed", false);
     }
   });
+}
+
+export function handleBlockExpandAll(id: string) {
+  yjs.ydoc.transact(() => {
+    if (!isRootItem(yjs.yblocks, id)) {
+      getItem(yjs.yblocks, id).set("collapsed", false);
+    }
+    for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+      yitem.set("collapsed", false);
+    }
+  });
+}
+
+export function handleBlockCollapseAll(id: string) {
+  yjs.ydoc.transact(() => {
+    if (!isRootItem(yjs.yblocks, id)) {
+      getItem(yjs.yblocks, id).set("collapsed", true);
+    }
+    for (const yitem of getItemDescendants(yjs.yblocks, id)) {
+      yitem.set("collapsed", true);
+    }
+  });
+}
+
+export function handleBlockMoveTo(id: string) {
+  useStore.setState({ isMoveToOpen: true, itemIdToMove: id });
 }
 
 function getCheckedParentBlockIds(): Set<string> {

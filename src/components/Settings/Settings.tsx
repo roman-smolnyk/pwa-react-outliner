@@ -13,7 +13,7 @@ import localPreferencesManager from "@/store/preferences";
 import useStore from "@/store/useStore";
 import { downloadExport } from "@/utils/exportImport";
 import { ChevronLeftIcon, EyeIcon, EyeOffIcon, HardDriveDownloadIcon, HardDriveUploadIcon, PencilIcon } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState, type InputHTMLAttributes } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { WS_SERVER_URL } from "../../../config";
 import ResponsiveModal from "../Common/ResponsiveModal";
@@ -28,12 +28,12 @@ const autoLockOptions = [
   { label: "1 hour", value: 3600000 },
 ];
 
-const PasswordInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(({ className, ...props }, ref) => {
+function PasswordInput({ className, ...props }: { className: string } & React.ComponentProps<"input">) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative rounded-md shadow-sm w-full">
-      <Input type={showPassword ? "text" : "password"} className={cn("pr-10", className)} ref={ref} {...props} />
+      <Input type={showPassword ? "text" : "password"} className={cn("pr-10", className)} {...props} />
       <Button
         type="button"
         variant="ghost"
@@ -46,8 +46,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInput
       </Button>
     </div>
   );
-});
-PasswordInput.displayName = "PasswordInput";
+}
 
 function SettingsSection({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
   return (

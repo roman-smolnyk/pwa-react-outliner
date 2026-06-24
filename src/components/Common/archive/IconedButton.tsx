@@ -1,5 +1,6 @@
 import React from "react";
 
+// React.forwardRef is redundunt
 const IconedButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
