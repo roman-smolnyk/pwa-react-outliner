@@ -116,7 +116,8 @@ export default function GlobalMenu() {
 
       <AdaptiveMenuItem
         onClick={(e) => {
-          e.currentTarget.firstChild?.classList.add("animate-spin");
+          const firstChild = e.currentTarget.firstChild as HTMLElement | null;
+          firstChild?.classList.add("animate-spin");
           handleReload();
         }}
       >
