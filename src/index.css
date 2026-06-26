@@ -53,6 +53,128 @@
   font-display: swap;
 }
 
+/* MARKDOWN */
+
+@layer utilities {
+  .css-block-markdown-render,
+  .cm-content {
+    @apply leading-snug min-h-[calc(1rem*var(--leading-snug))];
+
+    caret-color: light-dark(black, white) !important;
+    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
+    /* font-size: 1rem; */
+    padding: 2px 6px 2px 6px !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .css-block-markdown-render h1,
+  .md-h1 {
+    @apply text-3xl font-bold leading-none;
+  }
+
+  .css-block-markdown-render h2,
+  .md-h2 {
+    @apply text-2xl font-semibold leading-none;
+  }
+
+  .css-block-markdown-render h3,
+  .md-h3 {
+    @apply text-xl font-semibold leading-none;
+  }
+
+  .css-block-markdown-render h4,
+  .md-h4 {
+    @apply text-lg font-semibold;
+  }
+
+  .css-block-markdown-render h5,
+  .md-h5 {
+    @apply text-base font-semibold;
+  }
+
+  .css-block-markdown-render h6,
+  .md-h6 {
+    @apply text-sm font-semibold;
+  }
+
+  .css-block-markdown-render p {
+    /* @apply leading-tight; */
+  }
+
+  /* .css-block-markdown-render a {
+    @apply text-blue-600;
+  } */
+
+  .css-block-markdown-render strong,
+  .md-bold {
+    font-weight: bolder;
+  }
+
+  .css-block-markdown-render em,
+  .md-italic {
+    font-style: italic;
+  }
+
+  .css-block-markdown-render del {
+    text-decoration: line-through;
+  }
+
+  .css-block-markdown-render pre,
+  .css-block-markdown-render code,
+  .md-code {
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    line-height: 1.25;
+    font-size: 0.9rem;
+  }
+  /* Markdown symbols in code for some reason have background color */
+  /* span.token {
+    background: none !important;
+  } */
+
+  .css-block-markdown-render img {
+    @apply inline-block my-1;
+  }
+
+  .css-block-markdown-render table {
+    border-collapse: collapse;
+    @apply my-1;
+  }
+
+  .css-block-markdown-render th,
+  .css-block-markdown-render td {
+    border: 1px solid light-dark(black, white);
+    padding: 4px 8px;
+  }
+
+  .css-block-markdown-render ol {
+    @apply leading-tight;
+    @apply list-decimal list-inside;
+  }
+
+  .css-block-markdown-render ol ol {
+    @apply pl-4;
+  }
+
+  .css-block-markdown-render ul {
+    @apply leading-tight;
+    @apply list-disc list-inside;
+  }
+
+  .css-block-markdown-render ul ul {
+    @apply pl-4;
+  }
+
+  .css-block-markdown-render hr {
+    @apply h-[1px] border-none bg-border my-[calc(((1rem*var(--leading-snug))-1px)/2)];
+  }
+
+  .css-block-markdown-render blockquote {
+    @apply pl-4 italic border-l-4 border-border text-muted-foreground;
+  }
+}
+
+/* /MARKDOWN */
+
 @layer base {
   :root {
     font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
@@ -66,6 +188,7 @@
 
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
   }
 
   button:not(:disabled),
@@ -75,148 +198,7 @@
   /* html {
     @apply font-sans;
   } */
-
-  h1,
-  .md-h1 {
-    @apply text-3xl font-bold leading-none;
-  }
-
-  h2,
-  .md-h2 {
-    @apply text-2xl font-semibold leading-none;
-  }
-
-  h3,
-  .md-h3 {
-    @apply text-xl font-semibold leading-none;
-  }
-
-  h4,
-  .md-h4 {
-    @apply text-lg font-semibold;
-  }
-
-  h5,
-  .md-h5 {
-    @apply text-base font-semibold;
-  }
-
-  h6,
-  .md-h6 {
-    @apply text-sm font-semibold;
-  }
-
-  p {
-    /* @apply leading-tight; */
-  }
-
-  /* a {
-    @apply text-blue-600;
-  } */
-
-  strong,
-  .md-bold {
-    font-weight: bolder;
-  }
-
-  em,
-  .md-italic {
-    font-style: italic;
-  }
-
-  del {
-    text-decoration: line-through;
-  }
-
-  pre,
-  code,
-  .md-code {
-    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-    line-height: 1.25;
-    font-size: 0.9rem;
-  }
-  /* Markdown symbols in code for some reason have background color */
-  /* span.token {
-    background: none !important;
-  } */
-
-  img {
-    @apply inline-block my-1;
-  }
-
-  table {
-    border-collapse: collapse;
-    @apply my-1;
-  }
-
-  th,
-  td {
-    border: 1px solid light-dark(black, white);
-    padding: 4px 8px;
-  }
-
-  /* TODO: Markdown lists */
-
-  /* ol {
-    @apply leading-tight;
-    @apply list-decimal list-inside;
-  }
-
-  ol ol {
-    @apply pl-4;
-  } */
-
-  ul {
-    @apply leading-tight;
-    @apply list-disc list-inside;
-  }
-
-  ul ul {
-    @apply pl-4;
-  }
-
-  hr {
-    @apply h-[1px] border-none bg-border my-[calc(((1rem*var(--leading-snug))-1px)/2)];
-  }
-
-  blockquote {
-    @apply pl-4 italic border-l-4 border-border text-muted-foreground;
-  }
 }
-
-@layer utilities {
-  .block-content,
-  .cm-content {
-    @apply leading-snug min-h-[calc(1rem*var(--leading-snug))];
-
-    caret-color: light-dark(black, white) !important;
-    font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
-    /* font-size: 1rem; */
-    padding: 2px 6px 2px 6px !important;
-    overflow-wrap: break-word !important;
-  }
-}
-
-* {
-  scrollbar-width: thin;
-}
-
-/*
-@-moz-document url-prefix() {
-  * {
-    scrollbar-width: auto;            
-    scrollbar-color: #888 #f1f1f1;   
-  }
-} */
-
-/* .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-} */
 
 /* Themes */
 @layer base {

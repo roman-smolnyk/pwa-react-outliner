@@ -14,7 +14,8 @@ export default function FloatingToolbar({
 }) {
   return (
     <div
-      className="FloatingToolbar fixed top-12 left-0 right-0 flex items-center"
+      data-component="FloatingToolbar"
+      className="fixed top-12 left-0 right-0 flex items-center"
       style={{
         left: "var(--explorer-width)",
       }}

@@ -12,7 +12,7 @@ export default function Sidebar() {
   const rootId = yjs.yaccount.get("root_id")!;
 
   return (
-    <div className="Sidebar h-dvh overflow-hidden flex flex-col">
+    <div data-component="Sidebar" className="h-dvh overflow-hidden flex flex-col">
       <div className="flex-1 relative bg-sidebar text-sidebar-foreground z-0 min-h-0 flex flex-col">
         <SidebarHeader />
         <Tabs defaultValue="explorer" className="h-full min-h-0">

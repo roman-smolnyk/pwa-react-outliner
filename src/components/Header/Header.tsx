@@ -11,7 +11,8 @@ export default function Header() {
 
   return (
     <div
-      className="Header fixed top-0 right-0 min-w-0 min-h-10 z-10
+      data-component="Header"
+      className="fixed top-0 right-0 min-w-0 min-h-10 z-10
       text-sidebar-foreground bg-transparent
       pointer-events-none flex"
       style={{

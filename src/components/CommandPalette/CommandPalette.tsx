@@ -41,7 +41,7 @@ export default function CommandPalette() {
   }
 
   return (
-    <div className="Commands flex flex-col gap-4">
+    <div data-component="Commands" className="flex flex-col gap-4">
       <CommandDialog open={isCommandPaletteOpen} onOpenChange={onOpenChange}>
         <Command>
           <CommandInput placeholder="Type a command or search..." />

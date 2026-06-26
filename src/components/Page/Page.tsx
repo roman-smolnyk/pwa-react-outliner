@@ -89,7 +89,7 @@ export default function Page({ rootId }: { rootId: string }) {
   }
 
   return (
-    <div className="Page flex flex-col">
+    <div data-component="Page" className="js-page flex flex-col">
       {isPageSearchActive && createPortal(<PageSearchToolbar />, document.getElementById("root")!)}
       {isCheckboxSelectionActive && createPortal(<CheckboxSelectionToolbar />, document.getElementById("root")!)}
       <DndContext

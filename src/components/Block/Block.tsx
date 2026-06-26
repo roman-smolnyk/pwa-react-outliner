@@ -30,7 +30,7 @@ function HandleButton({
   const idToPrint = useStore((s) => s.idToPrint);
   if (idToPrint) {
     return (
-      <Button className="" variant="bare" size="micro">
+      <Button variant="bare" size="micro">
         <CircleIcon className="fill-primary size-2" fill="none" />
       </Button>
     );
@@ -38,7 +38,6 @@ function HandleButton({
 
   return (
     <Button
-      className=""
       variant="bare"
       size="micro"
       title={id}
@@ -96,7 +95,13 @@ const Block = memo(
     if (isRoot) depth = 1;
 
     return (
-      <div className={`Block relative ${isRoot ? "mb-5" : ""}`} ref={setRefs} style={{ paddingLeft: `${INDENT * (depth - 1)}px` }} data-block-id={id}>
+      <div
+        data-component="Block"
+        data-block-id={id}
+        className={`relative ${isRoot ? "mb-5" : ""}`}
+        ref={setRefs}
+        style={{ paddingLeft: `${INDENT * (depth - 1)}px` }}
+      >
         <IndentGuide id={id} depth={depth} />
         <div className={`flex items-start`}>
           {isActive ? (

@@ -52,7 +52,7 @@ export default function PWABadge() {
     }
   }, [offlineReady, needRefresh]);
 
-  return <div className="PWABadge"></div>;
+  return <div data-component="PWABadge"></div>;
 }
 
 /**

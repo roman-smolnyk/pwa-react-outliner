@@ -32,7 +32,7 @@ function PasswordInput({ className, ...props }: { className: string } & React.Co
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="relative rounded-md shadow-sm w-full">
+    <div data-component="PasswordInput" className="relative rounded-md shadow-sm w-full">
       <Input type={showPassword ? "text" : "password"} className={cn("pr-10", className)} {...props} />
       <Button
         type="button"
@@ -105,7 +105,7 @@ export default function Settings() {
           useStore.setState({ isSettingsOpen: open });
         }}
       >
-        <div className="Settings flex-1 pr-4 pb-7 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-3">
+        <div data-component="Settings" className="flex-1 pr-4 pb-7 overflow-x-hidden overflow-y-auto overscroll-contain flex flex-col gap-3">
           <SettingsSection title="Account">
             <div className="flex items-center gap-2">
               <Avatar size="lg" className="">

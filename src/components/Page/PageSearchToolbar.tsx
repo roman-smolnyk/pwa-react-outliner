@@ -17,7 +17,7 @@ export default function PageSearchToolbar() {
 
   const debouncedCallback = useCallback(
     debounce((query: string) => {
-      const container = document.querySelector(".Page");
+      const container = document.querySelector(".js-page");
       if (!container) return;
 
       const instance = new Mark(container as HTMLElement);
@@ -94,7 +94,7 @@ export default function PageSearchToolbar() {
           if (newIndex < 1) newIndex = totalMatches;
 
           const element = markElements[newIndex - 1];
-          const container = document.querySelector(".PageContainer-scroll");
+          const container = document.querySelector(".js-page-container-scroll");
           if (element && container) {
             scrollIntoView(element as HTMLElement, container as HTMLElement);
           }
@@ -117,7 +117,7 @@ export default function PageSearchToolbar() {
           if (newIndex > totalMatches) newIndex = 1;
 
           const element = markElements[newIndex - 1];
-          const container = document.querySelector(".PageContainer-scroll");
+          const container = document.querySelector(".js-page-container-scroll");
           if (element && container) {
             scrollIntoView(element as HTMLElement, container as HTMLElement);
           }

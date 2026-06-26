@@ -18,8 +18,9 @@ export default function Spoiler({ className = "", children, ...props }: Componen
 
   return (
     <span
+      data-component="Spoiler"
       className={cn(
-        `Spoiler inline relative transition-all`,
+        `inline relative transition-all`,
         isRevealed ? "bg-transparent text-current" : "bg-primary text-transparent cursor-pointer",
         className,
       )}

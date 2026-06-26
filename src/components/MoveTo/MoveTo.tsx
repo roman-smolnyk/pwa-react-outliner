@@ -12,9 +12,10 @@ import ResponsiveModal from "../Common/ResponsiveModal";
 function PageItem({ page, onClose }: { page: PageT; onClose: () => void }) {
   return (
     <Button
+      data-component="PageItem"
       variant="ghost"
       size="lg"
-      className="PageItem  justify-start"
+      className="justify-start"
       onClick={() => {
         const { itemIdToMove } = useStore.getState();
         if (itemIdToMove) {
@@ -63,7 +64,7 @@ export function MoveTo() {
 
   return (
     <ResponsiveModal title="Move To" open={isMoveToOpen} onOpenChange={onClose}>
-      <div className="MoveTo min-h-0 flex flex-col gap-4">
+      <div data-component="MoveTo" className="min-h-0 flex flex-col gap-4">
         <Input
           placeholder="Document name"
           value={query}

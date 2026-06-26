@@ -273,7 +273,7 @@ export default function GlobalSearch() {
 
   return (
     <ResponsiveModal title="Global Search" open={isGlobalSearchOpen} onOpenChange={onOpenChange}>
-      <div className="GlobalSearch min-h-0 flex flex-col gap-2">
+      <div data-component="GlobalSearch" className="min-h-0 flex flex-col gap-2">
         <Input
           ref={refInput}
           placeholder="Search..."

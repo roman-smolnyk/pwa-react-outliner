@@ -25,10 +25,10 @@ const BlockContent = memo(function BlockContent({ id, content, isEdit }: { id: s
   const { caretCharIndex } = useStore.getState();
 
   return (
-    <div className={`BlockContent w-full min-h-[calc((1rem*var(--leading-snug))+4px)] ${isEdit ? "bg-muted" : ""}`}>
+    <div data-component="BlockContent" className={`w-full min-h-[calc((1rem*var(--leading-snug))+4px)] ${isEdit ? "bg-muted" : ""}`}>
       {!isEdit ? (
         <div
-          className={`BlockContent-render block-content ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
+          className={`css-block-markdown-render ${readOnly ? "cursor-default" : "cursor-text select-none"}`}
           onPointerDown={(e) => {
             log.debug("BlockContent:onPointerDown");
             if (readOnly) return;

@@ -36,7 +36,7 @@ export function BlockMenu({ id, isRoot }: { id: string; isRoot: boolean }) {
   }
 
   const Trigger = ({ ...props }) => (
-    <Button className="BlockMenu" variant="bare" size="micro" {...props}>
+    <Button data-component="BlockMenu" variant="bare" size="micro" {...props}>
       <EllipsisVerticalIcon />
     </Button>
   );

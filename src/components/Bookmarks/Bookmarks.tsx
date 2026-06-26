@@ -21,7 +21,7 @@ export default function Bookmarks() {
   }
 
   return (
-    <div>
+    <div data-component="Bookmarks">
       {bookmarks.length === 0 && <EmptyBookmarks />}
       {bookmarks.map((id) => {
         const ypage = getPage(yjs.ydoc, id);

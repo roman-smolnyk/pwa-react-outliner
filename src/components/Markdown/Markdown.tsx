@@ -15,10 +15,11 @@ import { remarkHighlight, remarkSpoiler } from "./markdownPlugins";
 function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (
     <button
-      type="button"
-      className="CopyCodeButton absolute top-1 right-1 px-2 p-0.5 z-1 rounded cursor-pointer
+      data-component="CopyCodeButton"
+      className="absolute top-1 right-1 px-2 p-0.5 z-1 rounded cursor-pointer
                 border border-gray-400 bg-background opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-500 ease-in-out
                 text-xs"
+      type="button"
       onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -35,7 +36,8 @@ function PreTag({ children, style, ...props }: React.ComponentProps<"pre">) {
   const { color, background, textAlign, whiteSpace, wordSpacing, wordBreak, overflowWrap, tabSize, hyphens, overflow } = style!;
   return (
     <pre
-      className="PreTag rounded py-1 px-2 my-1"
+      data-component="PreTag"
+      className=" rounde py-1 px-2 my-1"
       // style={style}
       style={{
         color,
@@ -81,7 +83,7 @@ function PreTag({ children, style, ...props }: React.ComponentProps<"pre">) {
 
 function CodeTag({ children, style, ...props }: React.ComponentProps<"code">) {
   // log.debug("CodeTag", { children, style, ...props });
-  return <code className="CodeTag">{children}</code>;
+  return <code data-component="CodeTag">{children}</code>;
 }
 
 const Markdown = memo(function Markdown({ children }: { children: string }) {
@@ -172,7 +174,9 @@ const Markdown = memo(function Markdown({ children }: { children: string }) {
             </div>
           ) : (
             // <Spoiler>{children}</Spoiler>
-            <code className={`InlineCode text-md inline-block px-1 rounded text-error bg-muted`}>{children}</code>
+            <code data-component="Code_inline" className={`text-md inline-block px-1 rounded text-error bg-muted`}>
+              {children}
+            </code>
           );
         },
       }}

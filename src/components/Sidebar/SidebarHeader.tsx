@@ -13,7 +13,8 @@ export default function SidebarHeader() {
 
   return (
     <div
-      className="SidebarHeader min-w-0 min-h-10
+      data-component="SidebarHeader"
+      className="min-w-0 min-h-10
                 bg-sidebar text-sidebar-foreground 
                 flex"
       style={{

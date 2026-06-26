@@ -101,7 +101,8 @@ const ExplorerItem = memo(
 
     return (
       <div
-        className={`ExplorerItem relative min-w-0 pr-3 ${
+        data-component="ExplorerItem"
+        className={`relative min-w-0 pr-3 ${
           isSelected && !isActive
             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-16 border-sidebar-accent"
             : "border-l-16 border-transparent hover:bg-sidebar-accent hover:border-sidebar-accent hover:text-sidebar-accent-foreground"

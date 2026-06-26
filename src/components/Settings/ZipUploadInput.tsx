@@ -20,7 +20,8 @@ export default function ZipUploadInput({ ...props }) {
 
   return (
     <input
-      className="ZipUploadInput hidden"
+      data-component="ZipUploadInput"
+      className="hidden"
       type="file"
       onChange={handleFileChange}
       accept=".zip,application/zip,application/x-zip-compressed"

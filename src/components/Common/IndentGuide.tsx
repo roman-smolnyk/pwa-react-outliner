@@ -5,7 +5,7 @@ const IndentGuide = memo(function IndentGuide({ id, depth }: { id: string; depth
   if (depth <= 1) return null;
 
   return (
-    <div className="IndentGuide absolute inset-y-0 left-0 pointer-events-none">
+    <div data-component="IndentGuide" className="absolute inset-y-0 left-0 pointer-events-none">
       {Array.from({ length: depth - 1 }).map((_, i) => (
         <div
           key={`indent-guide-${id}-${i}`}

@@ -54,5 +54,5 @@ export default function Printer() {
     `;
   }, [idToPrint]);
 
-  return <iframe className="Printer hidden" ref={ref} title="Printer" />;
+  return <iframe ref={ref} data-component="Printer" className="hidden" title="Printer" />;
 }

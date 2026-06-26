@@ -31,10 +31,11 @@ export default function PageContainer() {
   const parentId = yblock.get("parent_id");
 
   return (
-    <div className="PageContainer h-dvh flex flex-col">
+    <div data-component="PageContainer" className="h-dvh flex flex-col">
       {/* <div className="Spacer min-h-10"></div> */}
       <div
-        className="PageContainer-scroll flex-1 relative z-0 min-w-xs min-h-0 
+        data-component="PageContainer_scroll"
+        className="js-page-container-scroll flex-1 relative z-0 min-w-xs min-h-0 
                 flex flex-col overflow-y-auto overscroll-contain"
       >
         <div className={`flex-1 w-full md:w-3/4 max-w-3xl px-4 mx-auto ${addSpace ? "pt-30" : "pt-20"}`}>

@@ -13,7 +13,7 @@ export default function LoadingScreen() {
   const confirm = useConfirm();
 
   return (
-    <div className="LoadingScreen h-screen w-screen flex flex-col items-center justify-center gap-5">
+    <div data-component="LoadingScreen" className="h-screen w-screen flex flex-col items-center justify-center gap-5">
       <SpinnerCustom />
       {/* <LoaderIcon className="animate-spin [animation-duration:2s]" size={50} /> */}
       {loadingScreenMessage && (

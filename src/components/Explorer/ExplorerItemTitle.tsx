@@ -39,7 +39,7 @@ export default function ExplorerItemTitle({
 
   return isRename ? (
     <Input
-      className="ExpEntryTitleRename"
+      data-component="ExplorerItemTitle"
       placeholder="Title..."
       ref={ref}
       value={value}
@@ -48,7 +48,7 @@ export default function ExplorerItemTitle({
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget?.blur()}
     />
   ) : (
-    <div className="ExpEntryTitle w-full min-w-0 pl-1 py-1 cursor-pointer select-none truncate" onClick={onClick}>
+    <div className="w-full min-w-0 pl-1 py-1 cursor-pointer select-none truncate" onClick={onClick}>
       {title}
     </div>
   );

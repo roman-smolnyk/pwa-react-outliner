@@ -32,8 +32,8 @@ export default function SignUpForm({ className, ...props }: React.ComponentProps
   }
 
   return (
-    <div className={className} {...props}>
-      <h1 className="m-5 flex items-center justify-center">TreeRo</h1>
+    <div data-component="SignUpForm" className={className} {...props}>
+      <div className="m-5 text-2xl font-black flex items-center justify-center">TreeRo</div>
       <Card>
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>

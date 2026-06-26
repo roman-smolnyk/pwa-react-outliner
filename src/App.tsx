@@ -11,7 +11,7 @@ import { LOG_LEVEL } from "../config";
 import treero from "./api/treero";
 import Authorization from "./components/Authorize/Authorization";
 import LockScreen from "./components/LockScreen/LockScreen";
-import { useAppLockout } from "./components/LockScreen/useAppLockout";
+import { useAppLockout } from "./hooks/useAppLockout";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
 import { ContentViewModeContextProvider } from "./contexts/ContentViewModeContext";
