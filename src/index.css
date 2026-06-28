@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+/* @import "@fontsource-variable/inter"; */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -54,7 +54,6 @@
 }
 
 /* MARKDOWN */
-
 @layer utilities {
   .css-block-markdown-render,
   .cm-content {
@@ -147,7 +146,6 @@
   }
 
   .css-block-markdown-render ol {
-    @apply leading-tight;
     @apply list-decimal list-inside;
   }
 
@@ -156,7 +154,6 @@
   }
 
   .css-block-markdown-render ul {
-    @apply leading-tight;
     @apply list-disc list-inside;
   }
 
@@ -173,8 +170,7 @@
   }
 }
 
-/* /MARKDOWN */
-
+/* MAIN */
 @layer base {
   :root {
     font-family: Roboto, Inter, Arial, system-ui, Avenir, Helvetica, sans-serif;
@@ -182,8 +178,8 @@
 
   html,
   body {
-    overflow: hidden;
     @apply bg-background text-foreground;
+    overflow: hidden;
   }
 
   * {
@@ -200,7 +196,7 @@
   } */
 }
 
-/* Themes */
+/* THEMES */
 @layer base {
   :root,
   .light {
@@ -211,6 +207,7 @@
   .dark {
     color-scheme: dark;
   }
+
   /* 
   :root {
     --background: var(--color-white);
@@ -285,7 +282,6 @@
   --color-success: var(--color-green-600);
   --color-warning: var(--color-yellow-400);
   --color-warning-foreground: var(--color-neutral-950);
-  --color-error: var(--color-red-600);
   --color-info: var(--color-blue-600);
 }
 
