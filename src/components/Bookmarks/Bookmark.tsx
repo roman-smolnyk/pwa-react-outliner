@@ -1,11 +1,14 @@
 import { handleBlockOpenViaPageId } from "@/api/api";
 import { Button } from "@/components/ui/button";
+import { useSortable } from "@dnd-kit/react/sortable";
 import { BookmarkIcon } from "lucide-react";
 import BookmarkMenu from "./BookmarkMenu";
 
-export default function Bookmark({ id, title, isSelected }: { id: string; title: string; isSelected: boolean }) {
+export default function Bookmark({ id, index, title, isSelected }: { id: string; index: number; title: string; isSelected: boolean }) {
+  const { ref, handleRef } = useSortable({ id, index });
   return (
     <div
+      ref={ref}
       data-component="Bookmark"
       className={`relative min-w-0 pr-3 ${
         isSelected
@@ -14,7 +17,7 @@ export default function Bookmark({ id, title, isSelected }: { id: string; title:
       }`}
     >
       <div className={`min-w-0 flex items-center justify-center`}>
-        <Button variant="bare" className="size-6 p-0.5">
+        <Button ref={handleRef} variant="bare" className="size-6 p-0.5">
           <BookmarkIcon className="" />
         </Button>
 
