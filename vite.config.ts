@@ -51,9 +51,9 @@ export default defineConfig({
       },
 
       manifest: {
-        name: "TreeRo",
-        short_name: "TreeRo",
-        description: "Offline first PWA outliner app",
+        name: "Outliner by R. Smol.",
+        short_name: "RS Outliner",
+        description: "Offline first PWA outliner app.",
         theme_color: "#ffffff",
         display: "standalone",
         start_url: "/",

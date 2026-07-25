@@ -12,7 +12,7 @@ export function downloadExport() {
   // @ts-ignore
   const update = Y.encodeStateAsUpdate(yjs.ydoc);
   const blob = new Blob([update as BlobPart], { type: "application/octet-stream" });
-  zip.file("treero-backup.bin", blob);
+  zip.file("rs-outliner-backup.bin", blob);
 
   // JSON
   zip.file("account.json", JSON.stringify(yjs.yaccount.toJSON()));
@@ -30,7 +30,7 @@ export function downloadExport() {
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "treero-export.zip";
+    a.download = "rs-outliner-export.zip";
     a.click();
     URL.revokeObjectURL(url);
   });
@@ -40,9 +40,9 @@ export async function importBackup(file: File) {
   try {
     const zip = await JSZip.loadAsync(file);
 
-    const backupFile = zip.file("treero-backup.bin");
+    const backupFile = zip.file("rs-outliner-backup.bin");
     if (!backupFile) {
-      throw new Error("Invalid backup: 'treero-backup.bin' not found in ZIP.");
+      throw new Error("Invalid backup: 'rs-outliner-backup.bin' not found in ZIP.");
     }
 
     const updateArray = await backupFile.async("uint8array");

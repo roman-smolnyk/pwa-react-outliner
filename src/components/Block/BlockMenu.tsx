@@ -4,6 +4,7 @@ import {
   ArrowDownNarrowWideIcon,
   ArrowDownZAIcon,
   EllipsisVerticalIcon,
+  FormIcon,
   ForwardIcon,
   InboxIcon,
   LinkIcon,
@@ -84,6 +85,11 @@ export function BlockMenu({ id, isRoot }: { id: string; isRoot: boolean }) {
       <AdaptiveMenuItem onClick={() => handleSetAsInbox(id)}>
         <InboxIcon />
         <span>Set as Inbox</span>
+      </AdaptiveMenuItem>
+
+      <AdaptiveMenuItem>
+        <FormIcon />
+        <span>Set as Template</span>
       </AdaptiveMenuItem>
 
       <AdaptiveMenuItem className="text-warning">

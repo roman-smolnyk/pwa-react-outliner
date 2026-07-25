@@ -8,7 +8,7 @@ export async function createWelcomeData(yjs: YjsManager) {
   const rootId = yjs.yaccount.get("root_id");
   if (!rootId) return;
 
-  const ypage = createPage(yjs.ydoc, "Welcome to the TreeRo");
+  const ypage = createPage(yjs.ydoc, "Welcome to the Outliner by R. Smol.");
   insertItem(yjs.ydoc, yjs.yexplorer, ypage.get("id"), rootId, -1);
   deleteBlock(yjs.ydoc, ypage.get("root_id")!);
   ypage.set("root_id", rootBlockId);
@@ -26,7 +26,7 @@ const blocks = {
   e9qKbmHfSIuuKHnpaa1Zs: {
     id: "e9qKbmHfSIuuKHnpaa1Zs",
     parent_id: null,
-    content: "# Welcome to the TreeRo",
+    content: "# Welcome to the Outliner by R. Smol.",
     collapsed: false,
     children: [
       "PVM4h0yM81c4D8AMl3LvW",

@@ -1,8 +1,6 @@
 import log from "loglevel";
 import { useEffect, useState } from "react";
 
-declare const __APP_VERSION__: string;
-
 export default function useUpdateVersion() {
   const [version, setVersion] = useState<string>("");
 

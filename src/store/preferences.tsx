@@ -23,8 +23,10 @@ const defaultValues: StorageSchema = {
   autoLockTimeout: -1,
 };
 
+// TODO Use pure localStorage instead
+
 const localPreferencesManager = {
-  namespace: "treero:pref",
+  namespace: "rsoutliner:pref",
 
   buildKey(key: keyof StorageSchema) {
     return `${this.namespace}:${key}`;

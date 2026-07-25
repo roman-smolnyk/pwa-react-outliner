@@ -33,7 +33,7 @@ export default function LogInForm({ className, ...props }: React.ComponentProps<
 
   return (
     <div data-component="LogInForm" className={className} {...props}>
-      <div className="m-5 text-2xl font-black flex items-center justify-center">TreeRo</div>
+      <div className="m-5 text-2xl font-black flex items-center justify-center">Outliner by R. Smol.</div>
       <Card>
         <CardHeader>
           <CardTitle>Log In</CardTitle>

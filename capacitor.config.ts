@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ua.pp.treero',
-  appName: 'TreeRo',
+  appId: 'ua.pp.rsoutliner',
+  appName: 'RS Outliner',
   webDir: 'dist'
 };
 

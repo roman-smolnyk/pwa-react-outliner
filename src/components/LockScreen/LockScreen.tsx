@@ -62,7 +62,7 @@ export default function LockScreen() {
                    rounded-xl bg-popover border border-border shadow-2xl
                    flex flex-col gap-6 items-center"
       >
-        <h1 className="text-2xl font-bold text-center tracking-wide text-foreground">TreeRo</h1>
+        <h1 className="text-2xl font-bold text-center tracking-wide text-foreground">Outliner by R. Smol.</h1>
 
         <div className="w-full flex flex-col gap-2">
           <input

@@ -14,6 +14,7 @@ import {
   FileCodeIcon,
   FileImageIcon,
   FilePlayIcon,
+  FormIcon,
   ListChecksIcon,
   MenuIcon,
   PencilIcon,
@@ -25,8 +26,6 @@ import { toast } from "sonner";
 import useStore from "../../store/useStore";
 import { AdaptiveMenu, AdaptiveMenuItem, AdaptiveMenuItemShortcut, AdaptiveMenuSeparator } from "../Common/AdaptiveMenu/AdaptiveMenu"; // Adjust this import path as needed
 import ToolButton from "../Common/ToolButton";
-
-declare const __APP_VERSION__: string;
 
 export default function PageMenu() {
   const webSocketConnectionStatus = useStore((s) => s.webSocketConnectionStatus);
@@ -143,6 +142,11 @@ export default function PageMenu() {
         <TerminalIcon />
         <span>Command Palette</span>
         <AdaptiveMenuItemShortcut>⌘+K</AdaptiveMenuItemShortcut>
+      </AdaptiveMenuItem>
+
+      <AdaptiveMenuItem onClick={() => toast.info(`${__APP_VERSION__}`)}>
+        <FormIcon />
+        <span>Templates</span>
       </AdaptiveMenuItem>
 
       <AdaptiveMenuItem onClick={() => toast.info(`${__APP_VERSION__}`)}>

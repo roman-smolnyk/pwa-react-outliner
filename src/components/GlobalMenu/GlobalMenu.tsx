@@ -24,8 +24,6 @@ import { useTheme } from "../../contexts/ThemeContext";
 import useStore from "../../store/useStore";
 import { AdaptiveMenu, AdaptiveMenuItem, AdaptiveMenuItemShortcut, AdaptiveMenuSeparator } from "../Common/AdaptiveMenu/AdaptiveMenu";
 
-declare const __APP_VERSION__: string;
-
 export default function GlobalMenu() {
   const username = useStore((s) => s.username);
 
