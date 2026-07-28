@@ -8,7 +8,7 @@ import { getItem, moveItem } from "esm-treero-api";
 import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { INDENT } from "../../../config.tsx";
+import { INDENT } from "../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import yjs from "../../store/yjsManager.tsx";
 import type { FlatExplorerT } from "../../types/types.tsx";

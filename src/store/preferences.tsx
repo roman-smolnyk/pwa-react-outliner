@@ -1,5 +1,5 @@
 import { Preferences } from "@capacitor/preferences";
-import { WS_SERVER_URL } from "../../config";
+import { WS_SERVER_URL } from "../config";
 
 type StorageSchema = {
   roomToken: string;

@@ -4,8 +4,8 @@ import { arrayMove, SortableContext, verticalListSortingStrategy, type SortingSt
 import log from "loglevel";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { INDENT } from "../../../config.tsx";
 import { handleBlockMove } from "../../api/api.tsx";
+import { INDENT } from "../../config.tsx";
 import { useFlattenedTree } from "../../hooks/useFlattenedTree.tsx";
 import useStore from "../../store/useStore.tsx";
 import yjs from "../../store/yjsManager.tsx";

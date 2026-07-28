@@ -15,7 +15,7 @@ import { downloadExport } from "@/utils/exportImport";
 import { ChevronLeftIcon, EyeIcon, EyeOffIcon, HardDriveDownloadIcon, HardDriveUploadIcon, PencilIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { WS_SERVER_URL } from "../../../config";
+import { WS_SERVER_URL } from "../../config";
 import ResponsiveModal from "../Common/ResponsiveModal";
 import ZipUploadInput from "./ZipUploadInput";
 

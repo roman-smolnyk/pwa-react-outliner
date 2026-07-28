@@ -1,5 +1,5 @@
-import log from "loglevel";
 import type { LogLevelNames } from "loglevel";
+import log from "loglevel";
 
 // "https://y-websocket-server-t1tj.onrender.com"
 export const WS_SERVER_URL = "wss://y-websocket-server-t1tj.onrender.com";
@@ -16,3 +16,4 @@ if (import.meta.env.DEV) {
   LOG_LEVEL = "debug";
 }
 export { LOG_LEVEL };
+

@@ -7,18 +7,18 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import log from "loglevel";
 import { useEffect } from "react";
-import { LOG_LEVEL } from "../config";
 import treero from "./api/treero";
 import Authorization from "./components/Authorize/Authorization";
 import LockScreen from "./components/LockScreen/LockScreen";
-import { useAppLockout } from "./hooks/useAppLockout";
 import Main from "./components/Main/Main";
 import PWABadge from "./components/PWA/PWABadge";
+import { LOG_LEVEL } from "./config";
+import { ConfirmationProvider } from "./contexts/ConfirmationContext";
 import { ContentViewModeContextProvider } from "./contexts/ContentViewModeContext";
 import { IsMobileProvider } from "./contexts/IsMobileContext";
 import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
-import { ConfirmationProvider } from "./contexts/ConfirmationContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useAppLockout } from "./hooks/useAppLockout";
 import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
 
 function App() {

@@ -1,5 +1,5 @@
-import { INDENT } from "../../../config.tsx";
 import { memo } from "react";
+import { INDENT } from "../../config.tsx";
 
 const IndentGuide = memo(function IndentGuide({ id, depth }: { id: string; depth: number }) {
   if (depth <= 1) return null;
