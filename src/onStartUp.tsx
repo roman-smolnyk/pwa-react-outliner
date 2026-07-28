@@ -5,6 +5,7 @@ import useStore from "./store/useStore.tsx";
 import yjs from "./store/yjsManager";
 import { fillInMockupData } from "./utils/mockupData.tsx";
 import { waitUntil } from "./utils/utilities.ts";
+import { createWelcomeData } from "./utils/welcomeData.tsx";
 
 let startupPromise: Promise<void> | null = null;
 export default function onStartUp() {
@@ -38,8 +39,8 @@ export default function onStartUp() {
           await fillInMockupData(yjs);
           // await createWelcomeData(yjs);
         } else {
-          await fillInMockupData(yjs);
-          // await createWelcomeData(yjs);
+          // await fillInMockupData(yjs);
+          await createWelcomeData(yjs);
         }
 
         useStore.setState({ isNewAccount: false });
