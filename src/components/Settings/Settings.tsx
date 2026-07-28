@@ -1,4 +1,4 @@
-import { copyToClipboard, debouncedSetWebSocketServer, handleUsernameUpdate, refreshToken, setWebSocketServer } from "@/api/api";
+import { debouncedSetWebSocketServer, handleUsernameUpdate, refreshToken, setWebSocketServer } from "@/api/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -18,6 +18,7 @@ import { useShallow } from "zustand/react/shallow";
 import { WS_SERVER_URL } from "../../config";
 import ResponsiveModal from "../Common/ResponsiveModal";
 import ZipUploadInput from "./ZipUploadInput";
+import { copyToClipboard } from "@/utils/utilities";
 
 const autoLockOptions = [
   { label: "Never", value: -1 },

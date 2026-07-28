@@ -1,4 +1,3 @@
-import { Clipboard } from "@capacitor/clipboard";
 import {
   createInsertBlock,
   createInsertBlockAfter,
@@ -292,25 +291,6 @@ export function handlePageDelete(id: string) {
 
 export function handleCollectionDelete(id: string) {
   deleteCollection(yjs.ydoc, id);
-}
-
-export async function copyToClipboard(text: string) {
-  try {
-    await Clipboard.write({ string: text });
-  } catch (_error) {
-    // log.error(error);
-    copyFallback(text);
-  }
-  toast("Copied");
-}
-
-function copyFallback(text: string) {
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand?.("copy");
-  document.body.removeChild(textarea);
 }
 
 export function handleBlockCheckbox(id: string, checked: boolean) {

@@ -8,9 +8,9 @@ import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { copyToClipboard } from "../../api/api";
 import Spoiler from "../Common/Spoiler";
 import { remarkHighlight, remarkSpoiler } from "./markdownPlugins";
+import { copyToClipboard } from "@/utils/utilities";
 
 function CopyCodeButton({ textToCopy }: { textToCopy: string }) {
   return (

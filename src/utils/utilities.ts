@@ -1,6 +1,7 @@
 import { BREAKPOINTS } from "@/utils/constants";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
+import { toast } from "sonner";
 
 type TreeItem = {
   id: string;
@@ -251,6 +252,20 @@ export function scrollIntoView(element: HTMLElement, container: HTMLElement) {
     top: rect.bottom - vv.height + vv.height / 2,
     behavior: "smooth",
   });
+}
+
+export async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand?.("copy");
+    document.body.removeChild(textarea);
+  }
+  toast("Copied!");
 }
 
 // import debounce from "lodash/debounce";

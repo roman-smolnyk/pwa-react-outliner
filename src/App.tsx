@@ -2,7 +2,6 @@ import "katex/dist/katex.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
-// import { Capacitor } from "@capacitor/core";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import log from "loglevel";
@@ -23,7 +22,6 @@ import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
-  // log.log("Capacitor.isNativePlatform()", Capacitor.isNativePlatform());
   const isHydrated = useStore((s) => s.isHydrated);
   const isAuthorized = useStore((s) => s.isAuthorized);
   const isLockScreenOpen = useStore((s) => s.isLockScreenOpen);

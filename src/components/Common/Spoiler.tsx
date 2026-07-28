@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
+import { copyToClipboard } from "@/utils/utilities";
 import { useEffect, useState, type ComponentProps } from "react";
-import { copyToClipboard } from "../../api/api";
 
 export default function Spoiler({ className = "", children, ...props }: ComponentProps<"span">) {
   const [isRevealed, setIsRevealed] = useState(false);

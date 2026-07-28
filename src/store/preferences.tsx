@@ -1,5 +1,7 @@
-import { Preferences } from "@capacitor/preferences";
+import { clear, createStore, del, get, set } from "idb-keyval";
 import { WS_SERVER_URL } from "../config";
+
+const customStore = createStore("outliner-preferences", "outliner-preferences");
 
 type StorageSchema = {
   roomToken: string;
@@ -23,8 +25,6 @@ const defaultValues: StorageSchema = {
   autoLockTimeout: -1,
 };
 
-// TODO Use pure localStorage instead
-
 const localPreferencesManager = {
   namespace: "rsoutliner:pref",
 
@@ -34,19 +34,16 @@ const localPreferencesManager = {
 
   async get<K extends keyof StorageSchema>(key: K): Promise<StorageSchema[K]> {
     const namespacedKey = this.buildKey(key);
-    const { value } = await Preferences.get({ key: namespacedKey });
+    const value = await get(namespacedKey, customStore);
 
-    if (value === null) return defaultValues[key];
+    if (value === undefined) return defaultValues[key];
 
-    return JSON.parse(value).v;
+    return value;
   },
 
   async set<K extends keyof StorageSchema>(key: K, value: StorageSchema[K]) {
     const namespacedKey = this.buildKey(key);
-    await Preferences.set({
-      key: namespacedKey,
-      value: JSON.stringify({ v: value }),
-    });
+    await set(namespacedKey, value, customStore);
   },
 
   async setBatch(values: Partial<StorageSchema>) {
@@ -59,22 +56,21 @@ const localPreferencesManager = {
 
   async remove<K extends keyof StorageSchema>(key: K) {
     const namespacedKey = this.buildKey(key);
-    await Preferences.remove({ key: namespacedKey });
+    await del(namespacedKey, customStore);
   },
 
   async clear() {
-    await Preferences.clear();
+    await clear(customStore);
   },
 
   async clearNamespace() {
-    const { keys } = await Preferences.keys();
-    const prefix = this.namespace + ":";
+    // idb-keyval doesn't expose keys() directly, so iterate through known keys
+    const allKeys = Object.keys(defaultValues) as (keyof StorageSchema)[];
 
-    for (const key of keys) {
-      if (key.startsWith(prefix)) {
-        await Preferences.remove({ key });
-      }
+    for (const key of allKeys) {
+      await this.remove(key);
     }
   },
 };
+
 export default localPreferencesManager;

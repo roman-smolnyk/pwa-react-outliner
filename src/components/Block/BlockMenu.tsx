@@ -16,7 +16,6 @@ import {
   ZoomInIcon,
 } from "lucide-react";
 import {
-  copyToClipboard,
   handleBlockCollapseAll,
   handleBlockDelete,
   handleBlockExpandAll,
@@ -27,6 +26,7 @@ import {
 } from "../../api/api";
 import useStore from "../../store/useStore";
 import { AdaptiveMenu, AdaptiveMenuItem, AdaptiveMenuSeparator, AdaptiveMenuSub } from "../Common/AdaptiveMenu/AdaptiveMenu"; // Adjust this import path as needed
+import { copyToClipboard } from "@/utils/utilities";
 
 export function BlockMenu({ id, isRoot }: { id: string; isRoot: boolean }) {
   const isCheckboxSelectionActive = useStore((s) => s.isCheckboxSelectionActive);
