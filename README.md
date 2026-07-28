@@ -1,6 +1,8 @@
 # Outliner by R. Smol (RS Outliner)
 
-### Outliner PWA app to make hierarchical notes.
+### Outliner PWA app to make hierarchical notes
+
+## !!! Currently in development. Not stable.
 
 <br/>
 
@@ -10,3 +12,7 @@
 </div>
 
 <br/>
+
+<div align="center">
+  <img src="docs/screenshot_1.png" alt="Screen 1" />
+</div>
