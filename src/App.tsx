@@ -19,6 +19,7 @@ import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAppLockout } from "./hooks/useAppLockout";
 import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
+import { requestPersistentStorage } from "./utils/utilities";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
@@ -27,6 +28,10 @@ function App() {
   const isLockScreenOpen = useStore((s) => s.isLockScreenOpen);
 
   useAppLockout();
+
+  useEffect(() => {
+    requestPersistentStorage();
+  }, []);
 
   useEffect(() => {
     if (!isHydrated) {

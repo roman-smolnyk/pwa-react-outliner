@@ -118,5 +118,5 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   // github
-  base: "/pwa-react-outliner",
+  // base: "/pwa-react-outliner",
 });

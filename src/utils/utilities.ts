@@ -1,6 +1,7 @@
 import { BREAKPOINTS } from "@/utils/constants";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { YBlocksMap, YExplorerMap } from "esm-treero-api";
+import log from "loglevel";
 import { toast } from "sonner";
 
 type TreeItem = {
@@ -266,6 +267,25 @@ export async function copyToClipboard(text: string) {
     document.body.removeChild(textarea);
   }
   toast("Copied!");
+}
+
+export async function requestPersistentStorage() {
+  if (navigator.storage && navigator.storage.persist) {
+    const alreadyPersisted = await navigator.storage.persisted();
+    if (alreadyPersisted) {
+      return;
+    }
+
+    const isGranted = await navigator.storage.persist();
+
+    if (isGranted) {
+      log.debug("Browser granted persistent storage permission.");
+    } else {
+      log.debug("Browser denied persistent storage permission.");
+    }
+  } else {
+    log.debug("Storage Manager API is not supported in this browser.");
+  }
 }
 
 // import debounce from "lodash/debounce";
