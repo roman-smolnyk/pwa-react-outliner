@@ -13,7 +13,7 @@ export default function useUpdateVersion() {
         // url.searchParams.set("v", String(Date.now()));
         // url.toString()
 
-        const response = await fetch("/version.json");
+        const response = await fetch(`${import.meta.env.BASE_URL}/version.json`);
         const data = await response.json();
 
         // log.debug("useUpdateVersion:fetch", data);
