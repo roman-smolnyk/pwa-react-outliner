@@ -19,7 +19,7 @@ import { ReadOnlyContextProvider } from "./contexts/ReadOnlyContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAppLockout } from "./hooks/useAppLockout";
 import useStore, { hydrateZustandStateWithPreferences } from "./store/useStore";
-import { requestPersistentStorage } from "./utils/utilities";
+import { requestPersistentStorage } from "./utils/pwaUtils";
 
 function App() {
   console.info(`App`, { version: treero.version, LOG_LEVEL: LOG_LEVEL });
