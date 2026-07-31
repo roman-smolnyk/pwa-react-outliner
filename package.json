@@ -7,14 +7,15 @@
     "dev": "vite --host 0.0.0.0",
     "prebuild": "node scripts/updateVersionJson.js",
     "build": "npm run prebuild && tsc -b && vite build",
-    "android": "npm run build && npx cap sync && npx capacitor-assets generate --android",
     "preview": "vite preview --host 0.0.0.0",
     "lint": "biome lint ./src/",
     "format": "biome format ./src/",
     "test": "vitest",
     "bench": "vitest bench",
     "adb": "adb reverse tcp:5173 tcp:5173",
-    "wss": "npx y-websocket"
+    "wss": "npx y-websocket",
+    "android": "npm run build && npx cap sync && npx capacitor-assets generate --android",
+    "windows": "npm run build && npx tauri icon ./assets/logo.png && npx tauri build --target windows"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -83,6 +84,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.37.0",
+    "@tauri-apps/cli": "^2.11.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/lodash": "^4.17.23",
