@@ -25,9 +25,6 @@ dev-dist
 *.sw?
 
 /android
-/icons
-/public/manifest.webmanifest
-/pwa-react-treero-cdn
 
 bundle-report.html
 

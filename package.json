@@ -1,5 +1,5 @@
 {
-  "name": "pwa-react-treero",
+  "name": "pwa-react-outliner",
   "private": true,
   "version": "0.6.52",
   "type": "module",
@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "prebuild": "node scripts/updateVersionJson.js",
     "build": "npm run prebuild && tsc -b && vite build",
+    "prebuild android": "npx capacitor-assets generate --android && npm run buld && npx cap sync",
     "preview": "vite preview --host 0.0.0.0",
     "lint": "biome lint ./src/",
     "format": "biome format ./src/",
@@ -17,6 +18,9 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
     "@codemirror/commands": "^6.10.3",
     "@codemirror/lang-markdown": "^6.5.0",
     "@codemirror/language": "^6.12.3",
@@ -77,6 +81,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.37.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
