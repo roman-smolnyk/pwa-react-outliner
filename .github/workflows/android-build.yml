@@ -43,6 +43,9 @@ jobs:
       - name: Generate Capacitor assets (icons/splash)
         run: npx @capacitor/assets generate --android
 
+      - name: Set app version
+        run: npx capacitor-set-version set:android -v 1.0.1 -b 101
+
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
