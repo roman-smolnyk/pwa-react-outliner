@@ -4,6 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useConfirm } from "@/contexts/ConfirmationContext";
 import useUpdateVersion from "@/hooks/useUpdateVersion";
+import { resetPWA } from "@/utils/pwaUtils";
 import log from "loglevel";
 import {
   BoltIcon,
@@ -17,9 +18,8 @@ import {
   SunIcon,
   SunMoonIcon,
 } from "lucide-react";
-import React from "react";
 import { toast } from "sonner";
-import { handleLogout, handlePWAUpdate, handleReload, lockScreen } from "../../api/api";
+import { handleLogout, handleReload, lockScreen } from "../../api/api";
 import { useTheme } from "../../contexts/ThemeContext";
 import useStore from "../../store/useStore";
 import { AdaptiveMenu, AdaptiveMenuItem, AdaptiveMenuItemShortcut, AdaptiveMenuSeparator } from "../Common/AdaptiveMenu/AdaptiveMenu";
@@ -131,7 +131,7 @@ export default function GlobalMenu() {
 
       <AdaptiveMenuSeparator />
 
-      <AdaptiveMenuItem onClick={async () => await handlePWAUpdate()}>
+      <AdaptiveMenuItem onClick={async () => await resetPWA()}>
         <CircleArrowUpIcon />
         <span>Update {version ? (version !== __APP_VERSION__ ? `(${version})` : "") : ""}</span>
       </AdaptiveMenuItem>

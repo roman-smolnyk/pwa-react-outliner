@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { SpinnerCustom } from "@/components/ui/spinner";
 import { useConfirm } from "@/contexts/ConfirmationContext";
+import { resetPWA } from "@/utils/pwaUtils";
 import log from "loglevel";
-import { handleLogout, handlePWAUpdate, handleReload } from "../../api/api";
+import { handleLogout, handleReload } from "../../api/api";
 import useStore from "../../store/useStore";
 
 export default function LoadingScreen() {
@@ -21,7 +22,7 @@ export default function LoadingScreen() {
           <div className="pt-5 text-center">{loadingScreenMessage}</div>
           <div className="flex justify-center gap-2">
             <Button onClick={handleReload}>Reload</Button>
-            <Button onClick={handlePWAUpdate}>Update</Button>
+            <Button onClick={resetPWA}>Update</Button>
             <Button
               onClick={async () => {
                 if (await confirm("All data on this device will be wiped", "Are you sure?")) {

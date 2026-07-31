@@ -1,3 +1,4 @@
+import { reload } from "@/utils/pwaUtils";
 import {
   createInsertBlock,
   createInsertBlockAfter,
@@ -24,7 +25,6 @@ import {
 import debounce from "lodash/debounce";
 import log from "loglevel";
 import { nanoid } from "nanoid";
-import { toast } from "sonner";
 import localPreferencesManager from "../store/preferences";
 import useStore from "../store/useStore";
 import yjs from "../store/yjsManager";
@@ -62,29 +62,12 @@ export async function refreshToken() {
 }
 
 export function handleReload() {
-  window.location.replace(window.location.href);
+  reload();
 }
 
 export async function handleLogout() {
   await clearAllData();
   handleReload();
-}
-
-export async function handlePWAUpdate() {
-  if (!navigator.onLine) return;
-
-  const registrations = await navigator.serviceWorker.getRegistrations();
-  await Promise.all(registrations.map((reg) => reg.unregister()));
-
-  const cacheKeys = await caches.keys();
-  await Promise.all(cacheKeys.map((key) => caches.delete(key)));
-
-  const url = new URL(window.location.href);
-  url.searchParams.set("v", String(Date.now()));
-  setTimeout(() => {
-    window.location.replace(url);
-  }, 0);
-  // window.location.href = url.toString();
 }
 
 export async function clearAllData() {
