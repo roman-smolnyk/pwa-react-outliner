@@ -31,9 +31,6 @@ jobs:
       - name: Build Vite web app
         run: npm run build
 
-      - name: Generate Capacitor assets (icons/splash)
-        run: npx @capacitor/assets generate --android
-
       - name: Add Android platform (if not already present)
         run: |
           if [ ! -d "android" ]; then
@@ -42,6 +39,9 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Generate Capacitor assets (icons/splash)
+        run: npx @capacitor/assets generate --android
 
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew

@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "prebuild": "node scripts/updateVersionJson.js",
     "build": "npm run prebuild && tsc -b && vite build",
-    "prebuild android": "npx capacitor-assets generate --android && npm run buld && npx cap sync",
+    "android": "npm run build && npx cap sync && npx capacitor-assets generate --android",
     "preview": "vite preview --host 0.0.0.0",
     "lint": "biome lint ./src/",
     "format": "biome format ./src/",
