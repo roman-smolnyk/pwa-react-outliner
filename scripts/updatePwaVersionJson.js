@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const pkgPath = new URL("../package.json", import.meta.url);
 const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
 
-const filePath = path.resolve("public", "version.json");
+const filePath = path.resolve("public", "pwaVersion.json");
 const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
 data.version = pkg.version;

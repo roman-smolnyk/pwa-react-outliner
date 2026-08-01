@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "prebuild": "node scripts/updateVersionJson.js",
+    "prebuild": "node scripts/updatePwaVersionJson.js",
     "build": "npm run prebuild && tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "lint": "biome lint ./src/",

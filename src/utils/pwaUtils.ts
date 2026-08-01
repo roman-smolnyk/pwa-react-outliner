@@ -45,3 +45,20 @@ export async function requestPersistentStorage(): Promise<boolean> {
     return false;
   }
 }
+
+export async function fetchPwaVersion(): Promise<string | null> {
+  if (!navigator.onLine) return null;
+  try {
+    // const url = new URL("/version.json", window.location.origin);
+    // url.searchParams.set("v", String(Date.now()));
+    // url.toString()
+
+    const baseUrl = () => (import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`);
+    const response = await fetch(`${baseUrl()}pwaVersion.json`);
+    const data = await response.json();
+
+    return data.version;
+  } catch {
+    return null;
+  }
+}

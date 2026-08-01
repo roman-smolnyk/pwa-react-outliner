@@ -25,7 +25,7 @@ import {
 import debounce from "lodash/debounce";
 import log from "loglevel";
 import { nanoid } from "nanoid";
-import localPreferencesManager from "../store/preferences";
+import localPref from "../store/preferences";
 import useStore from "../store/useStore";
 import yjs from "../store/yjsManager";
 import { flattenAndFilterYTree, isMobile } from "../utils/utilities";
@@ -36,14 +36,14 @@ export function generateRoomToken(): string {
 
 export async function login(webSocketServerUrl: string, roomToken: string) {
   log.debug(`login`, webSocketServerUrl, roomToken);
-  await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
+  await localPref.setMany({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl });
   useStore.setState({ isAuthorized: true, roomToken: roomToken, webSocketServerUrl: webSocketServerUrl, isNewAccount: false });
 }
 
 export async function signup(webSocketServerUrl: string, username: string) {
   log.debug(`signup`, webSocketServerUrl, username);
   const newRoomToken = generateRoomToken();
-  await localPreferencesManager.setBatch({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
+  await localPref.setMany({ isAuthorized: true, roomToken: newRoomToken, webSocketServerUrl: webSocketServerUrl });
   useStore.setState({
     isAuthorized: true,
     roomToken: newRoomToken,
@@ -56,7 +56,7 @@ export async function signup(webSocketServerUrl: string, username: string) {
 export async function refreshToken() {
   log.debug(`refreshToken`);
   const newRoomToken = generateRoomToken();
-  await localPreferencesManager.set("roomToken", newRoomToken);
+  await localPref.set("roomToken", newRoomToken);
   useStore.setState({ roomToken: newRoomToken });
   handleReload();
 }
@@ -71,8 +71,7 @@ export async function handleLogout() {
 }
 
 export async function clearAllData() {
-  // await localPreferencesManager.clearNamespace();
-  await localPreferencesManager.clear();
+  await localPref.clear();
   await yjs.idbPersistence?.clearData();
 }
 
@@ -85,13 +84,13 @@ export async function setWebSocketServer({
 }) {
   log.debug(`setWebSocket`, isWebSocketServerOn, webSocketServerUrl);
   if (webSocketServerUrl !== undefined) {
-    await localPreferencesManager.set("webSocketServerUrl", webSocketServerUrl);
+    await localPref.set("webSocketServerUrl", webSocketServerUrl);
     useStore.setState({ webSocketServerUrl: webSocketServerUrl });
     yjs.addWebsocketProvider(webSocketServerUrl, useStore.getState().roomToken, { connect: useStore.getState().isWebSocketServerOn });
     listenWebSocketStatus();
   }
   if (isWebSocketServerOn !== undefined) {
-    await localPreferencesManager.set("isWebSocketServerOn", isWebSocketServerOn);
+    await localPref.set("isWebSocketServerOn", isWebSocketServerOn);
     useStore.setState({ isWebSocketServerOn: isWebSocketServerOn });
     if (isWebSocketServerOn) {
       yjs.wsProvider?.connect();
@@ -135,7 +134,7 @@ export async function handleBlockOpen(id: string) {
   if (isMobile()) {
     handleExplorerClose();
   }
-  await localPreferencesManager.set("rootBlockId", id);
+  await localPref.set("rootBlockId", id);
 }
 
 export async function handleBlockOpenViaPageId(id: string) {
@@ -368,7 +367,7 @@ function getCheckedParentBlockIds(): Set<string> {
 }
 
 export async function lockScreen() {
-  const lockScreenPin = await localPreferencesManager.get("lockScreenPin");
+  const lockScreenPin = await localPref.get("lockScreenPin");
   if (!lockScreenPin) return;
   useStore.setState({ isLockScreenOpen: true });
 }

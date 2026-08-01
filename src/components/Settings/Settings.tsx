@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useConfirm } from "@/contexts/ConfirmationContext";
 import { THEMES, useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
-import localPreferencesManager from "@/store/preferences";
+import localPref from "@/store/preferences";
 import useStore from "@/store/useStore";
 import { downloadExport } from "@/utils/exportImport";
 import { ChevronLeftIcon, EyeIcon, EyeOffIcon, HardDriveDownloadIcon, HardDriveUploadIcon, PencilIcon } from "lucide-react";
@@ -90,7 +90,7 @@ export default function Settings() {
 
   useEffect(() => {
     setTimeout(async () => {
-      const savedPin = await localPreferencesManager.get("lockScreenPin");
+      const savedPin = await localPref.get("lockScreenPin");
       if (savedPin) setLockScreenPin(savedPin);
     });
   }, []);
@@ -259,7 +259,7 @@ export default function Settings() {
                 onChange={async (e) => {
                   const value = e.target.value.replace(/[^0-9]/g, "");
                   setLockScreenPin(value);
-                  await localPreferencesManager.set("lockScreenPin", value);
+                  await localPref.set("lockScreenPin", value);
                 }}
                 type={isPinFocused ? "text" : "password"}
                 onFocus={() => setIsPinFocused(true)}
@@ -279,7 +279,7 @@ export default function Settings() {
                 onValueChange={async (value) => {
                   if (value === null) return;
                   useStore.setState({ autoLockTimeout: value });
-                  await localPreferencesManager.set("autoLockTimeout", value);
+                  await localPref.set("autoLockTimeout", value);
                 }}
               >
                 <SelectTrigger id="auto-lock-timeout" className="w-full max-w-xs">

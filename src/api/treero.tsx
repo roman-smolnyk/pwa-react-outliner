@@ -1,15 +1,15 @@
 import { YjsManager } from "esm-treero-api";
 import { nanoid } from "nanoid";
 import yjs from "../store/yjsManager";
-import localPreferencesManager from "../store/preferences";
+import localPref from "../store/preferences";
 import useStore from "../store/useStore";
 import * as api from "./api";
 
 const treero = {
   version: __APP_VERSION__,
   yjs: yjs,
-  localPreferencesManager: localPreferencesManager,
-  useZustandStore: useStore,
+  localPref: localPref,
+  useStore: useStore,
   api: api,
 };
 

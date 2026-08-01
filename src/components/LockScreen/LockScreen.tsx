@@ -2,7 +2,7 @@ import log from "loglevel";
 import { DeleteIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import useStore from "../../store/useStore";
-import localPreferencesManager from "../../store/preferences";
+import localPref from "../../store/preferences";
 
 export default function LockScreen() {
   log.debug("LockScreen");
@@ -20,7 +20,7 @@ export default function LockScreen() {
 
   useEffect(() => {
     setTimeout(async () => {
-      const lockScreenPin = await localPreferencesManager.get("lockScreenPin");
+      const lockScreenPin = await localPref.get("lockScreenPin");
       if (!lockScreenPin || pin.length < lockScreenPin.length) return;
 
       if (pin === lockScreenPin) {

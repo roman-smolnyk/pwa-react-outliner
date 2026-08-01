@@ -2,7 +2,7 @@ import { isMobile } from "@/utils/utilities";
 import type { EditorView } from "@codemirror/view";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { create } from "zustand";
-import localPreferencesManager from "./preferences";
+import localPref from "./preferences";
 
 export interface useStoreType {
   isHydrated: boolean;
@@ -103,13 +103,13 @@ const useStore = create<useStoreType>((set, get) => ({
 export async function hydrateZustandStateWithPreferences() {
   useStore.setState({
     isHydrated: true,
-    isAuthorized: await localPreferencesManager.get("isAuthorized"),
-    isWebSocketServerOn: await localPreferencesManager.get("isWebSocketServerOn"),
-    webSocketServerUrl: await localPreferencesManager.get("webSocketServerUrl"),
-    roomToken: await localPreferencesManager.get("roomToken"),
-    rootBlockId: await localPreferencesManager.get("rootBlockId"),
-    isLockScreenOpen: !!(await localPreferencesManager.get("lockScreenPin")),
-    autoLockTimeout: await localPreferencesManager.get("autoLockTimeout"),
+    isAuthorized: await localPref.get("isAuthorized"),
+    isWebSocketServerOn: await localPref.get("isWebSocketServerOn"),
+    webSocketServerUrl: await localPref.get("webSocketServerUrl"),
+    roomToken: await localPref.get("roomToken"),
+    rootBlockId: await localPref.get("rootBlockId"),
+    isLockScreenOpen: !!(await localPref.get("lockScreenPin")),
+    autoLockTimeout: await localPref.get("autoLockTimeout"),
     isExplorerOpen: !isMobile(),
   });
 }

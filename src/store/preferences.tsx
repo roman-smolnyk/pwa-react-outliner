@@ -1,7 +1,7 @@
-import { clear, createStore, del, get, set } from "idb-keyval";
+import { clear, createStore, del, get, set, setMany } from "idb-keyval";
 import { WS_SERVER_URL } from "../config";
 
-const customStore = createStore("outliner-preferences", "outliner-preferences");
+const customStore = createStore("rs-outliner-preferences", "rs-outliner-preferences");
 
 type StorageSchema = {
   roomToken: string;
@@ -25,16 +25,9 @@ const defaultValues: StorageSchema = {
   autoLockTimeout: -1,
 };
 
-const localPreferencesManager = {
-  namespace: "rsoutliner:pref",
-
-  buildKey(key: keyof StorageSchema) {
-    return `${this.namespace}:${key}`;
-  },
-
+const localPref = {
   async get<K extends keyof StorageSchema>(key: K): Promise<StorageSchema[K]> {
-    const namespacedKey = this.buildKey(key);
-    const value = await get(namespacedKey, customStore);
+    const value = await get(key, customStore);
 
     if (value === undefined) return defaultValues[key];
 
@@ -42,35 +35,21 @@ const localPreferencesManager = {
   },
 
   async set<K extends keyof StorageSchema>(key: K, value: StorageSchema[K]) {
-    const namespacedKey = this.buildKey(key);
-    await set(namespacedKey, value, customStore);
+    await set(key, value, customStore);
   },
 
-  async setBatch(values: Partial<StorageSchema>) {
-    const entries = Object.entries(values) as [keyof StorageSchema, StorageSchema[keyof StorageSchema]][];
-
-    for (const [key, value] of entries) {
-      await this.set(key, value);
-    }
+  async setMany(keyVal: Partial<StorageSchema>) {
+    const entries = Object.entries(keyVal) as [string, any][];
+    await setMany(entries, customStore);
   },
 
   async remove<K extends keyof StorageSchema>(key: K) {
-    const namespacedKey = this.buildKey(key);
-    await del(namespacedKey, customStore);
+    await del(key, customStore);
   },
 
   async clear() {
     await clear(customStore);
   },
-
-  async clearNamespace() {
-    // idb-keyval doesn't expose keys() directly, so iterate through known keys
-    const allKeys = Object.keys(defaultValues) as (keyof StorageSchema)[];
-
-    for (const key of allKeys) {
-      await this.remove(key);
-    }
-  },
 };
 
-export default localPreferencesManager;
+export default localPref;

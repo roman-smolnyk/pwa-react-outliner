@@ -1,3 +1,4 @@
+import { fetchPwaVersion } from "@/utils/pwaUtils";
 import log from "loglevel";
 import { useEffect, useState } from "react";
 
@@ -6,22 +7,8 @@ export default function useUpdateVersion() {
 
   useEffect(() => {
     async function fetchVersion() {
-      if (!navigator.onLine) return;
-
-      try {
-        // const url = new URL("/version.json", window.location.origin);
-        // url.searchParams.set("v", String(Date.now()));
-        // url.toString()
-
-        const response = await fetch(`${import.meta.env.BASE_URL}/version.json`);
-        const data = await response.json();
-
-        // log.debug("useUpdateVersion:fetch", data);
-
-        setVersion(data.version);
-      } catch (error) {
-        // log.error(error);
-      }
+      const pwaVersion = await fetchPwaVersion();
+      if (pwaVersion) setVersion(pwaVersion);
     }
 
     fetchVersion();
